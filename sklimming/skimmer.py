@@ -49,8 +49,7 @@ def main(options,args):
     tags.append([ 'DMSpin0_ggPhibb1j_500.root', 0] )
     tags.append([ 'DMSpin0_ggPhibb1j_75.root', 0] )
     tags.append([ 'DYJetsToQQ_HT180_13TeV.root', 0] )
-    tags.append([ 'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8_ext.root', 0] )
-    tags.append([ 'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8.root', 0] )
+    tags.append([ 'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8', 0] )
     tags.append([ 'GluGluHToBB_M125_13TeV_powheg_herwigpp.root', 0] )
     tags.append([ 'GluGluHToBB_M125_13TeV_powheg_pythia8.root', 0] )
     tags.append([ 'JetHTRun2016B_PromptReco_v2_resub.root', 0] )
@@ -84,8 +83,7 @@ def main(options,args):
     tags.append([ 'TTWJetsToQQ_13TeV.root', 0] )
     tags.append([ 'TTZToQQ_13TeV.root', 0] )
     tags.append([ 'VBFHToBB_M125_13TeV_amcatnlo_pythia8.root', 0] )
-    tags.append([ 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_ext.root', 0] )
-    tags.append([ 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix.root', 0] )
+    tags.append([ 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix', 0] )
     tags.append([ 'VectorDiJet1Gamma_100_1_800_v2.root', 0] )
     tags.append([ 'VectorDiJet1Gamma_125_1_800_v2.root', 0] )
     tags.append([ 'VectorDiJet1Gamma_150_1_800_v2.root', 0] )
@@ -117,19 +115,24 @@ def main(options,args):
     tags.append([ 'ZZTo4Q_13TeV_amcatnlo.root', 0] )
     tags.append([ 'ttHTobb_M125_13TeV_powheg_pythia8.root', 0] )
     tags.append([ 'ttHTobb_M125_TuneCUETP8M2_ttHtranche3_13TeV_powheg_pythia8.root', 0] )
+    tags.append([ 'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8', 0] )
+    tags.append([ 'ZH_HToBB_ZToNuNu_M125_13TeV_amcatnloFXFX_madspin_pythia8.root', 0] )
+    tags.append([ 'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp_ext.root', 0] )
+    tags.append([ 'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_ext.root', 0] )
+    tags.append([ 'TT_13TeV_powheg_pythia8_ext.root', 0] )
 
     # make a tmp dir
     #####
     postfix = ''
     for i in range(len(tags)):
-        filesToConvert = getFilesRecursively(DataDir,tags[i][0])
+        filesToConvert = getFilesRecursively(DataDir,tags[i][0],None,'sklim')
         print "files To Convert = ",filesToConvert
         # curweight = getLHEWeight( filesToConvert )
 
 
         for f in filesToConvert:
-            print f
-            sklimAdd(f,OutDir,tags[i][1])
+            status = sklimAdd(f,OutDir,tags[i][1])
+            print status
         ## hadd stuff
 
     # 	oname = OutDir + '/ProcJPM_'+tags[i][0]+"_"+tags[i][1]+"-"+postfix+".root"
@@ -159,10 +162,15 @@ def sklimAdd(fn,odir,mass=0):
 
     basename = os.path.basename( fn )
 
-    f1 = ROOT.TFile(fn,'read')
+    f1 = ROOT.TFile.Open(fn,'read')
     tree = f1.Get("Events")
-
-    ofile = ROOT.TFile(odir+'/'+basename,'RECREATE')
+    try:
+        if not tree.InheritsFrom("TTree"):
+            return -1
+    except:
+        return -1
+    
+    ofile = ROOT.TFile.Open(odir+'/'+basename,'RECREATE')
     ofile.cd()
     f1.cd()	
     obj = ROOT.TObject
@@ -176,6 +184,8 @@ def sklimAdd(fn,odir,mass=0):
         print key.GetName()
         obj.Write(key.GetName())
 
+        
+    
     otree = tree.CloneTree(0)
     otree.SetName("otree")
 
@@ -183,12 +193,16 @@ def sklimAdd(fn,odir,mass=0):
     otree.SetBranchStatus("*Puppijet0_e3*",0)
     otree.SetBranchStatus("*Puppijet0_e4*",0)
     otree.SetBranchStatus("CA15Puppi*",0)	
+    #otree.SetBranchStatus("bst8_PUPPIjet0_pt",1)
 
-    # otree.SetBranchStatus("bst8_PUPPIjet0_pt",1)
-    nent = tree.GetEntriesFast()
-
-    fto = ROOT.TFile("test"+str(mass)+".root","RECREATE")
-    finfo = ROOT.TFile("signalXS/sig_vectordijet_xspt.root")
+    nent = tree.GetEntries()
+    print nent
+    fto = ROOT.TFile.Open("test"+str(mass)+".root","RECREATE")
+    finfo = ROOT.TFile.Open("signalXS/sig_vectordijet_xspt.root")
+    fr = ROOT.TFile.Open("signalXS/Higgs_v2.root")
+    h_ggh_num = fr.Get('gghpt_amcnlo012jmt')
+    h_ggh_den = fr.Get('ggh_hpt')
+    h_ggh_den.Scale(28.45024/h_ggh_den.Integral())
     # # h_rw = ROOT.TH1F()
     h_rw = None
     if 'VectorDiJet' in fn and mass > 0: 	
@@ -214,7 +228,7 @@ def sklimAdd(fn,odir,mass=0):
 
     for i in range(nent):
 
-        if(i % (1 * nent/100) == 0):
+        if( nent/100 > 0 and i % (1 * nent/100) == 0):
             sys.stdout.write("\r[" + "="*int(20*i/nent) + " " + str(round(100.*i/nent,0)) + "% done")
             sys.stdout.flush()
 
@@ -234,7 +248,7 @@ def sklimAdd(fn,odir,mass=0):
             # lheWeight[0] = float(weight)
             # MHTOvHT[0] = tree.MHT/math.sqrt(tree.HT)
             # print tree.genVPt ,tree.scale1fb,h_rw.GetBinContent( h_rw.FindBin(tree.genVPt) )
-
+	    if 'GluGluHToBB_M125_13TeV_powheg' in fn:  newscale1fb[0] =  h_ggh_num.GetBinContent( h_ggh_num.FindBin(tree.genVPt) )/h_ggh_den.GetBinContent( h_ggh_den.FindBin(tree.genVPt) )
             if 'VectorDiJet' in fn and mass > 0: newscale1fb[0] = tree.scale1fb*h_rw.GetBinContent( h_rw.FindBin(tree.genVPt) )
             else: newscale1fb[0] = tree.scale1fb
             #newscale1fb[0]= NEvents.GetBinContent(1)	
@@ -258,8 +272,9 @@ def sklimAdd(fn,odir,mass=0):
     ofile.cd()
     otree.Write()
     ofile.Close()
+    return 0
 
-def getFilesRecursively(dir,searchstring,additionalstring = None):
+def getFilesRecursively(dir,searchstring,additionalstring = None, skipString = None):
 	
     # thesearchstring = "_"+searchstring+"_"
     thesearchstring = searchstring
@@ -273,6 +288,9 @@ def getFilesRecursively(dir,searchstring,additionalstring = None):
         for file in files:
             # print file	
             if thesearchstring in file:
+                if skipString != None and (skipString in file or skipString in dir or skipString in root):
+                    print "already skimmed"
+                    return []
                 if theadditionalstring == None or theadditionalstring in file:
                     cfiles.append(os.path.join(root, file))
     return cfiles

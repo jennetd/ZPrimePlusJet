@@ -12,18 +12,26 @@ def main(options,args):
     idir = options.idir
     odir = options.odir
     lumi = options.lumi
+
+    fileName = 'hist_1DZbb.root'
+    if options.bb:
+        fileName = 'hist_1DZbb_sortByBB.root'
     
-    outfile=ROOT.TFile(options.odir+"/hist_1DZbb.root", "recreate")
+    outfile=ROOT.TFile(options.odir+"/"+fileName, "recreate")
     
     tfiles = {'hqq125': [idir+'/GluGluHToBB_M125_13TeV_powheg_pythia8_1000pb_weighted.root'],
-              'vbfhqq125': [idir+'/VBFHToBB_M125_13TeV_amcatnlo_pythia8_1000pb_weighted.root'],
+              #'vbfhqq125': [idir+'/VBFHToBB_M125_13TeV_amcatnlo_pythia8_1000pb_weighted.root'],
+              'vbfhqq125': [idir+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_all_1000pb_weighted.root'],
               'zhqq125': [idir+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_1000pb_weighted.root'],
-              'wmhqq125':[idir+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_1000pb_weighted.root'],
-              'wphqq125':[idir+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_1000pb_weighted.root'],
+              'whqq125':[idir+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_1000pb_weighted.root',
+                         idir+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_1000pb_weighted.root'],
               'tthqq125':  [idir+'/ttHTobb_M125_TuneCUETP8M2_ttHtranche3_13TeV_powheg_pythia8_1000pb_weighted.root'],
+              #'zqq': [idir+'/ZJetsToQQ_HT600toInf_13TeV_madgraph_1000pb_weighted.root'],
               'zqq': [idir+'/DYJetsToQQ_HT180_13TeV_1000pb_weighted.root '],
-              'wqq':  [idir+'/WJetsToQQ_HT_600ToInf_13TeV_1000pb_weighted.root'],
-              'tqq':  [idir+'/TTJets_13TeV_1000pb_weighted.root'],
+              #'wqq':  [idir+'/WJetsToQQ_HT_600ToInf_13TeV_1000pb_weighted.root'],
+              'wqq':  [idir+'/WJetsToQQ_HT180_13TeV_1000pb_weighted.root'],
+              #'tqq':  [idir+'/TTJets_13TeV_1000pb_weighted.root'],
+              'tqq':  [idir+'/TT_13TeV_powheg_pythia8_ext_1000pb_weighted.root'],
               'stqq': [idir+'/ST_t-channel_antitop_4f_inclusiveDecays_13TeV_powheg_1000pb_weighted.root',
 		                     idir+'/ST_t-channel_top_4f_inclusiveDecays_13TeV_powheg_1000pb_weighted.root',
 		                     idir+'/ST_tW_antitop_5f_inclusiveDecays_13TeV_1000pb_weighted.root',
@@ -52,8 +60,7 @@ def main(options,args):
     sigSamples['hqq125']  = sampleContainer('hqq125',tfiles['hqq125']  , 1, lumi)
     sigSamples['tthqq125']  = sampleContainer('tthqq125',tfiles['tthqq125']  , 1, lumi)
     sigSamples['vbfhqq125']  = sampleContainer('vbfhqq125',tfiles['vbfhqq125']  , 1, lumi)
-    sigSamples['wmhqq125']  = sampleContainer('wmhqq125',tfiles['wmhqq125']  , 1, lumi)
-    sigSamples['wphqq125']  = sampleContainer('wphqq125',tfiles['wphqq125']  , 1, lumi)
+    sigSamples['whqq125']  = sampleContainer('whqq125',tfiles['whqq125']  , 1, lumi)
     sigSamples['zhqq125']  = sampleContainer('zhqq125',tfiles['zhqq125']  , 1, lumi)
     print "Backgrounds..."
     bkgSamples = {}    
@@ -64,10 +71,14 @@ def main(options,args):
     bkgSamples['zqq'] = sampleContainer('zqq',tfiles['zqq'], 1, lumi)
     bkgSamples['vvqq'] = sampleContainer('vvqq',tfiles['vvqq'], 1, lumi)
     print "Data..."
-    dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, lumi, True , False, '((triggerBits&2)&&passJson)')
+    dataSample = sampleContainer('data_obs',tfiles['data_obs'], 100, lumi, True , False, '((triggerBits&2)&&passJson)')
 
     hall={}
-    for plot in ['h_msd_v_pt_ak8_topR6_pass','h_msd_v_pt_ak8_topR6_fail']:
+    plots =  ['h_msd_v_pt_ak8_topR6_pass','h_msd_v_pt_ak8_topR6_fail']
+    if options.bb:
+        plots =  ['h_msd_v_pt_ak8_bbleading_topR6_pass','h_msd_v_pt_ak8_bbleading_topR6_fail']
+        
+    for plot in plots:
         tag = plot.split('_')[-1] # 'pass' or 'fail'            
         
         for process, s in sigSamples.iteritems():
@@ -93,6 +104,7 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-b', action='store_true', dest='noX', default=False, help='no X11 windows')
     parser.add_option("--lumi", dest="lumi", default = 30,type=float,help="luminosity", metavar="lumi")
+    parser.add_option("--bb", action='store_true', dest="bb", default = False,help="sort by double b-tag")
     parser.add_option('-i','--idir', dest='idir', default = 'data/',help='directory with data', metavar='idir')
     parser.add_option('-o','--odir', dest='odir', default = './',help='directory to write histograms', metavar='odir')
 

@@ -1,4 +1,4 @@
-Combination of datacard.tpl
+Combination of datacard_novbf.tpl
 imax 2 number of bins
 jmax * number of processes minus 1
 kmax * number of nuisance parameters
@@ -12,7 +12,7 @@ bin          pass_CATX  fail_CATX
 observation  -1.0           -1.0         
 ----------------------------------------------------------------------------------------------------------------------------------
 bin                             pass_CATX  pass_CATX  pass_CATX  pass_CATX  pass_CATX  pass_CATX  pass_CATX  pass_CATX  pass_CATX  fail_CATX  fail_CATX  fail_CATX  fail_CATX  fail_CATX  fail_CATX  fail_CATX  fail_CATX  fail_CATX
-process                         tthqq125       whqq125        hqq125         zhqq125        vbfhqq125      zqq            wqq            qcd            tqq            tthqq125       whqq125        hqq125         zhqq125        vbfhqq125      zqq            wqq            qcd            tqq          
+process                         wmhqq125       wphqq125       hqq125         tthqq125       zhqq125        zqq            wqq            qcd            tqq            wmhqq125       wphqq125       hqq125         tthqq125       zhqq125        zqq            wqq            qcd            tqq          
 process                         -4             -3             -2             -1             0              1              2              3              4              -4             -3             -2             -1             0              1              2              3              4            
 rate                            -1             -1             -1             -1             -1             -1             -1             1.0000         -1             -1             -1             -1             -1             -1             -1             -1             1.0000         -1           
 ----------------------------------------------------------------------------------------------------------------------------------
@@ -21,13 +21,11 @@ veff_unc                lnN     0.8            0.8            0.8            0.8
 znorm                   lnN     -              -              -              -              -              1.2            -              -              -              -              -              -              -              -              1.2            -              -              -            
 #scale   shape 0.2	0.2     0.2     -  -         0.2      		       0.2        0.2		   - -
 #smear   shape -		1.0 	1.0     -   -        -		       		    1.0		        1.0	- -
-r0p0  flatParam
 r1p0  flatParam
 r2p0  flatParam
 r0p1  flatParam
 r1p1  flatParam
 r2p1  flatParam
-r0p2  flatParam
-r1p2  flatParam
 r2p2  flatParam
+r0p2  flatParam
 qcdeff        flatParam
