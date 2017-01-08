@@ -3,7 +3,7 @@ import sys
 import ROOT
 from DAZSLE.ZPrimePlusJet.analysis_base import AnalysisBase
 import DAZSLE.ZPrimePlusJet.analysis_configuration as config
-from math import ceil, sqrt
+from math import ceil, sqrt,floor
 
 import ROOT
 from ROOT import *
@@ -35,10 +35,8 @@ class LimitHistograms(AnalysisBase):
 		# Histograms
 		self._histograms = ROOT.Root.HistogramManager()
 		self._histograms.AddPrefix("h_")
-		self._pass_histogram_name = "{}_pass_ak8".format(self._label)
-		self._histograms.AddTH2F(self._pass_histogram_name, "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)", "m_{SD}^{PUPPI} [GeV]", 75, 0, 500, "p_{T} [GeV]", 5, 500, 1000)
-		self._fail_histogram_name = "{}_fail_ak8".format(self._label)
-		self._histograms.AddTH2F(self._fail_histogram_name, "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)", "m_{SD}^{PUPPI} [GeV]", 75, 0, 500, "p_{T} [GeV]", 5, 500, 1000)
+		self._histograms.AddTH2F("pass_ak8", "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)", "m_{SD}^{PUPPI} [GeV]", 75, 0, 500, "p_{T} [GeV]", 5, 500, 1000)
+		self._histograms.AddTH2F("fail_ak8", "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)", "m_{SD}^{PUPPI} [GeV]", 75, 0, 500, "p_{T} [GeV]", 5, 500, 1000)
 		self._histograms.AddTH1D("input_nevents", "input_nevents", "", 1, -0.5, 0.5)
 		self._histograms.AddTH1D("input_nevents_weighted", "input_nevents_weighted", "", 1, -0.5, 0.5)
 		self._histograms.AddTH1D("pass_nevents", "pass_nevents", "", 1, -0.5, 0.5)
@@ -116,9 +114,9 @@ class LimitHistograms(AnalysisBase):
 				self._histograms.GetTH2D("pt_dcsv").Fill(self._data.AK8Puppijet0_pt, self._data.AK8CHSjet0_doublecsv, event_weight)
 				if self._data.AK8Puppijet0_pt > 500.:
 					if self._data.AK8CHSjet0_doublecsv > 0.9:
-						self._histograms.GetTH2F(self._pass_histogram_name).Fill(self._data.AK8Puppijet0_msd, self._data.AK8Puppijet0_pt, event_weight)
+						self._histograms.GetTH2F("pass_ak8").Fill(self._data.AK8Puppijet0_msd, self._data.AK8Puppijet0_pt, event_weight)
 					else:
-						self._histograms.GetTH2F(self._fail_histogram_name).Fill(self._data.AK8Puppijet0_msd, self._data.AK8Puppijet0_pt, event_weight)
+						self._histograms.GetTH2F("fail_ak8").Fill(self._data.AK8Puppijet0_msd, self._data.AK8Puppijet0_pt, event_weight)
 
 	def finish(self):
 		if self._output_path == "":
@@ -134,31 +132,54 @@ class LimitHistograms(AnalysisBase):
 if __name__ == "__main__":
 	import argparse
 	parser = argparse.ArgumentParser(description='Produce and plot ieta-iphi histograms to look for buggy events')
-	parser.add_argument('--samples', type=str, help="Sample name(s), comma separated")
-	parser.add_argument('--files', type=str, help="Input file name(s), comma separated")
-	parser.add_argument('--run', action="store_true", help="Run")
-	parser.add_argument('--condor_run', action="store_true", help="Run on condor")
+	input_group = parser.add_mutually_exclusive_group() 
+	input_group.add_argument('--all', action="store_true", help="Run over all supersamples")
+	input_group.add_argument('--supersamples', type=str, help="Supersample name(s), comma separated. Must correspond to something in analysis_configuration.(background_names, signal_names, or data_names).")
+	input_group.add_argument('--samples', type=str, help="Sample name(s), comma separated. Must be a key in analysis_configuration.skims.")
+	input_group.add_argument('--files', type=str, help="Input file name(s), comma separated")
+	action_group = parser.add_mutually_exclusive_group() 
+	action_group.add_argument('--combine_outputs', action="store_true", help="Compile results into one file for next step (buildRhalphabet). Also applies luminosity weights to MC.")
+	action_group.add_argument('--run', action="store_true", help="Run")
+	action_group.add_argument('--condor_run', action="store_true", help="Run on condor")
 	parser.add_argument('--output_folder', type=str, help="Output folder")
 	args = parser.parse_args()
 
-	if args.samples != None and args.files != None:
-		print "[setup_limits] ERROR : Cannot specify args.samples and args.files at the same time."
-		sys.exit(1)
-
-	if args.samples:
-		if args.samples == "all":
-			samples = config.samples
-		else:
-			samples = args.samples.split(",")
-		files = []
-		for sample in samples:
-			files.extend(config.skims[sample])
+	# Make a list of input samples and files
+	samples = []
+	files = []
+	if args.all:
+		supersamples = config.supersamples
+		samples = [] 
+		for supersample in supersamples:
+			samples.extend(config.samples[supersample])
+			for sample in config.samples[supersample]:
+				files.append(config.skims[sample])
+	if args.supersamples:
+		supersamples = args.supersamples.split(",")
+		samples = [] 
+		for supersample in supersamples:
+			samples.extend(config.samples[supersample])
+			for sample in config.samples[supersample]:
+				files.append(config.skims[sample])
+	elif args.samples:
+		samples = args.samples.split(",")
+		files = [config.skims[sample] for sample in samples]
 	elif args.files:
 		files = args.files.split(",")
+		samples = [config.get_sample_from_skim(filename) for filename in files]
+	print "List of input samples: ",
+	print samples
+	print "List of input files:",
+	print files
+
 
 	if args.run:
 		for filename in files:
-			label = os.path.basename(filename).replace(".root", "")
+			print filename
+			label = config.get_sample_from_skim(filename)
+			if label == "":
+				print "[setup_limits] ERROR : Couldn't infer sample name for file {}. This is how you organize everything, so I'm quitting."
+				sys.exit(1)
 			limit_histogrammer = LimitHistograms(label, tree_name="Events")
 			if args.output_folder:
 				limit_histogrammer.set_output_path("{}/InputHistograms_{}.root".format(args.output_folder, label))
@@ -170,17 +191,61 @@ if __name__ == "__main__":
 			limit_histogrammer.finish()
 	if args.condor_run:
 		import time
-		for sample in samples:
+		for filename in files:
 			start_directory = os.getcwd()
-			job_tag = "job_{}_{}".format(sample, time.time())
+			sample = config.get_sample_from_skim(filename)
+			if sample == "":
+				print "[setup_limits] ERROR : Couldn't infer sample name for file {}. This is how you organize everything, so I'm quitting."
+				sys.exit(1)
+			job_tag = "job_{}_{}".format(sample, int(floor(time.time())))
 			submission_directory = "/uscms/home/dryu/DAZSLE/data/LimitSetting/condor/{}".format(job_tag)
 			os.system("mkdir -pv {}".format(submission_directory))
 			os.chdir(submission_directory)
 			job_script = open("run.sh".format(submission_directory), 'w')
 			job_script.write("#!/bin/bash\n")
-			job_script.write("python $CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/fitting/setup_limits.py --files {} --output_folder . --run\n".format(",".join([os.path.basename(x) for x in config.skims[sample]])))
+			job_script.write("python $CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/fitting/setup_limits.py --files {} --output_folder . --run\n".format(filename))
 			job_script.close()
-			submission_command = "csub run.sh --cmssw -F {}".format(",".join(config.skims[sample]))
+			submission_command = "csub run.sh --cmssw --no_retar -F {}".format(config.skims[sample])
 			print submission_command
 			os.system(submission_command)
 			os.chdir(start_directory)
+
+	if args.combine_outputs:
+		luminosity = 30.
+		from cross_sections import cross_sections
+		output_file = ROOT.TFile("/uscms/home/dryu/DAZSLE/data/LimitSetting/hists_1D.root", "RECREATE")
+		pass_histograms = {}
+		fail_histograms = {}
+		for supersample in ["data_obs", "qcd", "tqq", "wqq", "zqq", "Pbb_50", "Pbb_75", "Pbb_100", "Pbb_125", "Pbb_150", "Pbb_250", "Pbb_300", "Pbb_400", "Pbb_500"]:
+			first = True
+			for sample in samples[supersample]:
+				input_histogram_filename = "/uscms/home/dryu/DAZSLE/data/LimitSetting/InputHistograms_{}.root".format(sample)
+				input_file = ROOT.TFile(input_histogram_filename, "READ")
+				this_pass_histogram = input_file.Get("h_pass_ak8")
+				this_fail_histogram = input_file.Get("h_fail_ak8")
+				if supersample in config.background_names or supersample in config.signal_names:
+					n_input_events = input_file.Get("h_input_nevents").Interal()
+					if n_input_events > 0:
+						this_pass_histogram.Scale(luminosity * cross_sections[sample] / n_input_events)
+						this_fail_histogram.Scale(luminosity * cross_sections[sample] / n_input_events)
+					else:
+						print "[setup_limits] WARNING : Found zero input events for sample {}. Something went wrong in an earlier step. I'll continue, but you need to fix this."
+
+				if first:
+					pass_histograms[supersample] = this_pass_histogram.Clone()
+					pass_histograms[supersample].SetDirectory(0)
+					pass_histograms[supersample].SetName("h_{}_pass_ak8".format(sample))
+					fail_histograms[supersample] = this_fail_histogram.Clone()
+					fail_histograms[supersample].SetDirectory(0)
+					pass_histograms[supersample].SetName("h_{}_fail_ak8".format(sample))
+					first = False
+				else:
+					pass_histograms[supersample].Add(this_pass_histogram)
+					fail_histograms[supersample].Add(this_fail_histogram)
+				if sample in mc_cross_sections:
+					n_input_events += input_file.Get("h_input_nevents")
+				input_file.Close()
+			output_file.cd()
+			pass_histograms[supersample].Write()
+			fail_histograms[supersample].Write()
+		output_file.Close()
