@@ -203,9 +203,14 @@ if __name__ == "__main__":
 			os.chdir(submission_directory)
 			job_script = open("run.sh".format(submission_directory), 'w')
 			job_script.write("#!/bin/bash\n")
-			job_script.write("python $CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/fitting/setup_limits.py --files {} --output_folder . --run\n".format(filename))
+			if "root://" in filename:
+				job_script.write("python $CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/fitting/setup_limits.py --files {} --output_folder . --run\n".format(filename))
+			else:
+				job_script.write("python $CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/fitting/setup_limits.py --files {} --output_folder . --run\n".format(os.path.basename(filename)))
 			job_script.close()
-			submission_command = "csub run.sh --cmssw --no_retar -F {}".format(config.skims[sample])
+			submission_command = "csub run.sh --cmssw --no_retar"
+			if not "root://" in filename:
+				submission_command += " -F " + filename
 			print submission_command
 			os.system(submission_command)
 			os.chdir(start_directory)
