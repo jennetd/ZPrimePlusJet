@@ -217,38 +217,38 @@ if __name__ == "__main__":
 
 	if args.combine_outputs:
 		luminosity = 30.
-		from cross_sections import cross_sections
+		from DAZSLE.ZPrimePlusJet.cross_sections import cross_sections
 		output_file = ROOT.TFile("/uscms/home/dryu/DAZSLE/data/LimitSetting/hists_1D.root", "RECREATE")
 		pass_histograms = {}
 		fail_histograms = {}
 		for supersample in ["data_obs", "qcd", "tqq", "wqq", "zqq", "Pbb_50", "Pbb_75", "Pbb_100", "Pbb_125", "Pbb_150", "Pbb_250", "Pbb_300", "Pbb_400", "Pbb_500"]:
 			first = True
-			for sample in samples[supersample]:
+			for sample in config.samples[supersample]:
 				input_histogram_filename = "/uscms/home/dryu/DAZSLE/data/LimitSetting/InputHistograms_{}.root".format(sample)
 				input_file = ROOT.TFile(input_histogram_filename, "READ")
 				this_pass_histogram = input_file.Get("h_pass_ak8")
 				this_fail_histogram = input_file.Get("h_fail_ak8")
 				if supersample in config.background_names or supersample in config.signal_names:
-					n_input_events = input_file.Get("h_input_nevents").Interal()
+					n_input_events = input_file.Get("h_input_nevents").Integral()
 					if n_input_events > 0:
 						this_pass_histogram.Scale(luminosity * cross_sections[sample] / n_input_events)
 						this_fail_histogram.Scale(luminosity * cross_sections[sample] / n_input_events)
 					else:
-						print "[setup_limits] WARNING : Found zero input events for sample {}. Something went wrong in an earlier step. I'll continue, but you need to fix this."
+						print "[setup_limits] WARNING : Found zero input events for sample {}. Something went wrong in an earlier step. I'll continue, but you need to fix this.".format(sample)
 
 				if first:
 					pass_histograms[supersample] = this_pass_histogram.Clone()
 					pass_histograms[supersample].SetDirectory(0)
-					pass_histograms[supersample].SetName("h_{}_pass_ak8".format(sample))
+					pass_histograms[supersample].SetName("{}_pass".format(supersample))
 					fail_histograms[supersample] = this_fail_histogram.Clone()
 					fail_histograms[supersample].SetDirectory(0)
-					pass_histograms[supersample].SetName("h_{}_fail_ak8".format(sample))
+					fail_histograms[supersample].SetName("{}_fail".format(supersample))
 					first = False
 				else:
 					pass_histograms[supersample].Add(this_pass_histogram)
 					fail_histograms[supersample].Add(this_fail_histogram)
-				if sample in mc_cross_sections:
-					n_input_events += input_file.Get("h_input_nevents")
+				if sample in cross_sections:
+					n_input_events += input_file.Get("h_input_nevents").Integral()
 				input_file.Close()
 			output_file.cd()
 			pass_histograms[supersample].Write()
