@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import ROOT as r,sys,math,os
-from ROOT import TFile, TTree, TChain, gPad, gDirectory
+from ROOT import *
 from multiprocessing import Process
 from optparse import OptionParser
 from operator import add
@@ -486,13 +486,13 @@ def loadHistograms(f,pseudo,blind,useQCD):
     #signals
     hpass_sig = []
     hfail_sig = []
-    masses=[125]#50,75,125,100,150,200,250,300]
-    sigs = ["hqq","zhqq","whqq","vbfhqq","tthqq"]
+    masses=[50,75,125,100,150,250,300]
+    sigs = ["Pbb"]
     for mass in masses:
         for sig in sigs:
-            print "Signal historam name = " + sig+str(mass)+"_pass"
-            passhist = f.Get(sig+str(mass)+"_pass").Clone()
-            failhist = f.Get(sig+str(mass)+"_fail").Clone()
+            print "Signal histogram name = " + sig + "_" +str(mass)+"_pass"
+            passhist = f.Get(sig + "_" +str(mass)+"_pass").Clone()
+            failhist = f.Get(sig + "_" +str(mass)+"_fail").Clone()
             for hist in [passhist, failhist]:
                 for i in range(0,hist.GetNbinsX()+2):
                     for j in range(0,hist.GetNbinsY()+2):

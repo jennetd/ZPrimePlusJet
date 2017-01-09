@@ -62,7 +62,7 @@ skims["ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCU
 skims["ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1"] = "root://cmsxrootd-site.fnal.gov//store/user/jduarte1/zprimebits-v11.061/ST_tW_antitop_5f_inclusiveDecays_13TeV.root"
 skims["ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1"] = "root://cmsxrootd-site.fnal.gov//store/user/jduarte1/zprimebits-v11.061/ST_tW_top_5f_inclusiveDecays_13TeV.root"
 skims["WJetsToQQ_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"] = "root://cmsxrootd-site.fnal.gov//store/user/jduarte1/zprimebits-v11.061/WJetsToQQ_HT_600ToInf_13TeV.root"
-skims["ZJetsToQQ_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"] = "root://cmsxrootd-site.fnal.gov//store/user/jduarte1/zprimebits-v11.061/ZJetsToQQ_HT600toInf_13TeV_madgraph.root.root"
+skims["ZJetsToQQ_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"] = "root://cmsxrootd-site.fnal.gov//store/user/jduarte1/zprimebits-v11.061/ZJetsToQQ_HT600toInf_13TeV_madgraph.root"
 skims["TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"] = "root://cmsxrootd-site.fnal.gov//store/user/jduarte1/zprimebits-v11.061/TTJets_13TeV.root"
 for mass in signal_masses:
 	skims["DMSpin0_ggPhibb1j_{}".format(mass)] = "root://cmsxrootd-site.fnal.gov//store/user/jduarte1/zprimebits-v11.061/DMSpin0_ggPhibb1j_{}.root".format(mass)
