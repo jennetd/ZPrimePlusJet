@@ -135,6 +135,11 @@ namespace BaconEventCutFunctions {
 		return (p_data.AK8Puppijet0_tau32 <= p_event_selector->GetCutParameters("Max_AK8Puppijet0_tau32")[0]);
 	}
 
+	bool CA15Puppijet0_isTightVJet(const BaconData& p_data, EventSelector<BaconData>* p_event_selector) {
+		p_event_selector->SetReturnData("CA15Puppijet0_isTightVJet", p_data.CA15Puppijet0_isTightVJet);
+		return (p_data.CA15Puppijet0_isTightVJet == 1);
+	}
+
 	bool Min_CA15CHSjet0_doublecsv(const BaconData& p_data, EventSelector<BaconData>* p_event_selector) {
 		p_event_selector->SetReturnData("Min_CA15CHSjet0_doublecsv", p_data.CA15CHSjet0_doublecsv);
 		p_event_selector->SetReturnData("CA15Puppijet0_pt", p_data.CA15Puppijet0_pt);
@@ -358,6 +363,7 @@ namespace BaconEventCutFunctions {
 		p_event_selector->AddCutFunction("Min_nphoLoose", &Min_nphoLoose);
 		p_event_selector->AddCutFunction("Max_nphoLoose", &Max_nphoLoose);
 		p_event_selector->AddCutFunction("AK8Puppijet0_isTightVJet", &AK8Puppijet0_isTightVJet);
+		p_event_selector->AddCutFunction("CA15Puppijet0_isTightVJet", &CA15Puppijet0_isTightVJet);
 		p_event_selector->AddCutFunction("Min_pfmet", &Min_pfmet);
 		p_event_selector->AddCutFunction("Max_pfmet", &Max_pfmet);
 		p_event_selector->AddCutFunction("Max_nAK4PuppijetsdR08", &Max_nAK4PuppijetsdR08);
@@ -376,6 +382,7 @@ namespace BaconEventCutFunctions {
 		p_event_selector->AddNMinusOneHistogram("Min_nphoLoose", "n_{#gamma}", 11, -0.5, 10.5); 
 		p_event_selector->AddNMinusOneHistogram("Max_nphoLoose", "n_{#gamma}", 11, -0.5, 10.5); 
 		p_event_selector->AddNMinusOneHistogram("AK8Puppijet0_isTightVJet", "Is tight VJet", 2, -0.5, 1.5); 
+		p_event_selector->AddNMinusOneHistogram("CA15Puppijet0_isTightVJet", "Is tight VJet", 2, -0.5, 1.5);
 		p_event_selector->AddNMinusOneHistogram("Min_pfmet", "MET [GeV]", 100, 0., 1000.); 
 		p_event_selector->AddNMinusOneHistogram("Max_pfmet", "MET [GeV]", 100, 0., 1000.); 
 		p_event_selector->AddNMinusOneHistogram("Max_nAK4PuppijetsdR08", "nAK4PuppijetsdR08", 21, -0.5, 20.5);
