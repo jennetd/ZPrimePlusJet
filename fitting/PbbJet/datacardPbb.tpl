@@ -9,7 +9,7 @@ bin          pass_CATX fail_CATX
 observation -1         -1
 ------------------------------
 bin          pass_CATX	pass_CATX  pass_CATX pass_CATX pass_CATX fail_CATX  fail_CATX  fail_CATX	fail_CATX   fail_CATX   
-process      pqq_CATY	wqq        zqq	  tqq   qcd       pqq_CATY	  wqq        zqq	tqq   qcd  
+process      Pbb_CATY	wqq        zqq	  tqq   qcd       Pbb_CATY	  wqq        zqq	tqq   qcd  
 process      0		1	   2   	     3   4      0	  1	     2		3 4
 rate         -1		-1         -1  	-1     1         -1	  -1	-1     -1		1
 --------------------------------
