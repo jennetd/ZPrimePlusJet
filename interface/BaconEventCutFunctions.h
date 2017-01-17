@@ -44,6 +44,7 @@ namespace BaconEventCutFunctions {
 	bool Max_AK8Puppijet0_tau32(const BaconData& p_data, EventSelector<BaconData>* p_event_selector);
 	void Configure(EventSelector<BaconData>* p_event_selector);
 
+	bool CA15Puppijet0_isTightVJet(const BaconData& p_data, EventSelector<BaconData>* p_event_selector);
 	bool Min_CA15CHSjet0_doublecsv(const BaconData& p_data, EventSelector<BaconData>* p_event_selector);
 	bool Max_CA15CHSjet0_doublecsv(const BaconData& p_data, EventSelector<BaconData>* p_event_selector);
 	bool Min_CA15Puppijet0_doublesub(const BaconData& p_data, EventSelector<BaconData>* p_event_selector);
