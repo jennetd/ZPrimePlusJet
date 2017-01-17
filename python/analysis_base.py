@@ -8,7 +8,7 @@ from ROOT import *
 
 ROOT.gInterpreter.Declare("#include \"DAZSLE/ZPrimePlusJet/interface/BaconData.h\"")
 ROOT.gInterpreter.Declare("#include \"DAZSLE/ZPrimePlusJet/interface/BaconEventCutFunctions.h\"")
-ROOT.gSystem.Load(os.path.expandvars("$CMSSW_BASE/lib/slc6_amd64_gcc530/libDAZSLEZPrimePlusJet.so"))
+ROOT.gSystem.Load(os.path.expandvars("$CMSSW_BASE/lib/$SCRAM_ARCH/libDAZSLEZPrimePlusJet.so"))
 #ROOT.gROOT.ProcessLine('template HBHEDigi BaconData::Digi<HBHEDigi>(int i);') # Unfortunate hack needed for pyroot to recognize templated member functions
 
 class AnalysisBase(object):
