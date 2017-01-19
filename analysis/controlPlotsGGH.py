@@ -11,16 +11,15 @@ import glob
 from plotHelpers import *
 from sampleContainer import *
 #
-def makePlots(plots,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases):
-    for plot in plots:
-        if isData:
-            c = makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,plot.replace('h_','stack_'),odir,lumi,ofile)
-            canvases.append(c)	
-        else:
-            c = makeCanvasComparisonStack(hs,hb,legname,color,style,'ggHbb',plot.replace('h_','stack_'),odir,lumi,ofile)
-            c1 = makeCanvasComparison(hall,legname,color,style,plot.replace('h_','signalcomparison_'),odir,lumi,ofile,True)
-            canvases.append(c)	
-            canvases.append(c1)
+def makePlots(plot,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases):
+    if isData:
+        c = makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,plot.replace('h_','stack_'),odir,lumi,ofile)
+        canvases.append(c)	
+    else:
+        c = makeCanvasComparisonStack(hs,hb,legname,color,style,'ggHbb',plot.replace('h_','stack_'),odir,lumi,ofile)
+        c1 = makeCanvasComparison(hall,legname,color,style,plot.replace('h_','signalcomparison_'),odir,lumi,ofile,True)
+        canvases.append(c)	
+        canvases.append(c1)
 ##############################################################################
 def main(options,args,outputExists):
     #idir = "/eos/uscms/store/user/lpchbb/ggHsample_V11/sklim-v0-28Oct/"
@@ -46,6 +45,7 @@ def main(options,args,outputExists):
                'TTbar1Ele': 't#bar{t}+jets, 1e',        
                'TTbar1Tau': 't#bar{t}+jets, 1#tau',        
                'TTbar0Lep': 't#bar{t}+jets, 0l',        
+               'TTbar2Lep': 't#bar{t}+jets, 2l',        
                'QCD': 'QCD',
 		       'data': 'JetHT data',
                'muon': 'SingleMuon data',
@@ -81,7 +81,13 @@ def main(options,args,outputExists):
 		                     idir+'/ST_tW_antitop_5f_inclusiveDecays_13TeV_1000pb_weighted.root',
 		                     idir+'/ST_tW_top_5f_inclusiveDecays_13TeV_1000pb_weighted.root'],
               #'W':  [idir+'/WJetsToQQ_HT_600ToInf_13TeV_1000pb_weighted.root'],
-              'W':  [idir+'/WJetsToQQ_HT180_13TeV_1000pb_weighted.root'],
+              'W':  [idir+'/WJetsToQQ_HT180_13TeV_1000pb_weighted.root',
+                     idir+'WJetsToLNu_HT_100To200_13TeV_ext_1000pb_weighted.root',
+                     idir+'/WJetsToLNu_HT_200To400_13TeV_1000pb_weighted.root',
+                     idir+'/WJetsToLNu_HT_400To600_13TeV_1000pb_weighted.root',
+                     idir+'/WJetsToLNu_HT_600To800_13TeV_1000pb_weighted.root',
+                     idir+'/WJetsToLNu_HT_800To1200_13TeV_all_1000pb_weighted.root',
+                    idir+'/WJetsToLNu_HT_1200To2500_13TeV_all_1000pb_weighted.root'],
               #'TTbar':  [idir+'/TTJets_13TeV_1000pb_weighted.root'], #MadGraph is the old default 
               'TTbar':  [idir+'/TT_13TeV_powheg_pythia8_ext_1000pb_weighted.root'], #Powheg is the new default
               'QCD': [idir+'/QCD_HT200to300_13TeV_ext_1000pb_weighted.root',
@@ -129,6 +135,7 @@ def main(options,args,outputExists):
              'TTbar1Ele':  ROOT.kSpring,
              'TTbar1Tau':  ROOT.kOrange+2,
              'TTbar0Lep':  ROOT.kGray,
+             'TTbar2Lep':  ROOT.kMagenta-9,
              'QCD': ROOT.kBlue+2,
 		     'data':ROOT.kBlack,
 		     'muon':ROOT.kBlack
@@ -152,6 +159,7 @@ def main(options,args,outputExists):
              'TTbar1Ele': 1,
              'TTbar1Tau': 1,
              'TTbar0Lep': 1,
+             'TTbar2Lep': 1,
              'QCD': 1,
              'data': 1,
 		     'muon':1
@@ -166,10 +174,10 @@ def main(options,args,outputExists):
     elif isData:
         plots = ['h_pt_ak8','h_msd_ak8','h_dbtag_ak8','h_n_ak4','h_n_ak4_dR0p8','h_t21_ak8','h_t32_ak8','h_n2b1sdddt_ak8','h_t21ddt_ak8','h_met','h_npv','h_eta_ak8']
     else:	
-    	plots = ['h_pt_ak8','h_pt_ak8_sub1','h_pt_ak8_sub2','h_msd_ak8','h_dbtag_ak8','h_dbtag_ak8_sub1','h_dbtag_ak8_sub2',
+    	plots = ['h_pt_ak8','h_pt_ak8_sub1','h_pt_ak8_sub2','h_msd_ak8','h_msd_ak8_inc','h_dbtag_ak8','h_dbtag_ak8_sub1','h_dbtag_ak8_sub2',
                  'h_pt_bbleading','h_bb_bbleading','h_msd_bbleading',
                  'h_n_ak4','h_n_ak4_dR0p8','h_pt_ak8_dbtagCut','h_msd_ak8_dbtagCut',
-                 'h_t21_ak8','h_t32_ak8','h_msd_ak8_t21ddtCut','h_msd_ak8_N2Cut','h_n_ak4_fwd',
+                 'h_t21_ak8','h_t32_ak8','h_msd_ak8_t21ddtCut','h_msd_ak8_t21ddtCut_inc','h_msd_ak8_N2Cut','h_n_ak4_fwd',
                  'h_n_ak4L','h_n_ak4M','h_n_ak4T','h_n_ak4L100','h_n_ak4M100','h_n_ak4T100','h_n_ak4L150','h_n_ak4M150','h_n_ak4T150',
                  'h_n_ak4_dR0p8','h_isolationCA15','h_n2b1sdddt_ak8','h_t21ddt_ak8','h_msd_ak8_topR1','h_msd_ak8_topR2_pass',
                  'h_msd_ak8_topR3_pass','h_msd_ak8_topR4_pass','h_met','h_t32_ak8_t21ddtCut','h_msd_ak8_topR5_pass','h_msd_ak8_topR7_pass',
@@ -197,12 +205,13 @@ def main(options,args,outputExists):
         #sigSamples['Phibb250'] = sampleContainer('Phibb250',tfiles['Phibb250'], 1, 0.6699*lumi ) 	
         print "Backgrounds..."
         bkgSamples = {}    
-        bkgSamples['QCD'] = sampleContainer('QCD',tfiles['QCD'], 10000, lumi)
+        bkgSamples['QCD'] = sampleContainer('QCD',tfiles['QCD'], 1, lumi)
         if isData and muonCR:
             bkgSamples['TTbar1Mu']  = sampleContainer('TTbar1Mu',tfiles['TTbar'], 1, lumi, False, False, 'genMuFromW==1&&genEleFromW+genTauFromW==0')
             bkgSamples['TTbar1Ele']  = sampleContainer('TTbar1Ele',tfiles['TTbar'], 1, lumi, False, False, 'genEleFromW==1&&genMuFromW+genTauFromW==0')
             bkgSamples['TTbar1Tau']  = sampleContainer('TTbar1Tau',tfiles['TTbar'], 1, lumi, False, False, 'genTauFromW==1&&genEleFromW+genMuFromW==0')
             bkgSamples['TTbar0Lep']  = sampleContainer('TTbar0Lep',tfiles['TTbar'], 1, lumi, False, False, 'genMuFromW+genEleFromW+genTauFromW==0')
+            bkgSamples['TTbar2Lep']  = sampleContainer('TTbar2Lep',tfiles['TTbar'], 1, lumi, False, False, 'genMuFromW+genEleFromW+genTauFromW==2')
         else:        
             bkgSamples['TTbar']  = sampleContainer('TTbar',tfiles['TTbar'], 1, lumi)
         bkgSamples['SingleTop'] = sampleContainer('SingleTop',tfiles['SingleTop'], 1, lumi)
@@ -225,6 +234,12 @@ def main(options,args,outputExists):
             hall_byproc[process] = {}
         for process, s in bkgSamples.iteritems():
             hall_byproc[process] = {}
+        if isData:
+            if muonCR:
+                hall_byproc['muon'] = {}
+            else:
+                hall_byproc['data'] = {}
+
         for plot in plots:
             hs = {}
             hb = {}
@@ -245,7 +260,7 @@ def main(options,args,outputExists):
                 else:
                     hall_byproc['data'][plot] = getattr(dataSample,plot)
     
-        makePlots(plots,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases)
+            makePlots(plot,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases)
             
         ofile.cd()
         for proc, hDict in hall_byproc.iteritems():
@@ -257,7 +272,7 @@ def main(options,args,outputExists):
         sigSamples = ['ggHbb','VBFHbb','VHbb','ttHbb']        
         bkgSamples = ['QCD','SingleTop','Diboson','W','DY']                      
         if isData and muonCR:
-            bkgSamples.extend(['TTbar1Mu','TTbar1Ele','TTbar1Tau','TTbar0Lep'])
+            bkgSamples.extend(['TTbar1Mu','TTbar1Ele','TTbar1Tau','TTbar0Lep','TTbar2Lep'])
         else:        
             bkgSamples.extend(['TTbar'])
             
@@ -278,7 +293,7 @@ def main(options,args,outputExists):
             elif isData:
                 hd = ofile.Get(plot.replace('h_','h_data_'))
                 
-        makePlots(plots,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases)
+            makePlots(plot,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases)
         
 
 

@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
-import ROOT as r,sys,math,array,os
-from ROOT import TFile, TTree, TChain, gPad, gDirectory
+from ROOT import TFile, TTree, TChain, gPad, gDirectory,TH1F
+import ROOT as r,sys,math,os
+from array    import array
 from multiprocessing import Process
 from optparse import OptionParser
 from operator import add
 import math
 import sys
 import time
-import array
+
+
 
 # including other directories
 sys.path.insert(0, '../.')
@@ -31,7 +33,7 @@ def main(options,args):
 	histograms_fail_summed = None;
 
 	for i in range(5): 
-		(tmppass,tmpfail) = plotCategory(fml, fd, i+1, options.fit, options.mass);
+		(tmppass,tmpfail) = plotCategory(fml, fd, i+1, options.fit, options.mass, options.useMLFit);
 		histograms_pass_all.append(tmppass);
 		histograms_fail_all.append(tmpfail);
 		if i == 0:
@@ -47,6 +49,7 @@ def main(options,args):
 	makeMLFitCanvas(histograms_pass_summed[0:4], histograms_pass_summed[5], histograms_pass_summed[4], shapes, "pass_allcats_"+options.fit+"_"+mass);
 	makeMLFitCanvas(histograms_fail_summed[0:4], histograms_fail_summed[5], histograms_fail_summed[4], shapes, "fail_allcats_"+options.fit+"_"+mass);
 
+	pars = [];
 	# print out fit results
 	if options.fit == "fit_b" or options.fit == "fit_s":
 		rfr = r.RooFitResult( fml.Get(options.fit) )
@@ -54,21 +57,42 @@ def main(options,args):
 		lParams.append("qcdeff");
 		lParams.append("p1r0");
 		lParams.append("p2r0");
+                lParams.append("p3r0");
 		lParams.append("p0r1"); ##
 		lParams.append("p1r1");
 		lParams.append("p2r1");
+                lParams.append("p3r1");
 		lParams.append("p0r2"); ##
 		lParams.append("p1r2");
 		lParams.append("p2r2");
+                lParams.append("p3r2"); ##
+                lParams.append("p0r3");
+                lParams.append("p1r3");
+                lParams.append("p2r3");
+                lParams.append("p3r3");	
 
 		for p in lParams:
-			print p,"=",rfr.floatParsFinal().find(p).getVal(),"+/-",rfr.floatParsFinal().find(p).getError() # ,"+",rfr.floatParsFinal().find(p).getAsymErrorHi(),"-",rfr.floatParsFinal().find(p).getAsymErrorLo()
+			print p,"=",rfr.floatParsFinal().find(p).getVal(),"+/-",rfr.floatParsFinal().find(p).getError()
+			pars.append(rfr.floatParsFinal().find(p).getVal())
 
-
+	        # Plot TF poly
+		makeTF(pars);
 
 ###############################################################
+def convertAsymGraph(iData):
+	lX = array('d')
+	for i0 in range(iData.GetN()):
+		lX.append(-iData.GetErrorXlow(i0)+iData.GetX()[i0])
+	lX.append(iData.GetX()[iData.GetN()-1]+iData.GetErrorXhigh(iData.GetN()-1))
+	lHist = r.TH1D(iData.GetName(),iData.GetName(),len(lX)-1,lX)
+	for i0 in range(iData.GetN()):
+		lHist.Fill(iData.GetX()[i0],iData.GetY()[i0]*(iData.GetErrorXlow(i0)+iData.GetErrorXhigh(i0)))
+	for i0 in range(1,iSum.GetNbinsX()+1):
+		lHist.SetBinError(i0,math.sqrt(lHist.GetBinContent(i0)))
+	return lHist
 
-def plotCategory(fml,fd,index,fittype,mass):
+###############################################################
+def plotCategory(fml,fd,index,fittype,mass,usemlfit):
 
 	shapes = ['wqq','zqq','tqq','qcd','zqq'+mass]
 	cats   = ['pass','fail']
@@ -83,8 +107,9 @@ def plotCategory(fml,fd,index,fittype,mass):
 		histograms_pass.append( fml.Get("shapes_"+fitdir+"/ch%i_pass_cat%i/%s" % (index,index,ish)) );
 		
 		rags = fml.Get("norm_"+fitdir);
+		print fitdir
 		rags.Print();
-
+		
 		rrv_fail = r.RooRealVar(rags.find("ch%i_fail_cat%i/%s" % (index,index,ish)));
 		curnorm_fail = rrv_fail.getVal();
 		rrv_pass = r.RooRealVar(rags.find("ch%i_pass_cat%i/%s" % (index,index,ish)));
@@ -93,18 +118,22 @@ def plotCategory(fml,fd,index,fittype,mass):
 		print ish, curnorm_fail, curnorm_pass, index
 		if curnorm_fail > 0.: histograms_fail[i].Scale(curnorm_fail/histograms_fail[i].Integral());
 		if curnorm_pass > 0.: histograms_pass[i].Scale(curnorm_pass/histograms_pass[i].Integral());
+	
+	if usemlfit:
+		histograms_fail.append(convertAsymGraph(fml.Get("shapes_"+fitdir+"/ch%i_fail_cat%i/data" % (index,index)) ));
+		hisograms_pass .append(convertAsymGraph(fml.Get("shapes_"+fitdir+"/ch%i_pass_cat%i/data" % (index,index)) ));
+	else:
+		wp = fd.Get("w_pass_cat%i" % (index));
+		wf = fd.Get("w_fail_cat%i" % (index));
+		rdhp = wp.data("data_obs_pass_cat%i" % (index));
+		rdhf = wf.data("data_obs_fail_cat%i" % (index));
+		rrv   = wp.var("x"); 
+		
+		data_fail = rdhf.createHistogram("data_fail_cat"+str(index)+"_"+fittype,rrv,r.RooFit.Binning(histograms_pass[0].GetNbinsX()));
+		data_pass = rdhp.createHistogram("data_pass_cat"+str(index)+"_"+fittype,rrv,r.RooFit.Binning(histograms_pass[0].GetNbinsX()));
 
-	wp = fd.Get("w_pass_cat%i" % (index));
-	wf = fd.Get("w_fail_cat%i" % (index));
-	rdhp = wp.data("data_obs_pass_cat%i" % (index));
-	rdhf = wf.data("data_obs_fail_cat%i" % (index));
-	rrv   = wp.var("x"); 
-
-	data_fail = rdhf.createHistogram("data_fail_cat"+str(index)+"_"+fittype,rrv,r.RooFit.Binning(histograms_pass[0].GetNbinsX()));
-	data_pass = rdhp.createHistogram("data_pass_cat"+str(index)+"_"+fittype,rrv,r.RooFit.Binning(histograms_pass[0].GetNbinsX()));
-
-	histograms_fail.append(data_fail);
-	histograms_pass.append(data_pass);
+		histograms_fail.append(data_fail);
+		histograms_pass.append(data_pass);
 
 	makeMLFitCanvas(histograms_fail[0:4], data_fail, histograms_fail[4], shapes, "fail_cat"+str(index)+"_"+fittype+"_"+mass);
 	makeMLFitCanvas(histograms_pass[0:4], data_pass, histograms_pass[4], shapes, "pass_cat"+str(index)+"_"+fittype+"_"+mass);
@@ -194,6 +223,45 @@ def makeMLFitCanvas(bkgs, data, hsig, leg, tag):
 	c.SaveAs("plots/mlfit/mlfit_"+tag+"-log.pdf")
 	c.SaveAs("plots/mlfit/mlfit_"+tag+"-log.png")
 
+###############################################################
+
+def makeTF(pars):
+
+    # x is pt and y is rho                                                                                                                                                
+    #tf = r.TF2("tf","[0]*((1+[1]*x+[2]*x*x)+([3]+[4]*x+[5]*x*x)*y+([6]+[7]*x+[8]*x*x)*y*y)", 500, 1000, -6, -1.5)
+    tf = r.TF2("tf","[0]*((1+[1]*x+[2]*x*x+[3]*x*x*x)+([4]+[5]*x+[6]*x*x+[7]*x*x*x)*y+([8]+[9]*x+[10]*x*x+[11]*x*x*x)*y*y+([12]+[13]*x+[14]*x*x+[15]*x*x*x)*y*y*y)", 500, 1000, -6, -1.5)
+    for i in range(0,15):
+	    tf.SetParameter(i,pars[i]);
+
+    c = r.TCanvas("c","c",1000,800)
+    c.SetFillStyle(4000)
+    c.SetFrameFillStyle(1000)
+    c.SetFrameFillColor(0)
+    tf.Draw("surf bb")
+
+    r.gPad.SetTheta(30)
+    r.gPad.SetPhi(30+270)
+    r.gPad.Modified()
+    r.gPad.Update()
+
+    tag1 = r.TLatex(0.67,0.92,"2.3 fb^{-1} (13 TeV)")
+    tag1.SetNDC(); tag1.SetTextFont(42)
+    tag1.SetTextSize(0.045)
+    tag2 = r.TLatex(0.15,0.92,"CMS")
+    tag2.SetNDC()
+    tag2.SetTextFont(62)
+    tag3 = r.TLatex(0.25,0.92,"Preliminary")
+    tag3.SetNDC()
+    tag3.SetTextFont(52)
+    tag2.SetTextSize(0.055)
+    tag3.SetTextSize(0.045)
+    tag1.Draw()
+    tag2.Draw()
+    tag3.Draw()
+
+    c.SaveAs("tf.pdf")
+    c.SaveAs("tf.C")
+
 ##-------------------------------------------------------------------------------------
 if __name__ == '__main__':
 	parser = OptionParser()
@@ -204,6 +272,7 @@ if __name__ == '__main__':
 	parser.add_option('--idir', dest='idir', default = 'results',help='choice is either prefit, fit_sb or fit_b', metavar='fit')
 	parser.add_option('--mass', dest='mass', default = '100',help='choice is either prefit, fit_sb or fit_b', metavar='fit')
 	parser.add_option('--pseudo', action='store_true', dest='pseudo', default =False,help='signal comparison', metavar='isData')
+	parser.add_option('--useMLFit', action='store_true', dest='useMLFit', default =False,help='signal comparison', metavar='isData')
 
 	(options, args) = parser.parse_args()
 
