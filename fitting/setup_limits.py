@@ -209,8 +209,11 @@ if __name__ == "__main__":
 	action_group.add_argument('--combine_outputs', action="store_true", help="Compile results into one file for next step (buildRhalphabet). Also applies luminosity weights to MC.")
 	action_group.add_argument('--run', action="store_true", help="Run")
 	action_group.add_argument('--condor_run', action="store_true", help="Run on condor")
+	action_group.add_argument('--rhalphabet', action="store_true", help="Run rhalpabet and create workspaces for combine")
+	action_group.add_argument('--datacards', action="store_true", help="Create datacards for combine")
 	parser.add_argument('--output_folder', type=str, help="Output folder")
 	parser.add_argument('--label', type=str, help="If running with --files, need to specify a label manually, in lieu of the sample names, for the output file naming.")
+	parser.add_argument('--luminosity', type=float, default=34207, help="Luminosity in pb^-1")
 	args = parser.parse_args()
 
 	# Make a list of input samples and files
@@ -345,7 +348,7 @@ if __name__ == "__main__":
 		master_hadd_script.close()		
 
 	if args.combine_outputs:
-		luminosity = 34.207 * 1.e3 # in pb^-1
+		luminosity = args.luminosity # in pb^-1
 		from DAZSLE.ZPrimePlusJet.cross_sections import cross_sections
 		output_file = ROOT.TFile("/uscms/home/dryu/DAZSLE/data/LimitSetting/hists_1D.root", "RECREATE")
 		pass_histograms = {}
@@ -390,3 +393,13 @@ if __name__ == "__main__":
 			pass_histograms[supersample].Write()
 			fail_histograms[supersample].Write()
 		output_file.Close()
+
+	if args.rhalphabet:
+		top_directory = "/uscms/home/dryu/DAZSLE/data/LimitSetting/"
+		os.system("mkdir -pv {}/combine".format(top_directory))
+		rhalphabet_command = "python /uscms_data/d3/dryu/DAZSLE/CMSSW_7_4_7/src/DAZSLE/ZPrimePlusJet/fitting/PbbJet/buildRhalphabetPbb.py -i {}/hists_1D.root -b -o {}/combine --pseudo".format(top_directory, top_directory)
+		print rhalphabet_command
+		os.system(rhalphabet_command)
+
+	if args.datacards:
+		os.system("python PbbJet/makeCardsPbb.py -i /uscms/home/dryu/DAZSLE/data/LimitSetting/combine -o /uscms/home/dryu/DAZSLE/data/LimitSetting/combine -b --pseudo")

@@ -11,6 +11,7 @@ import time
 import array
 
 # including other directories
+sys.path.insert(0, '.')
 sys.path.insert(0, '../.')
 from tools import *
 

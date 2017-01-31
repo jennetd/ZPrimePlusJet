@@ -411,7 +411,7 @@ class dazsleRhalphabetBuilder:
 
         for pData in iDatas:
             pData.Print()
-            getattr(lW,'import')(pData, r.RooFit.RecycleConflictNodes())
+            getattr(lW,'import')(pData, r.RooFit.RecycleConflictNodes()) # , r.RooFit.Rename("data_obs")
 
         if iCat.find("pass_cat1") == -1:
             lW.writeToFile(iOutput,False)
