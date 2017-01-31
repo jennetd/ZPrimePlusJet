@@ -3,7 +3,7 @@ jmax *
 kmax *
 ---------------
 shapes *    * base.root   w_$CHANNEL:$PROCESS_$CHANNEL            w_$CHANNEL:$PROCESS_$CHANNEL_$SYSTEMATIC
-shapes qcd  * ralphabase.root w_$CHANNEL:$PROCESS_$CHANNEL 
+shapes qcd  * rhalphabase.root w_$CHANNEL:$PROCESS_$CHANNEL 
 ---------------
 bin          pass_CATX fail_CATX
 observation -1         -1

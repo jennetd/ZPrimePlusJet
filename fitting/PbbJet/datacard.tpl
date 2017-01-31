@@ -4,9 +4,9 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes * fail_CATX base.root w_fail_CATX:$PROCESS_fail_CATX w_fail_CATX:$PROCESS_fail_CATX_$SYSTEMATIC
-shapes qcd fail_CATX ralphabase.root w_fail_CATX:$PROCESS_fail_CATX
+shapes qcd fail_CATX rhalphabase.root w_fail_CATX:$PROCESS_fail_CATX
 shapes * pass_CATX base.root w_pass_CATX:$PROCESS_pass_CATX w_pass_CATX:$PROCESS_pass_CATX_$SYSTEMATIC
-shapes qcd pass_CATX ralphabase.root w_pass_CATX:$PROCESS_pass_CATX
+shapes qcd pass_CATX rhalphabase.root w_pass_CATX:$PROCESS_pass_CATX
 ----------------------------------------------------------------------------------------------------------------------------------
 bin pass_CATX fail_CATX
 observation -1.0 -1.0 
