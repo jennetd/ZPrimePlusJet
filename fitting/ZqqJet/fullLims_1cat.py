@@ -106,14 +106,14 @@ def main():
 	# masses = [      100,      110, 125, 135, 150, 165, 180, 200, 250, 300];
 	# sXSgb1 = [1.394e+05,4.481e+04,2.641e+04,1.939e+04,1.462e+04,9976,7870,5707,4254,3233,2320,1131, 620]
 	# masses = [       50,       75,       90,      100,      110, 125, 135, 150, 165, 180, 200, 250, 300];
-	# sXSgb1 = [1.394e+05,8.419e+04,4.481e+04,2.641e+04,1.939e+04,1.462e+04,7870,5707,4254,3233,2320,1131, 620]
-	# masses = [       50,       60,       75,       90,      100,      110, 135, 150, 165, 180, 200, 250, 300];
-	# sXSgb1 = [1.394e+05,4.481e+04,1.939e+04,9976,5707,2320,1131]
-	# masses = [       50,       75,      100, 125, 150, 200, 250];
-	sXSgb1 = [1.394e+05,4.481e+04,1.939e+04,9976,5707,2320]
-	masses = [       50,       75,      100, 125, 150, 200];
+	sXSgb1 = [1.394e+05,8.419e+04,4.481e+04,2.641e+04,1.939e+04,1.462e+04,7870,5707,4254,3233,2320,1131]#, 620]
+	masses = [       50,       60,       75,       90,      100,      110, 135, 150, 165, 180, 200, 250]#, 300];
+	#sXSgb1 = [1.394e+05,4.481e+04,1.939e+04,9976,5707,2320,1131,620]
+	#masses = [       50,       75,      100, 125, 150, 200, 250,300];
+	#sXSgb1 = [1.394e+05,4.481e+04,1.939e+04,9976,5707,2320]
+	#masses = [       50,       75,      100, 125, 150, 200];
 	KFACTOR = 1.218;
-	idir = "results_Data5percent_2d27invfb_MassTo250";
+	idir = "results";
 
 	#--------------------------------
 	results = [];
@@ -229,7 +229,7 @@ def main():
 	txta.SetNDC();
 	txtb = ROOT.TLatex(0.20,0.92,"Preliminary");
 	txtb.SetNDC(); txtb.SetTextFont(52);
-	txtc = ROOT.TLatex(0.68,0.92,"34.1 fb^{-1} (13 TeV)");
+	txtc = ROOT.TLatex(0.68,0.92,"2.3 fb^{-1} (13 TeV)");
 	txtc.SetNDC(); txtc.SetTextFont(42); txtc.SetTextSize(0.04);
 	txtd = ROOT.TLatex(0.60,0.80,"g_{B} = 1 or g_{q} = 1/6");
 	txtd.SetNDC(); txtd.SetTextFont(42); txtd.SetTextSize(0.04);
@@ -273,7 +273,7 @@ def main():
 	txtd.Draw();
 	leg.Draw();
 
-	can_mu.SaveAs('limplots/mu.pdf');
+	can_mu.SaveAs('plots/mu.pdf');
 
 	can_XS = ROOT.TCanvas("can_XS","can_XS",1000,800);
 	hrlxs = can_mu.DrawFrame(lowlim,1000,320,100000);
@@ -292,7 +292,7 @@ def main():
 	txtc.Draw();
 	legbb.Draw();
 	ROOT.gPad.SetLogy();
-	can_XS.SaveAs('limplots/xslim.pdf');
+	can_XS.SaveAs('plots/xslim.pdf');
 	#--------------------------------
 
 	leg2 = ROOT.TLegend(0.13,0.55,0.50,0.85);
@@ -379,7 +379,7 @@ def main():
 	gr_gB_2sigma.GetXaxis().SetNdivisions(10);	
 
 	# ROOT.gPad.SetLogx();
-	can_gB.SaveAs('limplots/gB.pdf');
+	can_gB.SaveAs('plots/gB.pdf');
 
 	#####
 
@@ -433,7 +433,7 @@ def main():
 
 	ROOT.gPad.SetLogx();
 	ROOT.gPad.SetLogy();
-	can_gB2.SaveAs('limplots/gB_logx.pdf');
+	can_gB2.SaveAs('plots/gB_logx.pdf');
 
 	###---------- gB stuff -----------------
 	###---------- gB stuff -----------------

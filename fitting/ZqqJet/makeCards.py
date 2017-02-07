@@ -18,15 +18,23 @@ from tools import *
 ##-------------------------------------------------------------------------------------
 def main(options,args):
 	
-	dctpl = open("datacard.tpl");
-	numberOfMassBins = 58;
+	if options.np==2 and options.nr==2:
+		dctpl = open("datacard.tpl");
+	if options.np==3 and options.nr==2:
+                dctpl = open("datacard32.tpl");
+	if options.np==2 and options.nr==3:
+                dctpl = open("datacard23.tpl");
+        if options.np==3 and options.nr==3:
+                dctpl = open("datacard33.tpl");
+
+	numberOfMassBins = options.nmass;
 
 	linel = [];
 	for line in dctpl: 
 		print line.strip().split();
 		linel.append(line.strip());
 
-	for i in range(1,6):
+	for i in range(1,5):
 
 		tag = "cat"+str(i);
 		dctmp = open("cards/card_rhalphabet_%s.txt" % tag, 'w')
@@ -46,9 +54,11 @@ def main(options,args):
 if __name__ == '__main__':
 	parser = OptionParser()
 	parser.add_option('-b', action='store_true', dest='noX', default=False, help='no X11 windows')
-	parser.add_option("--lumi", dest="lumi", type=float, default = 30,help="luminosity", metavar="lumi")
 	parser.add_option('-i','--idir', dest='idir', default = 'data/',help='directory with data', metavar='idir')
 	parser.add_option('-o','--odir', dest='odir', default = 'plots/',help='directory to write plots', metavar='odir')
+        parser.add_option('--np', dest="np", type=int,default=3, help='degree poly pt')
+        parser.add_option('--nr', dest="nr", type=int,default=3, help='degree poly rho')
+        parser.add_option('--nmass', dest="nmass", type=int,default=60, help='number of mass bins')
 	parser.add_option('--pseudo', action='store_true', dest='pseudo', default =False,help='signal comparison', metavar='isData')
 
 	(options, args) = parser.parse_args()

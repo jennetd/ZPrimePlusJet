@@ -37,7 +37,7 @@ def main(options,args):
 
 	# Pass and fail
 	for i in range(5): 
-		(tmppass,tmpfail) = plotCategory(fml, fd, i+1, options.fit, options.mass, options.useMLFit);
+		(tmppass,tmpfail) = plotCategory(fml, fd, i+1, options.fit, options.mass, options.useMLFit,options.tf);
 		histograms_pass_all[i] = {}
 		histograms_fail_all[i] = {}
 		for shape in shapes:
@@ -58,62 +58,58 @@ def main(options,args):
 		histograms_pass_summed_list.append(histograms_pass_summed[shape])
 		histograms_fail_summed_list.append(histograms_fail_summed[shape])
 
-	# Pass and fail 2d	
-	pass_2d = {}
-	fail_2d = {}
-	for shape in shapes:
-		pass_2d[shape] =  r.TH2F('%s_pass_2d'%shape,'%s_pass_2d'%shape,len(msd_binBoundaries)-1, array.array('d',msd_binBoundaries), len(pt_binBoundaries)-1, array.array('d',pt_binBoundaries) )
-		fail_2d[shape] =  r.TH2F('%s_fail_2d'%shape,'%s_fail_2d'%shape,len(msd_binBoundaries)-1, array.array('d',msd_binBoundaries), len(pt_binBoundaries)-1, array.array('d',pt_binBoundaries) )
-		for i in range(1,pass_2d[shape].GetNbinsX()+1):
-			for j in range(1,pass_2d[shape].GetNbinsY()+1):
-				pass_2d[shape].SetBinContent(i,j,histograms_pass_all[j-1][shape].GetBinContent(i))
-				fail_2d[shape].SetBinContent(i,j,histograms_fail_all[j-1][shape].GetBinContent(i))
+	if options.tf:
+		pass_2d = {}
+		fail_2d = {}
+		for shape in shapes:
+			pass_2d[shape] =  r.TH2F('%s_pass_2d'%shape,'%s_pass_2d'%shape,len(msd_binBoundaries)-1, array.array('d',msd_binBoundaries), len(pt_binBoundaries)-1, array.array('d',pt_binBoundaries) )
+			fail_2d[shape] =  r.TH2F('%s_fail_2d'%shape,'%s_fail_2d'%shape,len(msd_binBoundaries)-1, array.array('d',msd_binBoundaries), len(pt_binBoundaries)-1, array.array('d',pt_binBoundaries) )
+			for i in range(1,pass_2d[shape].GetNbinsX()+1):
+				for j in range(1,pass_2d[shape].GetNbinsY()+1):
+					pass_2d[shape].SetBinContent(i,j,histograms_pass_all[j-1][shape].GetBinContent(i))
+					fail_2d[shape].SetBinContent(i,j,histograms_fail_all[j-1][shape].GetBinContent(i))
 
-	pass_2d_data_subtract = pass_2d['data'].Clone('data_pass_2d_subtract')
-	fail_2d_data_subtract = fail_2d['data'].Clone('data_fail_2d_subtract')
-	for shape in shapes:
-		if shape=='qcd' or shape=='data': continue
-		pass_2d_data_subtract.Add(pass_2d[shape],-1)
-		fail_2d_data_subtract.Add(fail_2d[shape],-1)
-	ratio_2d_data_subtract = pass_2d_data_subtract.Clone('ratio_2d_subtract')
-	ratio_2d_data_subtract.Divide(fail_2d_data_subtract)
-	ratio_2d_data_subtract.SetDirectory(0)
-	
-	if usemlfit:
+			pass_2d_data_subtract = pass_2d['data'].Clone('data_pass_2d_subtract')
+			fail_2d_data_subtract = fail_2d['data'].Clone('data_fail_2d_subtract')
+			for shape in shapes:
+				if shape=='qcd' or shape=='data': continue
+				pass_2d_data_subtract.Add(pass_2d[shape],-1)
+				fail_2d_data_subtract.Add(fail_2d[shape],-1)
+			ratio_2d_data_subtract = pass_2d_data_subtract.Clone('ratio_2d_subtract')
+			ratio_2d_data_subtract.Divide(fail_2d_data_subtract)
+			ratio_2d_data_subtract.SetDirectory(0)
+		if options.fit == "fit_b":
+			rfr = r.RooFitResult( fml.Get(options.fit) )
+			lParams = [];
+			lParams.append("qcdeff");
+			lParams.append("p1r0");
+			lParams.append("p2r0");
+			#lParams.append("p3r0");
+			lParams.append("p0r1"); ##
+			lParams.append("p1r1");
+			lParams.append("p2r1");
+			#lParams.append("p3r1");
+			lParams.append("p0r2"); ##
+			lParams.append("p1r2");
+			lParams.append("p2r2");
+			#lParams.append("p3r2"); ##
+			#lParams.append("p0r3");
+			#lParams.append("p1r3");
+			#lParams.append("p2r3");
+			#lParams.append("p3r3");	
+		
+			pars = [];
+			for p in lParams:
+				print p,"=",rfr.floatParsFinal().find(p).getVal(),"+/-",rfr.floatParsFinal().find(p).getError()
+				pars.append(rfr.floatParsFinal().find(p).getVal())
+
+			print lParams
+			print pars
+			makeTF(pars,ratio_2d_data_subtract)
+	else:
 		makeMLFitCanvas(histograms_pass_summed_list[0:4], histograms_pass_summed_list[5], histograms_pass_summed_list[4], shapes, "pass_allcats_"+options.fit+"_"+mass);
 		makeMLFitCanvas(histograms_fail_summed_list[0:4], histograms_fail_summed_list[5], histograms_fail_summed_list[4], shapes, "fail_allcats_"+options.fit+"_"+mass);
-	
-        #fml = r.TFile("%s/mlfit_asym_zqq%s.root" % (idir,mass) );
-	# Print out fit results
-	if options.fit == "fit_b":
-		rfr = r.RooFitResult( fml.Get(options.fit) )
-		lParams = [];
-		lParams.append("qcdeff");
-		lParams.append("p1r0");
-		lParams.append("p2r0");
-                #lParams.append("p3r0");
-		lParams.append("p0r1"); ##
-		lParams.append("p1r1");
-		lParams.append("p2r1");
-                #lParams.append("p3r1");
-		lParams.append("p0r2"); ##
-		lParams.append("p1r2");
-		lParams.append("p2r2");
-                #lParams.append("p3r2"); ##
-                #lParams.append("p0r3");
-                #lParams.append("p1r3");
-                #lParams.append("p2r3");
-                #lParams.append("p3r3");	
-		
-		pars = [];
-		for p in lParams:
-			print p,"=",rfr.floatParsFinal().find(p).getVal(),"+/-",rfr.floatParsFinal().find(p).getError()
-			pars.append(rfr.floatParsFinal().find(p).getVal())
 
-		print lParams
-		print pars
-	        # Plot TF poly
-		makeTF(pars,ratio_2d_data_subtract)
 
 ###############################################################
 def convertAsymGraph(iData):
@@ -129,7 +125,7 @@ def convertAsymGraph(iData):
 	return lHist
 
 ###############################################################
-def plotCategory(fml,fd,index,fittype,mass,usemlfit):
+def plotCategory(fml,fd,index,fittype,mass,usemlfit,tf):
 
         #fd = r.TFile("results/base1.root");
 
@@ -174,7 +170,7 @@ def plotCategory(fml,fd,index,fittype,mass,usemlfit):
 		histograms_fail.append(data_fail);
 		histograms_pass.append(data_pass);
 
-	if usemlfit:
+	if not tf:
 		makeMLFitCanvas(histograms_fail[:4], histograms_fail[5], histograms_fail[4], shapes, "fail_cat"+str(index)+"_"+fittype+"_"+mass);
 		makeMLFitCanvas(histograms_pass[:4], histograms_pass[5], histograms_pass[4], shapes, "pass_cat"+str(index)+"_"+fittype+"_"+mass);
 
@@ -189,7 +185,17 @@ def makeMLFitCanvas(bkgs, data, hsig, leg, tag):
 	
 	print 'N BINS'
 	for ih in range(len(bkgs)): print bkgs[ih].GetNbinsX(), bkgs[ih].GetBinLowEdge(1), bkgs[ih].GetBinLowEdge( bkgs[ih].GetNbinsX() ) + bkgs[ih].GetBinWidth( bkgs[ih].GetNbinsX() );
-		
+
+	if 'cat5' in tag:
+		print 'DATA!!!'
+		print data.GetNbinsX()
+		for i in range(1,data.GetNbinsX()):
+			print i
+			print data.GetBinLowEdge(i)
+			print data.GetBinWidth(data.GetNbinsX())
+			print data.GetBinContent(i)
+			print 'vs' 
+			print bkgs[0].GetBinContent(i)+bkgs[1].GetBinContent(i)+bkgs[2].GetBinContent(i)+bkgs[3].GetBinContent(i)
 	htot.SetLineColor(r.kBlack);
 	colors = [r.kRed, r.kBlue, r.kMagenta, r.kGreen+1, r.kCyan + 1]
 	for i,b in enumerate(bkgs): b.SetLineColor(colors[i]);
@@ -284,7 +290,7 @@ def makeMLFitCanvas(bkgs, data, hsig, leg, tag):
 	iOneWithErrors.SetFillColor(4);
 	iOneWithErrors.SetMarkerSize(0);
 	iOneWithErrors.SetLineWidth(0);
-	#iRatio.Draw();
+	iRatio.Draw();
 	iOneWithErrors.Draw("e2 sames");
 	iRatio.Draw("sames");
 
@@ -364,7 +370,7 @@ def makeTF(pars,ratio):
 		r.gPad.SetPhi(30+270+i)
 		r.gPad.Modified()
 		r.gPad.Update()
-		c.SaveAs(options.odir+"/mlfit/tf_%03d.png"%i)
+		c.SaveAs("plots/mlfit/tf_%03d.png"%i)
 
 ##-------------------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -376,6 +382,7 @@ if __name__ == '__main__':
 	parser.add_option('--mass', dest='mass', default = '100',help='choice is either prefit, fit_sb or fit_b', metavar='fit')
 	parser.add_option('--pseudo', action='store_true', dest='pseudo', default =False,help='signal comparison', metavar='isData')
 	parser.add_option('--useMLFit', action='store_true', dest='useMLFit', default =False,help='signal comparison', metavar='isData')
+        parser.add_option('--tfo', action='store_true', dest='tf', default =False,help='draw TF')
 
 	(options, args) = parser.parse_args()
 

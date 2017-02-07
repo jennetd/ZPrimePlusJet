@@ -148,6 +148,7 @@ def fStat(iFName1,iFName2,p1,p2,n):
     for i0 in range(0,lTree1.GetEntries()):
         lTree1.GetEntry(i0)
         lTree2.GetEntry(i0)
+        print i0, lTree1.limit-lTree2.limit
         if lTree1.limit-lTree2.limit>0:
             F = (lTree1.limit-lTree2.limit)/(p2-p1)/(lTree2.limit/(n-p2))
             lDiffs.append(F)
@@ -164,16 +165,16 @@ def goodnessVals(iFName1):
 
 def ftest(base,alt,ntoys,iLabel,options):
     if not options.justPlot:
-        os.system('combine -M GoodnessOfFit %s  --rMax 50 --rMin -50 --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF'% base)
-        os.system('mv higgsCombineTest.GoodnessOfFit.mH120.root %s/base1.root'%options.odir)
-        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50 --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF' % alt)
-        os.system('mv higgsCombineTest.GoodnessOfFit.mH120.root %s/base2.root'%options.odir)
-        os.system('combine -M GenerateOnly %s --rMax 50 --rMin -50 --toysFrequentist -t %i --expectSignal 0 --saveToys --freezeNuisances tqqnormSF,tqqeffSF' % (base,ntoys))
-        os.system('mv higgsCombineTest.GenerateOnly.mH120.123456.root %s/'%options.odir)
-        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50 -t %i --toysFile %s/higgsCombineTest.GenerateOnly.mH120.123456.root --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF' % (base,ntoys,options.odir))
-        os.system('mv higgsCombineTest.GoodnessOfFit.mH120.123456.root %s/toys1.root'%options.odir)
-        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50 -t %i --toysFile %s/higgsCombineTest.GenerateOnly.mH120.123456.root --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF' % (alt,ntoys,options.odir))
-        os.system('mv higgsCombineTest.GoodnessOfFit.mH120.123456.root %s/toys2.root'%options.odir)
+        os.system('combine -M GoodnessOfFit %s  --rMax 50 --rMin -50 --algorithm saturated --fixedSignalStrength 0 --freezeNuisances tqqnormSF,tqqeffSF -n %s'% (base,base.replace('.txt','')))
+        os.system('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/base1.root'%(base.replace('.txt',''),options.odir))
+        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50 --algorithm saturated --fixedSignalStrength 0 --freezeNuisances tqqnormSF,tqqeffSF -n %s' % (alt,alt.replace('.txt','')))
+        os.system('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/base2.root'%(alt.replace('.txt',''),options.odir))
+        os.system('combine -M GenerateOnly %s --rMax 50 --rMin -50 --toysFrequentist -t %i --expectSignal 0 --saveToys --freezeNuisances tqqnormSF,tqqeffSF -n %s' % (base,ntoys,base.replace('.txt','')))
+        os.system('cp higgsCombine%s.GenerateOnly.mH120.123456.root %s/'%(base.replace('.txt',''),options.odir))
+        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50 -t %i --toysFile %s/higgsCombine%s.GenerateOnly.mH120.123456.root --fixedSignalStrength 0 --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF -n %s' % (base,ntoys,options.odir,base.replace('.txt',''),base.replace('.txt','')))
+        os.system('cp higgsCombine%s.GoodnessOfFit.mH120.123456.root %s/toys1.root'%(base.replace('.txt',''),options.odir))
+        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50 -t %i --toysFile %s/higgsCombine%s.GenerateOnly.mH120.123456.root --fixedSignalStrength 0 --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF -n %s' % (alt,ntoys,options.odir,base.replace('.txt',''),alt.replace('.txt','')))
+        os.system('cp higgsCombine%s.GoodnessOfFit.mH120.123456.root %s/toys2.root'%(alt.replace('.txt',''),options.odir))
     nllBase=fStat("%s/base1.root"%options.odir,"%s/base2.root"%options.odir,options.p1,options.p2,options.n)
     nllToys=fStat("%s/toys1.root"%options.odir,"%s/toys2.root"%options.odir,options.p1,options.p2,options.n)
     lPass=0
@@ -181,17 +182,21 @@ def ftest(base,alt,ntoys,iLabel,options):
         print val,nllBase[0]
         if nllBase[0] > val:
             lPass+=1
-    print "FTest p-value",float(lPass)/float(len(nllToys))
-    plotftest(nllToys,nllBase[0],float(lPass)/float(len(nllToys)),iLabel,options)
+    pval = 1
+    if len(nllToys)>0:
+        pval = float(lPass)/float(len(nllToys))
+        print "FTest p-value",pval
+    plotftest(nllToys,nllBase[0],pval,iLabel,options)
     return float(lPass)/float(len(nllToys))
 
 def goodness(base,ntoys,iLabel,options):
     if not options.justPlot:
-        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50  --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF' % base)
-        os.system('mv higgsCombineTest.GoodnessOfFit.mH120.root %s/goodbase.root'%options.odir)
-        os.system('combine -M GenerateOnly %s --rMax 50 --rMin -50 --toysFrequentist -t %i --expectSignal 0 --saveToys --freezeNuisances tqqnormSF,tqqeffSF' % (base,ntoys))
-        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50 --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root -t %i --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF' % (base,ntoys))
-        os.system('mv higgsCombineTest.GoodnessOfFit.mH120.123456.root %s/goodtoys.root'%(options.odir))
+        os.system('combine -M GoodnessOfFit %s  --rMax 50 --rMin -50 --algorithm saturated --fixedSignalStrength 0 --freezeNuisances tqqnormSF,tqqeffSF -n %s'% (base,base.replace('.txt','')))
+        os.system('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/goodbase.root'%(base.replace('.txt',''),options.odir))
+        os.system('combine -M GenerateOnly %s --rMax 50 --rMin -50 --toysFrequentist -t %i --expectSignal 0 --saveToys --freezeNuisances tqqnormSF,tqqeffSF -n %s' % (base,ntoys,base.replace('.txt','')))
+        os.system('cp higgsCombine%s.GenerateOnly.mH120.123456.root %s/'%(base.replace('.txt',''),options.odir))        
+        os.system('combine -M GoodnessOfFit %s --rMax 50 --rMin -50 -t %i --toysFile %s/higgsCombine%s.GenerateOnly.mH120.123456.root --fixedSignalStrength 0 --algorithm saturated --freezeNuisances tqqnormSF,tqqeffSF -n %s' % (base,ntoys,options.odir,base.replace('.txt',''),base.replace('.txt','')))
+        os.system('cp higgsCombine%s.GoodnessOfFit.mH120.123456.root %s/goodtoys.root'%(base.replace('.txt',''),options.odir))
     nllBase=goodnessVals('%s/goodbase.root'%options.odir)
     nllToys=goodnessVals('%s/goodtoys.root'%options.odir)
     lPass=0
@@ -266,11 +271,12 @@ if __name__ == "__main__":
     parser.add_option('-d','--datacard'   ,action='store',type='string',dest='datacard'   ,default='card_rhalphabet.txt', help='datacard name')
     parser.add_option('--datacard-alt'   ,action='store',type='string',dest='datacardAlt'   ,default='card_rhalphabet_alt.txt', help='alternative datacard name')
     parser.add_option('-M','--method'   ,dest='method'   ,default='GoodnessOfFit', 
-                      choices=['GoodnessOfFit','FTest','Asymptotic','Bias'],help='combine method to use')
+                      choices=['GoodnessOfFit','FTest','Asymptotic','Bias','MaxLikelihoodFit'],help='combine method to use')
     parser.add_option('-o','--odir', dest='odir', default = 'plots/',help='directory to write plots and output toys', metavar='odir')
     parser.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     parser.add_option('--data', action='store_true', dest='isData', default=False, help='is data')
     parser.add_option('-l','--lumi'   ,action='store',type='float',dest='lumi'   ,default=36.4, help='lumi')
+
 
     (options,args) = parser.parse_args()
 
@@ -317,4 +323,3 @@ if __name__ == "__main__":
     elif options.method=='FTest':
         iLabel= 'ftest_%s_vs_%s'%(options.datacard.split('/')[-1].replace('.txt',''),options.datacardAlt.split('/')[-1].replace('.txt',''))
         ftest(options.datacard, options.datacardAlt, options.toys, iLabel, options)
-        
