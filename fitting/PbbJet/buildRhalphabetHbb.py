@@ -513,8 +513,6 @@ class dazsleRhalphabetBuilder:
         for pData in iDatas:
             pData.Print()
             getattr(lW,'import')(pData, r.RooFit.RecycleConflictNodes()) # , r.RooFit.Rename("data_obs")
-
-
         self._outfile_validation.Write()
         #self._outfile_validation.Close()
 
