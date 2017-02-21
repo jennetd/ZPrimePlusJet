@@ -38,7 +38,7 @@ class sampleContainer:
         if isData:
             self._lumi = 1
         self._fillCA15 = fillCA15
-	 #based on https://github.com/thaarres/PuppiSoftdropMassCorr Summer16 
+         #based on https://github.com/thaarres/PuppiSoftdropMassCorr Summer16 
         self.corrGEN = ROOT.TF1("corrGEN","[0]+[1]*pow(x*[2],-[3])",200,3500)
         self.corrGEN.SetParameter(0,1.00626)
         self.corrGEN.SetParameter(1, -1.06161)
@@ -59,13 +59,13 @@ class sampleContainer:
         self.corrRECO_for.SetParameter(2,8.37289e-07)
         self.corrRECO_for.SetParameter(3,-5.20433e-10)
         self.corrRECO_for.SetParameter(4,1.45375e-13)
-        self.corrRECO_for.SetParameter(5,-1.50389e-17)	
+        self.corrRECO_for.SetParameter(5,-1.50389e-17)        
 
         #f_puppi= ROOT.TFile.Open("$ZPRIMEPLUSJET_BASE/analysis/ZqqJet/puppiCorr.root","read")
         #self._puppisd_corrGEN      = f_puppi.Get("puppiJECcorr_gen")
         #self._puppisd_corrRECO_cen = f_puppi.Get("puppiJECcorr_reco_0eta1v3")
         #self._puppisd_corrRECO_for = f_puppi.Get("puppiJECcorr_reco_1v3eta2v5")
-	
+        
         f_pu= ROOT.TFile.Open("$ZPRIMEPLUSJET_BASE/analysis/ggH/puWeights_All.root","read")
         self._puw      = f_pu.Get("puw")
         self._puw_up   = f_pu.Get("puw_p")
@@ -211,7 +211,7 @@ class sampleContainer:
         'h_Cuts'               :["h_"+self._name+"_Cuts","; Cut ", 8, 0, 8],
         'h_n_ak4'              :["h_"+self._name+"_n_ak4","; AK4 n_{jets}, p_{T} > 30 GeV;", 20, 0, 20],     
         'h_npv'              :["h_"+self._name+"_npv","; number of PV;;", 100, 0, 100],
-        'h_ht'			:["h_"+self._name+"_ht","; HT (GeV);;",50,300,2100],
+        'h_ht'                        :["h_"+self._name+"_ht","; HT (GeV);;",50,300,2100],
         'h_pt_bbleading'       :["h_"+self._name+"_pt_bbleading","; AK8 leading p_{T} (GeV);", 50, 300, 2100],
         'h_bb_bbleading'       :["h_"+self._name+"_bb_bbleading","; double b-tag ;", 40, -1, 1],
         'h_msd_bbleading'      :["h_"+self._name+"_msd_bbleading","AK8 m_{SD}^{PUPPI} (GeV);", 30, 40, 250],
@@ -395,7 +395,7 @@ class sampleContainer:
         }
             
         msd_binBoundaries=[]
-        for i in range(0,24):	
+        for i in range(0,24):        
             msd_binBoundaries.append(40.+i*7)
         print(msd_binBoundaries)
         pt_binBoundaries = [450,500,550,600,675,800,1000]
@@ -464,7 +464,7 @@ class sampleContainer:
         'h_msd_v_pt_ak8_topR6_N2_pass_unmatched' :["h_"+self._name+"_msd_v_pt_ak8_N2_topR6_pass_unmatched","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_N2_fail_matched' :["h_"+self._name+"_msd_v_pt_ak8_topR6_N2_fail_matched","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_N2_fail_unmatched' :["h_"+self._name+"_msd_v_pt_ak8_topR6_N2_fail_unmatched","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-	
+        
         'h_msd_v_pt_ak8_topR6_0p4_fail' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p4_fail","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p4_pass' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p4_pass","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p45_fail' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p45_fail","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
@@ -479,19 +479,19 @@ class sampleContainer:
         'h_msd_v_pt_ak8_topR6_0p7_pass' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p7_pass","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p75_fail' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p75_fail","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p75_pass' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p75_pass","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-	
+        
         'h_msd_v_pt_ak8_topR6_0p91_fail' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p91_fail","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p91_pass' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p91_pass","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-	
+        
         'h_msd_v_pt_ak8_topR6_0p92_fail' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p92_fail","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p92_pass' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p92_pass","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-	
+        
         'h_msd_v_pt_ak8_topR6_0p93_fail' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p93_fail","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p93_pass' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p93_pass","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
 
         'h_msd_v_pt_ak8_topR6_0p94_fail' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p94_fail","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p94_pass' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p94_pass","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-	
+        
         'h_msd_v_pt_ak8_topR6_0p95_fail' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p95_fail","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
         'h_msd_v_pt_ak8_topR6_0p95_pass' :["h_"+self._name+"_msd_v_pt_ak8_topR6_0p95_pass","; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
 
@@ -519,14 +519,14 @@ class sampleContainer:
         # looping
         nent = self._tt.GetEntries()
         print nent
-	cut=[]
+        cut=[]
         cut = [0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.]
 
 
         self._tt.SetNotify(self._cutFormula)
         for i in xrange(nent):
             if i % self._sf != 0: continue
-	
+        
             #self._tt.LoadEntry(i)
             self._tt.LoadTree(i)
             selected = False
@@ -903,9 +903,9 @@ class sampleContainer:
                 self.h_dbtag_ak8.Fill( jdb_8, weight )
                 self.h_dbtag_ak8_sub1.Fill( jdb_8_sub1, weight )
                 self.h_dbtag_ak8_sub2.Fill( jdb_8_sub2, weight )
-                self.h_t21_ak8.Fill( jt21_8, weight )		
-                self.h_t32_ak8.Fill( jt32_8, weight )		
-                self.h_t21ddt_ak8.Fill( jt21P_8, weight )									
+                self.h_t21_ak8.Fill( jt21_8, weight )                
+                self.h_t32_ak8.Fill( jt32_8, weight )                
+                self.h_t21ddt_ak8.Fill( jt21P_8, weight )                                                                        
                 self.h_rhop_v_t21_ak8.Fill( rhP_8, jt21_8, weight )
                 self.h_n2b1sd_ak8.Fill(jtN2b1sd_8,weight)
                 self.h_n2b1sdddt_ak8.Fill(jtN2b1sdddt_8,weight)
@@ -926,7 +926,7 @@ class sampleContainer:
 
             if jpt_8 > PTCUT and jt21P_8 < T21DDTCUT and jmsd_8 > MASSCUT:
                 self.h_msd_ak8_t21ddtCut.Fill( jmsd_8, weight )
-	        self.h_t32_ak8_t21ddtCut.Fill( jt32_8, weight )
+                self.h_t32_ak8_t21ddtCut.Fill( jt32_8, weight )
 
             if jpt_8 > PTCUT and jtN2b1sdddt_8 < 0 and jmsd_8 > MASSCUT:
                 self.h_msd_ak8_N2Cut.Fill( jmsd_8, weight )
@@ -1188,8 +1188,8 @@ class sampleContainer:
 
         genCorr =  self.corrGEN.Eval( puppipt )
         if( abs(puppieta)  < 1.3 ):
-    		recoCorr = self.corrRECO_cen.Eval( puppipt )
-    	else: 
+                    recoCorr = self.corrRECO_cen.Eval( puppipt )
+            else: 
             recoCorr = self.corrRECO_for.Eval( puppipt )
         totalWeight = genCorr*recoCorr
         return totalWeight
