@@ -6,7 +6,7 @@ import sys
 sys.path.append(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/analysis"))
 from sampleContainer import *
 
-def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1, isData=False, fillCA15=False, cutFormula=""):
+def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1, isData=False, fillCA15=False, cutFormula="1"):
 	output_file = TFile(output_filename, "RECREATE")
 	sample = sampleContainer(sample_name, input_filenames, sf=sf, lumi=lumi, isData=isData, fillCA15=fillCA15, cutFormula=cutFormula)
 	hall={}
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 	parser.add_argument("--sf", type=float, default=1., help="Manual SF")
 	parser.add_argument("--isData", action="store_true", help="This is data")
 	parser.add_argument("--fillCA15", action="store_true", help="Do CA15 histograms")
-	parser.add_argument("--cutFormula", type=str, default="", help="Additional cut formula")
+	parser.add_argument("--cutFormula", type=str, default="1", help="Additional cut formula")
 	args = parser.parse_args()
 
 	RunSampleContainer(args.sample, args.input_files.split(","), args.output_file, lumi=args.lumi, sf=args.sf, isData=args.isData, fillCA15=args.fillCA15, cutFormula=args.cutFormula)
