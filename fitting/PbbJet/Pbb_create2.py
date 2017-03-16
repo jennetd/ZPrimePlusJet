@@ -5,10 +5,12 @@ from ROOT import *
 import sys
 sys.path.append(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/analysis"))
 from sampleContainer import *
+import DAZSLE.PhiBBPlusJet.analysis_configuration as config
+
 
 def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1, isData=False, fillCA15=False, cutFormula="1"):
 	output_file = TFile(output_filename, "RECREATE")
-	sample = sampleContainer(sample_name, input_filenames, sf=sf, lumi=lumi, isData=isData, fillCA15=fillCA15, cutFormula=cutFormula)
+	sample = sampleContainer(sample_name, input_filenames, sf=sf, lumi=lumi, isData=isData, fillCA15=fillCA15, cutFormula=cutFormula, processEvents=10000)
 	hall={}
 
 	plots =  ['h_msd_v_pt_ak8_topR6_N2_pass',
@@ -66,6 +68,8 @@ def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1
 
 	for key, h in hall.iteritems():
 		h.Write()
+
+	sample.h_Cuts.Write()
 		
 	output_file.Write()
 	output_file.Close()
