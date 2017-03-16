@@ -1,0 +1,1 @@
+root://eoscms.cern.ch//eos/cms/store/group/phys_exotica/dijet/dazsle/zprimebits-v12.03/QCD_HT2000toInf_13TeV/Output.root_job2_file0.root
