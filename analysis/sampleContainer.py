@@ -24,8 +24,9 @@ NJETCUT = 5
 #########################################################################################################
 class sampleContainer:
     def __init__(self, name, fn, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
-                 minBranches=False):
+                 minBranches=False, processEvents=-1):
         self._name = name
+        self._processEvents = processEvents
         self.DBTAGCUTMIN = DBTAGCUTMIN
         self._fn = fn
         if len(fn) > 0:
@@ -768,7 +769,10 @@ class sampleContainer:
 
     def loop(self):
         # looping
-        nent = self._tt.GetEntries()
+        if self._processEvents > 0:
+          nent = self._processEvents
+        else:
+          nent = self._tt.GetEntries()
         print nent
         cut = []
         cut = [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
