@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import ROOT as r,sys,math,os
-from ROOT import *
 from multiprocessing import Process
 from optparse import OptionParser
 from operator import add
@@ -13,9 +12,13 @@ r.gSystem.Load(os.getenv('CMSSW_BASE')+'/lib/'+os.getenv('SCRAM_ARCH')+'/libHigg
 
 
 # including other directories
-sys.path.insert(0, '../.')
-sys.path.insert(0, '.')
 import tools as tools
+from hist import *
+
+BB_SF = 0.91
+BB_SF_ERR = 0.03
+V_SF = 0.993
+V_SF_ERR = 0.043
 
 ##############################################################################
 ##############################################################################
@@ -24,34 +27,39 @@ import tools as tools
 ##############################################################################
 
 class RhalphabetBuilder(): 
-    def __init__( self, pass_hists, fail_hists, odir, mass_nbins=35, mass_lo=40, mass_hi=285, blind_lo=110, blind_hi=131, mass_fit=False, freeze_poly=False): 
-        self._pass_hists = pass_hists;
-        self._fail_hists = fail_hists;
+    def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201, blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi= -2.1, blind=False, mass_fit=False, freeze_poly=False):
+        self._pass_hists = pass_hists
+        self._fail_hists = fail_hists
         self._mass_fit = mass_fit
         self._freeze = freeze_poly
+        self._inputfile = input_file
 
-        self._output_path = "{}/base.root".format(odir)
-        self._rhalphabet_output_path = "{}/rhalphabase.root".format(odir)
+        self._output_path = "{}/base.root".format(out_dir)
+        self._rhalphabet_output_path = "{}/rhalphabase.root".format(out_dir)
+
+        self._outfile_validation = r.TFile.Open("validation.root", "RECREATE");
 
         self._mass_nbins = mass_nbins
         self._mass_lo    = mass_lo
         self._mass_hi    = mass_hi
+        self._blind = blind
         self._mass_blind_lo = blind_lo
         self._mass_blind_hi = blind_hi
-        # self._mass_nbins = pass_hists[0].GetXaxis().GetNbins();
-        # self._mass_lo    = pass_hists[0].GetXaxis().GetBinLowEdge( 1 );
-        # self._mass_hi    = pass_hists[0].GetXaxis().GetBinUpEdge( self._mass_nbins );
+        self._rho_lo = rho_lo
+        self._rho_hi = rho_hi
+        # self._mass_nbins = pass_hists[0].GetXaxis().GetNbins()
+        # self._mass_lo    = pass_hists[0].GetXaxis().GetBinLowEdge( 1 )
+        # self._mass_hi    = pass_hists[0].GetXaxis().GetBinUpEdge( self._mass_nbins )
 
         print "number of mass bins and lo/hi: ", self._mass_nbins, self._mass_lo, self._mass_hi;
 
         #polynomial order for fit
-        self._poly_degree_pt = 2 #1 = linear ; 2 is quadratic
-        self._poly_degree_rho = 2
-        #self._poly_degree_rhoP =1;
+        self._poly_degree_rho = nr #1 = linear ; 2 is quadratic
+        self._poly_degree_pt = np #1 = linear ; 2 is quadratic
 
-        self._nptbins = pass_hists["data_obs"].GetYaxis().GetNbins();
-        self._pt_lo = pass_hists["data_obs"].GetYaxis().GetBinLowEdge( 1 );
-        self._pt_hi = pass_hists["data_obs"].GetYaxis().GetBinUpEdge( self._nptbins );
+        self._nptbins = pass_hists["data_obs"].GetYaxis().GetNbins()
+        self._pt_lo = pass_hists["data_obs"].GetYaxis().GetBinLowEdge( 1 )
+        self._pt_hi = pass_hists["data_obs"].GetYaxis().GetBinUpEdge( self._nptbins )
 
         # define RooRealVars
         self._lMSD    = r.RooRealVar("x","x",self._mass_lo,self._mass_hi)
@@ -59,7 +67,7 @@ class RhalphabetBuilder():
         self._lMSD.setRange('Blind',self._mass_blind_lo,self._mass_blind_hi)
         self._lMSD.setRange('High',self._mass_blind_hi,self._mass_hi)
         #self._lMSD.setBins(self._mass_nbins)       
-        self._lPt     = r.RooRealVar("pt","pt",self._pt_lo,self._pt_hi);
+        self._lPt     = r.RooRealVar("pt","pt",self._pt_lo,self._pt_hi)
         self._lPt.setBins(self._nptbins)
         self._lRho    = r.RooFormulaVar("rho","log(x*x/pt/pt)",r.RooArgList(self._lMSD,self._lPt))
 
@@ -80,15 +88,20 @@ class RhalphabetBuilder():
         self._lDM     = r.RooRealVar("dm","dm", 0.,-10,10)
         self._lShift  = r.RooFormulaVar("shift",self._lMSD.GetName()+"-dm",r.RooArgList(self._lMSD,self._lDM)) 
 
-        self._all_vars = [];
-        self._all_shapes = [];
-        self._all_data = [];
-        self._all_pars = [];
+        self._all_vars = []
+        self._all_shapes = []
+        self._all_data = []
+        self._all_pars = []
 
         self._background_names = ["wqq", "zqq", "qcd", "tqq"]
         self._signal_names = []
-        for mass in [50,75,125,100,150,250,300]:
-            self._signal_names.append("Pbb_" + str(mass))
+        # for Pbb
+        #for mass in [50,75,125,100,150,250,300]:
+        #    self._signal_names.append("Pbb_" + str(mass))
+        # for Hbb
+        for mass in [125]:
+            for sig in ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]:
+                self._signal_names.append(sig + str(mass))
 
     def run(self):
         self.LoopOverPtBins();
@@ -101,8 +114,8 @@ class RhalphabetBuilder():
             print "------- pT bin number ",pt_bin      
 
             # 1d histograms in each pT bin (in the order... data, w, z, qcd, top, signals)
-            pass_hists_ptbin = {};
-            fail_hists_ptbin = {};
+            pass_hists_ptbin = {}
+            fail_hists_ptbin = {}
             for name, hist in self._pass_hists.iteritems():
                 pass_hists_ptbin[name] = tools.proj("cat",str(pt_bin),hist,self._mass_nbins,self._mass_lo,self._mass_hi)
             for name, hist in self._fail_hists.iteritems():
@@ -126,13 +139,13 @@ class RhalphabetBuilder():
             # #Write to file
             print "pass_rhps = "
             print pass_rhps
-            self.MakeWorkspace(self._output_path, [data_pass_rdh] + pass_rhps.values(), "pass_cat"+str(pt_bin), True)
-            self.MakeWorkspace(self._output_path, [data_fail_rdh] + fail_rhps.values(), "fail_cat"+str(pt_bin), True)
+            self.MakeWorkspace(self._output_path, [data_pass_rdh] + pass_rhps.values(), "pass_cat"+str(pt_bin), True, True, this_pt)
+            self.MakeWorkspace(self._output_path, [data_fail_rdh] + fail_rhps.values(), "fail_cat"+str(pt_bin), True, True, this_pt)
 
         
         for pt_bin in range(1,self._nptbins+1):
             for mass_bin in range(1,self._mass_nbins+1):
-                print "qcd_fail_cat%i_Bin%i flatParam" % (pt_bin, mass_bin);
+                print "qcd_fail_cat%i_Bin%i flatParam" % (pt_bin, mass_bin)
 
     # iHs = dict of fail histograms
     def MakeRhalphabet(self, samples, fail_histograms, pt, category):
@@ -147,7 +160,7 @@ class RhalphabetBuilder():
         self._lEffQCD.setConstant(False)
 
         polynomial_variables = []
-        self.buildPolynomialArray(polynomial_variables,self._poly_degree_pt,self._poly_degree_rho,"p","r",-0.3,0.3)
+        self.buildPolynomialArray(polynomial_variables,self._poly_degree_pt,self._poly_degree_rho,"p","r",-30,30)
         print "polynomial_variables=",
         print polynomial_variables
 
@@ -175,15 +188,14 @@ class RhalphabetBuilder():
                     print sample, fail_histograms[sample].GetName(), "subtract W/Z/ttbar"
                     print "\t-={}".format(fail_histograms[sample].GetBinContent(mass_bin))
                     fail_bin_content -= fail_histograms[sample].GetBinContent(mass_bin) # subtract W/Z/ttbar from data
-            if fail_bin_content < 0: fail_bin_content = 0
+            if fail_bin_content < 0: fail_bin_content = 0.
 
             print rhalph_bkgd_name+"_fail_"+category+"_Bin"+str(mass_bin), fail_bin_content
 
-            #5 sigma range + 10 events
-            fail_bin_unc = math.sqrt(fail_bin_content)*5+10
+            #10 sigma range + 10 events
+            fail_bin_unc = math.sqrt(fail_bin_content)*10.+10.
             #Define the failing category
-            #fail_bin_var = r.RooRealVar(rhalph_bkgd_name+"_fail_"+category+"_Bin"+str(mass_bin),rhalph_bkgd_name+"_fail_"+category+"_Bin"+str(mass_bin),fail_bin_content,max(fail_bin_content-fail_bin_unc,0),max(fail_bin_content+fail_bin_unc,0))
-            fail_bin_var = r.RooRealVar(rhalph_bkgd_name+"_fail_"+category+"_Bin"+str(mass_bin),rhalph_bkgd_name+"_fail_"+category+"_Bin"+str(mass_bin),fail_bin_content,0,max(fail_bin_content+fail_bin_unc,0))
+            fail_bin_var = r.RooRealVar(rhalph_bkgd_name+"_fail_"+category+"_Bin"+str(mass_bin),rhalph_bkgd_name+"_fail_"+category+"_Bin"+str(mass_bin),fail_bin_content,0.,max(fail_bin_content+fail_bin_unc,0.))
 
             print "[david debug] fail_bin_var:"
             fail_bin_var.Print()
@@ -350,9 +362,9 @@ class RhalphabetBuilder():
                     pXMax = iXMax0
                 
                 pRooVar = r.RooRealVar(pVar,pVar,0.0,pXMin,pXMax)
-                print("========  here i0 %s i1 %s"%(i0,i1))
+                #print("========  here i0 %s i1 %s"%(i0,i1))
                 print pVar
-                print(" is : %s  +/- %s"%(value[i0*3+i1],error[i0*3+i1]))        
+                #print(" is : %s  +/- %s"%(value[i0*3+i1],error[i0*3+i1]))
                 iVars.append(pRooVar)
                 self._all_vars.append(pRooVar)
 
@@ -435,28 +447,183 @@ class RhalphabetBuilder():
 
 
     #def MakeWorkspace(self,iOutput,iDatas,iFuncs,iVars,iCat="cat0",iShift=True):
-    def MakeWorkspace(self, output_path, import_objects, category="cat0", shift=True):
+    def MakeWorkspace(self, output_path, import_objects, category="cat0", do_shift=True, do_syst=True, pt_val=500.):
         print "Making workspace " + "w_" + str(category)
         workspace = r.RooWorkspace("w_"+str(category))
+
+        # get the pT bin
+        iPt = category[-1:]
+
         for import_object in import_objects:
-            print "Importing {}".format(import_object.GetName())
-            getattr(workspace,'import')(import_object, r.RooFit.RecycleConflictNodes())
+            import_object.Print()
+            process = import_object.GetName().split('_')[0]
+            cat = import_object.GetName().split('_')[1]
+            mass = 0
+            systematics = ['JES', 'JER', 'trigger', 'mcstat']
+            if do_syst and ('tqq' in process or 'wqq' in process or 'zqq' in process or 'hqq' in process):
+                # get systematic histograms
+                hout = []
+                histDict = {}
+                for syst in systematics:
+                    if syst == 'mcstat':
+                        tmph = self._inputfile.Get(process + '_' + cat).Clone(process + '_' + cat)
+                        tmph_up = self._inputfile.Get(process + '_' + cat).Clone(
+                            process + '_' + cat + '_' + syst + 'Up')
+                        tmph_down = self._inputfile.Get(process + '_' + cat).Clone(
+                            process + '_' + cat + '_' + syst + 'Down')
+                        tmph.Scale(GetSF(process, cat, self._inputfile))
+                        tmph_up.Scale(GetSF(process, cat, self._inputfile))
+                        tmph_down.Scale(GetSF(process, cat, self._inputfile))
+                        tmph_mass = tools.proj('cat', str(iPt), tmph, self._mass_nbins, self._mass_lo, self._mass_hi)
+                        tmph_mass_up = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo, self._mass_hi)
+                        tmph_mass_down = tools.proj('cat', str(iPt), tmph_down, self._mass_nbins, self._mass_lo,
+                                              self._mass_hi)
+                        for i in range(1, tmph_mass_up.GetNbinsX() + 1):
+                            mcstatup = tmph_mass_up.GetBinContent(i) + tmph_mass_up.GetBinError(i)
+                            mcstatdown = max(0., tmph_mass_down.GetBinContent(i) - tmph_mass_down.GetBinError(i))
+                            tmph_mass_up.SetBinContent(i, mcstatup)
+                            tmph_mass_down.SetBinContent(i, mcstatdown)
+                        tmph_mass.SetName(import_object.GetName())
+                        tmph_mass_up.SetName(import_object.GetName() + '_' + import_object.GetName().replace('_', '') + syst + 'Up')
+                        tmph_mass_down.SetName(import_object.GetName() + '_' + import_object.GetName().replace('_', '') + syst + 'Down')
+                        histDict[import_object.GetName()] = tmph_mass
+                        histDict[import_object.GetName() + '_' + import_object.GetName().replace('_', '') + syst + 'Up'] = tmph_mass_up
+                        histDict[
+                            import_object.GetName() + '_' + import_object.GetName().replace('_', '') + syst + 'Down'] = tmph_mass_down
+                        if 'tqq' in process:
+                            hout.append(tmph_mass)
+                            # hout.append(tmph_mass_up)
+                            # hout.append(tmph_mass_down)
+                    else:
+                        tmph_up = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Up').Clone()
+                        tmph_down = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Down').Clone()
+                        tmph_up.Scale(GetSF(process, cat, self._inputfile))
+                        tmph_down.Scale(GetSF(process, cat, self._inputfile))
+                        tmph_mass_up = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo, self._mass_hi)
+                        tmph_mass_down = tools.proj('cat', str(iPt), tmph_down, self._mass_nbins, self._mass_lo,
+                                              self._mass_hi)
+                        tmph_mass_up.SetName(import_object.GetName() + '_' + syst + 'Up')
+                        tmph_mass_down.SetName(import_object.GetName() + '_' + syst + 'Down')
+                        hout.append(tmph_mass_up)
+                        hout.append(tmph_mass_down)
+                uncorrelate(histDict, 'mcstat')
+                for key, myhist in histDict.iteritems():
+                    if 'mcstat' in key:
+                        print key
+                        hout.append(myhist)
+                # blind if necessary and output to workspace
+                for h in hout:
+                    for i in range(1, h.GetNbinsX() + 1):
+                        massVal = h.GetXaxis().GetBinCenter(i)
+                        rhoVal = r.TMath.Log(massVal * massVal / pt_val / pt_val)
+                        if self._blind and massVal > self._mass_blind_lo and massVal < self._mass_blind_hi:
+                            print "blinding signal region for %s, mass bin [%i,%i] " % (
+                            h.GetName(), h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
+                            h.SetBinContent(i, 0.)
+                            h.SetBinError(i, 0.)
+                        if rhoVal < self._rho_lo or rhoVal > self._rho_hi:
+                            print "removing rho = %.2f for %s, pt_val = %.2f, mass bin [%i,%i]" % (
+                            rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
+                            h.SetBinContent(i, 0.)
+                            h.SetBinError(i, 0.)
+                    tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
+                    getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
+                    # validation
+                    self._outfile_validation.cd()
+                    h.Write()
 
-        #for name, pFunc in iFuncs.iteritems():
-        #    print "Importing {}".format(name)
-        #    pFunc.Print()
-        #    getattr(workspace,'import')(pFunc, r.RooFit.RecycleConflictNodes())
-        #    # if iShift and pFunc.GetName().find("qq") > -1:
-        #    #   (pFUp, pFDown)  = tools.shift(iVars[0],pFunc,5.)
-        #    #   (pSFUp,pSFDown) = tools.smear(iVars[0],pFunc,0.05)
-        #    #   getattr(workspace,'import')(pFUp,  r.RooFit.RecycleConflictNodes())
-        #    #   getattr(workspace,'import')(pFDown,r.RooFit.RecycleConflictNodes())
-        #    #   getattr(workspace,'import')(pSFUp,  r.RooFit.RecycleConflictNodes())
-        #    #   getattr(workspace,'import')(pSFDown,r.RooFit.RecycleConflictNodes())
+            if do_shift and ('wqq' in process or 'zqq' in process or 'hqq' in process):
+                if process == 'wqq':
+                    mass = 80.
+                elif process == 'zqq':
+                    mass = 91.
+                elif 'hqq' in process :
+                    mass = float(process[-3:])  # hqq125 -> 125
+                elif 'Pbb' in process:
+                    mass = float(process.split('_')[-1])  # Pbb_75 -> 75
 
-        #for pData in iDatas:
-        #    pData.Print()
-        #    getattr(workspace,'import')(pData, r.RooFit.RecycleConflictNodes()) # , r.RooFit.Rename("data_obs")
+                # get the matched and unmatched hist
+                tmph_matched = self._inputfile.Get(process + '_' + cat + '_matched').Clone()
+                tmph_unmatched = self._inputfile.Get(process + '_' + cat + '_unmatched').Clone()
+                tmph_matched.Scale(GetSF(process, cat, self._inputfile))
+                tmph_unmatched.Scale(GetSF(process, cat, self._inputfile))
+                tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins, self._mass_lo, self._mass_hi)
+                tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins, self._mass_lo,
+                                           self._mass_hi)
+
+                # smear/shift the matched
+                hist_container = hist([mass], [tmph_mass_matched])
+                # mass_shift = 0.99
+                # mass_shift_unc = 0.03*2. #(2 sigma shift)
+                # res_shift = 1.094
+                # res_shift_unc = 0.123*2. #(2 sigma shift)
+                m_data = 82.657
+                m_data_err = 0.313
+                m_mc = 82.548
+                m_mc_err = 0.191
+                s_data = 8.701
+                s_data_err = 0.433
+                s_mc = 8.027
+                s_mc_err = 0.607
+                mass_shift = m_data / m_mc
+                mass_shift_unc = math.sqrt((m_data_err / m_data) * (m_data_err / m_data) + (m_mc_err / m_mc) * (
+                m_mc_err / m_mc)) * 10.  # (10 sigma shift)
+                res_shift = s_data / s_mc
+                res_shift_unc = math.sqrt((s_data_err / s_data) * (s_data_err / s_data) + (s_mc_err / s_mc) * (
+                s_mc_err / s_mc)) * 2.  # (2 sigma shift)
+                # get new central value
+                shift_val = mass - mass * mass_shift
+                tmp_shifted_h = hist_container.shift(tmph_mass_matched, shift_val)
+                # get new central value and new smeared value
+                smear_val = res_shift - 1
+                tmp_smeared_h = hist_container.smear(tmp_shifted_h[0], smear_val)
+                hmatched_new_central = tmp_smeared_h[0]
+                if smear_val <= 0: hmatched_new_central = tmp_smeared_h[1]
+                # get shift up/down
+                shift_unc = mass * mass_shift * mass_shift_unc
+                hmatchedsys_shift = hist_container.shift(hmatched_new_central, mass * mass_shift_unc)
+                # get res up/down
+                hmatchedsys_smear = hist_container.smear(hmatched_new_central, res_shift_unc)
+
+                # add back the unmatched
+                hmatched_new_central.Add(tmph_mass_unmatched)
+                hmatchedsys_shift[0].Add(tmph_mass_unmatched)
+                hmatchedsys_shift[1].Add(tmph_mass_unmatched)
+                hmatchedsys_smear[0].Add(tmph_mass_unmatched)
+                hmatchedsys_smear[1].Add(tmph_mass_unmatched)
+                hmatched_new_central.SetName(import_object.GetName())
+                hmatchedsys_shift[0].SetName(import_object.GetName() + "_scaleUp")
+                hmatchedsys_shift[1].SetName(import_object.GetName() + "_scaleDown")
+                hmatchedsys_smear[0].SetName(import_object.GetName() + "_smearUp")
+                hmatchedsys_smear[1].SetName(import_object.GetName() + "_smearDown")
+
+                hout = [hmatched_new_central, hmatchedsys_shift[0], hmatchedsys_shift[1], hmatchedsys_smear[0],
+                        hmatchedsys_smear[1]]
+                # blind if necessary and output to workspace
+                for h in hout:
+                    for i in range(1, h.GetNbinsX() + 1):
+                        massVal = h.GetXaxis().GetBinCenter(i)
+                        rhoVal = r.TMath.Log(massVal * massVal / pt_val / pt_val)
+                        if self._blind and massVal > self._mass_blind_lo and massVal < self._mass_blind_hi:
+                            print "blinding signal region for %s, mass bin [%i,%i] " % (
+                            h.GetName(), h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
+                            h.SetBinContent(i, 0.)
+                        if rhoVal < self._rho_lo or rhoVal > self._rho_hi:
+                            print "removing rho = %.2f for %s, pt_val = %.2f, mass bin [%i,%i]" % (
+                            rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
+                            h.SetBinContent(i, 0.)
+                    tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
+                    getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
+                    if h.GetName().find("scale") > -1:
+                        pName = h.GetName().replace("scale", "scalept")
+                        tmprdh = r.RooDataHist(pName, pName, r.RooArgList(self._lMSD), h)
+                        getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
+                    # validation
+                    self._outfile_validation.cd()
+                    h.Write()
+            else:
+                print "Importing {}".format(import_object.GetName())
+                getattr(workspace,'import')(import_object, r.RooFit.RecycleConflictNodes())
 
         if category.find("pass_cat1") == -1:
             workspace.writeToFile(output_path,False)
@@ -472,38 +639,82 @@ class RhalphabetBuilder():
 ##############################################################################
 
 ##-------------------------------------------------------------------------------------
-def LoadHistograms(f, pseudo, blind, useQCD, mass_range, blind_range):
+def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range):
     pass_hists = {}
     fail_hists = {}
     f.ls()
 
+    # backgrounds
     pass_hists_bkg = {}
     fail_hists_bkg = {}
     background_names = ["wqq", "zqq", "qcd", "tqq"]
     for i, bkg in enumerate(background_names):
         if bkg=='qcd':
             qcd_fail = f.Get('qcd_fail')
+            qcd_fail.Scale(1. / scale)
+            qcd_fail.SetBinContent(13, 4, (
+            qcd_fail.GetBinContent(12, 4) + qcd_fail.GetBinContent(14, 4)) / 2.)  # REMOVE HIGH WEIGHT EVENT BIN
+            qcd_fail.SetBinError(13, 4, (
+            qcd_fail.GetBinError(12, 4) + qcd_fail.GetBinError(14, 4)) / 2.)  # REMOVE HIGH WEIGHT EVENT BIN
             if useQCD:
-                qcd_pass = f.Get('qcd_pass')
+                qcd_pass = f.Get('qcd_pass').Clone()
+                qcd_pass.Scale(1. / scale)
             else:
                 qcd_pass_real = f.Get('qcd_pass').Clone('qcd_pass_real')
+                qcd_pass_real.Scale(1. / scale)
                 qcd_pass = qcd_fail.Clone('qcd_pass')
                 qcd_pass_real_integral = 0
                 qcd_fail_integral = 0
-                for i in range(1,qcd_pass_real.GetNbinsX()+1):
-                    for j in range(1,qcd_pass_real.GetNbinsY()+1):
-                        if qcd_pass_real.GetXaxis().GetBinCenter(i) > mass_range[0] and qcd_pass_real.GetXaxis().GetBinCenter(i) < mass_range[1]:
-                            qcd_pass_real_integral += qcd_pass_real.GetBinContent(i,j)
-                            qcd_fail_integral += qcd_fail.GetBinContent(i,j)                   
-                qcd_pass.Scale(qcd_pass_real_integral/qcd_fail_integral) # qcd_pass = qcd_fail * eff(pass)/eff(fail)
+                for i in range(1, qcd_pass_real.GetNbinsX() + 1):
+                    for j in range(1, qcd_pass_real.GetNbinsY() + 1):
+                        if qcd_pass_real.GetXaxis().GetBinCenter(i) > mass_range[0] and qcd_pass_real.GetXaxis().GetBinCenter(
+                                i) < mass_range[1]:
+                            qcd_pass_real_integral += qcd_pass_real.GetBinContent(i, j)
+                            qcd_fail_integral += qcd_fail.GetBinContent(i, j)
+                qcd_pass.Scale(qcd_pass_real_integral / qcd_fail_integral)  # qcd_pass = qcd_fail * eff(pass)/eff(fail)
             pass_hists_bkg["qcd"] = qcd_pass
             fail_hists_bkg["qcd"] = qcd_fail
             print 'qcd pass integral', qcd_pass.Integral()
             print 'qcd fail integral', qcd_fail.Integral()
-        else:            
-            pass_hists_bkg[bkg] = f.Get(bkg+'_pass')
-            fail_hists_bkg[bkg] = f.Get(bkg+'_fail')
-        
+        else:
+            hpass_tmp = f.Get(bkg + '_pass').Clone()
+            hfail_tmp = f.Get(bkg + '_fail').Clone()
+            hpass_tmp.Scale(1. / scale)
+            hfail_tmp.Scale(1. / scale)
+            hpass_tmp.Scale(GetSF(bkg, 'pass', f))
+            hfail_tmp.Scale(GetSF(bkg, 'fail', f))
+            pass_hists_bkg[bkg] = hpass_tmp
+            fail_hists_bkg[bkg] = hfail_tmp
+
+    # signals
+    pass_hists_sig = {}
+    fail_hists_sig = {}
+    # for Pbb
+    #masses = [50, 75, 125, 100, 150, 250, 300]
+    #sigs = ['Pbb_']
+    #signal_names = []
+    # for Hbb
+    masses = [125]  # 50,75,125,100,150,200,250,300]
+    sigs = ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]
+    signal_names = []
+
+    for mass in masses:
+        for sig in sigs:
+            passhist = f.Get(sig + str(mass) + "_pass").Clone()
+            failhist = f.Get(sig + str(mass) + "_fail").Clone()
+            for hist in [passhist, failhist]:
+                for i in range(0, hist.GetNbinsX() + 2):
+                    for j in range(0, hist.GetNbinsY() + 2):
+                        if hist.GetBinContent(i, j) <= 0:
+                            hist.SetBinContent(i, j, 0)
+            failhist.Scale(1. / scale)
+            passhist.Scale(1. / scale)
+            failhist.Scale(GetSF(sig + str(mass), 'fail', f))
+            passhist.Scale(GetSF(sig + str(mass), 'pass', f))
+            pass_hists_sig[sig + str(mass)] = passhist
+            fail_hists_sig[sig + str(mass)] = failhist
+            signal_names.append(sig + str(mass))
+
     if pseudo:        
         for i, bkg in enumerate(background_names):
             if i==0:
@@ -511,29 +722,15 @@ def LoadHistograms(f, pseudo, blind, useQCD, mass_range, blind_range):
                 fail_hists["data_obs"] = fail_hists_bkg[bkg].Clone('data_obs_fail')
             else:                
                 pass_hists["data_obs"].Add(pass_hists_bkg[bkg])
-                fail_hists["data_obs"].Add(fail_hists_bkg[bkg])        
+                fail_hists["data_obs"].Add(fail_hists_bkg[bkg])
+
+        for i, signal in enumerate(signal_names):
+            pass_hists["data_obs"].Add(pass_hists_sig[signal],r_signal)
+            fail_hists["data_obs"].Add(fail_hists_sig[signal],r_signal)
     else:
         pass_hists["data_obs"] = f.Get('data_obs_pass')
         fail_hists["data_obs"] = f.Get('data_obs_fail')
 
-    #signals
-    pass_hists_sig = {}
-    fail_hists_sig = {}
-    masses=[50,75,125,100,150,250,300]
-    signal_names = []
-    for mass in masses:
-        print "Signal histogram name = Pbb_" +str(mass)+"_pass"
-        passhist = f.Get("Pbb" + "_" +str(mass)+"_pass").Clone()
-        failhist = f.Get("Pbb" + "_" +str(mass)+"_fail").Clone()
-        for hist in [passhist, failhist]:
-            for i in range(0,hist.GetNbinsX()+2):
-                for j in range(0,hist.GetNbinsY()+2):
-                    if hist.GetBinContent(i,j) <= 0:
-                        hist.SetBinContent(i,j,0)
-        pass_hists_sig["Pbb_" + str(mass)] = passhist
-        fail_hists_sig["Pbb_" + str(mass)] = failhist
-        signal_names.append("Pbb_" + str(mass))
-        #pass_hists_sig.append(f.Get(sig+str(mass)+"_pass"))
 
     pass_hists.update(pass_hists_bkg)
     pass_hists.update(pass_hists_sig)
@@ -541,61 +738,36 @@ def LoadHistograms(f, pseudo, blind, useQCD, mass_range, blind_range):
     fail_hists.update(fail_hists_sig)
     
     for histogram in (pass_hists.values() + fail_hists.values()):
-        if blind:            
-            for i in range(1,histogram.GetNbinsX()+1):
-                for j in range(1,histogram.GetNbinsY()+1):
-                    if histogram.GetXaxis().GetBinCenter(i) > blind_range[0] and histogram.GetXaxis().GetBinCenter(i) < blind_range[1]:
-                        print "blinding signal region for %s, mass bin [%i,%i] "%(histogram.GetName(),histogram.GetXaxis().GetBinLowEdge(i),histogram.GetXaxis().GetBinUpEdge(i))
-                        histogram.SetBinContent(i,j,0.)
-                        print histogram.GetBinContent(i,j)
+        for i in range(1,histogram.GetNbinsX()+1):
+            for j in range(1,histogram.GetNbinsY()+1):
+                massVal = histogram.GetXaxis().GetBinCenter(i)
+                ptVal = histogram.GetYaxis().GetBinLowEdge(j) + histogram.GetYaxis().GetBinWidth(j) * 0.3
+                rhoVal = r.TMath.Log(massVal * massVal / ptVal / ptVal)
+                if blind and histogram.GetXaxis().GetBinCenter(i) > blind_range[0] and histogram.GetXaxis().GetBinCenter(i) < blind_range[1]:
+                    print "blinding signal region for %s, mass bin [%i,%i] "%(histogram.GetName(),histogram.GetXaxis().GetBinLowEdge(i),histogram.GetXaxis().GetBinUpEdge(i))
+                    histogram.SetBinContent(i,j,0.)
+                if rhoVal < rho_range[0] or rhoVal > rho_range[1]:
+                    print "removing rho = %.2f for %s, pt bin [%i, %i], mass bin [%i,%i]" % (
+                    rhoVal, histogram.GetName(), histogram.GetYaxis().GetBinLowEdge(j), histogram.GetYaxis().GetBinUpEdge(j),
+                    histogram.GetXaxis().GetBinLowEdge(i), histogram.GetXaxis().GetBinUpEdge(i))
+                    histogram.SetBinContent(i, j, 0.)
         histogram.SetDirectory(0)  
 
     # print "lengths = ", len(pass_hists), len(fail_hists)
     # print pass_hists;
     # print fail_hists;
     return (pass_hists,fail_hists)
-    # return (fail_hists,pass_hists)
 
-##-------------------------------------------------------------------------------------
-
-#def main(options,args):
-#    
-#    ifile = options.ifile
-#    odir = options.odir
-#
-#    # Load the input histograms
-#    #   - 2D histograms of pass and fail mass,pT distributions
-#    #   - for each MC sample and the data
-#    f = r.TFile.Open(ifile)
-#    (pass_hists,fail_hists) = LoadHistograms(f,options.pseudo,options.blind,options.useQCD);
-#
-#    # Build the workspacees
-#    RhalphabetBuilder(pass_hists, fail_hists, odir, mass_fit=options.mass_fit, freeze_poly=args.freeze_poly)
-
-if __name__ == '__main__':
-    pass
-    #parser = OptionParser()
-    #parser.add_option('-b', action='store_true', dest='noX', default=False, help='no X11 windows')
-    #parser.add_option('-i','--ifile', dest='ifile', default = 'hist_1DZbb.root',help='file with histogram inputs', metavar='ifile')
-    #parser.add_option('-o','--odir', dest='odir', default = './',help='directory to write plots', metavar='odir')
-    #parser.add_option('--pseudo', action='store_true', dest='pseudo', default =False,help='use MC', metavar='pseudo')
-    #parser.add_option('--blind', action='store_true', dest='blind', default =False,help='blind signal region', metavar='blind')
-    #parser.add_option('--use-qcd', action='store_true', dest='useQCD', default =False,help='use real QCD MC', metavar='useQCD')
-    #parser.add_option('--mass_fit', action='store_true', dest='mass_fit', default =False,help='Do mass fit instead of rho fit', metavar='mass_fit')
-    #parser.add_option('--freeze_poly', action='store_true', dest='freeze_poly', default =False,help='freeze_poly pol values', metavar='freeze_poly')
-    #
-    #(options, args) = parser.parse_args()
-
-    #import tdrstyle
-    #tdrstyle.setTDRStyle()
-    #r.gStyle.SetPadTopMargin(0.10)
-    #r.gStyle.SetPadLeftMargin(0.16)
-    #r.gStyle.SetPadRightMargin(0.10)
-    #r.gStyle.SetPalette(1)
-    #r.gStyle.SetPaintTextFormat("1.1f")
-    #r.gStyle.SetOptFit(0000)
-    #r.gROOT.SetBatch()
-    #
-    #main(options,args)
-##-------------------------------------------------------------------------------------
-
+def GetSF(process, cat, f):
+    SF = 1
+    if 'hqq' in process or 'zqq' in process or 'Pbb' in process:
+        if 'pass' in cat:
+            SF *= BB_SF
+        else:
+            passInt = f.Get(process + '_pass').Integral()
+            failInt = f.Get(process + '_fail').Integral()
+            if failInt > 0:
+                SF *= (1. + (1. - BB_SF) * passInt / failInt)
+    if 'wqq' in process or 'zqq' in process or 'hqq' in process or 'Pbb' in process:
+        SF *= V_SF
+    return SF
