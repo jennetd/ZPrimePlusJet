@@ -1468,7 +1468,7 @@ class sampleContainer:
                 self.h_Cuts.SetBinContent(8, float(cut[8]) / cut[3] * 100.)
                 self.h_Cuts.SetBinContent(9, float(cut[9]) / cut[3] * 100.)
             else:
-                print "WARNING : cut[3]==0, so skipping cutflow histogram."
+                print "WARNING : cut[3]==0 (ak8 pt cut), so skipping cutflow histogram."
             print(cut[0] / nent * 100., cut[7], cut[8], cut[9])
             a_Cuts = self.h_Cuts.GetXaxis()
             a_Cuts.SetBinLabel(4, "lep veto")
