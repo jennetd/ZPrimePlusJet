@@ -99,6 +99,7 @@ if __name__ == "__main__":
 	parser.add_argument("--fillCA15", action="store_true", help="Do CA15 histograms")
 	parser.add_argument("--cutFormula", type=str, default="1", help="Additional cut formula")
 	parser.add_argument("--xsec", type=float, help="For samples that did not have scale1fb calculated, specify a cross section [pb] now.")
+	parser.add_argument("--tree_name", type=str, default="otree", help="Name of tree in input files (otree or Events)")
 	args = parser.parse_args()
 
-	RunSampleContainer(args.sample, args.input_files.split(","), args.output_file, lumi=args.lumi, sf=args.sf, isData=args.isData, fillCA15=args.fillCA15, cutFormula=args.cutFormula)
+	RunSampleContainer(args.sample, args.input_files.split(","), args.output_file, lumi=args.lumi, sf=args.sf, isData=args.isData, fillCA15=args.fillCA15, cutFormula=args.cutFormula, tree_name=args.tree_name)

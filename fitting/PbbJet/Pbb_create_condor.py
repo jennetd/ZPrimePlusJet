@@ -61,6 +61,7 @@ if __name__ == "__main__":
 					run_command += " --cutFormula \"((triggerBits&4)&&passJson)\""
 			if "Sbb" in sample:
 				run_command += " --xsec 1.0 "
+				run_command += " --tree_name Events "
 			run_script.write("#!/bin/bash\n")
 			run_script.write("export ZPRIMEPLUSJET_BASE=$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/\n")
 			run_script.write(run_command + "\n")
