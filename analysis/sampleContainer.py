@@ -1485,7 +1485,8 @@ class sampleContainer:
             self.h_CutEvents.SetBinContent(8, cut[8])
             self.h_CutEvents.SetBinContent(9, cut[9])
             if nent > 0:
-                print(cut[0] / nent * 100., cut[7], cut[8], cut[9])
+                print "Lep veto = {} / njet<5 = {} / N2DDT<0 = {} / DBTAG>{} = {}".format(cut[0], cut[7], cut[8], DBTAGCUT, cut[9])
+                #(cut[0] / nent * 100., cut[7], cut[8], cut[9])
             else:
                 print "WARNING: nent = 0, so skipping cut printing"
             a_Cuts = self.h_Cuts.GetXaxis()

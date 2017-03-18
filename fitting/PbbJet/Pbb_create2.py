@@ -15,7 +15,6 @@ def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1
 	# Number of input events
 	h_nevents = TH1D("NEvents", "NEvents", 1, 0, 1)
 	h_nevents.SetBinContent(1, sample.GetNEvents())
-	h_nevents.Write()
 	hall={}
 
 	# Normalization weight? For samples where scale1fb hasn't been calculated. This must be the normalization factor to 1 fb^-1, then.
@@ -81,7 +80,7 @@ def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1
 
 	for key, h in hall.iteritems():
 		h.Write()
-
+	h_nevents.Write()
 	sample.h_Cuts.Write()
 	sample.h_CutEvents.Write()
 
