@@ -1,3 +1,4 @@
+import os
 sklim_directory = "root://cmsxrootd-site.fnal.gov//store/user/lpchbb/zprimebits-v12.03/cvernier/"
 scalar_sklim_directory = "root://cmsxrootd-site.fnal.gov/store/user/lpchbb/zprimebits-v12.02/norm/"
 sklims = {                                                                                                                                                                                
@@ -39,10 +40,10 @@ sklims = {
                     sklim_directory+'/QCD_HT1000to1500_13TeV_all_1000pb_weighted.root',                                                                                                 
                     sklim_directory+'/QCD_HT1500to2000_13TeV_all_1000pb_weighted.root',                                                                                                 
                     sklim_directory+'/QCD_HT2000toInf_13TeV_1000pb_weighted.root'],                                                                                                     
-    'Phibb50'  : [sklim_directory+'/Spin0_ggPhi12j_g1_50_Scalar_13TeV_madgraph_1000pb_weighted.root'],                                                                            
-    'Phibb75'  : [sklim_directory+'/Spin0_ggPhi12j_g1_75_Scalar_13TeV_madgraph_1000pb_weighted.root'],                                                                            
-    'Phibb150' : [sklim_directory+'/Spin0_ggPhi12j_g1_150_Scalar_13TeV_madgraph_1000pb_weighted.root'],                                                                          
-    'Phibb250' : [sklim_directory+'/Spin0_ggPhi12j_g1_250_Scalar_13TeV_madgraph_1000pb_weighted.root'],                                                                          
+    #'Phibb50'  : [sklim_directory+'/Spin0_ggPhi12j_g1_50_Scalar_13TeV_madgraph_1000pb_weighted.root'],                                                                            
+    #'Phibb75'  : [sklim_directory+'/Spin0_ggPhi12j_g1_75_Scalar_13TeV_madgraph_1000pb_weighted.root'],                                                                            
+    #'Phibb150' : [sklim_directory+'/Spin0_ggPhi12j_g1_150_Scalar_13TeV_madgraph_1000pb_weighted.root'],                                                                          
+    #'Phibb250' : [sklim_directory+'/Spin0_ggPhi12j_g1_250_Scalar_13TeV_madgraph_1000pb_weighted.root'],                                                                          
     'data_jetht' : [sklim_directory+'JetHTRun2016B_23Sep2016_v1.root',                                                                                                             
                     sklim_directory+'JetHTRun2016B_23Sep2016_v3_0.root',                                                                                                               
                     sklim_directory+'JetHTRun2016B_23Sep2016_v3_1.root',                                                                                                               
@@ -91,3 +92,6 @@ sklims = {
                        sklim_directory+'/SingleMuonRun2016H_PromptReco_v3.root'],
 
 }
+for mass in [50,75,100,125,150,200,250,300,350,400,500]:
+    sklims["Sbb_{}".format(mass)]  = [x.strip() for x in open(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/data/skim_directory/lxplus/Spin0_ggPhi12j_g1_{}_Scalar_13TeV_madgraph.txt".format(mass)))]
+    sklims["PSbb_{}".format(mass)] = [x.strip() for x in open(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/data/skim_directory/lxplus/Spin0_ggPhi12j_g1_{}_PseudoScalar_13TeV_madgraph.txt".format(mass)))]

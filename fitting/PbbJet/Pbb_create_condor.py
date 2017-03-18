@@ -20,7 +20,11 @@ if __name__ == "__main__":
 	if args.samples == "all":
 		samples = ["hqq125", "tthqq125", "vbfhqq125", "whqq125", "zhqq125", "qcd", "tqq", "stqq", "wqq", "wlnu", "zqq", "vvqq", "data_jetht", "data_singlemu"]
 	elif args.samples == "signal":
-		samples = ["hqq125", "tthqq125", "vbfhqq125", "whqq125", "zhqq125"]
+		#samples = ["hqq125", "tthqq125", "vbfhqq125", "whqq125", "zhqq125"]
+		signal_masses = [50,75,100,125,150,200,250,300,350,400,500]
+		for mass in signal_masses:
+			samples.append("Sbb_{}".format(mass))
+			samples.append("PSbb_{}".format(mass))
 	elif args.samples == "background":
 		samples = ["qcd", "tqq", "stqq", "wqq", "wlnu", "zqq", "vvqq"]
 	elif args.samples == "data":
@@ -29,7 +33,7 @@ if __name__ == "__main__":
 		samples = args.samples.split(",")
 
 	for sample in samples:
-		submission_directory = "/uscms_data/d3/dryu/DAZSLE/data/Histograms/condor/" + sample
+		submission_directory = os.path.expandvars("$HOME/DAZSLE/data/Histograms/condor/" + sample)
 		os.system("mkdir -pv " + submission_directory)
 		start_dir = os.getcwd()
 		os.chdir(submission_directory)
