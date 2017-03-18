@@ -1454,18 +1454,21 @@ class sampleContainer:
         print "\n"
         
         if not self._minBranches:
-            self.h_Cuts.SetBinContent(4, float(cut[0] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(5, float(cut[1] / cut[3] * 100.))
-            # self.h_Cuts.SetBinContent(6,float(cut[2]/nent*100.))
-            self.h_Cuts.SetBinContent(1, float(cut[3] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(2, float(cut[4] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(3, float(cut[5] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(6, float(cut[6] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(7, float(cut[7] / cut[3] * 100.))
-            # self.h_Cuts.SetBinContent(9,float(cut[8]/nent*100.))
-            # self.h_Cuts.SetBinContent(10,float(cut[9]/nent*100.))
-            self.h_Cuts.SetBinContent(8, float(cut[8]) / cut[3] * 100.)
-            self.h_Cuts.SetBinContent(9, float(cut[9]) / cut[3] * 100.)
+            if cut[3] > 0:
+                self.h_Cuts.SetBinContent(4, float(cut[0] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(5, float(cut[1] / cut[3] * 100.))
+                # self.h_Cuts.SetBinContent(6,float(cut[2]/nent*100.))
+                self.h_Cuts.SetBinContent(1, float(cut[3] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(2, float(cut[4] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(3, float(cut[5] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(6, float(cut[6] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(7, float(cut[7] / cut[3] * 100.))
+                # self.h_Cuts.SetBinContent(9,float(cut[8]/nent*100.))
+                # self.h_Cuts.SetBinContent(10,float(cut[9]/nent*100.))
+                self.h_Cuts.SetBinContent(8, float(cut[8]) / cut[3] * 100.)
+                self.h_Cuts.SetBinContent(9, float(cut[9]) / cut[3] * 100.)
+            else:
+                print "WARNING : cut[3]==0, so skipping cutflow histogram."
             print(cut[0] / nent * 100., cut[7], cut[8], cut[9])
             a_Cuts = self.h_Cuts.GetXaxis()
             a_Cuts.SetBinLabel(4, "lep veto")
