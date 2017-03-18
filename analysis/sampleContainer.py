@@ -337,6 +337,7 @@ class sampleContainer:
         if not self._minBranches:
             histos1d_ext = {
                 'h_Cuts': ["h_" + self._name + "_Cuts", "; Cut ", 9, 0, 9],
+                'h_CutEvents': ["h_" + self._name + "_CutEvents", "; Cut ", 9, 0, 9],
                 'h_n_ak4': ["h_" + self._name + "_n_ak4", "; AK4 n_{jets}, p_{T} > 30 GeV;", 20, 0, 20],
                 'h_ht': ["h_" + self._name + "_ht", "; HT (GeV);;", 50, 300, 2100],
                 'h_pt_bbleading': ["h_" + self._name + "_pt_bbleading", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
@@ -1469,6 +1470,18 @@ class sampleContainer:
                 self.h_Cuts.SetBinContent(9, float(cut[9]) / cut[3] * 100.)
             else:
                 print "WARNING : cut[3]==0 (ak8 pt cut), so skipping cutflow histogram."
+            self.h_CutEvents.SetBinContent(4, cut[0])
+            self.h_CutEvents.SetBinContent(5, cut[1])
+            # self.h_CutEvents.SetBinContent(6,float(cut[2]/nent*100.))
+            self.h_CutEvents.SetBinContent(1, cut[3])
+            self.h_CutEvents.SetBinContent(2, cut[4])
+            self.h_CutEvents.SetBinContent(3, cut[5])
+            self.h_CutEvents.SetBinContent(6, cut[6])
+            self.h_CutEvents.SetBinContent(7, cut[7])
+            # self.h_CutEvents.SetBinContent(9,float(cut[8]/nent*100.))
+            # self.h_CutEvents.SetBinContent(10,float(cut[9]/nent*100.))
+            self.h_CutEvents.SetBinContent(8, cut[8])
+            self.h_CutEvents.SetBinContent(9, cut[9])
             if nent > 0:
                 print(cut[0] / nent * 100., cut[7], cut[8], cut[9])
             else:
@@ -1484,6 +1497,17 @@ class sampleContainer:
             a_Cuts.SetBinLabel(7, "njet<5")
             a_Cuts.SetBinLabel(8, "N2^{DDT}<0")
             a_Cuts.SetBinLabel(9, "Double b-tag > " + str(DBTAGCUT))
+
+            self._h_CutEvents.GetXaxis().SetBinLabel(4, "lep veto")
+            self._h_CutEvents.GetXaxis().SetBinLabel(5, "#tau veto")
+            # self._h_CutEvents.GetXaxis().SetBinLabel(6, "#gamma veto")
+            self._h_CutEvents.GetXaxis().SetBinLabel(1, "500<p_{T}<550 GeV")
+            self._h_CutEvents.GetXaxis().SetBinLabel(2, "m_{SD}>40 GeV")
+            self._h_CutEvents.GetXaxis().SetBinLabel(3, "tight ID")
+            self._h_CutEvents.GetXaxis().SetBinLabel(6, "MET<180")
+            self._h_CutEvents.GetXaxis().SetBinLabel(7, "njet<5")
+            self._h_CutEvents.GetXaxis().SetBinLabel(8, "N2^{DDT}<0")
+            self._h_CutEvents.GetXaxis().SetBinLabel(9, "Double b-tag > " + str(DBTAGCUT))
 
             self.h_rhop_v_t21_ak8_Px = self.h_rhop_v_t21_ak8.ProfileX()
             self.h_rhop_v_t21_ca15_Px = self.h_rhop_v_t21_ca15.ProfileX()

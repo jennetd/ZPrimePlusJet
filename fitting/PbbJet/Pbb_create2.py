@@ -83,6 +83,7 @@ def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1
 		h.Write()
 
 	sample.h_Cuts.Write()
+	sample.h_CutEvents.Write()
 
 	output_file.Write()
 	output_file.Close()
