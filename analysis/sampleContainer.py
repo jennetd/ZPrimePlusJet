@@ -24,15 +24,20 @@ NJETCUT = 5
 #########################################################################################################
 class sampleContainer:
     def __init__(self, name, fn, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
-                 minBranches=False, processEvents=-1):
+                 minBranches=False, processEvents=-1, tree_name="otree"):
         self._name = name
         self._processEvents = processEvents
         self.DBTAGCUTMIN = DBTAGCUTMIN
         self._fn = fn
         if len(fn) > 0:
             self._tf = ROOT.TFile.Open(self._fn[0])
-        self._tt = ROOT.TChain('otree')
-        for fn in self._fn: self._tt.Add(fn)
+        self._tt = ROOT.TChain(tree_name)
+
+        self._nevents = 0
+        for fn in self._fn: 
+          self._tt.Add(fn)
+          this_file = ROOT.TFile.Open(fn)
+          self._nevents += this_file.Get("NEvents").Integral()
         self._sf = sf
         self._lumi = lumi
         warnings.filterwarnings(action='ignore', category=RuntimeWarning, message='creating converter.*')
@@ -331,7 +336,7 @@ class sampleContainer:
         }
         if not self._minBranches:
             histos1d_ext = {
-                'h_Cuts': ["h_" + self._name + "_Cuts", "; Cut ", 8, 0, 8],
+                'h_Cuts': ["h_" + self._name + "_Cuts", "; Cut ", 9, 0, 9],
                 'h_n_ak4': ["h_" + self._name + "_n_ak4", "; AK4 n_{jets}, p_{T} > 30 GeV;", 20, 0, 20],
                 'h_ht': ["h_" + self._name + "_ht", "; HT (GeV);;", 50, 300, 2100],
                 'h_pt_bbleading': ["h_" + self._name + "_pt_bbleading", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
@@ -1460,6 +1465,7 @@ class sampleContainer:
             # self.h_Cuts.SetBinContent(9,float(cut[8]/nent*100.))
             # self.h_Cuts.SetBinContent(10,float(cut[9]/nent*100.))
             self.h_Cuts.SetBinContent(8, float(cut[8]) / cut[3] * 100.)
+            self.h_Cuts.SetBinContent(9, float(cut[9]) / cut[3] * 100.)
             print(cut[0] / nent * 100., cut[7], cut[8], cut[9])
             a_Cuts = self.h_Cuts.GetXaxis()
             a_Cuts.SetBinLabel(4, "lep veto")
@@ -1471,6 +1477,7 @@ class sampleContainer:
             a_Cuts.SetBinLabel(6, "MET<180")
             a_Cuts.SetBinLabel(7, "njet<5")
             a_Cuts.SetBinLabel(8, "N2^{DDT}<0")
+            a_Cuts.SetBinLabel(9, "Double b-tag > " + str(DBTAGCUT))
 
             self.h_rhop_v_t21_ak8_Px = self.h_rhop_v_t21_ak8.ProfileX()
             self.h_rhop_v_t21_ca15_Px = self.h_rhop_v_t21_ca15.ProfileX()
@@ -1491,4 +1498,6 @@ class sampleContainer:
         totalWeight = genCorr * recoCorr
         return totalWeight
 
+      def GetNEvents(self):
+        return self._nevents
 ##########################################################################################

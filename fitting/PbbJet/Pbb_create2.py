@@ -8,10 +8,19 @@ from sampleContainer import *
 import DAZSLE.PhiBBPlusJet.analysis_configuration as config
 
 
-def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1, isData=False, fillCA15=False, cutFormula="1"):
+def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1, isData=False, fillCA15=False, cutFormula="1", xsec=None):
 	output_file = TFile(output_filename, "RECREATE")
-	sample = sampleContainer(sample_name, input_filenames, sf=sf, lumi=lumi, isData=isData, fillCA15=fillCA15, cutFormula=cutFormula, processEvents=10000)
+	sample = sampleContainer(sample_name, input_filenames, sf=sf, lumi=lumi, isData=isData, fillCA15=fillCA15, cutFormula=cutFormula, processEvents=-1)
+
+	# Number of input events
+	h_nevents = TH1D("NEvents", "NEvents", 1, 0, 1)
+	h_nevents.SetBinContent(1, sample.GetNEvents())
+	h_nevents.Write()
 	hall={}
+
+	# Normalization weight? For samples where scale1fb hasn't been calculated. This must be the normalization factor to 1 fb^-1, then.
+	if xsec:
+		scale1fb = 1000. * xsec / sample.GetNEvents()
 
 	plots =  ['h_msd_v_pt_ak8_topR6_N2_pass',
 				'h_msd_v_pt_ak8_topR6_N2_fail', #SR with N2DDT @ 26% && db > 0.9, msd corrected
@@ -56,21 +65,25 @@ def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1
 				'h_msd_ak8_muCR4_N2_fail_muisoUp',
 				'h_msd_ak8_muCR4_N2_fail_muisoDown',	
 	] 
-		
+
 	for plot in plots:
 		print "[debug] On plot " + plot
 		tag = plot.split('_')[-1] # 'pass' or 'fail' or systematicName
 		if tag not in ['pass', 'fail']:
 			tag = plot.split('_')[-2] + '_' +  plot.split('_')[-1] # 'pass_systematicName', 'pass_systmaticName', etc.
+		if "muCR" in plot:
+			tag += "_muCR"
 		hall['%s_%s'%(sample_name,tag)] = getattr(sample,plot)
 		hall['%s_%s'%(sample_name,tag)].SetName('%s_%s'%(sample_name,tag))
+		if xsec:
+			hall['%s_%s'%(sample_name,tag)].Scale(scale1fb)
 	output_file.cd()
 
 	for key, h in hall.iteritems():
 		h.Write()
 
 	sample.h_Cuts.Write()
-		
+
 	output_file.Write()
 	output_file.Close()
 
@@ -85,6 +98,7 @@ if __name__ == "__main__":
 	parser.add_argument("--isData", action="store_true", help="This is data")
 	parser.add_argument("--fillCA15", action="store_true", help="Do CA15 histograms")
 	parser.add_argument("--cutFormula", type=str, default="1", help="Additional cut formula")
+	parser.add_argument("--xsec", type=float, help="For samples that did not have scale1fb calculated, specify a cross section [pb] now.")
 	args = parser.parse_args()
 
 	RunSampleContainer(args.sample, args.input_files.split(","), args.output_file, lumi=args.lumi, sf=args.sf, isData=args.isData, fillCA15=args.fillCA15, cutFormula=args.cutFormula)
