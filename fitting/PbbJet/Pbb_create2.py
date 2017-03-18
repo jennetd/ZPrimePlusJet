@@ -8,9 +8,9 @@ from sampleContainer import *
 import DAZSLE.PhiBBPlusJet.analysis_configuration as config
 
 
-def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1, isData=False, fillCA15=False, cutFormula="1", xsec=None):
+def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1, isData=False, fillCA15=False, cutFormula="1", xsec=None, tree_name="otree"):
 	output_file = TFile(output_filename, "RECREATE")
-	sample = sampleContainer(sample_name, input_filenames, sf=sf, lumi=lumi, isData=isData, fillCA15=fillCA15, cutFormula=cutFormula, processEvents=-1)
+	sample = sampleContainer(sample_name, input_filenames, sf=sf, lumi=lumi, isData=isData, fillCA15=fillCA15, cutFormula=cutFormula, processEvents=-1, tree_name=tree_name)
 
 	# Number of input events
 	h_nevents = TH1D("NEvents", "NEvents", 1, 0, 1)
