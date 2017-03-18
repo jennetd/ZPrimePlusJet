@@ -24,15 +24,22 @@ NJETCUT = 5
 #########################################################################################################
 class sampleContainer:
     def __init__(self, name, fn, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
-                 minBranches=False, processEvents=-1):
+                 minBranches=False, processEvents=-1, tree_name="otree"):
         self._name = name
         self._processEvents = processEvents
         self.DBTAGCUTMIN = DBTAGCUTMIN
         self._fn = fn
         if len(fn) > 0:
             self._tf = ROOT.TFile.Open(self._fn[0])
-        self._tt = ROOT.TChain('otree')
-        for fn in self._fn: self._tt.Add(fn)
+        self._tt = ROOT.TChain(tree_name)
+
+        self._nevents = 0
+        for fn in self._fn: 
+          self._tt.Add(fn)
+          this_file = ROOT.TFile.Open(fn)
+          self._nevents += this_file.Get("NEvents").Integral()
+        print "Sample NEvents = {}".format(self._nevents)
+        print "Skim NEvents = {}".format(self._tt.GetEntries())
         self._sf = sf
         self._lumi = lumi
         warnings.filterwarnings(action='ignore', category=RuntimeWarning, message='creating converter.*')
@@ -331,7 +338,8 @@ class sampleContainer:
         }
         if not self._minBranches:
             histos1d_ext = {
-                'h_Cuts': ["h_" + self._name + "_Cuts", "; Cut ", 8, 0, 8],
+                'h_Cuts': ["h_" + self._name + "_Cuts", "; Cut ", 9, 0, 9],
+                'h_CutEvents': ["h_" + self._name + "_CutEvents", "; Cut ", 9, 0, 9],
                 'h_n_ak4': ["h_" + self._name + "_n_ak4", "; AK4 n_{jets}, p_{T} > 30 GeV;", 20, 0, 20],
                 'h_ht': ["h_" + self._name + "_ht", "; HT (GeV);;", 50, 300, 2100],
                 'h_pt_bbleading': ["h_" + self._name + "_pt_bbleading", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
@@ -1449,18 +1457,38 @@ class sampleContainer:
         print "\n"
         
         if not self._minBranches:
-            self.h_Cuts.SetBinContent(4, float(cut[0] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(5, float(cut[1] / cut[3] * 100.))
-            # self.h_Cuts.SetBinContent(6,float(cut[2]/nent*100.))
-            self.h_Cuts.SetBinContent(1, float(cut[3] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(2, float(cut[4] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(3, float(cut[5] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(6, float(cut[6] / cut[3] * 100.))
-            self.h_Cuts.SetBinContent(7, float(cut[7] / cut[3] * 100.))
-            # self.h_Cuts.SetBinContent(9,float(cut[8]/nent*100.))
-            # self.h_Cuts.SetBinContent(10,float(cut[9]/nent*100.))
-            self.h_Cuts.SetBinContent(8, float(cut[8]) / cut[3] * 100.)
-            print(cut[0] / nent * 100., cut[7], cut[8], cut[9])
+            if cut[3] > 0:
+                self.h_Cuts.SetBinContent(4, float(cut[0] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(5, float(cut[1] / cut[3] * 100.))
+                # self.h_Cuts.SetBinContent(6,float(cut[2]/nent*100.))
+                self.h_Cuts.SetBinContent(1, float(cut[3] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(2, float(cut[4] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(3, float(cut[5] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(6, float(cut[6] / cut[3] * 100.))
+                self.h_Cuts.SetBinContent(7, float(cut[7] / cut[3] * 100.))
+                # self.h_Cuts.SetBinContent(9,float(cut[8]/nent*100.))
+                # self.h_Cuts.SetBinContent(10,float(cut[9]/nent*100.))
+                self.h_Cuts.SetBinContent(8, float(cut[8]) / cut[3] * 100.)
+                self.h_Cuts.SetBinContent(9, float(cut[9]) / cut[3] * 100.)
+            else:
+                print "WARNING : cut[3]==0 (ak8 pt cut), so skipping cutflow histogram."
+            self.h_CutEvents.SetBinContent(4, cut[0])
+            self.h_CutEvents.SetBinContent(5, cut[1])
+            # self.h_CutEvents.SetBinContent(6,float(cut[2]/nent*100.))
+            self.h_CutEvents.SetBinContent(1, cut[3])
+            self.h_CutEvents.SetBinContent(2, cut[4])
+            self.h_CutEvents.SetBinContent(3, cut[5])
+            self.h_CutEvents.SetBinContent(6, cut[6])
+            self.h_CutEvents.SetBinContent(7, cut[7])
+            # self.h_CutEvents.SetBinContent(9,float(cut[8]/nent*100.))
+            # self.h_CutEvents.SetBinContent(10,float(cut[9]/nent*100.))
+            self.h_CutEvents.SetBinContent(8, cut[8])
+            self.h_CutEvents.SetBinContent(9, cut[9])
+            if nent > 0:
+                print "Lep veto = {} / njet<5 = {} / N2DDT<0 = {} / DBTAG>{} = {}".format(cut[0], cut[7], cut[8], DBTAGCUT, cut[9])
+                #(cut[0] / nent * 100., cut[7], cut[8], cut[9])
+            else:
+                print "WARNING: nent = 0, so skipping cut printing"
             a_Cuts = self.h_Cuts.GetXaxis()
             a_Cuts.SetBinLabel(4, "lep veto")
             a_Cuts.SetBinLabel(5, "#tau veto")
@@ -1471,6 +1499,18 @@ class sampleContainer:
             a_Cuts.SetBinLabel(6, "MET<180")
             a_Cuts.SetBinLabel(7, "njet<5")
             a_Cuts.SetBinLabel(8, "N2^{DDT}<0")
+            a_Cuts.SetBinLabel(9, "Double b-tag > " + str(DBTAGCUT))
+
+            self.h_CutEvents.GetXaxis().SetBinLabel(4, "lep veto")
+            self.h_CutEvents.GetXaxis().SetBinLabel(5, "#tau veto")
+            # self.h_CutEvents.GetXaxis().SetBinLabel(6, "#gamma veto")
+            self.h_CutEvents.GetXaxis().SetBinLabel(1, "p_{T}>{} GeV".format(PTCUT))
+            self.h_CutEvents.GetXaxis().SetBinLabel(2, "m_{SD}>40 GeV")
+            self.h_CutEvents.GetXaxis().SetBinLabel(3, "tight ID")
+            self.h_CutEvents.GetXaxis().SetBinLabel(6, "MET<180")
+            self.h_CutEvents.GetXaxis().SetBinLabel(7, "njet<5")
+            self.h_CutEvents.GetXaxis().SetBinLabel(8, "N2^{DDT}<0")
+            self.h_CutEvents.GetXaxis().SetBinLabel(9, "Double b-tag > " + str(DBTAGCUT))
 
             self.h_rhop_v_t21_ak8_Px = self.h_rhop_v_t21_ak8.ProfileX()
             self.h_rhop_v_t21_ca15_Px = self.h_rhop_v_t21_ca15.ProfileX()
@@ -1491,4 +1531,6 @@ class sampleContainer:
         totalWeight = genCorr * recoCorr
         return totalWeight
 
+    def GetNEvents(self):
+      return self._nevents
 ##########################################################################################
