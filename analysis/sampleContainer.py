@@ -1504,7 +1504,7 @@ class sampleContainer:
             self.h_CutEvents.GetXaxis().SetBinLabel(4, "lep veto")
             self.h_CutEvents.GetXaxis().SetBinLabel(5, "#tau veto")
             # self.h_CutEvents.GetXaxis().SetBinLabel(6, "#gamma veto")
-            self.h_CutEvents.GetXaxis().SetBinLabel(1, "500<p_{T}<550 GeV")
+            self.h_CutEvents.GetXaxis().SetBinLabel(1, "p_{T}>{} GeV".format(PTCUT))
             self.h_CutEvents.GetXaxis().SetBinLabel(2, "m_{SD}>40 GeV")
             self.h_CutEvents.GetXaxis().SetBinLabel(3, "tight ID")
             self.h_CutEvents.GetXaxis().SetBinLabel(6, "MET<180")
