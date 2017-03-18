@@ -1498,6 +1498,6 @@ class sampleContainer:
         totalWeight = genCorr * recoCorr
         return totalWeight
 
-      def GetNEvents(self):
-        return self._nevents
+    def GetNEvents(self):
+      return self._nevents
 ##########################################################################################
