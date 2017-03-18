@@ -22,6 +22,7 @@ if __name__ == "__main__":
 	elif args.samples == "signal":
 		#samples = ["hqq125", "tthqq125", "vbfhqq125", "whqq125", "zhqq125"]
 		signal_masses = [50,75,100,125,150,200,250,300,350,400,500]
+		samples = []
 		for mass in signal_masses:
 			samples.append("Sbb_{}".format(mass))
 			samples.append("PSbb_{}".format(mass))
@@ -58,6 +59,8 @@ if __name__ == "__main__":
 					run_command += " --cutFormula \"((triggerBits&2)&&passJson)\""
 				elif "singlemu" in sample:
 					run_command += " --cutFormula \"((triggerBits&4)&&passJson)\""
+			if "Sbb" in sample:
+				run_command += " --xsec 1.0 "
 			run_script.write("#!/bin/bash\n")
 			run_script.write("export ZPRIMEPLUSJET_BASE=$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/\n")
 			run_script.write(run_command + "\n")
