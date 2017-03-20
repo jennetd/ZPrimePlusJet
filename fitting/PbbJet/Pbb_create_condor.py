@@ -18,16 +18,16 @@ if __name__ == "__main__":
 		os.system("csub_tar --cmssw")
 
 	if args.samples == "all":
-		samples = ["hqq125", "tthqq125", "vbfhqq125", "whqq125", "zhqq125", "qcd", "tqq", "stqq", "wqq", "wlnu", "zqq", "vvqq", "data_jetht", "data_singlemu"]
+		samples = ["hqq125", "tthqq125", "vbfhqq125", "whqq125", "zhqq125", "qcd", "tqq", "stqq", "wqq", "wlnu", "zqq", "vvqq", "zll", "data_jetht", "data_singlemu"]
 	elif args.samples == "signal":
 		#samples = ["hqq125", "tthqq125", "vbfhqq125", "whqq125", "zhqq125"]
-		signal_masses = [50,75,100,125,150,200,250,300,350,400,500]
+		signal_masses = [50,75,100,125,150,200,250,300,400,500]
 		samples = []
 		for mass in signal_masses:
-			samples.append("Sbb_{}".format(mass))
-			samples.append("PSbb_{}".format(mass))
+			samples.append("Sbb{}".format(mass))
+			#samples.append("PSbb{}".format(mass))
 	elif args.samples == "background":
-		samples = ["qcd", "tqq", "stqq", "wqq", "wlnu", "zqq", "vvqq"]
+		samples = ["qcd", "tqq", "stqq", "wqq", "wlnu", "zqq", "vvqq", "zll"]
 	elif args.samples == "data":
 		samples = ["data_jetht", "data_singlemu"]
 	else:

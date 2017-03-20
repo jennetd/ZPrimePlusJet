@@ -10,9 +10,9 @@ import sys
 import time
 
 # including other directories
-#sys.path.insert(0, '../.')
+sys.path.insert(0, '../.')
 from tools import *
-from RootIterator import RootIterator
+#from RootIterator import RootIterator
 
 from array import array
 
@@ -20,7 +20,8 @@ def main(options, args):
     tfile = rt.TFile.Open('validation.root')
     
     bkgs = ['wqq','zqq','tqq']
-    sigs = ['hqq125','tthqq125','whqq125','zhqq125']
+    #sigs = ['hqq125','tthqq125','whqq125','zhqq125']
+    sigs = ["Sbb_100"]
     procdict = {}
     procdict['tqq'] = 't#bar{t}'
     procdict['wqq'] = 'W(qq)'
@@ -29,9 +30,10 @@ def main(options, args):
     procdict['tthqq125'] = 'ttH(b#bar{b})'
     procdict['whqq125'] = 'WH(b#bar{b})'
     procdict['zhqq125'] = 'ZH(b#bar{b})'
+    procdict['Sbb_100'] = 'S(b#bar{b}), m=100 GeV'
     boxes = ['pass_cat1','pass_cat2','pass_cat3','pass_cat4','pass_cat5','pass_cat6',
              'fail_cat1','fail_cat2','fail_cat3','fail_cat4','fail_cat5','fail_cat6']
-    systs = ['JER','JES','scale','smear','trigger']
+    systs = ['scale','smear','trigger'] # JER','JES
     
     numberOfMassBins = 23    
     numberOfPtBins = 6
@@ -46,6 +48,7 @@ def main(options, args):
     for box in boxes:
         for proc in (bkgs+sigs):
             print proc, box
+            print "Getting " + '%s_%s'%(proc,box)
             tmph = tfile.Get('%s_%s'%(proc,box))
             tmph.SetMaximum(2.*tmph.GetMaximum())
             tmph.SetLineColor(rt.kBlack)

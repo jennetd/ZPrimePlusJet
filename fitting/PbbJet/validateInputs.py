@@ -14,32 +14,34 @@ import array
 sys.path.insert(0, '../.')
 from tools import *
 
-
+top_dir = "/uscms/home/dryu/DAZSLE/CMSSW_7_4_7/src/DAZSLE/ZPrimePlusJet/fitting/PbbJet/Xbb_inputs/cards_mcstat/"
+signals = ["Sbb50", "Sbb75", "Sbb100", "Sbb125", "Sbb150", "Sbb200"]
 ##-------------------------------------------------------------------------------------
 def main(options,args):
-	
-	if not os.path.isdir("plots"): os.mkdir( "plots" );
-	if not os.path.isdir("plots/hinputs"): os.mkdir( "plots/hinputs" );
-	if not os.path.isdir("plots/mlfit"): os.mkdir( "plots/mlfit" );
+	for signal in signals:
+		os.chdir(top_dir + "/" + signal)
+		if not os.path.isdir("plots"): os.mkdir( "plots" );
+		if not os.path.isdir("plots/hinputs"): os.mkdir( "plots/hinputs" );
+		if not os.path.isdir("plots/mlfit"): os.mkdir( "plots/mlfit" );
 
-	# plot input histos
-	do2DHistInputs("hist_1DZbb.root");
+		# plot input histos
+		do2DHistInputs("../../hist_1DZbb_SR.root");
 
-	# Load the input histograms
-	f = r.TFile("base.root");
-	fr  = r.TFile("ralphabase.root");
+		# Load the input histograms
+		f = r.TFile("base.root");
+		fr  = r.TFile("rhalphabase.root");
 
-	wp = f.Get("w_pass_cat1");
-	wf = f.Get("w_fail_cat1");
-	wpr = fr.Get("w_pass_cat1");
-	wfr = fr.Get("w_fail_cat1");
+		wp = f.Get("w_pass_cat1");
+		wf = f.Get("w_fail_cat1");
+		wpr = fr.Get("w_pass_cat1");
+		wfr = fr.Get("w_fail_cat1");
 
-	# wp.Print();
-	# wf.Print();
-	wpr.Print();
-	wfr.Print();
+		# wp.Print();
+		# wf.Print();
+		wpr.Print();
+		wfr.Print();
 
-	for i in range(5): drawCategory(f,fr,"cat"+str(i+1));
+		for i in range(5): drawCategory(f,fr,"cat"+str(i+1));
 
 ###############################################################
 
@@ -81,6 +83,8 @@ def drawCategory(f,fr,catname):
   	frame_p.Draw();
   	cp.SaveAs("plots/mass-pass-"+catname+".pdf");
   	cp.SaveAs("plots/mass-pass-"+catname+".png");
+  	frame_p.SetMinimum(0.01)
+  	frame_p.Draw()
   	r.gPad.SetLogy();
   	cp.SaveAs("plots/mass-pass-"+catname+"-log.pdf");
   	cp.SaveAs("plots/mass-pass-"+catname+"-log.png");
@@ -89,6 +93,8 @@ def drawCategory(f,fr,catname):
   	frame_f.Draw();
   	cf.SaveAs("plots/mass-fail-"+catname+".pdf");
   	cf.SaveAs("plots/mass-fail-"+catname+".png");
+  	frame_f.SetMinimum(0.01)
+  	frame_f.Draw()
   	r.gPad.SetLogy();
   	cf.SaveAs("plots/mass-fail-"+catname+"-log.pdf");
   	cf.SaveAs("plots/mass-fail-"+catname+"-log.png");
@@ -126,8 +132,16 @@ def do2DHistInputs(fn):
 	h2s.append( tf.Get("zqq_fail") );
 	h2s.append( tf.Get("tqq_pass") );
 	h2s.append( tf.Get("tqq_fail") );
-	h2s.append( tf.Get("hqq125_pass") );
-	h2s.append( tf.Get("hqq125_fail") );
+	h2s.append( tf.Get("Sbb50_pass") );
+	h2s.append( tf.Get("Sbb50_fail") );
+	h2s.append( tf.Get("Sbb75_pass") );
+	h2s.append( tf.Get("Sbb75_fail") );
+	h2s.append( tf.Get("Sbb100_pass") );
+	h2s.append( tf.Get("Sbb100_fail") );
+	h2s.append( tf.Get("Sbb125_pass") );
+	h2s.append( tf.Get("Sbb125_fail") );
+	h2s.append( tf.Get("Sbb150_pass") );
+	h2s.append( tf.Get("Sbb150_fail") );
 
 	for h2 in h2s:
 		for ipt in range(h2.GetNbinsY()):

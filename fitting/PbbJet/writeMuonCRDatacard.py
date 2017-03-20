@@ -8,7 +8,7 @@ import time
 import array
 import os
 
-from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI
+from buildRhalphabetPbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI
 from rhalphabet_builder import BB_SF,BB_SF_ERR,V_SF,V_SF_ERR,GetSF
 
 def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):

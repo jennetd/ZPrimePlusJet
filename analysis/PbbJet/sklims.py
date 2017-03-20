@@ -16,7 +16,8 @@ sklims = {
     'vvqq'     : [sklim_directory+'/WWTo4Q_13TeV_powheg_1000pb_weighted.root',                                                                                                       
                     sklim_directory+'/ZZ_13TeV_pythia8_1000pb_weighted.root',                                                                                                       
                     sklim_directory+'/WZ_13TeV_pythia8_1000pb_weighted.root'],                                                                                                      
-    'zqq'      : [sklim_directory+'/DYJetsToQQ_HT180_13TeV_1000pb_weighted.root'],                                                                                                    
+    'zqq'      : [sklim_directory+'/DYJetsToQQ_HT180_13TeV_1000pb_weighted.root'],
+    'zll'      : [sklim_directory + "/DYJetsToLL_M_50_13TeV_ext_1000pb_weighted.root"],
     #ZJetsToQQ_HT600toInf_13TeV_madgraph_1000pb_weighted.root'],#DYJetsToQQ_HT180_13TeV_1000pb_weighted.root '],                                                              
     'stqq'     :  [sklim_directory+'/ST_t_channel_antitop_4f_inclusiveDecays_TuneCUETP8M2T4_13TeV_powhegV2_madspin_1000pb_weighted.root',                                            
                     sklim_directory+'/ST_t_channel_top_4f_inclusiveDecays_TuneCUETP8M2T4_13TeV_powhegV2_madspin_1000pb_weighted.root',                                           
@@ -92,6 +93,7 @@ sklims = {
                        sklim_directory+'/SingleMuonRun2016H_PromptReco_v3.root'],
 
 }
-for mass in [50,75,100,125,150,200,250,300,350,400,500]:
-    sklims["Sbb_{}".format(mass)]  = [x.strip() for x in open(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/data/skim_directory/lxplus/Spin0_ggPhi12j_g1_{}_Scalar_13TeV_madgraph.txt".format(mass)))]
-    sklims["PSbb_{}".format(mass)] = [x.strip() for x in open(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/data/skim_directory/lxplus/Spin0_ggPhi12j_g1_{}_PseudoScalar_13TeV_madgraph.txt".format(mass)))]
+for mass in [50,75,100,125,150,200,250,300,400,500]:
+    sklims["Sbb{}".format(mass)]  = [x.strip() for x in open(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/data/skim_directory/cmslpc/DMSpin0_ggPhibb1j_{}.txt".format(mass)))]
+    #sklims["Sbb{}".format(mass)]  = [x.strip() for x in open(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/data/skim_directory/lxplus/Spin0_ggPhi12j_g1_{}_Scalar_13TeV_madgraph.txt".format(mass)))]
+    #sklims["PSbb{}".format(mass)] = [x.strip() for x in open(os.path.expandvars("$CMSSW_BASE/src/DAZSLE/ZPrimePlusJet/data/skim_directory/lxplus/Spin0_ggPhi12j_g1_{}_PseudoScalar_13TeV_madgraph.txt".format(mass)))]

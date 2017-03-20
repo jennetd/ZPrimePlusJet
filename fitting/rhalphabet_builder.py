@@ -7,6 +7,7 @@ import math
 import sys
 import time
 import array
+import re
 #r.gSystem.Load("~/Dropbox/RazorAnalyzer/python/lib/libRazorRun2.so")
 r.gSystem.Load(os.getenv('CMSSW_BASE')+'/lib/'+os.getenv('SCRAM_ARCH')+'/libHiggsAnalysisCombinedLimit.so')
 
@@ -19,6 +20,8 @@ BB_SF = 0.91
 BB_SF_ERR = 0.03
 V_SF = 0.993
 V_SF_ERR = 0.043
+
+re_sbb = re.compile("Sbb(?P<mass>\d+)")
 
 ##############################################################################
 ##############################################################################
@@ -96,12 +99,12 @@ class RhalphabetBuilder():
         self._background_names = ["wqq", "zqq", "qcd", "tqq"]
         self._signal_names = []
         # for Pbb
-        #for mass in [50,75,125,100,150,250,300]:
-        #    self._signal_names.append("Pbb_" + str(mass))
+        for mass in [50,75,125,100,150,250,300]:
+            self._signal_names.append("Sbb" + str(mass))
         # for Hbb
-        for mass in [125]:
-            for sig in ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]:
-                self._signal_names.append(sig + str(mass))
+        #for mass in [125]:
+        #    for sig in ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]:
+        #        self._signal_names.append(sig + str(mass))
 
     def run(self):
         self.LoopOverPtBins();
@@ -455,12 +458,15 @@ class RhalphabetBuilder():
         iPt = category[-1:]
 
         for import_object in import_objects:
+            print "[debug] On import_object:"
             import_object.Print()
             process = import_object.GetName().split('_')[0]
             cat = import_object.GetName().split('_')[1]
+            print "[debug] process = {} / cat = {}".format(process, cat)
             mass = 0
-            systematics = ['JES', 'JER', 'trigger', 'mcstat']
-            if do_syst and ('tqq' in process or 'wqq' in process or 'zqq' in process or 'hqq' in process):
+            systematics = ['trigger', 'mcstat'] # 'JES', 'JER'
+            if do_syst and ('tqq' in process or 'wqq' in process or 'zqq' in process or 'hqq' in process or 'Sbb' in process):
+                print "[debug] Doing systematics for process {}".format(process)
                 # get systematic histograms
                 hout = []
                 histDict = {}
@@ -495,6 +501,9 @@ class RhalphabetBuilder():
                             # hout.append(tmph_mass_up)
                             # hout.append(tmph_mass_down)
                     else:
+                        if not self._inputfile.Get(process + '_' + cat + '_' + syst + 'Up'):
+                            print "ERROR : Histogram " + process + '_' + cat + '_' + syst + 'Up' + " doesn't exist in file ",
+                            print self._inputfile
                         tmph_up = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Up').Clone()
                         tmph_down = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Down').Clone()
                         tmph_up.Scale(GetSF(process, cat, self._inputfile))
@@ -532,15 +541,17 @@ class RhalphabetBuilder():
                     self._outfile_validation.cd()
                     h.Write()
 
-            if do_shift and ('wqq' in process or 'zqq' in process or 'hqq' in process):
+            if do_shift and ('wqq' in process or 'zqq' in process or 'hqq' in process or 'Sbb' in process):
                 if process == 'wqq':
                     mass = 80.
                 elif process == 'zqq':
                     mass = 91.
                 elif 'hqq' in process :
                     mass = float(process[-3:])  # hqq125 -> 125
-                elif 'Pbb' in process:
-                    mass = float(process.split('_')[-1])  # Pbb_75 -> 75
+                elif 'Sbb' in process:
+                    re_match = re_sbb.search(process)
+                    mass = int(re_match.group("mass"))
+                    #mass = float(process.split('_')[-1])  # Pbb_75 -> 75
 
                 # get the matched and unmatched hist
                 tmph_matched = self._inputfile.Get(process + '_' + cat + '_matched').Clone()
@@ -694,8 +705,8 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     #sigs = ['Pbb_']
     #signal_names = []
     # for Hbb
-    masses = [125]  # 50,75,125,100,150,200,250,300]
-    sigs = ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]
+    masses = [50,75,125,100,150,200,250,300,400]
+    sigs = ["Sbb"]
     signal_names = []
 
     for mass in masses:
@@ -717,6 +728,9 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
 
     if pseudo:        
         for i, bkg in enumerate(background_names):
+            print "Pseudo-making data: adding " + bkg
+            print "\t",
+            print pass_hists_bkg[bkg]
             if i==0:
                 pass_hists["data_obs"] = pass_hists_bkg[bkg].Clone('data_obs_pass')
                 fail_hists["data_obs"] = fail_hists_bkg[bkg].Clone('data_obs_fail')
@@ -737,7 +751,11 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     fail_hists.update(fail_hists_bkg)
     fail_hists.update(fail_hists_sig)
     
+    print pass_hists
+    print fail_hists
     for histogram in (pass_hists.values() + fail_hists.values()):
+        print "[debug] histogram =",
+        print histogram
         for i in range(1,histogram.GetNbinsX()+1):
             for j in range(1,histogram.GetNbinsY()+1):
                 massVal = histogram.GetXaxis().GetBinCenter(i)
@@ -760,7 +778,7 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
 
 def GetSF(process, cat, f):
     SF = 1
-    if 'hqq' in process or 'zqq' in process or 'Pbb' in process:
+    if 'hqq' in process or 'zqq' in process or 'Pbb' in process or 'Sbb' in process:
         if 'pass' in cat:
             SF *= BB_SF
         else:
@@ -768,6 +786,6 @@ def GetSF(process, cat, f):
             failInt = f.Get(process + '_fail').Integral()
             if failInt > 0:
                 SF *= (1. + (1. - BB_SF) * passInt / failInt)
-    if 'wqq' in process or 'zqq' in process or 'hqq' in process or 'Pbb' in process:
+    if 'wqq' in process or 'zqq' in process or 'hqq' in process or 'Pbb' in process or 'Sbb' in process:
         SF *= V_SF
     return SF
