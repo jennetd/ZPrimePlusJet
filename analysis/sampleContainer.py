@@ -598,6 +598,8 @@ class sampleContainer:
         histos2d = {
             'h_msd_v_pt_ak8_topR6_N2_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass",
                                              "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
+            'h_msd_v_pt_ak8_topR6_N2_pass_unweighted': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass",
+                                             "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
             'h_msd_v_pt_ak8_topR6_N2_pass_JESUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_JESUp",
                                                    "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
             'h_msd_v_pt_ak8_topR6_N2_pass_JESDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_JESDown",
@@ -619,6 +621,8 @@ class sampleContainer:
             'h_msd_v_pt_ak8_topR6_N2_pass_unmatched': ["h_" + self._name + "_msd_v_pt_ak8_N2_topR6_pass_unmatched",
                                                        "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
             'h_msd_v_pt_ak8_topR6_N2_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail",
+                                             "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
+            'h_msd_v_pt_ak8_topR6_N2_fail_unweighted': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail",
                                              "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
             'h_msd_v_pt_ak8_topR6_N2_fail_JESUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_JESUp",
                                                    "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
@@ -1310,6 +1314,7 @@ class sampleContainer:
                     cut[9] = cut[9] + 1
                     self.h_msd_ak8_topR6_N2_pass.Fill(jmsd_8, weight)
                     self.h_msd_v_pt_ak8_topR6_N2_pass.Fill(jmsd_8, jpt_8, weight)
+                    self.h_msd_v_pt_ak8_topR6_N2_pass_unweighted.Fill(jmsd_8, jpt_8)
                     self.h_msd_v_pt_ak8_topR6_N2_pass_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
                     self.h_msd_v_pt_ak8_topR6_N2_pass_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
                     self.h_msd_v_pt_ak8_topR6_N2_pass_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
@@ -1323,6 +1328,7 @@ class sampleContainer:
                 elif jdb_8 > self.DBTAGCUTMIN:
                     self.h_msd_ak8_topR6_N2_fail.Fill(jmsd_8, weight)
                     self.h_msd_v_pt_ak8_topR6_N2_fail.Fill(jmsd_8, jpt_8, weight)
+                    self.h_msd_v_pt_ak8_topR6_N2_fail_unweighted.Fill(jmsd_8, jpt_8)
                     self.h_msd_v_pt_ak8_topR6_N2_fail_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
                     self.h_msd_v_pt_ak8_topR6_N2_fail_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
                     self.h_msd_v_pt_ak8_topR6_N2_fail_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)

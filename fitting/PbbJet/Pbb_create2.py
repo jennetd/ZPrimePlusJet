@@ -23,7 +23,9 @@ def RunSampleContainer(sample_name, input_filenames, output_filename, lumi, sf=1
 		scale1fb = 1000. * xsec / sample.GetNEvents()
 
 	plots =  ['h_msd_v_pt_ak8_topR6_N2_pass',
+				'h_msd_v_pt_ak8_topR6_N2_pass_unweighted',
 				'h_msd_v_pt_ak8_topR6_N2_fail', #SR with N2DDT @ 26% && db > 0.9, msd corrected
+				'h_msd_v_pt_ak8_topR6_N2_fail_unweighted',
 				'h_msd_v_pt_ak8_topR6_N2_pass_matched',
 				'h_msd_v_pt_ak8_topR6_N2_pass_unmatched', #matched and unmatached for mass up/down
 				'h_msd_v_pt_ak8_topR6_N2_fail_matched',

@@ -688,6 +688,7 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
             print 'qcd pass integral', qcd_pass.Integral()
             print 'qcd fail integral', qcd_fail.Integral()
         else:
+            print "Attempting to get {}".format(bkg + '_pass')
             hpass_tmp = f.Get(bkg + '_pass').Clone()
             hfail_tmp = f.Get(bkg + '_fail').Clone()
             hpass_tmp.Scale(1. / scale)
