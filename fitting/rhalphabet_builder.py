@@ -99,8 +99,8 @@ class RhalphabetBuilder():
         self._background_names = ["wqq", "zqq", "qcd", "tqq"]
         self._signal_names = []
         # for Pbb
-        for mass in [50,75,125,100,150,250,300]:
-            self._signal_names.append("Sbb" + str(mass))
+        for mass in [50,75,125,100,150,200,250,300]:
+            self._signal_names.append("DMSbb" + str(mass))
         # for Hbb
         #for mass in [125]:
         #    for sig in ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]:
@@ -443,6 +443,7 @@ class RhalphabetBuilder():
         lPSigs  = {}
         lFSigs  = {}
         for signal_name in self._signal_names:
+            print "[debug] GetSignalInputs for sample {}".format(signal_name)
             roofit_shapes = self.GetRoofitHistObjects(iHP[signal_name], iHF[signal_name],signal_name,iBin)
             lPSigs[signal_name] = roofit_shapes["pass_rdh"]
             lFSigs[signal_name] = roofit_shapes["fail_rdh"]
@@ -452,6 +453,8 @@ class RhalphabetBuilder():
     #def MakeWorkspace(self,iOutput,iDatas,iFuncs,iVars,iCat="cat0",iShift=True):
     def MakeWorkspace(self, output_path, import_objects, category="cat0", do_shift=True, do_syst=True, pt_val=500.):
         print "Making workspace " + "w_" + str(category)
+        print "[debug] import_objects = "
+        print import_objects
         workspace = r.RooWorkspace("w_"+str(category))
 
         # get the pT bin
@@ -464,7 +467,7 @@ class RhalphabetBuilder():
             cat = import_object.GetName().split('_')[1]
             print "[debug] process = {} / cat = {}".format(process, cat)
             mass = 0
-            systematics = ['trigger', 'mcstat'] # 'JES', 'JER'
+            systematics = ['Trigger', 'mcstat'] # 'JES', 'JER'
             if do_syst and ('tqq' in process or 'wqq' in process or 'zqq' in process or 'hqq' in process or 'Sbb' in process):
                 print "[debug] Doing systematics for process {}".format(process)
                 # get systematic histograms
@@ -541,7 +544,7 @@ class RhalphabetBuilder():
                     self._outfile_validation.cd()
                     h.Write()
 
-            if do_shift and ('wqq' in process or 'zqq' in process or 'hqq' in process or 'Sbb' in process):
+            if do_shift and ('wqq' in process or 'zqq' in process or 'hqq' in process or 'Sbb' in process) and False:
                 if process == 'wqq':
                     mass = 80.
                 elif process == 'zqq':
@@ -707,11 +710,12 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     #signal_names = []
     # for Hbb
     masses = [50,75,125,100,150,200,250,300,400]
-    sigs = ["Sbb"]
+    sigs = ["DMSbb"]
     signal_names = []
 
     for mass in masses:
         for sig in sigs:
+            print "[debug] Getting " + sig + str(mass) + "_pass"
             passhist = f.Get(sig + str(mass) + "_pass").Clone()
             failhist = f.Get(sig + str(mass) + "_fail").Clone()
             for hist in [passhist, failhist]:
