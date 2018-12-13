@@ -164,6 +164,7 @@ def main(options,args):
         scaleptString = 'scalept shape'
         mcStatStrings = {}
         mcStatGroupString = 'mcstat group ='
+        mcstatsuffix  = options.suffix.lower().strip("_")
         if options.forcomb:
             qcdGroupString = 'qcd2017 group = qcd2017eff%s'%options.suffix
         else:
@@ -172,9 +173,9 @@ def main(options,args):
             for proc in sigs+bkgs:
                 for j in range(1,numberOfMassBins+1):
                     if options.noMcStatShape:
-                        mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%imcstat%i lnN'%(proc,box,i,j)
+                        mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%i%smcstat%i lnN'%(proc,box,i,mcstatsuffix,j)
                     else:
-                        mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%imcstat%i shape'%(proc,box,i,j)
+                        mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%i%smcstat%i shape'%(proc,box,i,mcstatsuffix,j)
                     
         for box in boxes:
             for proc in sigs+bkgs:
@@ -261,9 +262,9 @@ def main(options,args):
                 if options.forcomb and '2017' in proc:
                     proc = proc.replace("2017","")
                 if options.noMcStatShape and proc!='qcd' and proc!='qcd2017' and (proc, 'cat%i'%i, box) not in procsToRemove:
-                    print 'include %s%scat%imcstat'%(proc,box,i)
+                    print 'include %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
                     dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,1].replace('mcstat1','mcstat') + "\n")
-                    mcStatGroupString += ' %s%scat%imcstat'%(proc,box,i)
+                    mcStatGroupString += ' %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
                     continue
                 for j in range(1,numberOfMassBins+1):                    
                     # if stat. unc. is greater than 50% 
@@ -280,12 +281,12 @@ def main(options,args):
                         rhoVal = r.TMath.Log(massVal*massVal/ptVal/ptVal)
                         if not( options.blind and massVal > BLIND_LO and massVal < BLIND_HI) and not (rhoVal < RHO_LO or rhoVal > RHO_HI):
                             dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,j] + "\n")
-                            print 'include %s%scat%imcstat%i'%(proc,box,i,j)
-                            mcStatGroupString += ' %s%scat%imcstat%i'%(proc,box,i,j)
+                            print 'include %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
+                            mcStatGroupString += ' %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
                         else:
-                            print 'do not include %s%scat%imcstat%i'%(proc,box,i,j)
+                            print 'do not include %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
                     else:
-                        print 'do not include %s%scat%imcstat%i'%(proc,box,i,j)
+                        print 'do not include %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
                         
         for im in range(numberOfMassBins):
             if options.forcomb:
