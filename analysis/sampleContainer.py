@@ -126,10 +126,12 @@ class sampleContainer:
 
         # get trigger efficiency object
 
-        f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
-#            "/uscms_data/d3/mkrohn/DAZSLE/ggH_2017/ZPrimePlusJet/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root", "read")
-        self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
-        self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
+        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
+        #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
+        #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
+        f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
+        self._trig_denom = f_trig.Get("h_runBtoF_pass_Mu50")
+        self._trig_numer = f_trig.Get("h_runBtoF_pass_Main")
         self._trig_denom.SetDirectory(0)
         self._trig_numer.SetDirectory(0)
 #        self._trig_denom.RebinX(2)
@@ -826,7 +828,7 @@ class sampleContainer:
                 self._trig_eff.FindFixBin(massForTrig, ptForTrig))
             trigweightDown = trigweight - self._trig_eff.GetEfficiencyErrorLow(
                 self._trig_eff.FindFixBin(massForTrig, ptForTrig))
-#	    print "trigweight: ", trigweight
+    	    #print "trigweight: %.3f, pt=%.3f, mass=%.3f"%( trigweight,ptForTrig,massForTrig)
             if trigweight <= 0 or trigweightDown <= 0 or trigweightUp <= 0:
                 print 'trigweights are %f, %f, %f, setting all to 1 for massForTrig=%f, ptForTrig=%f' % (trigweight, trigweightUp, trigweightDown,ptForTrig,massForTrig)
                 trigweight = 1
