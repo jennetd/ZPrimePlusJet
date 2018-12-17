@@ -81,7 +81,8 @@ if __name__ == '__main__':
 
     outpath= options.odir 
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
-    gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
+    #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b 2ndjet git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
     files = ['']

@@ -170,16 +170,26 @@ class sampleContainer:
 
         self._minBranches = minBranches
         # set branch statuses and addresses
-        self._branches = [('AK8Puppijet0_msd', 'd', -999), ('AK8Puppijet0_pt', 'd', -999),
+        self._branches = [
+                         ('AK8Puppijet0_msd', 'd', -999), ('AK8Puppijet0_pt', 'd', -999),
                           ('AK8Puppijet0_pt_JERUp', 'd', -999), ('AK8Puppijet0_pt_JERDown', 'd', -999),
                           ('AK8Puppijet0_pt_JESUp', 'd', -999), ('AK8Puppijet0_pt_JESDown', 'd', -999),
                           ('AK8Puppijet0_eta', 'd', -999), ('AK8Puppijet0_phi', 'd', -999),
                           ('AK8Puppijet0_tau21', 'd', -999), ('AK8Puppijet0_tau32', 'd', -999),
-                          ('AK8Puppijet0_N2sdb1', 'd', -999), ('puWeight', 'f', 0), ('scale1fb', 'f', 0),
-			  ('puWeight_down', 'f', 0), ('puWeight_up', 'f', 0),
+                          ('AK8Puppijet0_N2sdb1', 'd', -999),
+                          ('AK8Puppijet1_msd', 'd', -999), ('AK8Puppijet1_pt', 'd', -999),
+                          ('AK8Puppijet1_pt_JERUp', 'd', -999), ('AK8Puppijet1_pt_JERDown', 'd', -999),
+                          ('AK8Puppijet1_pt_JESUp', 'd', -999), ('AK8Puppijet1_pt_JESDown', 'd', -999),
+                          ('AK8Puppijet1_eta', 'd', -999), ('AK8Puppijet1_phi', 'd', -999),
+                          ('AK8Puppijet1_tau21', 'd', -999), ('AK8Puppijet1_tau32', 'd', -999),
+                          ('AK8Puppijet1_N2sdb1', 'd', -999), ('puWeight', 'f', 0), ('scale1fb', 'f', 0),
+            			  ('puWeight_down', 'f', 0), ('puWeight_up', 'f', 0),
                           ('AK8Puppijet0_doublecsv', 'd', -999),
                           ('AK8Puppijet0_deepdoubleb', 'd', -999),
                           ('AK8Puppijet0_deepdoubleb_nomasssculptpen', 'd', -999),
+                          ('AK8Puppijet1_doublecsv', 'd', -999),
+                          ('AK8Puppijet1_deepdoubleb', 'd', -999),
+                          ('AK8Puppijet1_deepdoubleb_nomasssculptpen', 'd', -999),
                           ('kfactor', 'f', 0), ('kfactorNLO', 'f', 0), ('nAK4PuppijetsPt30', 'i', -999),
                           ('nAK4PuppijetsPt30dR08_0', 'i', -999),
                           ('nAK4PuppijetsPt30dR08jesUp_0', 'i', -999), ('nAK4PuppijetsPt30dR08jesDown_0', 'i', -999),
@@ -198,6 +208,7 @@ class sampleContainer:
                           ('vmuoLoose0_eta', 'd', -999), ('vmuoLoose0_phi', 'd', -999),
                           ('npv', 'i', 1), ('npu', 'i', 1),
                           ('AK8Puppijet0_isTightVJet', 'i', 0),
+                          ('AK8Puppijet1_isTightVJet', 'i', 0),
                           ('AK4Puppijet0_eta' , 'd', -999),('AK4Puppijet1_eta' , 'd', -999),
                           ('AK4Puppijet0_phi' , 'd', -999),('AK4Puppijet1_phi' , 'd', -999),
                           ('AK4Puppijet0_pt'  , 'd', -999),('AK4Puppijet1_pt'  , 'd', -999),
@@ -822,8 +833,8 @@ class sampleContainer:
                 
             # trigger weight
             #massForTrig = min(self.AK8Puppijet0_msd[0], 300.)
-            massForTrig = min(max(self.AK8Puppijet0_msd[0],0), 300.)
-            ptForTrig = max(200., min(self.AK8Puppijet0_pt[0], 1000.))
+            massForTrig = min(max(self.AK8Puppijet1_msd[0],0), 300.)
+            ptForTrig = max(200., min(self.AK8Puppijet1_pt[0], 1000.))
             trigweight = self._trig_eff.GetEfficiency(self._trig_eff.FindFixBin(massForTrig, ptForTrig))
             trigweightUp = trigweight + self._trig_eff.GetEfficiencyErrorUp(
                 self._trig_eff.FindFixBin(massForTrig, ptForTrig))
@@ -925,25 +936,26 @@ class sampleContainer:
                 weight_mu_pu_down = 1
 
             ##### AK8 info
-            jmsd_8_raw = self.AK8Puppijet0_msd[0]
-            jpt_8 = self.AK8Puppijet0_pt[0]
-            jpt_8_JERUp = self.AK8Puppijet0_pt_JERUp[0]
-            jpt_8_JERDown = self.AK8Puppijet0_pt_JERDown[0]
-            jpt_8_JESUp = self.AK8Puppijet0_pt_JESUp[0]
-            jpt_8_JESDown = self.AK8Puppijet0_pt_JESDown[0]
-            jeta_8 = self.AK8Puppijet0_eta[0]
-            jmsd_8 = self.AK8Puppijet0_msd[0] * self.PUPPIweight(jpt_8, jeta_8)
-            jphi_8 = self.AK8Puppijet0_phi[0]
+            jmsd_8_raw = self.AK8Puppijet1_msd[0]
+            jpt_8 = self.AK8Puppijet1_pt[0]
+            if jpt_8 <=0: continue
+            jpt_8_JERUp = self.AK8Puppijet1_pt_JERUp[0]
+            jpt_8_JERDown = self.AK8Puppijet1_pt_JERDown[0]
+            jpt_8_JESUp = self.AK8Puppijet1_pt_JESUp[0]
+            jpt_8_JESDown = self.AK8Puppijet1_pt_JESDown[0]
+            jeta_8 = self.AK8Puppijet1_eta[0]
+            jmsd_8 = self.AK8Puppijet1_msd[0] * self.PUPPIweight(jpt_8, jeta_8)
+            jphi_8 = self.AK8Puppijet1_phi[0]
             if not self._minBranches:
                 jpt_8_sub1 = self.AK8Puppijet1_pt[0]
                 jpt_8_sub2 = self.AK8Puppijet2_pt[0]
             if jmsd_8 <= 0: jmsd_8 = 0.01
             rh_8 = math.log(jmsd_8 * jmsd_8 / jpt_8 / jpt_8)  # tocheck here
             rhP_8 = math.log(jmsd_8 * jmsd_8 / jpt_8)
-            jt21_8 = self.AK8Puppijet0_tau21[0]
-            jt32_8 = self.AK8Puppijet0_tau32[0]
+            jt21_8 = self.AK8Puppijet1_tau21[0]
+            jt32_8 = self.AK8Puppijet1_tau32[0]
             jt21P_8 = jt21_8 + 0.063 * rhP_8
-            jtN2b1sd_8 = self.AK8Puppijet0_N2sdb1[0]
+            jtN2b1sd_8 = self.AK8Puppijet1_N2sdb1[0]
 
             # N2DDT transformation
             cur_rho_index = self._trans_h2ddt.GetXaxis().FindBin(rh_8)
@@ -956,10 +968,10 @@ class sampleContainer:
             if jpt_8 < self._trans_h2ddt.GetYaxis().GetBinLowEdge(1): cur_pt_index = 1
             jtN2b1sdddt_8 = jtN2b1sd_8 - self._trans_h2ddt.GetBinContent(cur_rho_index, cur_pt_index)
 
-            #jdb_8 = self.AK8Puppijet0_doublecsv[0]
+            jdb_8 = self.AK8Puppijet1_doublecsv[0]
             #jdb_8 = self.AK8Puppijet0_deepdoubleb[0]
             #jdb_8 = self.AK8Puppijet0_deepdoubleb_nomasssculptpen[0]
-            jdb_8 = getattr(self,self.doublebName)[0]
+            #jdb_8 = getattr(self,self.doublebName)[0]
             if not self._minBranches:
                 if self.AK8Puppijet1_doublecsv[0] > 1:
                     jdb_8_sub1 = -99
@@ -1016,7 +1028,7 @@ class sampleContainer:
             nmuLoose = self.nmuLoose[0]
             neleLoose = self.neleLoose[0]
             nphoLoose = self.nphoLoose[0]
-            isTightVJet = self.AK8Puppijet0_isTightVJet[0]
+            isTightVJet = self.AK8Puppijet1_isTightVJet[0]
 
             # muon info
             vmuoLoose0_pt = self.vmuoLoose0_pt[0]
