@@ -262,14 +262,13 @@ def get2017files():
                             },
               'TTbar':      [idir+'/TTToHadronic_TuneCP5_13TeV_powheg_pythia8_byLumi_1000pb_weighted.root',
                 		     idir+'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8_byLumi_1000pb_weighted.root'], #Powheg is the new default
-              'QCD':        [idir+'/QCD_HT100to200_TuneCP5_13TeV_madgraph_pythia8_1000pb_weighted.root',
-                             idir+'/QCD_HT200to300_TuneCP5_13TeV_madgraph_pythia8_1000pb_weighted.root',
-                             idir+'/QCD_HT300to500_TuneCP5_13TeV_madgraph_pythia8_noPF_byLumi_1000pb_weighted.root',
-                             idir+'/QCD_HT500to700_TuneCP5_13TeV_madgraph_pythia8_noPF_byLumi_1000pb_weighted.root',
-                             idir+'/QCD_HT700to1000_TuneCP5_13TeV_madgraph_pythia8_noPF_byLumi_1000pb_weighted.root',
-                             idir+'/QCD_HT1000to1500_TuneCP5_13TeV_madgraph_pythia8_1000pb_weighted.root',
-                             idir+'/QCD_HT1500to2000_TuneCP5_13TeV_madgraph_pythia8_1000pb_weighted.root',
-                             idir+'/QCD_HT2000toInf_TuneCP5_13TeV_madgraph_pythia8_1000pb_weighted.root'],
+              'QCD':        {
+                             'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1501+'/QCD_HT500to700_TuneCP5_13TeV_madgraph_pythia8/*.root'],
+                             'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT700to1000_TuneCP5_13TeV_madgraph_pythia8/*.root'],
+                             'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501+'/QCD_HT1000to1500_TuneCP5_13TeV_madgraph_pythia8/*.root'],
+                             'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501+'/QCD_HT1500to2000_TuneCP5_13TeV_madgraph_pythia8/*.root'],
+                             'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT2000toInf_TuneCP5_13TeV_madgraph_pythia8/*.root']
+                            },
               'data1401': [
         	        	    # idirData + 'JetHTRun2017C_17Nov2017_v1_noPF.root',
                             # idirData + 'JetHTRun2017D_17Nov2017_v1_noPF.root',
@@ -461,9 +460,7 @@ def main(options,args,outputExists):
             bkgSamples['W']   = normSampleContainer('W',tfiles['W'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,  puOpt="default",treeName="Events",doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
             bkgSamples['DY']  = normSampleContainer('DY',tfiles['DY'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt="default",treeName="Events",doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
 
-
-
-        bkgSamples['QCD'] = sampleContainer('QCD',tfiles['QCD'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
+        bkgSamples['QCD'] = normSampleContainer('QCD',tfiles['QCD'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt="default",treeName="Events",doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
         if isData and muonCR:
             if options.is2017:
                 bkgSamples['Wlnu']  = normSampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt='default').addPlots(plots)
@@ -514,6 +511,7 @@ def main(options,args,outputExists):
         
         ofile = ROOT.TFile.Open(odir+'/Plots_1000pb_weighted_%s.root '%options.iSplit,'recreate')
 
+        normSamples =['QCD','DY','W','Wlnu','ggHbb','ggHbb_amc','ggHbb_amcHpT250','VHbb','VBFHbb','ttHbb']
         hall_byproc = {}
         for process, s in sigSamples.iteritems():
             hall_byproc[process] = {}
@@ -525,33 +523,17 @@ def main(options,args,outputExists):
             else:
                 hall_byproc['data'] = {}
 
-        if options.is2017:
-            hall_byproc['DY']= bkgSamples['DY']  
-            hall_byproc['W'] = bkgSamples['W']
-            if isData and muonCR:
-                hall_byproc['Wlnu'] = bkgSamples['Wlnu']
-                del bkgSamples['Wlnu']    #Do not get the plots from sampleContainer by getattr
-            hall_byproc['ggHbb'] = sigSamples['ggHbb']
-            hall_byproc['ggHbb_amc'] = sigSamples['ggHbb_amc']
-            hall_byproc['ggHbb_amcHpT250'] = sigSamples['ggHbb_amcHpT250']
-            hall_byproc['VHbb']            = sigSamples['VHbb'] 
-            hall_byproc['VBFHbb']          = sigSamples['VBFHbb']
-            hall_byproc['ttHbb']           = sigSamples['ttHbb']
-            #hall_byproc['DY_1208']= zqqplots  
-            #hall_byproc['W_1208'] = wqqplots
-            del bkgSamples['DY']   #Do not get the plots from sampleContainer by getattr
-            del bkgSamples['W']    #Do not get the plots from sampleContainer by getattr
-            del sigSamples['ggHbb']    #Do not get the plots from sampleContainer by getattr
-            del sigSamples['ggHbb_amc']    #Do not get the plots from sampleContainer by getattr
-            del sigSamples['ggHbb_amcHpT250']    #Do not get the plots from sampleContainer by getattr
-            del sigSamples['VHbb'] 
-            del sigSamples['VBFHbb']
-            del sigSamples['ttHbb']
         for plot in plots:
             for process, s in sigSamples.iteritems():
-                hall_byproc[process][plot] = getattr(s,plot)
+                if options.is2017 and process in normSamples:
+                    hall_byproc[process][plot] = sigSamples[process][plot]   #get plot from normSampleContainer
+                else:
+                    hall_byproc[process][plot] = getattr(s,plot)
             for process, s in bkgSamples.iteritems():
-                hall_byproc[process][plot] = getattr(s,plot)
+                if options.is2017 and process in normSamples:
+                    hall_byproc[process][plot] = bkgSamples[process][plot]   #get plot from normSampleContainer
+                else:
+                    hall_byproc[process][plot] = getattr(s,plot)
             if isData:
                 if muonCR:      
                     hall_byproc['muon'][plot] = getattr(dataSample,plot)
@@ -570,11 +552,19 @@ def main(options,args,outputExists):
             hall={}
             hd = None
             for process, s in sigSamples.iteritems():
-                hs[process] = getattr(s,plot)
-                hall[process] = getattr(s,plot)
+                if options.is2017 and process in normSamples:
+                    hs[process]  =sigSamples[process][plot]   #get plot from normSampleContainer
+                    hall[process]=sigSamples[process][plot]   #get plot from normSampleContainer
+                else:
+                    hs[process]   = getattr(s,plot)
+                    hall[process] = getattr(s,plot)
             for process, s in bkgSamples.iteritems():
-                hb[process] = getattr(s,plot)
-                hall[process] = getattr(s,plot)
+                if options.is2017 and process in normSamples:
+                    hb[process]   =bkgSamples[process][plot]   #get plot from normSampleContainer 
+                    hall[process] =bkgSamples[process][plot]   #get plot from normSampleContainer 
+                else:
+                    hb[process] = getattr(s,plot)
+                    hall[process] = getattr(s,plot)
             if isData:
                 hd = getattr(dataSample,plot)
             #makePlots(plot,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases)
