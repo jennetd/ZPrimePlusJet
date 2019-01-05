@@ -239,7 +239,6 @@ def get2017files():
                             'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1501 + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV/*.root'],
                             'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1501 + '/ZJetsToQQ_HT_800toInf_qc19_4j_TuneCP5_13TeV/*.root'],
                             },
- 
               'DYll':       [idir_temp+'/DYJetsToLL_M_50_13TeV_ext_1000pb_weighted.root'],
               'SingleTop':  [idir+'/ST_t_channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV_powhegV2_madspin_pythia8_1000pb_weighted.root',
                              idir+'/ST_t_channel_top_4f_inclusiveDecays_TuneCP5_13TeV_powhegV2_madspin_pythia8_1000pb_weighted.root',
@@ -260,8 +259,11 @@ def get2017files():
                                "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1401skim+'WJetsToLNu_HT_1200To2500_*.root'],
                               # "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1401skim+'WJetsToLNu_HT_2500ToInf*.root'],
                             },
-              'TTbar':      [idir+'/TTToHadronic_TuneCP5_13TeV_powheg_pythia8_byLumi_1000pb_weighted.root',
-                		     idir+'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8_byLumi_1000pb_weighted.root'], #Powheg is the new default
+              'TTbar':      {
+                             'TTToHadronic_TuneCP5_13TeV_powheg_pythia8'    :[idir_1501+'TTToHadronic_TuneCP5_13TeV_powheg_pythia8/*.root'],
+                             'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8':[idir_1501+'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8/*.root'],
+                             'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8'       :[idir_1501+'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8/*.root'       ],
+                            },
               'QCD':        {
                              'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1501+'/QCD_HT500to700_TuneCP5_13TeV_madgraph_pythia8/*.root'],
                              'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT700to1000_TuneCP5_13TeV_madgraph_pythia8/*.root'],
@@ -467,13 +469,9 @@ def main(options,args,outputExists):
             else:
                 bkgSamples['Wlnu']  = sampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt='2016')
             bkgSamples['DYll']  = sampleContainer('DYll',tfiles['DYll'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt='2016')
-            #bkgSamples['TTbar1Mu']  = sampleContainer('TTbar1Mu',tfiles['TTbar'], 1, DBTMIN,lumi, False, False, 'genMuFromW==1&&genEleFromW+genTauFromW==0',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
-            #bkgSamples['TTbar1Ele']  = sampleContainer('TTbar1Ele',tfiles['TTbar'], 1, DBTMIN,lumi, False, False, 'genEleFromW==1&&genMuFromW+genTauFromW==0',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
-            #bkgSamples['TTbar1Tau']  = sampleContainer('TTbar1Tau',tfiles['TTbar'], 1, DBTMIN,lumi, False, False, 'genTauFromW==1&&genEleFromW+genMuFromW==0',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
-            #bkgSamples['TTbar0Lep']  = sampleContainer('TTbar0Lep',tfiles['TTbar'], 1, DBTMIN,lumi, False, False, 'genMuFromW+genEleFromW+genTauFromW==0',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
-            #bkgSamples['TTbar2Lep']  = sampleContainer('TTbar2Lep',tfiles['TTbar'], 1, DBTMIN,lumi, False, False, 'genMuFromW+genEleFromW+genTauFromW==2',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
-            bkgSamples['TTbar']  = sampleContainer('TTbar',tfiles['TTbar'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
-        else:        
+        if options.is2017:
+            bkgSamples['TTbar']  = normSampleContainer('TTbar',tfiles['TTbar'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt='default',treeName="Events",doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        else:
             bkgSamples['TTbar']  = sampleContainer('TTbar',tfiles['TTbar'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
         bkgSamples['SingleTop'] = sampleContainer('SingleTop',tfiles['SingleTop'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
         bkgSamples['Diboson'] = sampleContainer('Diboson',tfiles['Diboson'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
@@ -511,7 +509,7 @@ def main(options,args,outputExists):
         
         ofile = ROOT.TFile.Open(odir+'/Plots_1000pb_weighted_%s.root '%options.iSplit,'recreate')
 
-        normSamples =['QCD','DY','W','Wlnu','ggHbb','ggHbb_amc','ggHbb_amcHpT250','VHbb','VBFHbb','ttHbb']
+        normSamples =['QCD','DY','W','Wlnu','ggHbb','ggHbb_amc','ggHbb_amcHpT250','VHbb','VBFHbb','ttHbb','TTbar']
         hall_byproc = {}
         for process, s in sigSamples.iteritems():
             hall_byproc[process] = {}
