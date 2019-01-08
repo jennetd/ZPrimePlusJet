@@ -291,10 +291,11 @@ def get2017files():
                              idir_1501 + 'JetHTRun2017E_17Nov2017_v1/*.root'
                       ],
               'muon': [
+                       idir_1501+'/SingleMuonRun2017B_17Nov2017_v1/*.root',
                        idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root',
-                       idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root',
-                       idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root',
-                       idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root'
+                       idir_1501+'/SingleMuonRun2017D_17Nov2017_v1/*.root',
+                       idir_1501+'/SingleMuonRun2017E_17Nov2017_v1/*.root',
+                       idir_1501+'/SingleMuonRun2017F_17Nov2017_v1/*.root'
                     ]
             }
     return tfiles
