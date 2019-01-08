@@ -485,7 +485,7 @@ def main(options,args,outputExists):
         if isData and muonCR:
             #Muon CR
             if options.is2017:
-                dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&0)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=options.puOpt,treeName="Events",doublebName='AK8Puppijet0_deepdoubleb')
+                dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=options.puOpt,treeName="Events",doublebName='AK8Puppijet0_deepdoubleb')
             else:
                 dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=options.puOpt)
         elif isData:
