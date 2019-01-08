@@ -237,7 +237,7 @@ def get2017files():
               'DY':         {
                             'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1501 + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV/*.root'],
                             'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1501 + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV/*.root'],
-                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1501 + '/ZJetsToQQ_HT_800toInf_qc19_4j_TuneCP5_13TeV/*.root'],
+                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1501 + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV/*.root'],
                             },
               'DYll':       [idir_temp+'/DYJetsToLL_M_50_13TeV_ext_1000pb_weighted.root'],
               'SingleTop':  [idir+'/ST_t_channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV_powhegV2_madspin_pythia8_1000pb_weighted.root',
@@ -248,7 +248,7 @@ def get2017files():
               'W'         : {
                               'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV': [idir_1501 + 'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV/*.root'],
                               'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV': [idir_1501 + 'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV/*.root'],
-                              'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV':[idir_1501 + 'WJetsToQQ_HT_800toInf_qc19_3j_TuneCP5_13TeV/*.root'],
+                              'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV':[idir_1501 + 'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV/*.root'],
                              },
               'Wlnu':       {
                               # "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8"               :[ idir_1401skim+'WJetsToLNu_TuneCP5_13TeV*.root'],
@@ -265,11 +265,11 @@ def get2017files():
                              'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8'       :[idir_1501+'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8/*.root'       ],
                             },
               'QCD':        {
-                             'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1501+'/QCD_HT500to700_TuneCP5_13TeV_madgraph_pythia8/*.root'],
-                             'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT700to1000_TuneCP5_13TeV_madgraph_pythia8/*.root'],
-                             'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501+'/QCD_HT1000to1500_TuneCP5_13TeV_madgraph_pythia8/*.root'],
-                             'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501+'/QCD_HT1500to2000_TuneCP5_13TeV_madgraph_pythia8/*.root'],
-                             'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT2000toInf_TuneCP5_13TeV_madgraph_pythia8/*.root']
+                             'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1501+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8/*.root'  ],
+                             'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8/*.root' ],
+                             'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501+'/QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8/*.root'],
+                             'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8/*.root'],
+                             'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8/*.root' ]
                             },
               'data1401': [
         	        	    # idirData + 'JetHTRun2017C_17Nov2017_v1_noPF.root',
@@ -288,14 +288,10 @@ def get2017files():
                              idir_1501 + 'JetHTRun2017E_17Nov2017_v1/*.root'
                       ],
               'muon': [
-                       idirData+'/SingleMuonRun2017C_17Nov2017_v1_noPF.root',
-                       idirData+'/SingleMuonRun2017D_17Nov2017_v1_noPF.root',
-                       idirData+'/SingleMuonRun2017E_17Nov2017_v1_noPF.root',
-                       idirData+'/SingleMuonRun2017F_17Nov2017_v1_noPF.root'
-                       #idir_1401skim+'SingleMuonRun2017C_17Nov2017_v1_noPF*.root',
-                       #idir_1401skim+'SingleMuonRun2017D_17Nov2017_v1_noPF*.root',
-                       #idir_1401skim+'SingleMuonRun2017E_17Nov2017_v1_noPF*.root',
-                       #idir_1401skim+'SingleMuonRun2017F_17Nov2017_v1_noPF*.root'
+                       idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root',
+                       idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root',
+                       idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root',
+                       idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root'
                     ]
             }
     return tfiles
@@ -482,7 +478,11 @@ def main(options,args,outputExists):
         if isData:
             print "Data..."
         if isData and muonCR:
-            dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=options.puOpt)
+            #Muon CR
+            if options.is2017:
+                dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&0)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=options.puOpt,treeName="Events",doublebName='AK8Puppijet0_deepdoubleb')
+            else:
+                dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=options.puOpt)
         elif isData:
             triggerNames={"version":"zprimebit-15.01","branchName":"triggerBits",
                           "names":[
@@ -495,7 +495,7 @@ def main(options,args,outputExists):
                                "HLT_AK8PFJet500_v*"]
                       }
             if options.is2017:
-                dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, "passJson", False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNames)
+                dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, "passJson", False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNames,treeName="Events",doublebName='AK8Puppijet0_deepdoubleb')
             else:
                 dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, '((triggerBits&2)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=options.puOpt)
         
