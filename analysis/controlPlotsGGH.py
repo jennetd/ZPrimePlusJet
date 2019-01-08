@@ -282,10 +282,10 @@ def get2017files():
                              idir_1401skim + 'JetHTRun2017F_17Nov2017_v1_noPF*.root'
                       ],
               'data': [
-        	        	     idirData + 'JetHTRun2017C_17Nov2017_v1_noPF.root',
-                             idirData + 'JetHTRun2017D_17Nov2017_v1_noPF.root',
-                             idirData + 'JetHTRun2017E_17Nov2017_v1_noPF.root',
-                             idirData + 'JetHTRun2017F_17Nov2017_v1_noPF.root'
+        	        	     idir_1501 + 'JetHTRun2017B_17Nov2017_v1/*.root',
+                             idir_1501 + 'JetHTRun2017C_17Nov2017_v1/*.root',
+                             idir_1501 + 'JetHTRun2017D_17Nov2017_v1/*.root',
+                             idir_1501 + 'JetHTRun2017E_17Nov2017_v1/*.root'
                       ],
               'muon': [
                        idirData+'/SingleMuonRun2017C_17Nov2017_v1_noPF.root',
@@ -484,24 +484,14 @@ def main(options,args,outputExists):
         if isData and muonCR:
             dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=options.puOpt)
         elif isData:
-            # For production  zprimebits-v12.07
-            #HLT_AK8PFJet330_PFAK8BTagCSV_p17_v =32768
-            #HLT_PFHT1050_v                     =134217728
-            #HLT_AK8PFJet400_TrimMass30_v       =4096
-            #HLT_AK8PFHT800_TrimMass50_v        =8192
-            #HLT_PFJet500_v                     =16384
-            #HLT_AK8PFJet360_TrimMass30_v       =16
-            #HLT_AK8PFJet380_TrimMass30_v       =16777216
-            #HLT_AK8PFJet500_v                  =2097152
-            triggerNames={"version":"zprimebit-12.07-triggerBits","branchName":"triggerBits",
+            triggerNames={"version":"zprimebit-15.01","branchName":"triggerBits",
                           "names":[
                                "HLT_AK8PFJet330_PFAK8BTagCSV_p17_v*",
                                "HLT_PFHT1050_v*",
                                "HLT_AK8PFJet400_TrimMass30_v*",
+                               "HLT_AK8PFJet420_TrimMass30_v*",
                                "HLT_AK8PFHT800_TrimMass50_v*",
                                "HLT_PFJet500_v*",
-                               "HLT_AK8PFJet360_TrimMass30_v*",
-                               "HLT_AK8PFJet380_TrimMass30_v*",
                                "HLT_AK8PFJet500_v*"]
                       }
             if options.is2017:
