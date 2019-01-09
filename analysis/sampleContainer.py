@@ -240,6 +240,10 @@ class sampleContainer:
                                    ('AK8Puppijet1_doublecsv', 'd', -999), ('AK8Puppijet2_doublecsv', 'i', -999),
                                    ('AK8Puppijet1_isTightVJet', 'i', 0),
                                    ('AK8Puppijet2_isTightVJet', 'i', 0),
+                                   ('AK8Puppijet1_deepdoubleb', 'd', -999),
+                                   ('AK8Puppijet1_deepdoubleb_nomasssculptpen', 'd', -999),
+                                   ('AK8Puppijet2_deepdoubleb', 'd', -999),
+                                   ('AK8Puppijet2_deepdoubleb_nomasssculptpen', 'd', -999),
                                    ('AK4Puppijet4_eta' , 'd', -999),('AK4Puppijet5_eta' , 'd', -999),
                                    ('AK4Puppijet4_phi' , 'd', -999),('AK4Puppijet5_phi' , 'd', -999),
                                    ('AK4Puppijet4_pt'  , 'd', -999),('AK4Puppijet5_pt'  , 'd', -999),
@@ -297,8 +301,7 @@ class sampleContainer:
             'h_eta_mu_muCR4_N2': ["h_" + self._name + "_eta_mu_muCR4_N2", "; leading muon #eta;", 50, -2.5, 2.5],
             'h_pt_ak8_muCR4_N2': ["h_" + self._name + "_pt_ak8_muCR4_N2", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
             'h_eta_ak8_muCR4_N2': ["h_" + self._name + "_eta_ak8_muCR4_N2", "; AK8 leading #eta;", 50, -3, 3],
-            'h_dbtag_ak8_muCR4_N2': ["h_" + self._name + "_dbtag_ak8_muCR4_N2", "; p_{T}-leading double b-tag;", 40, -1,
-                                     1],
+            'h_dbtag_ak8_muCR4_N2': ["h_" + self._name + "_dbtag_ak8_muCR4_N2", "; p_{T}-leading deep double b-tag;", 40, 0,1],
 #            'h_t21ddt_ak8_muCR4_N2': ["h_" + self._name + "_t21ddt_ak8_muCR4_N2", "; AK8 #tau_{21}^{DDT};", 25, 0, 1.5],
             'h_msd_ak8_muCR4_N2': ["h_" + self._name + "_msd_ak8_muCR4_N2", "; AK8 m_{SD}^{PUPPI} (GeV);", 23, 40, 201],
             'h_msd_ak8_muCR4_N2_pass': ["h_" + self._name + "_msd_ak8_muCR4_N2_pass", "; AK8 m_{SD}^{PUPPI} (GeV);", 23,
@@ -392,11 +395,9 @@ class sampleContainer:
                 'h_msd_ak8_t21ddtCut_inc': ["h_" + self._name + "_msd_ak8_t21ddtCut_inc", "; AK8 m_{SD}^{PUPPI} (GeV);",
                                             100, 0, 500],
                 'h_msd_ak8_N2Cut': ["h_" + self._name + "_msd_ak8_N2Cut", "; AK8 m_{SD}^{PUPPI} (GeV);", 23, 40, 201],
-                'h_dbtag_ak8': ["h_" + self._name + "_dbtag_ak8", "; p_{T}-leading double b-tag;", 200, -1, 1],
-                'h_dbtag_ak8_sub1': ["h_" + self._name + "_dbtag_ak8_sub1", "; 2nd p_{T}-leading double b-tag;", 40, -1,
-                                     1],
-                'h_dbtag_ak8_sub2': ["h_" + self._name + "_dbtag_ak8_sub2", "; 3rd p_{T}-leading double b-tag;", 40, -1,
-                                     1],
+                'h_dbtag_ak8'     : ["h_" + self._name + "_dbtag_ak8", "; p_{T}-leading deep double b-tag;", 40, 0, 1],
+                'h_dbtag_ak8_sub1': ["h_" + self._name + "_dbtag_ak8_sub1", "; 2nd p_{T}-leading deep double b-tag;", 40, 0,1],
+                'h_dbtag_ak8_sub2': ["h_" + self._name + "_dbtag_ak8_sub2", "; 3rd p_{T}-leading deep double b-tag;", 40, 0,1],
                 'h_n_unMatchedAK4'     : ["h_" + self._name + "_n_unMatchedAK4", "; Number of non matched AK4 jets ;;", 7, 0, 7],
                 'h_Mqq'     : ["h_" + self._name + "_Mqq", "; Dijet Mass (GeV);;", 50, 0, 3000],
                 'h_QGLR'    : ["h_" + self._name + "_QGLR", "; QGLR;", 10, 0,1],
@@ -408,7 +409,7 @@ class sampleContainer:
                 'h_n2b1sd_ak8': ["h_" + self._name + "_n2b1sd_ak8", "; AK8 N_{2}^{1} (SD);", 25, -0.5, 0.5],
                 'h_n2b1sdddt_ak8': ["h_" + self._name + "_n2b1sdddt_ak8", "; AK8 N_{2}^{1,DDT} (SD);", 25, -0.5, 0.5],
                 'h_n2b1sdddt_ak8_aftercut': ["h_" + self._name + "_n2b1sdddt_ak8_aftercut", "; p_{T}-leading N_{2}^{1,DDT};", 25, -0.5, 0.5],
-                'h_dbtag_ak8_aftercut': ["h_" + self._name + "_dbtag_ak8_aftercut", "; p_{T}-leading double-b tagger;", 33, -1, 1],
+                'h_dbtag_ak8_aftercut': ["h_" + self._name + "_dbtag_ak8_aftercut", "; p_{T}-leading deep double-b tagger;", 40, 0, 1],
                 'h_msd_ak8_raw_SR_fail': ["h_" + self._name + "_msd_ak8_raw_SR_fail",
                                           "; AK8 m_{SD}^{PUPPI} no corr (GeV);", 23, 40, 201],
                 'h_msd_ak8_raw_SR_pass': ["h_" + self._name + "_msd_ak8_raw_SR_pass",
@@ -454,8 +455,7 @@ class sampleContainer:
                 'h_eta_mu_muCR4': ["h_" + self._name + "_eta_mu_muCR4", "; leading muon #eta;", 50, -2.5, 2.5],
                 'h_pt_ak8_muCR4': ["h_" + self._name + "_pt_ak8_muCR4", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
                 'h_eta_ak8_muCR4': ["h_" + self._name + "_eta_ak8_muCR4", "; AK8 leading #eta;", 50, -3, 3],
-                'h_dbtag_ak8_muCR4': ["h_" + self._name + "_dbtag_ak8_muCR4", "; p_{T}-leading double b-tag;", 40, -1,
-                                      1],
+                'h_dbtag_ak8_muCR4': ["h_" + self._name + "_dbtag_ak8_muCR4", "; p_{T}-leading deep double b-tag;", 40, 0,1],
                 'h_t21ddt_ak8_muCR4': ["h_" + self._name + "_t21ddt_ak8_muCR4", "; AK8 #tau_{21}^{DDT};", 25, 0, 1.5],
                 'h_msd_ak8_muCR4': ["h_" + self._name + "_msd_ak8_muCR4", "; AK8 m_{SD}^{PUPPI} (GeV);", 23, 40, 201],
                 'h_msd_ak8_muCR4_pass': ["h_" + self._name + "_msd_ak8_muCR4_pass", "; AK8 m_{SD}^{PUPPI} (GeV);", 23,
@@ -967,11 +967,13 @@ class sampleContainer:
                 if self.AK8Puppijet1_doublecsv[0] > 1:
                     jdb_8_sub1 = -99
                 else:
-                    jdb_8_sub1 = self.AK8Puppijet1_doublecsv[0]
+                    #jdb_8_sub1 = self.AK8Puppijet1_doublecsv[0]
+                    jdb_8_sub1 = getattr(self,self.doublebName.replace("AK8Puppijet0","AK8Puppijet1"))[0]
                 if self.AK8Puppijet2_doublecsv[0] > 1:
                     jdb_8_sub2 = -99
                 else:
-                    jdb_8_sub2 = self.AK8Puppijet2_doublecsv[0]
+                    #jdb_8_sub2 = self.AK8Puppijet2_doublecsv[0]
+                    jdb_8_sub2 = getattr(self,self.doublebName.replace("AK8Puppijet0","AK8Puppijet2"))[0]
 
             n_4 = self.nAK4PuppijetsPt30[0]
             if not self._minBranches:
