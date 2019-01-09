@@ -180,7 +180,9 @@ class sampleContainer:
                           ('AK8Puppijet0_doublecsv', 'd', -999),
                           ('AK8Puppijet0_deepdoubleb', 'd', -999),
                           ('AK8Puppijet0_deepdoubleb_nomasssculptpen', 'd', -999),
-                          ('kfactor', 'f', 0), ('kfactorNLO', 'f', 0), ('nAK4PuppijetsPt30', 'i', -999),
+                          ('kfactor', 'f', 0), ('kfactorNLO', 'f', 0), #baconbit14 or before 
+                          ('kfactorEWK', 'f', 0), ('kfactorQCD', 'f', 0), #baconbit15 on ward
+                          ('nAK4PuppijetsPt30', 'i', -999),
                           ('nAK4PuppijetsPt30dR08_0', 'i', -999),
                           ('nAK4PuppijetsPt30dR08jesUp_0', 'i', -999), ('nAK4PuppijetsPt30dR08jesDown_0', 'i', -999),
                           ('nAK4PuppijetsPt30dR08jerUp_0', 'i', -999), ('nAK4PuppijetsPt30dR08jerDown_0', 'i', -999),
@@ -406,7 +408,7 @@ class sampleContainer:
                 'h_n2b1sd_ak8': ["h_" + self._name + "_n2b1sd_ak8", "; AK8 N_{2}^{1} (SD);", 25, -0.5, 0.5],
                 'h_n2b1sdddt_ak8': ["h_" + self._name + "_n2b1sdddt_ak8", "; AK8 N_{2}^{1,DDT} (SD);", 25, -0.5, 0.5],
                 'h_n2b1sdddt_ak8_aftercut': ["h_" + self._name + "_n2b1sdddt_ak8_aftercut", "; p_{T}-leading N_{2}^{1,DDT};", 25, -0.5, 0.5],
-		'h_dbtag_ak8_aftercut': ["h_" + self._name + "_dbtag_ak8_aftercut", "; p_{T}-leading double-b tagger;", 33, -1, 1],
+                'h_dbtag_ak8_aftercut': ["h_" + self._name + "_dbtag_ak8_aftercut", "; p_{T}-leading double-b tagger;", 33, -1, 1],
                 'h_msd_ak8_raw_SR_fail': ["h_" + self._name + "_msd_ak8_raw_SR_fail",
                                           "; AK8 m_{SD}^{PUPPI} no corr (GeV);", 23, 40, 201],
                 'h_msd_ak8_raw_SR_pass': ["h_" + self._name + "_msd_ak8_raw_SR_pass",
@@ -812,12 +814,13 @@ class sampleContainer:
             ### works only for 2017 HT binned sample, constructed with normSampleContainer
             if 'ZJetsToQQ_' in self._name:    
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))  
-                vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
-                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factor= %.3f"%(self._name, ptForNLO, vjetsKF, self.kfactor[0])
+                #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
+                vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]
+                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0], self.kfactorQCD[0])
             if 'WJetsToQQ_' in self._name:
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))
-                vjetsKF   = self.kfactor[0]  * self._wnlo.GetBinContent(self._wnlo.FindBin(ptForNLO))
-                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factor= %.3f"%(self._name, ptForNLO, vjetsKF, self.kfactor[0])
+                vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0] 
+                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0],self.kfactorQCD[0])
         
                 
             # trigger weight
