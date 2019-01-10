@@ -25,17 +25,29 @@ BLIND_HI = 131
 RHO_LO = -6
 RHO_HI = -2.1
 
+SF2017={
+            'm_data'    : 82.657,           'm_data_err': 0.313,
+            'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
+            's_data'    : 8.701,            's_data_err': 0.433,
+            's_mc'      : 8.027,            's_mc_err'  : 0.607,
+            'BB_SF'     : 0.72,             'BB_SF_ERR' : 0.06, #2017 double-b SF
+            'V_SF'      : 1,                'V_SF_ERR'  : 0.01, #needs update
+}
+SF2016={
+            'm_data'    : 82.657,           'm_data_err': 0.313,
+            'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
+            's_data'    : 8.701,            's_data_err': 0.433,
+            's_mc'      : 8.027,            's_mc_err'  : 0.607,
+            'BB_SF'     : 0.91,             'BB_SF_ERR' : 0.03,
+            'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
+        }
 
 def main(options, args):
     ifile = options.ifile
     odir = options.odir
 
-    if options.is2017:
-        print "loading 2017 rhalphabet_builder"
-        from rhalphabet_builder_2017 import RhalphabetBuilder, LoadHistograms, GetSF
-    else:
-        print "loading default rhalphabet_builder"
-        from rhalphabet_builder import RhalphabetBuilder, LoadHistograms, GetSF
+    print "loading default rhalphabet_builder"
+    from rhalphabet_builder import RhalphabetBuilder, LoadHistograms, GetSF
     # Load the input histograms
     # 	- 2D histograms of pass and fail mass,pT distributions
     # 	- for each MC sample and the data
@@ -43,14 +55,18 @@ def main(options, args):
     fLoose = None
     if options.ifile_loose is not None:
         fLoose = r.TFile.Open(options.ifile_loose)
+    if options.is2017:
+        sf=SF2017
+    else:
+        sf=SF2016
     #(hpass, hfail) = loadHistograms(f, options.pseudo, options.blind, options.useQCD, options.scale, options.r)
-    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_LO, MASS_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose)
+    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_LO, MASS_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf)
     #f.Close()
 
     # Build the workspacees
     #dazsleRhalphabetBuilder(hpass, hfail, f, odir, options.NR, options.NP)
 
-    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix)
+    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf)
     rhalphabuilder.run()
     if options.addHptShape:
         rhalphabuilder.addHptShape()	
