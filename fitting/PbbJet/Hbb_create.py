@@ -193,43 +193,44 @@ def get2017files(isMuonCR):
     idir_1401 = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v14.01/'
     idir_1401skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v14.01/skim/'
     idir_1501 = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.01/'
+    idir_1501skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.01/skim/'
 
     tfiles = {
-	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1501+'/GluGluHToBB_M125_13TeV_powheg_pythia8/*.root']},
-	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1501+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix/*.root']},
+	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1501skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1501skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
         'zhqq125'    : { 
-                           'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1501+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1501+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                           'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1501+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                           #'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp':         [idir_1501+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp/*.root'],
+                           'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1501skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1501skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1501skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           #'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp':         [idir_1501skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp_*.root'],
                        },
         'whqq125'    : {
-                           'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1501+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                           'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1501+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                           'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1501skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1501skim+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
                        },
-	    'tthqq125'   : { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1501+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8/*.root']},
+	    'tthqq125'   : { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1501skim+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8_*.root']},
         'vvqq':        {
-                             'WW_TuneCP5_13TeV-pythia8':[idir_1501+'WW_TuneCP5_13TeV_pythia8/*.root'],
-                             'WZ_TuneCP5_13TeV-pythia8':[idir_1501+'WZ_TuneCP5_13TeV_pythia8/*.root'],
-                             'ZZ_TuneCP5_13TeV-pythia8':[idir_1501+'ZZ_TuneCP5_13TeV_pythia8/*.root']
+                             'WW_TuneCP5_13TeV-pythia8':[idir_1501skim+'WW_TuneCP5_13TeV_pythia8_*.root'],
+                             'WZ_TuneCP5_13TeV-pythia8':[idir_1501skim+'WZ_TuneCP5_13TeV_pythia8_*.root'],
+                             'ZZ_TuneCP5_13TeV-pythia8':[idir_1501skim+'ZZ_TuneCP5_13TeV_pythia8_*.root']
                        },
         'zqq':         {
-                            'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1501 + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV/*.root'],
-                            'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1501 + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV/*.root'],
-                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1501 + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV/*.root'],
+                            'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1501skim + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV_*.root'],
+                            'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1501skim + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV_*.root'],
+                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1501skim + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV_*.root'],
                         },
         'zll': [idir + '/DYJetsToLL_M_50_13TeV_ext_1000pb_weighted.root'],
         # ZJetsToQQ_HT600toInf_13TeV_madgraph_1000pb_weighted.root'],#DYJetsToQQ_HT180_13TeV_1000pb_weighted.root '],
         'stqq':  {
-                             'ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8':[idir_1501+'ST_t_channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV_powhegV2_madspin_pythia8/*.root'],
-                             'ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8'    :[idir_1501+'ST_t_channel_top_4f_inclusiveDecays_TuneCP5_13TeV_powhegV2_madspin_pythia8/*.root'],
-                             'ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8'                 :[idir_1501+'ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV_powheg_pythia8/*.root'],
-                             'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8'                     :[idir_1501+'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV_powheg_pythia8/*.root']
+                             'ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8':[idir_1501skim+'ST_t_channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV_powhegV2_madspin_pythia8_*.root'],
+                             'ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8'    :[idir_1501skim+'ST_t_channel_top_4f_inclusiveDecays_TuneCP5_13TeV_powhegV2_madspin_pythia8_*.root'],
+                             'ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8'                 :[idir_1501skim+'ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV_powheg_pythia8_*.root'],
+                             'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8'                     :[idir_1501skim+'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV_powheg_pythia8_*.root']
                             },
         'wqq'         : {
-                              'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV': [idir_1501 + 'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV/*.root'],
-                              'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV': [idir_1501 + 'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV/*.root'],
-                              'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV':[idir_1501 + 'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV/*.root'],
+                              'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV': [idir_1501skim + 'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV_*.root'],
+                              'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV': [idir_1501skim + 'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV_*.root'],
+                              'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV':[idir_1501skim + 'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV_*.root'],
                              },
         'wlnu':         {
                               # "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8"               :[ idir_1401skim+'WJetsToLNu_TuneCP5_13TeV*.root'],
@@ -241,31 +242,31 @@ def get2017files(isMuonCR):
                               # "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1401skim+'WJetsToLNu_HT_2500ToInf*.root'],
                             },
         'tqq':      {
-                       'TTToHadronic_TuneCP5_13TeV_powheg_pythia8'    :[idir_1501+'TTToHadronic_TuneCP5_13TeV_powheg_pythia8/*.root'],
-                       'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8':[idir_1501+'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8/*.root'],
-                       'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8'       :[idir_1501+'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8/*.root'       ],
+                       'TTToHadronic_TuneCP5_13TeV_powheg_pythia8'    :[idir_1501skim+'TTToHadronic_TuneCP5_13TeV_powheg_pythia8_*.root'],
+                       'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8':[idir_1501skim+'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8_*.root'],
+                       'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8'       :[idir_1501skim+'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_*.root'       ],
                       },
         'qcd':        {
-                       'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1501+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8/*.root'  ],
-                       'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8/*.root' ],
-                       'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501+'/QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8/*.root'],
-                       'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8/*.root'],
-                       'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8/*.root' ]
+                       'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1501skim+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'  ],
+                       'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501skim+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ],
+                       'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501skim+'/QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
+                       'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1501skim+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
+                       'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1501skim+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
                       },
         'data_obs': [
-        	        	     idir_1501 + 'JetHTRun2017B_17Nov2017_v1/*.root',
-                             idir_1501 + 'JetHTRun2017C_17Nov2017_v1/*.root',
-                             idir_1501 + 'JetHTRun2017D_17Nov2017_v1/*.root',
-                             idir_1501 + 'JetHTRun2017E_17Nov2017_v1/*.root'
+        	        	     idir_1501skim + 'JetHTRun2017B_17Nov2017_v1_*.root',
+                             idir_1501skim + 'JetHTRun2017C_17Nov2017_v1_*.root',
+                             idir_1501skim + 'JetHTRun2017D_17Nov2017_v1_*.root',
+                             idir_1501skim + 'JetHTRun2017E_17Nov2017_v1_*.root'
                       ],
     }
     if isMuonCR:
         tfiles['data_obs'] = [
-                       idir_1501+'/SingleMuonRun2017B_17Nov2017_v1/*.root',
-                       idir_1501+'/SingleMuonRun2017C_17Nov2017_v1/*.root',
-                       idir_1501+'/SingleMuonRun2017D_17Nov2017_v1/*.root',
-                       idir_1501+'/SingleMuonRun2017E_17Nov2017_v1/*.root',
-                       idir_1501+'/SingleMuonRun2017F_17Nov2017_v1/*.root'
+                       idir_1501skim+'/SingleMuonRun2017B_17Nov2017_v1_*.root',
+                       idir_1501skim+'/SingleMuonRun2017C_17Nov2017_v1_*.root',
+                       idir_1501skim+'/SingleMuonRun2017D_17Nov2017_v1_*.root',
+                       idir_1501skim+'/SingleMuonRun2017E_17Nov2017_v1_*.root',
+                       idir_1501skim+'/SingleMuonRun2017F_17Nov2017_v1_*.root'
                     ]
     return tfiles
 
@@ -358,11 +359,11 @@ def main(options, args):
     print "Signals... "
     sigSamples = {}
     if options.is2017:
-        sigSamples['hqq125']   = normSampleContainer('hqq125',tfiles['hqq125']       , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        sigSamples['tthqq125'] = normSampleContainer('tthqq125', tfiles['tthqq125']  , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-        sigSamples['vbfhqq125']= normSampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-        sigSamples['whqq125']  = normSampleContainer('whqq125', tfiles['whqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-        sigSamples['zhqq125']  = normSampleContainer('zhqq125', tfiles['zhqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        sigSamples['hqq125']   = normSampleContainer('hqq125',tfiles['hqq125']       , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        sigSamples['tthqq125'] = normSampleContainer('tthqq125', tfiles['tthqq125']  , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        sigSamples['vbfhqq125']= normSampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        sigSamples['whqq125']  = normSampleContainer('whqq125', tfiles['whqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        sigSamples['zhqq125']  = normSampleContainer('zhqq125', tfiles['zhqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
     else:
         sigSamples['hqq125'] = sampleContainer('hqq125', tfiles['hqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
         #sigSamples['hqq125'] = normSampleContainer('hqq125',tfiles['hqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,treeName='Events',puOpt="default").addPlots(plots)
@@ -375,14 +376,14 @@ def main(options, args):
     bkgSamples = {}
 
     if options.is2017:
-        bkgSamples['wqq']  = normSampleContainer('wqq',tfiles['wqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['stqq'] = normSampleContainer('stqq', tfiles['stqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['wqq']  = normSampleContainer('wqq',tfiles['wqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['stqq'] = normSampleContainer('stqq', tfiles['stqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
         #bkgSamples['wlnu'] = normSampleContainer('wlnu',tfiles['wlnu'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt="default").addPlots(plots)
         if not options.skipQCD:
-            bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,treeName='Events',puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
     else:
         bkgSamples['wqq']  = sampleContainer('wqq',tfiles['wqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt="2016")
         bkgSamples['zqq']  = sampleContainer('zqq',tfiles['zqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt="2016")
@@ -397,7 +398,7 @@ def main(options, args):
     if not options.skipData:
         if muonCR:
             if is2017:
-                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt,treeName="Events",doublebName='AK8Puppijet0_deepdoubleb')
+                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt,doublebName='AK8Puppijet0_deepdoubleb')
             else:
                 dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=opuOpt)
         else:
@@ -413,7 +414,7 @@ def main(options, args):
                                "HLT_AK8PFJet500_v*"]
                       }
             if is2017:
-                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,treeName="Events",doublebName='AK8Puppijet0_deepdoubleb')
+                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,doublebName='AK8Puppijet0_deepdoubleb')
             else:
                 dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'((triggerBits&2)&&passJson)', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
     hall = {}
