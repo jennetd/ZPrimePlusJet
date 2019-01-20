@@ -1234,7 +1234,6 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
 def GetSF(process, cat, f, fLoose=None, removeUnmatched=False, iPt=-1,sf_dict={}):
     SF = 1
     print process, cat
-    print sf_dict
     BB_SF = sf_dict['BB_SF']
     V_SF  = sf_dict['V_SF']
     if 'hqq' in process or 'zqq' in process or 'Pbb' in process:
