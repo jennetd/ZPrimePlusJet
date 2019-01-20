@@ -307,7 +307,7 @@ def main(options,args):
         if options.forcomb:
             flatPars = ['r1p0', 'r2p0', 'r0p1', 'r1p1', 'r2p1', 'qcd2017eff']
         else:
-            flatPars = ['r1p0', 'r2p0', 'r0p1', 'r1p1', 'r2p1', 'qcdeff']
+            flatPars = ['p0r1', 'p0r2', 'p1r0', 'p1r1', 'p1r2', 'qcdeff']
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
 
