@@ -72,6 +72,11 @@ class RhalphabetBuilder():
         self._ptbins = []
         for ipt in range(0,self._nptbins+1):
             self._ptbins.append(pass_hists["data_obs"].GetYaxis().GetBinLowEdge(ipt+1))
+        self._categories=[]
+        for ipt in range(1,self._nptbins+1):
+            self._categories.append('pass_cat%s'%ipt)
+            self._categories.append('fail_cat%s'%ipt)
+            
 
         # define RooRealVars
         self._lMSD = r.RooRealVar("x", "x", self._mass_lo, self._mass_hi)
@@ -122,14 +127,14 @@ class RhalphabetBuilder():
     def addHptShape(self):
         fbase = r.TFile.Open(self._output_path, 'update')
 
-        categories = ['pass_cat1', 'pass_cat2', 'pass_cat3', 'pass_cat4', 'pass_cat5', 'pass_cat6',
-                      'fail_cat1', 'fail_cat2', 'fail_cat3', 'fail_cat4', 'fail_cat5', 'fail_cat6']
+        #categories = ['pass_cat1', 'pass_cat2', 'pass_cat3', 'pass_cat4', 'pass_cat5', 'pass_cat6',
+        #              'fail_cat1', 'fail_cat2', 'fail_cat3', 'fail_cat4', 'fail_cat5', 'fail_cat6']
 
         sigs = self._signal_names
         wbase = {}
-        for cat in categories:
+        for cat in self._categories:
             wbase[cat] = fbase.Get('w_%s' % cat)
-        x = wbase[categories[0]].var('x')
+        x = wbase[self._categories[0]].var('x')
         rooCat = r.RooCategory('cat', 'cat')
 
         histpdf = {}
@@ -146,7 +151,7 @@ class RhalphabetBuilder():
         #total_unc = 3.0 # -> cat6 has 300% SF w.r.t. cat1
         iptlo = self._ptbins[0]
         ipthi = self._ptbins[-2]
-        for cat in categories:
+        for cat in self._categories:
             iptbin = int(cat[-1])-1 # returns 0 for cat1, 1 for cat2, etc.
             ipt = self._ptbins[iptbin]
             rooCat.defineType(cat)
@@ -157,7 +162,7 @@ class RhalphabetBuilder():
             all_int += myint
             print cat, (1 + (ipt-iptlo) * (total_unc-1.) / (ipthi-iptlo))
 
-        for cat in categories:           
+        for cat in self._categories:           
             iptbin = int(cat[-1])-1 # returns 0 for cat1, 1 for cat2, etc.
             ipt = self._ptbins[iptbin]
             rooCat.defineType(cat)
@@ -194,7 +199,7 @@ class RhalphabetBuilder():
         up = 0
         down = 0
         nom = 0
-        for cat in categories:
+        for cat in self._categories:
             nom  += datahist['%s_%s' % (proc, cat)].sumEntries()
             up += hptpdfUp_s[cat].sumEntries()
             down += hptpdfDown_s[cat].sumEntries()
@@ -206,7 +211,7 @@ class RhalphabetBuilder():
         print "total", down
         
         icat = 0
-        for cat in categories:
+        for cat in self._categories:
             if icat == 0:
                 wbase[cat].writeToFile(self._output_path, True)
             else:
@@ -218,21 +223,21 @@ class RhalphabetBuilder():
         fbase = r.TFile.Open(self._output_path, 'update')
         fralphabase = r.TFile.Open(self._rhalphabet_output_path, 'update')
 
-        categories = ['pass_cat1', 'pass_cat2', 'pass_cat3', 'pass_cat4', 'pass_cat5', 'pass_cat6',
-                      'fail_cat1', 'fail_cat2', 'fail_cat3', 'fail_cat4', 'fail_cat5', 'fail_cat6']
+        #categories = ['pass_cat1', 'pass_cat2', 'pass_cat3', 'pass_cat4', 'pass_cat5', 'pass_cat6',
+        #              'fail_cat1', 'fail_cat2', 'fail_cat3', 'fail_cat4', 'fail_cat5', 'fail_cat6']
 
         bkgs = self._background_names
         sigs = self._signal_names
 
         wbase = {}
         wralphabase = {}
-        for cat in categories:
+        for cat in self._categories:
             wbase[cat] = fbase.Get('w_%s' % cat)
             wralphabase[cat] = fralphabase.Get('w_%s' % cat)
 
         w = r.RooWorkspace('w')
         w.factory('mu[1.,0.,20.]')
-        x = wbase[categories[0]].var('x')
+        x = wbase[self._categories[0]].var('x')
         rooCat = r.RooCategory('cat', 'cat')
 
         mu = w.var('mu')
@@ -243,10 +248,10 @@ class RhalphabetBuilder():
         histpdfnorm = {}
         data = {}
         signorm = {}
-        for cat in categories:
+        for cat in self._categories:
             rooCat.defineType(cat)
 
-        for cat in categories:
+        for cat in self._categories:
             norms_b = r.RooArgList()
             norms_s = r.RooArgList()
             norms_b.add(wralphabase[cat].function('qcd_%s%s_norm' % (cat, self._suffix)))
@@ -313,18 +318,18 @@ class RhalphabetBuilder():
 
         ## combData = getattr(r,'RooDataHist')(*arguments)
 
-        cat = categories[0]
+        cat = self._categories[0]
         args = data[cat].get(0)
 
         combiner = r.CombDataSetFactory(args, rooCat)
 
-        for cat in categories:
+        for cat in self._categories:
             combiner.addSetBin(cat, data[cat])
         combData = combiner.done('data_obs', 'data_obs')
 
         simPdf_b = r.RooSimultaneous('simPdf_b', 'simPdf_b', rooCat)
         simPdf_s = r.RooSimultaneous('simPdf_s', 'simPdf_s', rooCat)
-        for cat in categories:
+        for cat in self._categories:
             simPdf_b.addPdf(epdf_b[cat], cat)
             simPdf_s.addPdf(epdf_s[cat], cat)
 
@@ -371,7 +376,7 @@ class RhalphabetBuilder():
         fr.Print('v')
 
         icat = 0
-        for cat in categories:
+        for cat in self._categories:
             reset(wralphabase[cat], fr)
             if icat == 0:
                 getattr(wralphabase[cat], 'import')(fr)
@@ -388,20 +393,20 @@ class RhalphabetBuilder():
         fbase = r.TFile.Open(self._output_path, 'update')
         fralphabase = r.TFile.Open(self._rhalphabet_output_path, 'update')
 
-        categories = ['pass_cat1', 'pass_cat2', 'pass_cat3', 'pass_cat4', 'pass_cat5', 'pass_cat6',
-                      'fail_cat1', 'fail_cat2', 'fail_cat3', 'fail_cat4', 'fail_cat5', 'fail_cat6']
+        #categories = ['pass_cat1', 'pass_cat2', 'pass_cat3', 'pass_cat4', 'pass_cat5', 'pass_cat6',
+        #              'fail_cat1', 'fail_cat2', 'fail_cat3', 'fail_cat4', 'fail_cat5', 'fail_cat6']
 
         bkgs = self._background_names
         sigs = self._signal_names
 
         wbase = {}
         wralphabase = {}
-        for cat in categories:
+        for cat in self._categories:
             wbase[cat] = fbase.Get('w_%s' % cat)
             wralphabase[cat] = fralphabase.Get('w_%s' % cat)
 
         icat = 0
-        for cat in categories:
+        for cat in self._categories:
             reset(wralphabase[cat], fr, exclude='qcd_fail_cat')
             if icat == 0:
                 wralphabase[cat].writeToFile(self._rhalphabet_output_path, True)
