@@ -87,6 +87,8 @@ def buildcards(odir,nr,np, options):
     ]
     if muonCR:
         cmds.insert(2,makemuonCR_base)
+    if options.justPlot:
+        return wsRoot
     for cmd in cmds:
         exec_me(cmd,logf, dryRun)
     
@@ -148,6 +150,9 @@ if __name__ == "__main__":
         exec_me('mkdir -p %s'%cardsDir2,logf,options.dryRun)
         datacardWS1 = buildcards(cardsDir1,options.NR1, options.NP1,options)
         datacardWS2 = buildcards(cardsDir2,options.NR2, options.NP2,options)
+    else:
+        datacardWS1 = buildcards(cardsDir1,options.NR1, options.NP1,options)
+        datacardWS2 = buildcards(cardsDir2,options.NR2, options.NP2,options)
     p1 = int((options.NR1+1)*(options.NP1+1)) + 2 # paramaters including floating Hbb and Zbb signals
     p2 = int((options.NR2+1)*(options.NP2+1)) + 2 # parameters including floating Hbb and Zbb signals
     
@@ -160,4 +165,7 @@ if __name__ == "__main__":
         limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s '%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances)
         exec_me(limit_cmd,logf,options.dryRun)
     else:
+        # use toys from hadd-ed directory
+        toysDir +="/toys/ "
+        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s '%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances)
         exec_me(limit_cmd+" --just-plot ",logf,options.dryRun)
