@@ -49,7 +49,7 @@ def main(options,args):
     nBkgd = len(bkgs)
     nSig = len(sigs)
     numberOfMassBins = 23    
-    numberOfPtBins = 6
+    numberOfPtBins = 4
     procsToRemove = []
 
     histoDict = {}
