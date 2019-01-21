@@ -91,7 +91,9 @@ if __name__ == '__main__':
     script_group.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='run on asimov dataset', metavar='pseudo')
     script_group.add_option('--blind', action='store_true', dest='blind', default=False, help='run on blinded dataset',metavar='blind')
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
-    script_group.add_option('--dry-run',dest="dryRun",default=False,action='store_true',help="Just print out commands to run")    
+    script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
+    script_group.add_option('--suffix', dest='suffix', default=None, help='suffix for conflict variables',metavar='suffix')
+    script_group.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF')
 
     parser.add_option_group(script_group)
 
@@ -106,13 +108,20 @@ if __name__ == '__main__':
 
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
-    gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
+    #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b DDB git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
-    files = [options.ifile, options.ifile_loose, options.ifile_muon]
+    files = [options.ifile]
 
     #ouput to ${MAINDIR}/ so that condor transfer the output to submission dir
-    command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runFtest.py -o ${MAINDIR}/ --seed $1 --toys $2 --ifile ${MAINDIR}/$3 --ifile-loose ${MAINDIR}/$4 --ifile-muon ${MAINDIR}/$5'
+    command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runFtest.py -o ${MAINDIR}/ --seed $1 --toys $2 --ifile ${MAINDIR}/$3 '
+    if  options.ifile_loose is not None: 
+        files.append( options.ifile_loose)
+        command  += '--ifile-loose ${MAINDIR}/$%i'%(files.index( options.ifile_loose)+3)
+    if  options.ifile_muon is not None:
+        files.append( options.ifile_muon)
+        command  += '--ifile-muon ${MAINDIR}/$%i'%(files.index( options.ifile_loose)+3)
     #Add script options to job command
     for opts in script_group.option_list:
         if not getattr(options, opts.dest)==opts.default:
