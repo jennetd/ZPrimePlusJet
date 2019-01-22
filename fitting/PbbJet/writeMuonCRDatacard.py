@@ -8,8 +8,8 @@ import time
 import array
 import os
 
-from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI
-from rhalphabet_builder import BB_SF,BB_SF_ERR,V_SF,V_SF_ERR,GetSF
+from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016
+from rhalphabet_builder import GetSF
 
 def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     obsRate = {}
@@ -18,6 +18,19 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     nBkgd = len(bkgs)
     nSig = len(sigs)
     rootFileName = txtfileName.replace('.txt','.root')
+
+    if options.is2017:
+        BB_SF = SF2017['BB_SF'] 
+        BB_SF_ERR=SF2017['BB_SF_ERR']
+        V_SF = SF2017['V_SF']
+        V_SF_ERR=SF2017['V_SF_ERR']
+        sf_dict = SF2017
+    else:
+        BB_SF = SF2016['BB_SF']
+        BB_SF_ERR=SF2016['BB_SF_ERR']
+        V_SF = SF2016['V_SF']
+        V_SF_ERR=SF2016['V_SF_ERR']
+        sf_dict = SF2016 
 
     rates = {}
     lumiErrs = {}
@@ -205,25 +218,40 @@ def main(options, args):
     #bkgs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125','qcd','tqq','wqq','vvqq','stqq','wlnu','zll']
     systs = ['JER','JES','mutrigger','muid','muiso','Pu']
 
-    
+    if options.is2017:
+        BB_SF = SF2017['BB_SF'] 
+        BB_SF_ERR=SF2017['BB_SF_ERR']
+        V_SF = SF2017['V_SF']
+        V_SF_ERR=SF2017['V_SF_ERR']
+        sf_dict = SF2017
+    else:
+        BB_SF = SF2016['BB_SF']
+        BB_SF_ERR=SF2016['BB_SF_ERR']
+        V_SF = SF2016['V_SF']
+        V_SF_ERR=SF2016['V_SF_ERR']
+        sf_dict = SF2016 
+
     tfile = rt.TFile.Open(options.ifile,'read')
     
     histoDict = {}
     datahistDict = {}
     
+    fLoose = None
+    removeUnmatched=False
+    iPt=-1
     for proc in (bkgs+sigs+['data_obs']):
         for box in boxes:
             print 'getting histogram for process: %s_%s'%(proc,box)
             histoDict['%s_%s'%(proc,box)] = tfile.Get('%s_%s'%(proc,box)).Clone()
-            histoDict['%s_%s'%(proc,box)].Scale(GetSF(proc,box,tfile))
+            histoDict['%s_%s'%(proc,box)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
             for syst in systs:
                 if proc!='data_obs':
                     print 'getting histogram for process: %s_%s_%sUp'%(proc,box,syst)
                     histoDict['%s_%s_%sUp'%(proc,box,syst)] = tfile.Get('%s_%s_%sUp'%(proc,box,syst)).Clone()
-                    histoDict['%s_%s_%sUp'%(proc,box,syst)].Scale(GetSF(proc,box,tfile))
+                    histoDict['%s_%s_%sUp'%(proc,box,syst)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
                     print 'getting histogram for process: %s_%s_%sDown'%(proc,box,syst)
                     histoDict['%s_%s_%sDown'%(proc,box,syst)] = tfile.Get('%s_%s_%sDown'%(proc,box,syst)).Clone()
-                    histoDict['%s_%s_%sDown'%(proc,box,syst)].Scale(GetSF(proc,box,tfile))
+                    histoDict['%s_%s_%sDown'%(proc,box,syst)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
                     
                 
     
@@ -257,6 +285,7 @@ if __name__ == '__main__':
     parser.add_option('--lumi', dest='lumi', type=float, default = 20,help='lumi in 1/fb ', metavar='lumi')
     parser.add_option('-i','--ifile', dest='ifile', default = './',help='directory with data', metavar='ifile')
     parser.add_option('-o','--odir', dest='odir', default = './',help='directory to write cards', metavar='odir')
+    parser.add_option('--is2017', action='store_true', dest='is2017', default =False,help='use 2017 SF', metavar='is2017')
     
     (options, args) = parser.parse_args()
 
