@@ -93,7 +93,7 @@ if __name__ == '__main__':
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
     script_group.add_option('--suffix', dest='suffix', default=None, help='suffix for conflict variables',metavar='suffix')
-    script_group.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF')
+    script_group.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF',metavar='is2017')
 
     parser.add_option_group(script_group)
 
@@ -121,7 +121,7 @@ if __name__ == '__main__':
         command  += '--ifile-loose ${MAINDIR}/$%i'%(files.index( options.ifile_loose)+3)
     if  options.ifile_muon is not None:
         files.append( options.ifile_muon)
-        command  += '--ifile-muon ${MAINDIR}/$%i'%(files.index( options.ifile_loose)+3)
+        command  += '--ifile-muon ${MAINDIR}/$%i'%(files.index( options.ifile_muon)+3)
     #Add script options to job command
     for opts in script_group.option_list:
         if not getattr(options, opts.dest)==opts.default:
@@ -156,20 +156,13 @@ if __name__ == '__main__':
             write_bash(exe, command, gitClone, setUpCombine)
             write_condor(exe, arguments, localfiles,dryRun)
     else:
-        print "Trying to hadd subjob files from %s/%s"%(outpath,subToy1)
-        print "Trying to hadd subjob files from %s/%s"%(outpath,subToy2)
         nOutput = len(glob.glob("%s/%s"%(outpath,subToy1)))
         if nOutput==maxJobs:
             print "Found %s subjob output files"%nOutput
-            exec_me("hadd -f %s/%s %s/%s"%(outpath,toy2,outpath,subToy1),dryRun)
-            exec_me("hadd -f %s/%s %s/%s"%(outpath,toy1,outpath,subToy2),dryRun)
-            print "DONE hadd. Removing subjob files.."
-            exec_me("rm %s/%s"%(outpath,subToy1),dryRun)
-            exec_me("rm %s/%s"%(outpath,subToy2),dryRun)
             if options.clean:
                 print "Cleaning submission files..." 
                 #remove all but _0 file
                 for i in range(1,10):
                     exec_me("rm %s/runjob_%s*"%(outpath,i),dryRun)
         else:
-            print "%s/%s jobs done, not hadd-ing"%(nOutput,maxJobs)
+            print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
