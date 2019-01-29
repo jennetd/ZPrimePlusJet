@@ -88,7 +88,7 @@ if __name__ == '__main__':
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='use MC', metavar='pseudo')
     parser.add_option('--blind', action='store_true', dest='blind', default=False, help='blind signal region',
                       metavar='blind')
-    parser.add_option('--use-qcd', action='store_true', dest='useQCD', default=False, help='use real QCD MC',
+    parser.add_option('--use-qcd', type='int', dest='useQCD', default=1, help='use real QCD MC',
                       metavar='useQCD')
     parser.add_option('--massfit', action='store_true', dest='massfit', default=False, help='mass fit or rho',
                       metavar='massfit')

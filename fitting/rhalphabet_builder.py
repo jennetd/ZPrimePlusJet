@@ -1113,9 +1113,11 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
             qcd_fail = f.Get('qcd_fail')
             qcd_fail.Scale(1. / scale)
             if useQCD:
+                print "Using QCD MC"
                 qcd_pass = f.Get('qcd_pass').Clone()
                 qcd_pass.Scale(1. / scale)
             else:
+                print "Using  qcd_pass = qcd_fail * eff(pass)/eff(fail)"
                 qcd_pass_real = f.Get('qcd_pass').Clone('qcd_pass_real')
                 qcd_pass_real.Scale(1. / scale)
                 qcd_pass = qcd_fail.Clone('qcd_pass')
