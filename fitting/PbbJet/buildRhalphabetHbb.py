@@ -98,7 +98,7 @@ if __name__ == '__main__':
                       help='scale factor to scale MC (assuming only using a fraction of the data)')
     parser.add_option('--nr', dest='NR', default=2, type='int', help='order of rho (or mass) polynomial')
     parser.add_option('--np', dest='NP', default=1, type='int', help='order of pt polynomial')
-    parser.add_option('-r', dest='r', default=0, type='float', help='signal strength for MC pseudodataset')
+    parser.add_option('-r', dest='r', default=1, type='float', help='signal strength for MC pseudodataset')
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
     parser.add_option('--prefit', action='store_true', dest='prefit', default =False,help='do prefit', metavar='prefit')
     parser.add_option('--addHptShape',action='store_true',dest='addHptShape',default =False,help='add H pt shape unc', metavar='addHptShape')
