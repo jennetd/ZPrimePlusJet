@@ -121,7 +121,10 @@ def main(options, args):
             rBestFit = 0
 
         # Plot TF poly
-        makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP)
+        includeQCDeff = True
+        makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
+        includeQCDeff = False
+        makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
 
     #print "sum ",histograms_pass_summed_list[0:4], histograms_pass_summed_list[9], histograms_pass_summed_list[4:9]
 
@@ -358,7 +361,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         bkgStacked = sorted(bkgs,key=lambda (v): v.GetName())
     else:
         bkgStacked = sorted(bkgs,key=lambda (v): v.Integral())
-    print "stacking bkg in this order",bkgStacked
+    #print "stacking bkg in this order",bkgStacked
     for b  in bkgStacked:
 	if 'qcd' in b.GetName():
         	b.Draw('hist sames')
@@ -556,25 +559,28 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
 
     if sOverSb:
         tag += '_sOverSb'
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + ".pdf")
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + ".C")
+    c.SaveAs(odir + "/mlfit_" + tag + ".pdf")
+    c.SaveAs(odir + "/mlfit_" + tag + ".C")
     data.SetMinimum(5e-1)
     # r.gPad.SetLogy()
     p12.SetLogy()
     data.SetMaximum(data.GetMaximum() * 2)
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + "-log.pdf")
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + "-log.C")
+    c.SaveAs(odir + "/mlfit_" + tag + "-log.pdf")
+    c.SaveAs(odir + "/mlfit_" + tag + "-log.C")
 
     return [bkgs + hsigs + [data]]
 
 
-def makeTF(pars, ratio,n_rho,n_pT):
+def makeTF(pars, ratio,n_rho,n_pT,Include_qcdeff):
     ratio.GetXaxis().SetTitle('m_{SD}^{PUPPI} (GeV)')
     ratio.GetYaxis().SetTitle('p_{T} (GeV)')
 
     ratio.GetXaxis().SetTitleOffset(1.5)
     ratio.GetYaxis().SetTitleOffset(1.5)
-    ratio.GetZaxis().SetTitle('Pass-to-fail Ratio')
+    if Include_qcdeff:
+        ratio.GetZaxis().SetTitle('Pass-to-fail Ratio')
+    else:
+        ratio.GetZaxis().SetTitle('Transfer Factor')
     ratio.GetXaxis().SetNdivisions(504)
     ratio.GetYaxis().SetNdivisions(504)
     ratio.GetZaxis().SetNdivisions(504)
@@ -588,7 +594,6 @@ def makeTF(pars, ratio,n_rho,n_pT):
     print boundaries
   
     msd_pT = True 
-    Include_qcdeff =True 
     fun_mass_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
     f2 = r.TF2("f2", fun_mass_pT,  ratio.GetXaxis().GetXmin(),ratio.GetXaxis().GetXmax(),
                                    ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
@@ -637,8 +642,12 @@ def makeTF(pars, ratio,n_rho,n_pT):
     tag2.Draw()
     tag3.Draw()
 
-    c.SaveAs(options.odir + "/mlfit/tf.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf.C")
+    if Include_qcdeff:
+        c.SaveAs(options.odir + "/tf.pdf")
+        c.SaveAs(options.odir + "/tf.C")
+    else:
+        c.SaveAs(options.odir + "/tf_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_noeff.C")
 
     # raw_input("Press Enter to continue...")
 
@@ -721,7 +730,6 @@ def makeTF(pars, ratio,n_rho,n_pT):
             ratiorhograph.SetPoint(N,x,y,z)
 
     msd_pT = False  #switch to use msd-pT /rho-pT
-    Include_qcdeff = True 
     fun_rho_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
     f2rho = r.TF2("f2",fun_rho_pT,-6,-2.1,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
     f2rho.SetParameters(f2params)
@@ -764,9 +772,13 @@ def makeTF(pars, ratio,n_rho,n_pT):
     tag1.Draw()
     tag2.Draw()
     tag3.Draw()
-    
-    c.SaveAs(options.odir + "/mlfit/tf_rho.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_rho.C")
+   
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_rho.pdf")
+        c.SaveAs(options.odir + "/tf_rho.C")
+    else:
+        c.SaveAs(options.odir + "/tf_rho_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_rho_noeff.C")
     
     # to plot TF2
     #f2.Draw("colz")
@@ -822,9 +834,12 @@ def makeTF(pars, ratio,n_rho,n_pT):
     pave_param2.Draw()
     
 
-    
-    c.SaveAs(options.odir + "/mlfit/tf_msdcolz.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_msdcolz.C")
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_msdcolz.pdf")
+        c.SaveAs(options.odir + "/tf_msdcolz.C")
+    else:
+        c.SaveAs(options.odir + "/tf_msdcolz_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_msdcolz_noeff.C")
 
     # to plot TF2
     #f2rho.Draw("colz")
@@ -878,9 +893,13 @@ def makeTF(pars, ratio,n_rho,n_pT):
     text2.SetTextAlign(22)
     text2.SetTextSize(0.045)
     pave_param2.Draw()
-    
-    c.SaveAs(options.odir + "/mlfit/tf_rhocolz.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_rhocolz.C")
+   
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_rhocolz.pdf")
+        c.SaveAs(options.odir + "/tf_rhocolz.C")
+    else:
+        c.SaveAs(options.odir + "/tf_rhocolz_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_rhocolz_noeff.C")
     
 
 
