@@ -1112,10 +1112,6 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
         if bkg == 'qcd':
             qcd_fail = f.Get('qcd_fail')
             qcd_fail.Scale(1. / scale)
-            qcd_fail.SetBinContent(13, 4, (
-                qcd_fail.GetBinContent(12, 4) + qcd_fail.GetBinContent(14, 4)) / 2.)  # REMOVE HIGH WEIGHT EVENT BIN
-            qcd_fail.SetBinError(13, 4, (
-                qcd_fail.GetBinError(12, 4) + qcd_fail.GetBinError(14, 4)) / 2.)  # REMOVE HIGH WEIGHT EVENT BIN
             if useQCD:
                 qcd_pass = f.Get('qcd_pass').Clone()
                 qcd_pass.Scale(1. / scale)
