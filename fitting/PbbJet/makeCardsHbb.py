@@ -177,7 +177,8 @@ def main(options,args):
         if options.forcomb:
             qcdGroupString = 'qcd2017 group = qcd2017eff%s'%options.suffix
         else:
-            qcdGroupString = 'qcd group = qcdeff%s'%options.suffix
+            #qcdGroupString = 'qcd group = qcdeff%s'%options.suffix
+            qcdGroupString = 'qcd group = '
         for box in boxes:
             for proc in sigs+bkgs:
                 for j in range(1,numberOfMassBins+1):
@@ -307,7 +308,7 @@ def main(options,args):
         if options.forcomb:
             flatPars = ['r1p0', 'r2p0', 'r0p1', 'r1p1', 'r2p1', 'qcd2017eff']
         else:
-            flatPars = ['p0r1', 'p0r2', 'p1r0', 'p1r1', 'p1r2', 'qcdeff']
+            flatPars = ['p0r0','p0r1', 'p0r2', 'p1r0', 'p1r1', 'p1r2']
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
 

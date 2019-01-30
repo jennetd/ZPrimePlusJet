@@ -470,7 +470,7 @@ class RhalphabetBuilder():
 
         # Fix the pt (top) and the qcd eff
         self._lPt.setVal(pt)
-        self._lEffQCD.setConstant(False)
+        self._lEffQCD.setConstant(True)
 
         polynomial_variables = []
         #self.buildPolynomialArray(polynomial_variables, self._poly_degree_pt, self._poly_degree_rho, "p", "r", -30, 30)
@@ -524,6 +524,7 @@ class RhalphabetBuilder():
             pass_bin_var = r.RooFormulaVar(rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            "@0*max(@1,0)*@2", lArg)
+
             print "Pass=fail*poly*eff RooFormulaVar:"
             print pass_bin_var.Print()
 
@@ -666,14 +667,14 @@ class RhalphabetBuilder():
         for pRVar in range(0, self._poly_degree_rho + 1):
             lTmpArray = r.RooArgList()
             for pVar in range(0, self._poly_degree_pt + 1):
-                if lNCount == 0:
-                    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
-                else:
-                    print "lNCount = " + str(lNCount)
-                    lTmpArray.add(iVars[lNCount])
-                    print "iVars[lNCount]: ", iVars[lNCount]
-                    print "iVars[lNCount]"
-                    iVars[lNCount].Print()
+                #if lNCount == 0:
+                #    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
+                #else:
+                print "lNCount = " + str(lNCount)
+                lTmpArray.add(iVars[lNCount])
+                print "iVars[lNCount]: ", iVars[lNCount]
+                print "iVars[lNCount]"
+                iVars[lNCount].Print()
                 lNCount = lNCount + 1
             pLabel = "Var_Pol_Bin_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)) + "_" + str(pRVar)
             lTmpArray.add(lPt_rescaled)
@@ -743,7 +744,8 @@ class RhalphabetBuilder():
                     pXMin = iXMin0
                     pXMax = iXMax0
 
-                pRooVar = r.RooRealVar(pVar, pVar, 0.0, pXMin, pXMax)
+                pRooVar = r.RooRealVar(pVar, pVar, 1.0, pXMin, pXMax)
+                #pRooVar = r.RooRealVar(pVar, pVar, self._lEffQCD.getVal(), pXMin, pXMax)
                 # print("========  here i0 %s i1 %s"%(i0,i1))
                 print pVar
                 # print(" is : %s  +/- %s"%(value[i0*3+i1],error[i0*3+i1]))
