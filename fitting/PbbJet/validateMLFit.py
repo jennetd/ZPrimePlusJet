@@ -99,15 +99,16 @@ def main(options, args):
     if options.fit == "fit_b" or options.fit == "fit_s":
         rfr = r.RooFitResult(fml.Get(options.fit))
         lParams = []
-        lParams.append("qcdeff")
+        #lParams.append("qcdeff")
         # for r2p1 polynomial
+        lParams.append("p0r0")
         lParams.append("p0r1")  
         lParams.append("p0r2")  
         lParams.append("p1r0")  
         lParams.append("p1r1")  
         lParams.append("p1r2")
 
-        pars = []
+        pars = [0.012072]
         for p in lParams:
             if rfr.floatParsFinal().find(p):
                 print p, "=", rfr.floatParsFinal().find(p).getVal(), "+/-", rfr.floatParsFinal().find(p).getError()
