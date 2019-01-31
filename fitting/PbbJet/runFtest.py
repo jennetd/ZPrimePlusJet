@@ -75,7 +75,8 @@ def buildcards(odir,nr,np, options):
     if is2017:
         rhalph_base += " --is2017 "
         makecard_base +=" --is2017 "
-        makemuonCR_base+=" --is2017 "
+        if muonCR:
+            makemuonCR_base+=" --is2017 "
 
     wsRoot = combcard_all.replace(".txt","_floatZ.root")       
     t2ws_rz += " %s -o %s"%(combcard_all, wsRoot)
