@@ -19,12 +19,6 @@ import tools as tools
 from RootIterator import RootIterator
 from hist import *
 
-BB_SF = 0.91
-BB_SF_ERR = 0.03
-V_SF = 0.993
-V_SF_ERR = 0.043
-
-
 ##############################################################################
 ##############################################################################
 #### B E G I N N I N G   O F   C L A S S
@@ -34,13 +28,14 @@ V_SF_ERR = 0.043
 class RhalphabetBuilder():
     def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
-                 remove_unmatched=False, input_file_loose=None,suffix=None):
+                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={}):
         self._pass_hists = pass_hists
         self._fail_hists = fail_hists
         self._mass_fit = mass_fit
         self._freeze = freeze_poly
         self._inputfile = input_file
         self._inputfile_loose = input_file_loose
+        self._sf_dict = sf_dict
         if suffix:
             if suffix[0]!='_': self._suffix = '_'+suffix 
         else:
@@ -272,6 +267,8 @@ class RhalphabetBuilder():
                                                               datahist['%s_%s' % (proc, cat)])
                 getattr(w, 'import')(datahist['%s_%s' % (proc, cat)], r.RooFit.RecycleConflictNodes())
                 getattr(w, 'import')(histpdf['%s_%s' % (proc, cat)], r.RooFit.RecycleConflictNodes())
+                #getattr(w, 'import')(datahist['%s_%s' % (proc, cat)], r.RooFit.RenameConflictNodes(self._suffix))
+                #getattr(w, 'import')(histpdf['%s_%s' % (proc, cat)] , r.RooFit.RenameConflictNodes(self._suffix))
                 if 'hqq125' in proc:
                     # signal
                     signorm['%s_%s' % (proc, cat)] = r.RooRealVar('signorm_%s_%s' % (proc, cat),
@@ -302,8 +299,10 @@ class RhalphabetBuilder():
             epdf_b[cat] = r.RooAddPdf('epdf_b_' + cat, 'epdf_b_' + cat, pdfs_b, norms_b)
             epdf_s[cat] = r.RooAddPdf('epdf_s_' + cat, 'epdf_s_' + cat, pdfs_s, norms_s)
 
-            getattr(w, 'import')(epdf_b[cat], r.RooFit.RecycleConflictNodes())
-            getattr(w, 'import')(epdf_s[cat], r.RooFit.RecycleConflictNodes())
+            #getattr(w, 'import')(epdf_b[cat], r.RooFit.RecycleConflictNodes())
+            #getattr(w, 'import')(epdf_s[cat], r.RooFit.RecycleConflictNodes())
+            getattr(w, 'import')(epdf_b[cat], r.RooFit.RenameConflictNodes(self._suffix))
+            getattr(w, 'import')(epdf_s[cat], r.RooFit.RenameConflictNodes(self._suffix))
 
         ## arguments = ["data_obs","data_obs",r.RooArgList(x),rooCat]
 
@@ -471,10 +470,11 @@ class RhalphabetBuilder():
 
         # Fix the pt (top) and the qcd eff
         self._lPt.setVal(pt)
-        self._lEffQCD.setConstant(False)
+        self._lEffQCD.setConstant(True)
 
         polynomial_variables = []
-        self.buildPolynomialArray(polynomial_variables, self._poly_degree_pt, self._poly_degree_rho, "p", "r", -30, 30)
+        #self.buildPolynomialArray(polynomial_variables, self._poly_degree_pt, self._poly_degree_rho, "p", "r", -30, 30)
+        self.buildPolynomialArray(polynomial_variables, self._poly_degree_rho, self._poly_degree_pt, "r", "p", -30, 30)
         print "polynomial_variables=",
         print polynomial_variables
 
@@ -524,6 +524,7 @@ class RhalphabetBuilder():
             pass_bin_var = r.RooFormulaVar(rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            "@0*max(@1,0)*@2", lArg)
+
             print "Pass=fail*poly*eff RooFormulaVar:"
             print pass_bin_var.Print()
 
@@ -666,14 +667,14 @@ class RhalphabetBuilder():
         for pRVar in range(0, self._poly_degree_rho + 1):
             lTmpArray = r.RooArgList()
             for pVar in range(0, self._poly_degree_pt + 1):
-                if lNCount == 0:
-                    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
-                else:
-                    print "lNCount = " + str(lNCount)
-                    lTmpArray.add(iVars[lNCount])
-                    print "iVars[lNCount]: ", iVars[lNCount]
-                    print "iVars[lNCount]"
-                    iVars[lNCount].Print()
+                #if lNCount == 0:
+                #    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
+                #else:
+                print "lNCount = " + str(lNCount)
+                lTmpArray.add(iVars[lNCount])
+                print "iVars[lNCount]: ", iVars[lNCount]
+                print "iVars[lNCount]"
+                iVars[lNCount].Print()
                 lNCount = lNCount + 1
             pLabel = "Var_Pol_Bin_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)) + "_" + str(pRVar)
             lTmpArray.add(lPt_rescaled)
@@ -743,7 +744,8 @@ class RhalphabetBuilder():
                     pXMin = iXMin0
                     pXMax = iXMax0
 
-                pRooVar = r.RooRealVar(pVar, pVar, 0.0, pXMin, pXMax)
+                pRooVar = r.RooRealVar(pVar, pVar, 1.0, pXMin, pXMax)
+                #pRooVar = r.RooRealVar(pVar, pVar, self._lEffQCD.getVal(), pXMin, pXMax)
                 # print("========  here i0 %s i1 %s"%(i0,i1))
                 print pVar
                 # print(" is : %s  +/- %s"%(value[i0*3+i1],error[i0*3+i1]))
@@ -880,23 +882,20 @@ class RhalphabetBuilder():
                             tmph_down = self._inputfile_loose.Get(process + '_' + cat + matchingString).Clone(
                                 process + '_' + cat + '_' + syst + 'Down')
                             tmph.Scale(
-                                GetSF(process, cat, self._inputfile, self._inputfile_loose, self._remove_unmatched,
-                                      iPt))
+                                GetSF(process, cat, self._inputfile, self._inputfile_loose, self._remove_unmatched,iPt,self._sf_dict))
                             tmph_up.Scale(
-                                GetSF(process, cat, self._inputfile, self._inputfile_loose, self._remove_unmatched,
-                                      iPt))
+                                GetSF(process, cat, self._inputfile, self._inputfile_loose, self._remove_unmatched,iPt,self._sf_dict))
                             tmph_down.Scale(
-                                GetSF(process, cat, self._inputfile, self._inputfile_loose, self._remove_unmatched,
-                                      iPt))
+                                GetSF(process, cat, self._inputfile, self._inputfile_loose, self._remove_unmatched,iPt,self._sf_dict))
                         else:
                             tmph = self._inputfile.Get(process + '_' + cat + matchingString).Clone(process + '_' + cat)
                             tmph_up = self._inputfile.Get(process + '_' + cat + matchingString).Clone(
                                 process + '_' + cat + '_' + syst + 'Up')
                             tmph_down = self._inputfile.Get(process + '_' + cat + matchingString).Clone(
                                 process + '_' + cat + '_' + syst + 'Down')
-                            tmph.Scale(GetSF(process, cat, self._inputfile))
-                            tmph_up.Scale(GetSF(process, cat, self._inputfile))
-                            tmph_down.Scale(GetSF(process, cat, self._inputfile))
+                            tmph.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
+                            tmph_up.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
+                            tmph_down.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                         tmph_mass = tools.proj('cat', str(iPt), tmph, self._mass_nbins, self._mass_lo, self._mass_hi)
                         tmph_mass_up = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo,
                                                   self._mass_hi)
@@ -926,8 +925,8 @@ class RhalphabetBuilder():
                         print process, cat, syst
                         tmph_up = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Up').Clone()
                         tmph_down = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Down').Clone()
-                        tmph_up.Scale(GetSF(process, cat, self._inputfile))
-                        tmph_down.Scale(GetSF(process, cat, self._inputfile))
+                        tmph_up.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
+                        tmph_down.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                         tmph_mass_up = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo,
                                                   self._mass_hi)
                         tmph_mass_down = tools.proj('cat', str(iPt), tmph_down, self._mass_nbins, self._mass_lo,
@@ -979,14 +978,14 @@ class RhalphabetBuilder():
                     tmph_matched = self._inputfile_loose.Get(process + '_' + cat + '_matched').Clone()
                     tmph_unmatched = self._inputfile_loose.Get(process + '_' + cat + '_unmatched').Clone()
                     tmph_matched.Scale(
-                        GetSF(process, cat, self._inputfile, self._inputfile_loose, self._remove_unmatched, iPt))
+                        GetSF(process, cat, self._inputfile, self._inputfile_loose, self._remove_unmatched, iPt,sf_dict=self._sf_dict))
                     tmph_unmatched.Scale(GetSF(process, cat, self._inputfile, self._inputfile_loose,
-                                               False))  # doesn't matter if removing unmatched so just remove that option
+                                               False,sf_dict=self._sf_dict))  # doesn't matter if removing unmatched so just remove that option
                 else:
                     tmph_matched = self._inputfile.Get(process + '_' + cat + '_matched').Clone()
                     tmph_unmatched = self._inputfile.Get(process + '_' + cat + '_unmatched').Clone()
-                    tmph_matched.Scale(GetSF(process, cat, self._inputfile))
-                    tmph_unmatched.Scale(GetSF(process, cat, self._inputfile))
+                    tmph_matched.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
+                    tmph_unmatched.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                 tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins, self._mass_lo,
                                                self._mass_hi)
                 tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins, self._mass_lo,
@@ -998,14 +997,14 @@ class RhalphabetBuilder():
                 # mass_shift_unc = 0.03*2. #(2 sigma shift)
                 # res_shift = 1.094
                 # res_shift_unc = 0.123*2. #(2 sigma shift)
-                m_data = 82.657
-                m_data_err = 0.313
-                m_mc = 82.548
-                m_mc_err = 0.191
-                s_data = 8.701
-                s_data_err = 0.433
-                s_mc = 8.027
-                s_mc_err = 0.607
+                m_data     =self._sf_dict['m_data']    # 82.657
+                m_data_err =self._sf_dict['m_data_err']# 0.313
+                m_mc       =self._sf_dict['m_mc']      # 82.548
+                m_mc_err   =self._sf_dict['m_mc_err']  # 0.191
+                s_data     =self._sf_dict['s_data']    # 8.701
+                s_data_err =self._sf_dict['s_data_err']# 0.433
+                s_mc       =self._sf_dict['s_mc']      # 8.027
+                s_mc_err   =self._sf_dict['s_mc_err']  # 0.607
                 mass_shift = m_data / m_mc
                 mass_shift_unc = math.sqrt((m_data_err / m_data) * (m_data_err / m_data) + (m_mc_err / m_mc) * (
                     m_mc_err / m_mc)) * 10.  # (10 sigma shift)
@@ -1102,7 +1101,7 @@ class RhalphabetBuilder():
 ##############################################################################
 
 ##-------------------------------------------------------------------------------------
-def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None):
+def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={}):
     pass_hists = {}
     fail_hists = {}
     f.ls()
@@ -1115,14 +1114,12 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
         if bkg == 'qcd':
             qcd_fail = f.Get('qcd_fail')
             qcd_fail.Scale(1. / scale)
-            qcd_fail.SetBinContent(13, 4, (
-                qcd_fail.GetBinContent(12, 4) + qcd_fail.GetBinContent(14, 4)) / 2.)  # REMOVE HIGH WEIGHT EVENT BIN
-            qcd_fail.SetBinError(13, 4, (
-                qcd_fail.GetBinError(12, 4) + qcd_fail.GetBinError(14, 4)) / 2.)  # REMOVE HIGH WEIGHT EVENT BIN
             if useQCD:
+                print "Using QCD MC"
                 qcd_pass = f.Get('qcd_pass').Clone()
                 qcd_pass.Scale(1. / scale)
             else:
+                print "Using  qcd_pass = qcd_fail * eff(pass)/eff(fail)"
                 qcd_pass_real = f.Get('qcd_pass').Clone('qcd_pass_real')
                 qcd_pass_real.Scale(1. / scale)
                 qcd_pass = qcd_fail.Clone('qcd_pass')
@@ -1145,8 +1142,8 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
             hfail_tmp = f.Get(bkg + '_fail').Clone()
             hpass_tmp.Scale(1. / scale)
             hfail_tmp.Scale(1. / scale)
-            hpass_tmp.Scale(GetSF(bkg, 'pass', f, fLoose))
-            hfail_tmp.Scale(GetSF(bkg, 'fail', f))
+            hpass_tmp.Scale(GetSF(bkg, 'pass', f, fLoose,sf_dict=sf_dict))
+            hfail_tmp.Scale(GetSF(bkg, 'fail', f,sf_dict=sf_dict))
             pass_hists_bkg[bkg] = hpass_tmp
             fail_hists_bkg[bkg] = hfail_tmp
         else:
@@ -1154,8 +1151,8 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
             hfail_tmp = f.Get(bkg + '_fail').Clone()
             hpass_tmp.Scale(1. / scale)
             hfail_tmp.Scale(1. / scale)
-            hpass_tmp.Scale(GetSF(bkg, 'pass', f))
-            hfail_tmp.Scale(GetSF(bkg, 'fail', f))
+            hpass_tmp.Scale(GetSF(bkg, 'pass', f,sf_dict=sf_dict))
+            hfail_tmp.Scale(GetSF(bkg, 'fail', f,sf_dict=sf_dict))
             pass_hists_bkg[bkg] = hpass_tmp
             fail_hists_bkg[bkg] = hfail_tmp
 
@@ -1182,8 +1179,8 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
                             hist.SetBinContent(i, j, 0)
             failhist.Scale(1. / scale)
             passhist.Scale(1. / scale)
-            failhist.Scale(GetSF(sig + str(mass), 'fail', f))
-            passhist.Scale(GetSF(sig + str(mass), 'pass', f))
+            failhist.Scale(GetSF(sig + str(mass), 'fail', f,sf_dict=sf_dict))
+            passhist.Scale(GetSF(sig + str(mass), 'pass', f,sf_dict=sf_dict))
             pass_hists_sig[sig + str(mass)] = passhist
             fail_hists_sig[sig + str(mass)] = failhist
             signal_names.append(sig + str(mass))
@@ -1234,9 +1231,11 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     return (pass_hists, fail_hists)
 
 
-def GetSF(process, cat, f, fLoose=None, removeUnmatched=False, iPt=-1):
+def GetSF(process, cat, f, fLoose=None, removeUnmatched=False, iPt=-1,sf_dict={}):
     SF = 1
     print process, cat
+    BB_SF = sf_dict['BB_SF']
+    V_SF  = sf_dict['V_SF']
     if 'hqq' in process or 'zqq' in process or 'Pbb' in process:
         if 'pass' in cat:
             SF *= BB_SF

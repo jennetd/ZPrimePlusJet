@@ -4,6 +4,7 @@ from optparse import OptionParser
 
 #sys.path.insert(0, '$ZPRIMEPLUSJET_BASE/fitting/')
 from tools import *
+import glob
 
 def exec_me(command, dryRun=False):
     print command
@@ -193,9 +194,19 @@ def ftest(base,alt,ntoys,iLabel,options):
     if options.dryRun: sys.exit()
     nllBase=fStat("%s/base1.root"%options.odir,"%s/base2.root"%options.odir,options.p1,options.p2,options.n)
     if not options.justPlot:
+        print "Using these toys input %s/toys1_%s.root and %s/toys2_%s.root"%(options.odir,options.seed,options.odir,options.seed)
         nllToys=fStat("%s/toys1_%s.root"%(options.odir,options.seed),"%s/toys2_%s.root"%(options.odir,options.seed),options.p1,options.p2,options.n)
     else:
-        nllToys=fStat("%s/toys1.root"%(options.odir),"%s/toys2.root"%(options.odir),options.p1,options.p2,options.n)
+        nToys1 = len(glob.glob("%s/toys1_*.root"%(options.odir)))
+        nToys2 = len(glob.glob("%s/toys2_*.root"%(options.odir)))
+        if nToys1==nToys2:
+            print "Found %s toy files",nToys1
+            nllToys=[] 
+            for i in range(0,nToys1):
+                nllToys += (fStat("%s/toys1_%s.root"%(options.odir,i),"%s/toys2_%s.root"%(options.odir,i),options.p1,options.p2,options.n))
+        else:
+            print "Using these toys input %s/toys1.root and %s/toys2.root"%(options.odir,options.odir)
+            nllToys=fStat("%s/toys1.root"%(options.odir),"%s/toys2.root"%(options.odir),options.p1,options.p2,options.n)
     lPass=0
     for val in nllToys:
         #print val,nllBase[0]

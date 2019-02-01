@@ -24,7 +24,10 @@ class normSampleContainer:
             xSection = self.getXsection(subSampleName,self.xsectionFile)   # in pb
             tfiles = {}
             tfiles[subSampleName] = paths 
-            print "normSampleContainer:: subSample = %s , Nfiles = %s , basePath = %s"%(subSampleName, len(tfiles[subSampleName]), paths[0].replace(paths[0].split("/")[-1],""))
+            if  len(tfiles[subSampleName])>0:
+                print "normSampleContainer:: subSample = %s , Nfiles = %s , basePath = %s"%(subSampleName, len(tfiles[subSampleName]), paths[0].replace(paths[0].split("/")[-1],""))
+            else:
+                print "normSampleContainer:: subSample = %s  "%(subSampleName)
             #print datetime.datetime.now()
             Nentries,h_puMC,checksum           = self.getNentriesAndPu(tfiles[subSampleName])
             print "PUhistogram type= ",type(h_puMC)

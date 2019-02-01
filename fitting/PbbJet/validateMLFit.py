@@ -10,6 +10,7 @@ import sys
 import time
 import array
 import re
+from  bernstein import *
 
 # including other directories
 # sys.path.insert(0, '../.')
@@ -18,6 +19,7 @@ from tools import *
 msd_binBoundaries = []
 for i in range(0, 24): msd_binBoundaries.append(40 + i * 7)
 pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1000]
+#pt_binBoundaries = [450, 500, 550, 600, 1000]
 
 from buildRhalphabetHbb import BLIND_LO, BLIND_HI, RHO_LO, RHO_HI
 
@@ -37,6 +39,7 @@ def main(options, args):
     shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125', 'data']
 
     for i in range(len(pt_binBoundaries) - 1):
+        print i
         (tmppass, tmpfail) = plotCategory(fml, fd, i + 1, options.fit)
         histograms_pass_all[i] = {}
         histograms_fail_all[i] = {}
@@ -96,27 +99,16 @@ def main(options, args):
     if options.fit == "fit_b" or options.fit == "fit_s":
         rfr = r.RooFitResult(fml.Get(options.fit))
         lParams = []
-        lParams.append("qcdeff")
-        # for r2p2 polynomial
-        # lParams.append("r0p1") # -> r1p0
-        # lParams.append("r0p2") # -> r2p0
-        # lParams.append("r1p0") # -> r1p0
-        # lParams.append("r1p1") # -> r1p1
-        # lParams.append("r1p2")
-        # lParams.append("r2p0")
-        # lParams.append("r2p1")
-        # lParams.append("r2p2")
+        #lParams.append("qcdeff")
         # for r2p1 polynomial
-        lParams.append("r2p0")  # -> r1p0
-        lParams.append("r1p1")  # -> r2p0
-        lParams.append("r1p0")  # -> r0p1
-        lParams.append("r0p1")  # -> r1p1
-        lParams.append("r2p1")  # -> r2p1
-        lParams.append("r0p2")
-        lParams.append("r1p2")
-        lParams.append("r2p2")
+        lParams.append("p0r0")
+        lParams.append("p0r1")  
+        lParams.append("p0r2")  
+        lParams.append("p1r0")  
+        lParams.append("p1r1")  
+        lParams.append("p1r2")
 
-        pars = []
+        pars = [0.012072]
         for p in lParams:
             if rfr.floatParsFinal().find(p):
                 print p, "=", rfr.floatParsFinal().find(p).getVal(), "+/-", rfr.floatParsFinal().find(p).getError()
@@ -130,7 +122,10 @@ def main(options, args):
             rBestFit = 0
 
         # Plot TF poly
-        makeTF(pars, ratio_2d_data_subtract)
+        includeQCDeff = True
+        makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
+        includeQCDeff = False
+        makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
 
     #print "sum ",histograms_pass_summed_list[0:4], histograms_pass_summed_list[9], histograms_pass_summed_list[4:9]
 
@@ -596,7 +591,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             sigHistResidual.SetBinContent(bin+1,sig_residual)
         sigHistResiduals.append(sigHistResidual)
     hstack = r.THStack("hstack","hstack")
-    for sigHistResidual in sorted(sigHistResiduals,key=lambda (v): v.Integral()):
+    for sigHistResidual in sorted(sigHistResiduals,key=mysort):
 	hstack.Add(sigHistResidual) 	
     #    sigHistResidual.Draw("hist sames")
     hstack.Draw("hist sames")	
@@ -609,41 +604,30 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     p12.RedrawAxis()
     p22.RedrawAxis()
     htot.SetMinimum(0)
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + ".pdf")
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + ".C")
+    c.SaveAs(odir + "/mlfit_" + tag + ".pdf")
+    c.SaveAs(odir + "/mlfit_" + tag + ".C")
 
     p12.SetLogy()
     htot.SetMinimum(0.5)
+    htot.SetMaximum(htot.GetMaximum() * 2)
     p12.RedrawAxis()
     p22.RedrawAxis()
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + "-log.pdf")
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + "-log.C")
+    c.SaveAs(odir + "/mlfit_" + tag + "-log.pdf")
+    c.SaveAs(odir + "/mlfit_" + tag + "-log.C")
 
     return [bkgs + hsigs + [data]]
 
 
-def fun2(x, par):
-    rho = r.TMath.Log((x[0] * x[0]) / (x[1] * x[1]))
-    poly0 = par[0] * (1.0 + par[1] * rho + par[2] * rho * rho)
-    poly1 = par[0] * (par[3] + par[4] * rho + par[5] * rho * rho) * x[1]
-    poly2 = par[0] * (par[6] + par[7] * rho + par[8] * rho * rho) * x[1] * x[1]
-    return poly0 + poly1 + poly2
-
-
-def fun2rho(x, par):
-    rho = x[0]
-    poly0 = par[0]*(1.0 + par[1]*rho + par[2]*rho*rho)
-    poly1 = par[0]*(par[3] + par[4]*rho + par[5]*rho*rho)*x[1]
-    poly2 = par[0]*(par[6] + par[7]*rho + par[8]*rho*rho)*x[1]*x[1]
-    return poly0+poly1+poly2
-
-def makeTF(pars, ratio):
+def makeTF(pars, ratio,n_rho,n_pT,Include_qcdeff):
     ratio.GetXaxis().SetTitle('m_{SD}^{PUPPI} (GeV)')
     ratio.GetYaxis().SetTitle('p_{T} (GeV)')
 
     ratio.GetXaxis().SetTitleOffset(1.5)
     ratio.GetYaxis().SetTitleOffset(1.5)
-    ratio.GetZaxis().SetTitle('Pass-fail Ratio')
+    if Include_qcdeff:
+        ratio.GetZaxis().SetTitle('Pass-fail Ratio')
+    else:
+        ratio.GetZaxis().SetTitle('Transfer Factor')
     ratio.GetXaxis().SetNdivisions(504)
     ratio.GetYaxis().SetNdivisions(504)
     ratio.GetZaxis().SetNdivisions(504)
@@ -651,8 +635,15 @@ def makeTF(pars, ratio):
     f2params = array.array('d', pars)
     npar = len(f2params)
 
-    f2 = r.TF2("f2", fun2, ratio.GetXaxis().GetXmin() + 3.5, ratio.GetXaxis().GetXmax() - 3.5,
-               ratio.GetYaxis().GetXmin() + 25., ratio.GetYaxis().GetXmax() - 100., npar)
+    PT_LO =  ratio.GetYaxis().GetXmin() 
+    PT_HI =  ratio.GetYaxis().GetXmax() 
+    boundaries={'RHO_LO':RHO_LO,'RHO_HI':RHO_HI,'PT_LO':PT_LO,'PT_HI':PT_HI}
+    print boundaries
+  
+    msd_pT = True 
+    fun_mass_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
+    f2 = r.TF2("f2", fun_mass_pT,  ratio.GetXaxis().GetXmin(),ratio.GetXaxis().GetXmax(),
+                                   ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
     f2.SetParameters(f2params)
 
     c = r.TCanvas("cTF", "cTF", 1000, 800)
@@ -672,7 +663,7 @@ def makeTF(pars, ratio):
     # f2.FixParameter(8,0)
     # ratio.Fit('f2','RN')
     f2.Draw("surf fb bb same")
-    # f2.Draw("surf fb bb")
+    #f2.Draw("surf1")
 
     r.gPad.SetTheta(30)
     r.gPad.SetPhi(30 + 270)
@@ -698,8 +689,12 @@ def makeTF(pars, ratio):
     tag2.Draw()
     tag3.Draw()
 
-    c.SaveAs(options.odir + "/mlfit/tf.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf.C")
+    if Include_qcdeff:
+        c.SaveAs(options.odir + "/tf.pdf")
+        c.SaveAs(options.odir + "/tf.C")
+    else:
+        c.SaveAs(options.odir + "/tf_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_noeff.C")
 
     # raw_input("Press Enter to continue...")
 
@@ -780,7 +775,10 @@ def makeTF(pars, ratio):
             z = ratio.GetBinContent(i,j)
             #print N, x, y, z
             ratiorhograph.SetPoint(N,x,y,z)
-    f2rho = r.TF2("f2",fun2rho,-6,-2.1,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
+
+    msd_pT = False  #switch to use msd-pT /rho-pT
+    fun_rho_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
+    f2rho = r.TF2("f2",fun_rho_pT,-6,-2.1,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
     f2rho.SetParameters(f2params)
     f2rhograph = r.TGraph2D()
     N = -1
@@ -821,9 +819,13 @@ def makeTF(pars, ratio):
     tag1.Draw()
     tag2.Draw()
     tag3.Draw()
-    
-    c.SaveAs(options.odir + "/mlfit/tf_rho.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_rho.C")
+   
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_rho.pdf")
+        c.SaveAs(options.odir + "/tf_rho.C")
+    else:
+        c.SaveAs(options.odir + "/tf_rho_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_rho_noeff.C")
     
     # to plot TF2
     #f2.Draw("colz")
@@ -879,9 +881,12 @@ def makeTF(pars, ratio):
     pave_param2.Draw()
     
 
-    
-    c.SaveAs(options.odir + "/mlfit/tf_msdcolz.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_msdcolz.C")
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_msdcolz.pdf")
+        c.SaveAs(options.odir + "/tf_msdcolz.C")
+    else:
+        c.SaveAs(options.odir + "/tf_msdcolz_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_msdcolz_noeff.C")
 
     # to plot TF2
     #f2rho.Draw("colz")
@@ -935,9 +940,13 @@ def makeTF(pars, ratio):
     text2.SetTextAlign(22)
     text2.SetTextSize(0.045)
     pave_param2.Draw()
-    
-    c.SaveAs(options.odir + "/mlfit/tf_rhocolz.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_rhocolz.C")
+   
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_rhocolz.pdf")
+        c.SaveAs(options.odir + "/tf_rhocolz.C")
+    else:
+        c.SaveAs(options.odir + "/tf_rhocolz_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_rhocolz_noeff.C")
     
 
 
@@ -957,6 +966,8 @@ if __name__ == '__main__':
                       metavar='splitS')
     parser.add_option('--ratio', action='store_true', dest='ratio', default=False, help='ratio or data-mc',
                       metavar='ratio')
+    parser.add_option('--nr','--NR' ,action='store',type='int',dest='NR'   ,default=2, help='order of rho polynomial')
+    parser.add_option('--np','--NP' ,action='store',type='int',dest='NP'   ,default=1, help='order of pt polynomial')
 
     (options, args) = parser.parse_args()
 

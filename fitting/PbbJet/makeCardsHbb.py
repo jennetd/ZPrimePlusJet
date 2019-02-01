@@ -14,13 +14,22 @@ import array
 sys.path.insert(0, '../.')
 from tools import *
 
-from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI
-from rhalphabet_builder import BB_SF,BB_SF_ERR,V_SF,V_SF_ERR,GetSF
-
+from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016
 
 ##-------------------------------------------------------------------------------------
 def main(options,args):
 	
+    if options.is2017:
+        BB_SF = SF2017['BB_SF'] 
+        BB_SF_ERR=SF2017['BB_SF_ERR']
+        V_SF = SF2017['V_SF']
+        V_SF_ERR=SF2017['V_SF_ERR']
+    else:
+        BB_SF = SF2016['BB_SF']
+        BB_SF_ERR=SF2016['BB_SF_ERR']
+        V_SF = SF2016['V_SF']
+        V_SF_ERR=SF2016['V_SF_ERR']
+
     tfile = r.TFile.Open(options.ifile)
     tfile_loose = None
     if options.ifile_loose is not None:
@@ -164,17 +173,19 @@ def main(options,args):
         scaleptString = 'scalept shape'
         mcStatStrings = {}
         mcStatGroupString = 'mcstat group ='
+        mcstatsuffix  = options.suffix.lower().strip("_")
         if options.forcomb:
             qcdGroupString = 'qcd2017 group = qcd2017eff%s'%options.suffix
         else:
-            qcdGroupString = 'qcd group = qcdeff%s'%options.suffix
+            #qcdGroupString = 'qcd group = qcdeff%s'%options.suffix
+            qcdGroupString = 'qcd group = '
         for box in boxes:
             for proc in sigs+bkgs:
                 for j in range(1,numberOfMassBins+1):
                     if options.noMcStatShape:
-                        mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%imcstat%i lnN'%(proc,box,i,j)
+                        mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%i%smcstat%i lnN'%(proc,box,i,mcstatsuffix,j)
                     else:
-                        mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%imcstat%i shape'%(proc,box,i,j)
+                        mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%i%smcstat%i shape'%(proc,box,i,mcstatsuffix,j)
                     
         for box in boxes:
             for proc in sigs+bkgs:
@@ -261,9 +272,9 @@ def main(options,args):
                 if options.forcomb and '2017' in proc:
                     proc = proc.replace("2017","")
                 if options.noMcStatShape and proc!='qcd' and proc!='qcd2017' and (proc, 'cat%i'%i, box) not in procsToRemove:
-                    print 'include %s%scat%imcstat'%(proc,box,i)
+                    print 'include %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
                     dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,1].replace('mcstat1','mcstat') + "\n")
-                    mcStatGroupString += ' %s%scat%imcstat'%(proc,box,i)
+                    mcStatGroupString += ' %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
                     continue
                 for j in range(1,numberOfMassBins+1):                    
                     # if stat. unc. is greater than 50% 
@@ -280,12 +291,12 @@ def main(options,args):
                         rhoVal = r.TMath.Log(massVal*massVal/ptVal/ptVal)
                         if not( options.blind and massVal > BLIND_LO and massVal < BLIND_HI) and not (rhoVal < RHO_LO or rhoVal > RHO_HI):
                             dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,j] + "\n")
-                            print 'include %s%scat%imcstat%i'%(proc,box,i,j)
-                            mcStatGroupString += ' %s%scat%imcstat%i'%(proc,box,i,j)
+                            print 'include %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
+                            mcStatGroupString += ' %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
                         else:
-                            print 'do not include %s%scat%imcstat%i'%(proc,box,i,j)
+                            print 'do not include %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
                     else:
-                        print 'do not include %s%scat%imcstat%i'%(proc,box,i,j)
+                        print 'do not include %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
                         
         for im in range(numberOfMassBins):
             if options.forcomb:
@@ -297,7 +308,7 @@ def main(options,args):
         if options.forcomb:
             flatPars = ['r1p0', 'r2p0', 'r0p1', 'r1p1', 'r2p1', 'qcd2017eff']
         else:
-            flatPars = ['r1p0', 'r2p0', 'r0p1', 'r1p1', 'r2p1', 'qcdeff']
+            flatPars = ['p0r0','p0r1', 'p0r2', 'p1r0', 'p1r1', 'p1r2']
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
 
@@ -355,6 +366,7 @@ if __name__ == '__main__':
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default =False,help='signal comparison', metavar='isData')
     parser.add_option('--blind', action='store_true', dest='blind', default =False,help='blind signal region', metavar='blind')
     parser.add_option('--for-comb', action='store_true', dest='forcomb', default =False,help='use 2017 qcd', metavar='forcomb')
+    parser.add_option('--is2017', action='store_true', dest='is2017', default =False,help='use 2017 SF', metavar='is2017')
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')

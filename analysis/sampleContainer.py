@@ -126,10 +126,13 @@ class sampleContainer:
 
         # get trigger efficiency object
 
-        f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
-#            "/uscms_data/d3/mkrohn/DAZSLE/ggH_2017/ZPrimePlusJet/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root", "read")
-        self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
-        self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
+        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
+        #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
+        #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
+        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
+        f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017_noPS.root"), "read")
+        self._trig_denom = f_trig.Get("h_runBtoF_pass_Mu50")
+        self._trig_numer = f_trig.Get("h_runBtoF_pass_Main")
         self._trig_denom.SetDirectory(0)
         self._trig_numer.SetDirectory(0)
 #        self._trig_denom.RebinX(2)
@@ -177,7 +180,9 @@ class sampleContainer:
                           ('AK8Puppijet0_doublecsv', 'd', -999),
                           ('AK8Puppijet0_deepdoubleb', 'd', -999),
                           ('AK8Puppijet0_deepdoubleb_nomasssculptpen', 'd', -999),
-                          ('kfactor', 'f', 0), ('kfactorNLO', 'f', 0), ('nAK4PuppijetsPt30', 'i', -999),
+                          ('kfactor', 'f', 0), ('kfactorNLO', 'f', 0), #baconbit14 or before 
+                          ('kfactorEWK', 'f', 0), ('kfactorQCD', 'f', 0), #baconbit15 on ward
+                          ('nAK4PuppijetsPt30', 'i', -999),
                           ('nAK4PuppijetsPt30dR08_0', 'i', -999),
                           ('nAK4PuppijetsPt30dR08jesUp_0', 'i', -999), ('nAK4PuppijetsPt30dR08jesDown_0', 'i', -999),
                           ('nAK4PuppijetsPt30dR08jerUp_0', 'i', -999), ('nAK4PuppijetsPt30dR08jerDown_0', 'i', -999),
@@ -195,7 +200,18 @@ class sampleContainer:
                           ('vmuoLoose0_eta', 'd', -999), ('vmuoLoose0_phi', 'd', -999),
                           ('npv', 'i', 1), ('npu', 'i', 1),
                           ('AK8Puppijet0_isTightVJet', 'i', 0),
-
+                          ('AK4Puppijet0_eta' , 'd', -999),('AK4Puppijet1_eta' , 'd', -999),
+                          ('AK4Puppijet0_phi' , 'd', -999),('AK4Puppijet1_phi' , 'd', -999),
+                          ('AK4Puppijet0_pt'  , 'd', -999),('AK4Puppijet1_pt'  , 'd', -999),
+                          ('AK4Puppijet0_mass', 'd', -999),('AK4Puppijet1_mass', 'd', -999),
+                          ('AK4Puppijet0_qgid', 'd', -999),('AK4Puppijet1_qgid', 'd', -999),  
+                          ('AK4Puppijet0_csv' , 'd', -999),('AK4Puppijet1_csv' , 'd', -999),  
+                          ('AK4Puppijet2_eta' , 'd', -999),('AK4Puppijet3_eta' , 'd', -999),
+                          ('AK4Puppijet2_phi' , 'd', -999),('AK4Puppijet3_phi' , 'd', -999),
+                          ('AK4Puppijet2_pt'  , 'd', -999),('AK4Puppijet3_pt'  , 'd', -999),
+                          ('AK4Puppijet2_mass', 'd', -999),('AK4Puppijet3_mass', 'd', -999),
+                          ('AK4Puppijet2_qgid', 'd', -999),('AK4Puppijet3_qgid', 'd', -999),  
+                          ('AK4Puppijet2_csv' , 'd', -999),('AK4Puppijet3_csv' , 'd', -999),  
                           ]
         if not self._minBranches:
             self._branches.extend([('nAK4PuppijetsfwdPt30', 'i', -999), ('nAK4PuppijetsLPt50dR08_0', 'i', -999),
@@ -224,29 +240,16 @@ class sampleContainer:
                                    ('AK8Puppijet1_doublecsv', 'd', -999), ('AK8Puppijet2_doublecsv', 'i', -999),
                                    ('AK8Puppijet1_isTightVJet', 'i', 0),
                                    ('AK8Puppijet2_isTightVJet', 'i', 0),
-                                   #('AK4Puppijet3_pt', 'f', 0),
-                                   #('AK4Puppijet2_pt', 'f', 0), ('AK4Puppijet1_pt', 'f', 0),
-                                   #('AK4Puppijet0_pt', 'f', 0),
-                                   #('AK4Puppijet3_eta', 'f', 0), ('AK4Puppijet2_eta', 'f', 0),
-                                   #('AK4Puppijet1_eta', 'f', 0), ('AK4Puppijet0_eta', 'f', 0)
-                                   ('AK4Puppijet0_eta' , 'f', 0),('AK4Puppijet1_eta' , 'f', 0),
-                                   ('AK4Puppijet0_phi' , 'f', 0),('AK4Puppijet1_phi' , 'f', 0),
-                                   ('AK4Puppijet0_pt'  , 'f', 0),('AK4Puppijet1_pt'  , 'f', 0),
-                                   ('AK4Puppijet0_mass', 'f', 0),('AK4Puppijet1_mass', 'f', 0),
-                                   ('AK4Puppijet0_qgid', 'f', 0),('AK4Puppijet1_qgid', 'f', 0),  
-                                   ('AK4Puppijet0_csv' , 'f', 0),('AK4Puppijet1_csv' , 'f', 0),  
-                                   ('AK4Puppijet2_eta' , 'f', 0),('AK4Puppijet3_eta' , 'f', 0),
-                                   ('AK4Puppijet2_phi' , 'f', 0),('AK4Puppijet3_phi' , 'f', 0),
-                                   ('AK4Puppijet2_pt'  , 'f', 0),('AK4Puppijet3_pt'  , 'f', 0),
-                                   ('AK4Puppijet2_mass', 'f', 0),('AK4Puppijet3_mass', 'f', 0),
-                                   ('AK4Puppijet2_qgid', 'f', 0),('AK4Puppijet3_qgid', 'f', 0),  
-                                   ('AK4Puppijet2_csv' , 'f', 0),('AK4Puppijet3_csv' , 'f', 0),  
-                                   ('AK4Puppijet4_eta' , 'f', 0),('AK4Puppijet5_eta' , 'f', 0),
-                                   ('AK4Puppijet4_phi' , 'f', 0),('AK4Puppijet5_phi' , 'f', 0),
-                                   ('AK4Puppijet4_pt'  , 'f', 0),('AK4Puppijet5_pt'  , 'f', 0),
-                                   ('AK4Puppijet4_mass', 'f', 0),('AK4Puppijet5_mass', 'f', 0),
-                                   ('AK4Puppijet4_qgid', 'f', 0),('AK4Puppijet5_qgid', 'f', 0),  
-                                   ('AK4Puppijet4_csv' , 'f', 0),('AK4Puppijet5_csv' , 'f', 0),  
+                                   ('AK8Puppijet1_deepdoubleb', 'd', -999),
+                                   ('AK8Puppijet1_deepdoubleb_nomasssculptpen', 'd', -999),
+                                   ('AK8Puppijet2_deepdoubleb', 'd', -999),
+                                   ('AK8Puppijet2_deepdoubleb_nomasssculptpen', 'd', -999),
+                                   ('AK4Puppijet4_eta' , 'd', -999),('AK4Puppijet5_eta' , 'd', -999),
+                                   ('AK4Puppijet4_phi' , 'd', -999),('AK4Puppijet5_phi' , 'd', -999),
+                                   ('AK4Puppijet4_pt'  , 'd', -999),('AK4Puppijet5_pt'  , 'd', -999),
+                                   ('AK4Puppijet4_mass', 'd', -999),('AK4Puppijet5_mass', 'd', -999),
+                                   ('AK4Puppijet4_qgid', 'd', -999),('AK4Puppijet5_qgid', 'd', -999),  
+                                   ('AK4Puppijet4_csv' , 'd', -999),('AK4Puppijet5_csv' , 'd', -999),  
                                    ])
         if not self._isData:
             self._branches.extend([('genMuFromW', 'i', -999), ('genEleFromW', 'i', -999), ('genTauFromW', 'i', -999)])
@@ -298,8 +301,7 @@ class sampleContainer:
             'h_eta_mu_muCR4_N2': ["h_" + self._name + "_eta_mu_muCR4_N2", "; leading muon #eta;", 50, -2.5, 2.5],
             'h_pt_ak8_muCR4_N2': ["h_" + self._name + "_pt_ak8_muCR4_N2", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
             'h_eta_ak8_muCR4_N2': ["h_" + self._name + "_eta_ak8_muCR4_N2", "; AK8 leading #eta;", 50, -3, 3],
-            'h_dbtag_ak8_muCR4_N2': ["h_" + self._name + "_dbtag_ak8_muCR4_N2", "; p_{T}-leading double b-tag;", 40, -1,
-                                     1],
+            'h_dbtag_ak8_muCR4_N2': ["h_" + self._name + "_dbtag_ak8_muCR4_N2", "; p_{T}-leading deep double b-tag;", 40, 0,1],
 #            'h_t21ddt_ak8_muCR4_N2': ["h_" + self._name + "_t21ddt_ak8_muCR4_N2", "; AK8 #tau_{21}^{DDT};", 25, 0, 1.5],
             'h_msd_ak8_muCR4_N2': ["h_" + self._name + "_msd_ak8_muCR4_N2", "; AK8 m_{SD}^{PUPPI} (GeV);", 23, 40, 201],
             'h_msd_ak8_muCR4_N2_pass': ["h_" + self._name + "_msd_ak8_muCR4_N2_pass", "; AK8 m_{SD}^{PUPPI} (GeV);", 23,
@@ -393,11 +395,9 @@ class sampleContainer:
                 'h_msd_ak8_t21ddtCut_inc': ["h_" + self._name + "_msd_ak8_t21ddtCut_inc", "; AK8 m_{SD}^{PUPPI} (GeV);",
                                             100, 0, 500],
                 'h_msd_ak8_N2Cut': ["h_" + self._name + "_msd_ak8_N2Cut", "; AK8 m_{SD}^{PUPPI} (GeV);", 23, 40, 201],
-                'h_dbtag_ak8': ["h_" + self._name + "_dbtag_ak8", "; p_{T}-leading double b-tag;", 200, -1, 1],
-                'h_dbtag_ak8_sub1': ["h_" + self._name + "_dbtag_ak8_sub1", "; 2nd p_{T}-leading double b-tag;", 40, -1,
-                                     1],
-                'h_dbtag_ak8_sub2': ["h_" + self._name + "_dbtag_ak8_sub2", "; 3rd p_{T}-leading double b-tag;", 40, -1,
-                                     1],
+                'h_dbtag_ak8'     : ["h_" + self._name + "_dbtag_ak8", "; p_{T}-leading deep double b-tag;", 40, 0, 1],
+                'h_dbtag_ak8_sub1': ["h_" + self._name + "_dbtag_ak8_sub1", "; 2nd p_{T}-leading deep double b-tag;", 40, 0,1],
+                'h_dbtag_ak8_sub2': ["h_" + self._name + "_dbtag_ak8_sub2", "; 3rd p_{T}-leading deep double b-tag;", 40, 0,1],
                 'h_n_unMatchedAK4'     : ["h_" + self._name + "_n_unMatchedAK4", "; Number of non matched AK4 jets ;;", 7, 0, 7],
                 'h_Mqq'     : ["h_" + self._name + "_Mqq", "; Dijet Mass (GeV);;", 50, 0, 3000],
                 'h_QGLR'    : ["h_" + self._name + "_QGLR", "; QGLR;", 10, 0,1],
@@ -409,7 +409,7 @@ class sampleContainer:
                 'h_n2b1sd_ak8': ["h_" + self._name + "_n2b1sd_ak8", "; AK8 N_{2}^{1} (SD);", 25, -0.5, 0.5],
                 'h_n2b1sdddt_ak8': ["h_" + self._name + "_n2b1sdddt_ak8", "; AK8 N_{2}^{1,DDT} (SD);", 25, -0.5, 0.5],
                 'h_n2b1sdddt_ak8_aftercut': ["h_" + self._name + "_n2b1sdddt_ak8_aftercut", "; p_{T}-leading N_{2}^{1,DDT};", 25, -0.5, 0.5],
-		'h_dbtag_ak8_aftercut': ["h_" + self._name + "_dbtag_ak8_aftercut", "; p_{T}-leading double-b tagger;", 33, -1, 1],
+                'h_dbtag_ak8_aftercut': ["h_" + self._name + "_dbtag_ak8_aftercut", "; p_{T}-leading deep double-b tagger;", 40, 0, 1],
                 'h_msd_ak8_raw_SR_fail': ["h_" + self._name + "_msd_ak8_raw_SR_fail",
                                           "; AK8 m_{SD}^{PUPPI} no corr (GeV);", 23, 40, 201],
                 'h_msd_ak8_raw_SR_pass': ["h_" + self._name + "_msd_ak8_raw_SR_pass",
@@ -455,8 +455,7 @@ class sampleContainer:
                 'h_eta_mu_muCR4': ["h_" + self._name + "_eta_mu_muCR4", "; leading muon #eta;", 50, -2.5, 2.5],
                 'h_pt_ak8_muCR4': ["h_" + self._name + "_pt_ak8_muCR4", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
                 'h_eta_ak8_muCR4': ["h_" + self._name + "_eta_ak8_muCR4", "; AK8 leading #eta;", 50, -3, 3],
-                'h_dbtag_ak8_muCR4': ["h_" + self._name + "_dbtag_ak8_muCR4", "; p_{T}-leading double b-tag;", 40, -1,
-                                      1],
+                'h_dbtag_ak8_muCR4': ["h_" + self._name + "_dbtag_ak8_muCR4", "; p_{T}-leading deep double b-tag;", 40, 0,1],
                 'h_t21ddt_ak8_muCR4': ["h_" + self._name + "_t21ddt_ak8_muCR4", "; AK8 #tau_{21}^{DDT};", 25, 0, 1.5],
                 'h_msd_ak8_muCR4': ["h_" + self._name + "_msd_ak8_muCR4", "; AK8 m_{SD}^{PUPPI} (GeV);", 23, 40, 201],
                 'h_msd_ak8_muCR4_pass': ["h_" + self._name + "_msd_ak8_muCR4_pass", "; AK8 m_{SD}^{PUPPI} (GeV);", 23,
@@ -614,60 +613,53 @@ class sampleContainer:
             'h_rhop_v_t21_ca15': ["h_" + self._name + "_rhop_v_t21_ca15", "; CA15 rho^{DDT}; CA15 <#tau_{21}>", 15, -5,
                                   10, 25, 0, 1.5]
         }
+        #Main analysis region
+        #10 systematics variations + 2 main templates = 22 histo / region
+        passfail    = ['pass','fail']
+        systematics = ['JESUp','JESDown','JERUp','JERDown','triggerUp','triggerDown','PuUp','PuDown','matched','unmatched']
+        regions     = ['topR6_N2','QGquark','QGgluon']
+        histos2d={}
+        for r in regions:
+            for pf in passfail:
+                hkey  ="h_msd_v_pt_ak8_%s_%s"%(r,pf)
+                hname ="h_" + self._name + "_msd_v_pt_ak8_%s_%s"%(r,pf)
+                histos2d[hkey] = [hname,"; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
+                for sys in systematics:
+                    hkey_sys  = "h_msd_v_pt_ak8_%s_%s_%s"%(r,pf,sys)
+                    hname_sys ="h_" + self._name + "_msd_v_pt_ak8_%s_%s_%s"%(r,pf,sys)
+                    histos2d[hkey_sys] = [hname_sys,"; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
 
-        histos2d = {
-            'h_msd_v_pt_ak8_topR6_N2_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass",
-                                             "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_JESUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_JESUp",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_JESDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_JESDown",
-                                                     "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_JERUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_JERUp",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_JERDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_JERDown",
-                                                     "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_triggerUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_triggerUp",
-                                                       "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_triggerDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_triggerDown",
-                                                         "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_PuUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_PuUp",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_PuDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_pass_PuDown",
-                                                    "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_matched': ["h_" + self._name + "_msd_v_pt_ak8_N2_topR6_pass_matched",
-                                                     "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_pass_unmatched': ["h_" + self._name + "_msd_v_pt_ak8_N2_topR6_pass_unmatched",
-                                                       "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail",
-                                             "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_JESUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_JESUp",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_JESDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_JESDown",
-                                                     "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_JERUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_JERUp",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_JERDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_JERDown",
-                                                     "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_triggerUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_triggerUp",
-                                                       "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_triggerDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_triggerDown",
-                                                         "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_PuUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_PuUp",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_PuDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_PuDown",
-                                                    "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_matched': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_matched",
-                                                     "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-            'h_msd_v_pt_ak8_topR6_N2_fail_unmatched': ["h_" + self._name + "_msd_v_pt_ak8_topR6_N2_fail_unmatched",
-                                                       "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
+        histos2d.update({
             'h_msd_v_pt_ak8_muCR4_N2_pass': ["h_" + self._name + "_msd_v_pt_ak8_muCR4_N2_pass",
                                              "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
             'h_msd_v_pt_ak8_muCR4_N2_fail': ["h_" + self._name + "_msd_v_pt_ak8_muCR4_N2_fail",
                                              "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
-        }
-
+        })
         if not self._minBranches:
-            histos2d_ext = {
+            #Main analysis region with tau21 (old)
+            histos2d_ext = {}
+            passfail    = ['pass','fail']
+            systematics = ['JESUp','JESDown','JERUp','JERDown','matched','unmatched']
+            regions     = ['topR6']
+            for r in regions:
+                for pf in passfail:
+                    hkey  ="h_msd_v_pt_ak8_%s_%s"%(r,pf)
+                    hname ="h_" + self._name + "_msd_v_pt_ak8_%s_%s"%(r,pf)
+                    histos2d_ext[hkey] = [hname,"; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
+                    for sys in systematics:
+                        hkey_sys  = "h_msd_v_pt_ak8_%s_%s_%s"%(r,pf,sys)
+                        hname_sys ="h_" + self._name + "_msd_v_pt_ak8_%s_%s_%s"%(r,pf,sys)
+                        histos2d_ext[hkey_sys] = [hname_sys,"; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
+
+            #bb optimizations
+            regions     = ['topR6_0p4','topR6_0p45','topR6_0p5','topR6_0p6','topR6_0p65','topR6_0p7','topR6_0p75','topR6_0p91','topR6_0p92','topR6_0p93','topR6_0p94','topR6_0p95']
+            for r in regions:
+                for pf in passfail:
+                    hkey  ="h_msd_v_pt_ak8_%s_%s"%(r,pf)
+                    hname ="h_" + self._name + "_msd_v_pt_ak8_%s_%s"%(r,pf)
+                    histos2d_ext[hkey] = [hname,"; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
+                    
+            histos2d_ext.update({
                 'h_msd_v_pt_ak8_topR1': ["h_" + self._name + "_msd_v_pt_ak8_topR1",
                                          "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
                 'h_msd_v_pt_ak8_topR2_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR2_pass",
@@ -678,24 +670,6 @@ class sampleContainer:
                                               "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
                 'h_msd_v_pt_ak8_topR5_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR5_pass",
                                               "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_pass",
-                                              "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_pass_JESUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_pass_JESUp",
-                                                    "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_pass_JESDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_pass_JESDown",
-                                                      "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_pass_JERUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_pass_JERUp",
-                                                    "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_pass_JERDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_pass_JERDown",
-                                                      "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_pass_matched': ["h_" + self._name + "_msd_v_pt_ak8_topR6_pass_matched",
-                                                      "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_pass_unmatched': ["h_" + self._name + "_msd_v_pt_ak8_topR6_pass_unmatched",
-                                                        "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_fail_matched': ["h_" + self._name + "_msd_v_pt_ak8_topR6_fail_matched",
-                                                      "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_fail_unmatched': ["h_" + self._name + "_msd_v_pt_ak8_topR6_fail_unmatched",
-                                                        "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
                 'h_msd_v_pt_ak8_topR7_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR7_pass",
                                               "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
                 'h_msd_v_pt_ak8_topR2_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR2_fail",
@@ -706,16 +680,6 @@ class sampleContainer:
                                               "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
                 'h_msd_v_pt_ak8_topR5_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR5_fail",
                                               "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_fail",
-                                              "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_fail_JESUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_fail_JESUp",
-                                                    "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_fail_JESDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_fail_JESDown",
-                                                      "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_fail_JERUp': ["h_" + self._name + "_msd_v_pt_ak8_topR6_fail_JERUp",
-                                                    "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_fail_JERDown': ["h_" + self._name + "_msd_v_pt_ak8_topR6_fail_JERDown",
-                                                      "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
                 'h_msd_v_pt_ak8_topR6_raw_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_raw_fail",
                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
                 'h_msd_v_pt_ak8_topR6_raw_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_raw_pass",
@@ -734,55 +698,7 @@ class sampleContainer:
                                                         "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
                 'h_msd_v_pt_ak8_bbleading_muCR4_fail': ["h_" + self._name + "_msd_v_pt_ak8_bbleading_muCR4_fail",
                                                         "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p4_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p4_fail",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p4_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p4_pass",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p45_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p45_fail",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p45_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p45_pass",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p5_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p5_fail",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p5_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p5_pass",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p6_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p6_fail",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p6_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p6_pass",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p65_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p65_fail",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p65_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p65_pass",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p7_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p7_fail",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p7_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p7_pass",
-                                                  "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p75_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p75_fail",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p75_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p75_pass",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p91_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p91_fail",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p91_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p91_pass",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p92_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p92_fail",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p92_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p92_pass",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p93_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p93_fail",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p93_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p93_pass",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p94_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p94_fail",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p94_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p94_pass",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p95_fail': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p95_fail",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"],
-                'h_msd_v_pt_ak8_topR6_0p95_pass': ["h_" + self._name + "_msd_v_pt_ak8_topR6_0p95_pass",
-                                                   "; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
-            }
+            })
 
             histos2d = dict(histos2d.items() + histos2d_ext.items())
 
@@ -898,12 +814,13 @@ class sampleContainer:
             ### works only for 2017 HT binned sample, constructed with normSampleContainer
             if 'ZJetsToQQ_' in self._name:    
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))  
-                vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
-                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factor= %.3f"%(self._name, ptForNLO, vjetsKF, self.kfactor[0])
+                #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
+                vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]
+                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0], self.kfactorQCD[0])
             if 'WJetsToQQ_' in self._name:
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))
-                vjetsKF   = self.kfactor[0]  * self._wnlo.GetBinContent(self._wnlo.FindBin(ptForNLO))
-                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factor= %.3f"%(self._name, ptForNLO, vjetsKF, self.kfactor[0])
+                vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0] 
+                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0],self.kfactorQCD[0])
         
                 
             # trigger weight
@@ -915,7 +832,7 @@ class sampleContainer:
                 self._trig_eff.FindFixBin(massForTrig, ptForTrig))
             trigweightDown = trigweight - self._trig_eff.GetEfficiencyErrorLow(
                 self._trig_eff.FindFixBin(massForTrig, ptForTrig))
-#	    print "trigweight: ", trigweight
+    	    #print "trigweight: %.3f, pt=%.3f, mass=%.3f"%( trigweight,ptForTrig,massForTrig)
             if trigweight <= 0 or trigweightDown <= 0 or trigweightUp <= 0:
                 print 'trigweights are %f, %f, %f, setting all to 1 for massForTrig=%f, ptForTrig=%f' % (trigweight, trigweightUp, trigweightDown,ptForTrig,massForTrig)
                 trigweight = 1
@@ -1050,11 +967,13 @@ class sampleContainer:
                 if self.AK8Puppijet1_doublecsv[0] > 1:
                     jdb_8_sub1 = -99
                 else:
-                    jdb_8_sub1 = self.AK8Puppijet1_doublecsv[0]
+                    #jdb_8_sub1 = self.AK8Puppijet1_doublecsv[0]
+                    jdb_8_sub1 = getattr(self,self.doublebName.replace("AK8Puppijet0","AK8Puppijet1"))[0]
                 if self.AK8Puppijet2_doublecsv[0] > 1:
                     jdb_8_sub2 = -99
                 else:
-                    jdb_8_sub2 = self.AK8Puppijet2_doublecsv[0]
+                    #jdb_8_sub2 = self.AK8Puppijet2_doublecsv[0]
+                    jdb_8_sub2 = getattr(self,self.doublebName.replace("AK8Puppijet0","AK8Puppijet2"))[0]
 
             n_4 = self.nAK4PuppijetsPt30[0]
             if not self._minBranches:
@@ -1128,30 +1047,38 @@ class sampleContainer:
                     self.h_fBosonPt_fbweight.Fill(self.genVPt[0], fbweight) 
                     self.h_fBosonPt_weight.Fill(self.genVPt[0], weight) 
             #Find non-matched AK4 jets
+            QuarkJets = []
+            for iak4 in range(0,4):
+                ak4pT   = getattr(self,"AK4Puppijet"+str(iak4)+"_pt")[0]
+                ak4eta  = getattr(self,"AK4Puppijet"+str(iak4)+"_eta")[0]
+                ak4phi  = getattr(self,"AK4Puppijet"+str(iak4)+"_phi")[0]
+                ak4mass = getattr(self,"AK4Puppijet"+str(iak4)+"_mass")[0]
+                dR_ak8  = QGLRutil.deltaR( ak4eta,ak4phi, self.AK8Puppijet0_eta[0], self.AK8Puppijet0_phi[0])
+                #print "nAK4PuppijetsPt30 = %s iak4= %s   ak4pT = %.3f,  dR=%s"%(n_4, iak4,ak4pT, dR_ak8)
+                if ak4pT> 30.0 and dR_ak8>0.8:
+                    jet = ROOT.TLorentzVector()
+                    jet.SetPtEtaPhiM(ak4pT,ak4eta,ak4phi,ak4mass)
+                    jet.qgid = getattr(self,"AK4Puppijet"+str(iak4)+"_qgid")[0]
+                    jet.csv  = getattr(self,"AK4Puppijet"+str(iak4)+"_csv")[0]
+                    QuarkJets.append(jet)
+            #print "N un-matched jet = ", len(QuarkJets)
+            #for qj in QuarkJets:
+            #    print "[QuarkJets cand: pt=%.3f , eta=%.3f"%( qj.Pt(),qj.Eta())
             if not self._minBranches:
-                QuarkJets = []
-                #for iak4 in range(0,6):
-                #    ak4pT   = getattr(self,"AK4Puppijet"+str(iak4)+"_pt")[0]
-                #    ak4eta  = getattr(self,"AK4Puppijet"+str(iak4)+"_eta")[0]
-                #    ak4phi  = getattr(self,"AK4Puppijet"+str(iak4)+"_phi")[0]
-                #    ak4mass = getattr(self,"AK4Puppijet"+str(iak4)+"_mass")[0]
-                #    dR_ak8  = QGLRutil.deltaR( ak4eta,ak4phi, self.AK8Puppijet0_eta[0], self.AK8Puppijet0_phi[0])
-                #    #print "ak4pT = %s,  dR=%s"%(ak4pT, dR_ak8)
-                #    if ak4pT> 30.0 and dR_ak8>0.8:
-                #        jet = ROOT.TLorentzVector()
-                #        jet.SetPtEtaPhiM(ak4pT,ak4eta,ak4phi,ak4mass)
-                #        jet.qgid = getattr(self,"AK4Puppijet"+str(iak4)+"_qgid")[0]
-                #        jet.csv  = getattr(self,"AK4Puppijet"+str(iak4)+"_csv")[0]
-                #        QuarkJets.append(jet)
-                #print "N un-matched jet = ", len(QuarkJets)
-                #for qj in QuarkJets:
-                #    print "[QuarkJets cand: pt=%.3f , eta=%.3f"%( qj.Pt(),qj.Eta())
                 self.h_n_unMatchedAK4.Fill( len(QuarkJets), weight)
-                maxdEtaQQ, pair = QGLRutil.FindHighestDeta_qq(QuarkJets)
-                #print "highest dEta pair = ",pair, "mass = %.3f, QGLR = %.3f"%(QGLRutil.CalcMqq(QuarkJets,pair),QGLRutil.CalcQGLR(QuarkJets,pair))
-                Mqq  = QGLRutil.CalcMqq(QuarkJets,pair)
-                QGLR = QGLRutil.CalcQGLR(QuarkJets,pair)
-
+            maxdEtaQQ, pair = QGLRutil.FindHighestDeta_qq(QuarkJets)
+            #print "highest dEta pair = ",pair, "mass = %.3f, QGLR = %.3f"%(QGLRutil.CalcMqq(QuarkJets,pair),QGLRutil.CalcQGLR(QuarkJets,pair))
+            Mqq  = QGLRutil.CalcMqq(QuarkJets,pair)
+            QGLR = QGLRutil.CalcQGLR(QuarkJets,pair)
+            if len(QuarkJets)>=2:
+                deta_ak4pt1pt2 = abs(QuarkJets[0].Eta() - QuarkJets[1].Eta())
+                Mqq_ak4pt1pt2  = (QuarkJets[0]+ QuarkJets[1]).M()
+            else:
+                deta_ak4pt1pt2= -1
+                Mqq_ak4pt1pt2 = -1
+            QGquark_pass = False
+            if (deta_ak4pt1pt2>3.25 and Mqq_ak4pt1pt2>975):
+                QGquark_pass = True
 
             # Single Muon Control Regions
             if jpt_8 > PTCUTMUCR and jmsd_8 > MASSCUT and nmuLoose == 1 and neleLoose == 0 and ntau == 0 and vmuoLoose0_pt > MUONPTCUT and abs(
@@ -1442,12 +1369,32 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_N2_pass_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
                     self.h_msd_v_pt_ak8_topR6_N2_pass_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
                     self.h_msd_v_pt_ak8_topR6_N2_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
-
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
                         self.h_msd_v_pt_ak8_topR6_N2_pass_matched.Fill(jmsd_8, jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_N2_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
+                    if QGquark_pass:  
+                        self.h_msd_v_pt_ak8_QGquark_pass.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_QGquark_pass_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
+                        self.h_msd_v_pt_ak8_QGquark_pass_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
+                        self.h_msd_v_pt_ak8_QGquark_pass_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
+                        self.h_msd_v_pt_ak8_QGquark_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
+                        # for signal morphing
+                        if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
+                            self.h_msd_v_pt_ak8_QGquark_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                        else:
+                            self.h_msd_v_pt_ak8_QGquark_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
+                    else:
+                        self.h_msd_v_pt_ak8_QGgluon_pass.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_QGgluon_pass_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
+                        self.h_msd_v_pt_ak8_QGgluon_pass_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
+                        self.h_msd_v_pt_ak8_QGgluon_pass_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
+                        self.h_msd_v_pt_ak8_QGgluon_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
+                        if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
+                            self.h_msd_v_pt_ak8_QGgluon_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                        else:
+                            self.h_msd_v_pt_ak8_QGgluon_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                 elif jdb_8 > self.DBTAGCUTMIN:
                     self.h_msd_ak8_topR6_N2_fail.Fill(jmsd_8, weight)
                     self.h_msd_v_pt_ak8_topR6_N2_fail.Fill(jmsd_8, jpt_8, weight)
@@ -1461,28 +1408,53 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_topR6_N2_fail_matched.Fill(jmsd_8, jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_N2_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
+                    if QGquark_pass:  
+                        self.h_msd_v_pt_ak8_QGquark_fail.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_QGquark_fail_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
+                        self.h_msd_v_pt_ak8_QGquark_fail_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
+                        self.h_msd_v_pt_ak8_QGquark_fail_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
+                        self.h_msd_v_pt_ak8_QGquark_fail_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
+                        # for signal morphing
+                        if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
+                            self.h_msd_v_pt_ak8_QGquark_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                        else:
+                            self.h_msd_v_pt_ak8_QGquark_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
+                    else:
+                        self.h_msd_v_pt_ak8_QGgluon_fail.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_QGgluon_fail_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
+                        self.h_msd_v_pt_ak8_QGgluon_fail_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
+                        self.h_msd_v_pt_ak8_QGgluon_fail_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
+                        self.h_msd_v_pt_ak8_QGgluon_fail_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
+                        if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
+                            self.h_msd_v_pt_ak8_QGgluon_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                        else:
+                            self.h_msd_v_pt_ak8_QGgluon_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
 
             for syst in ['JESUp', 'JESDown', 'JERUp', 'JERDown']:
                 if (not self._minBranches) and eval('jpt_8_%s' % syst) > PTCUT and jmsd_8 > MASSCUT and eval('met_%s' % syst) < METCUT and eval(
                                 'n_dR0p8_4_%s' % syst) < NJETCUT and jt21P_8 < T21DDTCUT and isTightVJet:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_topR6_pass_%s' % syst)).Fill(jmsd_8, weight)
-                        (getattr(self, 'h_msd_v_pt_ak8_topR6_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),
-                                                                                    weight)
+                        (getattr(self, 'h_msd_v_pt_ak8_topR6_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
                     elif jdb_8 > self.DBTAGCUTMIN:
                         (getattr(self, 'h_msd_ak8_topR6_fail_%s' % syst)).Fill(jmsd_8, weight)
-                        (getattr(self, 'h_msd_v_pt_ak8_topR6_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),
-                                                                                    weight)
+                        (getattr(self, 'h_msd_v_pt_ak8_topR6_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
                 if eval('jpt_8_%s' % syst) > PTCUT and jmsd_8 > MASSCUT and eval('met_%s' % syst) < METCUT and eval(
                                 'n_dR0p8_4_%s' % syst) < NJETCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, weight)
-                        (getattr(self, 'h_msd_v_pt_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),
-                                                                                       weight)
+                        (getattr(self, 'h_msd_v_pt_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
+                        if QGquark_pass:
+                            (getattr(self, 'h_msd_v_pt_ak8_QGquark_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
+                        else:
+                            (getattr(self, 'h_msd_v_pt_ak8_QGgluon_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
                     elif jdb_8 > self.DBTAGCUTMIN:
                         (getattr(self, 'h_msd_ak8_topR6_N2_fail_%s' % syst)).Fill(jmsd_8, weight)
-                        (getattr(self, 'h_msd_v_pt_ak8_topR6_N2_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),
-                                                                                       weight)
+                        (getattr(self, 'h_msd_v_pt_ak8_topR6_N2_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
+                        if QGquark_pass:
+                            (getattr(self, 'h_msd_v_pt_ak8_QGquark_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
+                        else:
+                            (getattr(self, 'h_msd_v_pt_ak8_QGgluon_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
 
             ###Double-b optimization for ggH
             if not self._minBranches:
