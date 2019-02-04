@@ -201,8 +201,11 @@ if __name__ == '__main__':
     setTFto1 = False 
     pars = []
       
-    #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
-    #makeTFs(pars,2,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
+    #pars = getParsfromWS("ddb_Jan31/MC/mcOnly/card_rhalphabet_all_floatZ.root",lParams) 
+    #makeTFs(pars,2,1,"ddb_Jan31/MC/mcOnly/")
+
+    pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
+    makeTFs(pars,2,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/card_rhalphabet_all_r2p2_floatZ.root",lParams) 
     #makeTFs(pars,2,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/card_rhalphabet_all_r3p1_floatZ.root",lParams) 
@@ -211,8 +214,8 @@ if __name__ == '__main__':
     #makeTFs(pars,4,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/card_rhalphabet_all_r3p2_floatZ.root",lParams) 
     #makeTFs(pars,3,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/")
-    pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/card_rhalphabet_all_r5p1_floatZ.root",lParams) 
-    makeTFs(pars,5,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/")
+    #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/card_rhalphabet_all_r5p1_floatZ.root",lParams) 
+    #makeTFs(pars,5,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/")
 
     #pars = getParsfromMLfit('ddb_Jan17/MC/qcdMC_r1/mlfit.root',lParams)
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
