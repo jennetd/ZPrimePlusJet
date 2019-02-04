@@ -203,7 +203,10 @@ def ftest(base,alt,ntoys,iLabel,options):
             print "Found %s toy files",nToys1
             nllToys=[] 
             for i in range(0,nToys1):
-                nllToys += (fStat("%s/toys1_%s.root"%(options.odir,i),"%s/toys2_%s.root"%(options.odir,i),options.p1,options.p2,options.n))
+                if not os.path.exists("%s/toys1_%s.root"%(options.odir,i)):
+                    print "cannot find job %i, skipping it"%i
+                else:
+                    nllToys += (fStat("%s/toys1_%s.root"%(options.odir,i),"%s/toys2_%s.root"%(options.odir,i),options.p1,options.p2,options.n))
         else:
             print "Using these toys input %s/toys1.root and %s/toys2.root"%(options.odir,options.odir)
             nllToys=fStat("%s/toys1.root"%(options.odir),"%s/toys2.root"%(options.odir),options.p1,options.p2,options.n)
