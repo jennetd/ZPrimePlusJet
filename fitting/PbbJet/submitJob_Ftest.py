@@ -85,7 +85,7 @@ if __name__ == '__main__':
     script_group.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for model 2')
     script_group.add_option('--scale',dest='scale', default=1,type='float',help='scale factor to scale MC (assuming only using a fraction of the data)')
     script_group.add_option('-l','--lumi'   ,action='store',type='float',dest='lumi'   ,default=36.4, help='lumi')
-    script_group.add_option('-r','--r',dest='r', default=0 ,type='float',help='default value of r')    
+    script_group.add_option('-r','--r',dest='r', default=1 ,type='float',help='default value of r')    
     script_group.add_option('-n','--n' ,action='store',type='int',dest='n'   ,default=5*20, help='number of bins')
     script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     script_group.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='run on asimov dataset', metavar='pseudo')
@@ -109,32 +109,43 @@ if __name__ == '__main__':
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
     #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
-    gitClone = "git clone -b DDB git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
     files = [options.ifile]
 
     #ouput to ${MAINDIR}/ so that condor transfer the output to submission dir
     command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runFtest.py -o ${MAINDIR}/ --seed $1 --toys $2 --ifile ${MAINDIR}/$3 '
+    plot_odir    = "/".join(options.odir.split("/")[:-3])
+    plot_command = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runFtest.py -o %s --just-plot --ifile %s'%(plot_odir,options.ifile)
     if  options.ifile_loose is not None: 
         files.append( options.ifile_loose)
         command  += '--ifile-loose ${MAINDIR}/$%i'%(files.index( options.ifile_loose)+3)
+        plot_command += ' --ifile-loose %s '%(options.ifile_loose)
     if  options.ifile_muon is not None:
         files.append( options.ifile_muon)
         command  += '--ifile-muon ${MAINDIR}/$%i'%(files.index( options.ifile_muon)+3)
+        plot_command += ' --ifile-muon %s '%(options.ifile_muon)
     #Add script options to job command
     for opts in script_group.option_list:
         if not getattr(options, opts.dest)==opts.default:
             print "Using non default option %s = %s "%(opts.dest, getattr(options, opts.dest))
             if opts.action == 'store_true':
                 command  += " --%s "%(opts.metavar)
+                plot_command  += " --%s "%(opts.metavar)
             else:
                 command  += " --%s %s "%(opts.dest,getattr(options, opts.dest))
+                plot_command  += " --%s %s "%(opts.dest,getattr(options, opts.dest))
+    
     if not hadd: 
         print "Copying inputfiles to submission dir:"
+        if not os.path.exists(outpath):
+            exec_me("mkdir -p %s"%(outpath), False)
         for f in files: 
             exec_me("cp %s %s"%(f, outpath))
         print "command to run: ", command
+    else:
+        print "plot command: ",plot_command
 
     subToy1 = "toys1_*.root"
     subToy2 = "toys2_*.root"
@@ -164,5 +175,8 @@ if __name__ == '__main__':
                 #remove all but _0 file
                 for i in range(1,10):
                     exec_me("rm %s/runjob_%s*"%(outpath,i),dryRun)
+                print "Finish cleaning,plotting " 
+                print "plot command: ",plot_command
+                exec_me(plot_command,dryRun)
         else:
             print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
