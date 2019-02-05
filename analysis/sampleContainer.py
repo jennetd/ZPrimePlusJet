@@ -24,6 +24,7 @@ MUONPTCUT = 55
 METCUT = 140
 MASSCUT = 40
 NJETCUT = 100
+AK4DCSVCUT=0.4941
 
 
 #########################################################################################################
@@ -206,12 +207,14 @@ class sampleContainer:
                           ('AK4Puppijet0_mass', 'd', -999),('AK4Puppijet1_mass', 'd', -999),
                           ('AK4Puppijet0_qgid', 'd', -999),('AK4Puppijet1_qgid', 'd', -999),  
                           ('AK4Puppijet0_csv' , 'd', -999),('AK4Puppijet1_csv' , 'd', -999),  
+                          ('AK4Puppijet0_deepcsvb' , 'd', -999),('AK4Puppijet1_deepcsvb' , 'd', -999),  
                           ('AK4Puppijet2_eta' , 'd', -999),('AK4Puppijet3_eta' , 'd', -999),
                           ('AK4Puppijet2_phi' , 'd', -999),('AK4Puppijet3_phi' , 'd', -999),
                           ('AK4Puppijet2_pt'  , 'd', -999),('AK4Puppijet3_pt'  , 'd', -999),
                           ('AK4Puppijet2_mass', 'd', -999),('AK4Puppijet3_mass', 'd', -999),
                           ('AK4Puppijet2_qgid', 'd', -999),('AK4Puppijet3_qgid', 'd', -999),  
                           ('AK4Puppijet2_csv' , 'd', -999),('AK4Puppijet3_csv' , 'd', -999),  
+                          ('AK4Puppijet2_deepcsvb' , 'd', -999),('AK4Puppijet3_deepcsvb' , 'd', -999),  
                           ]
         if not self._minBranches:
             self._branches.extend([('nAK4PuppijetsfwdPt30', 'i', -999), ('nAK4PuppijetsLPt50dR08_0', 'i', -999),
@@ -377,6 +380,7 @@ class sampleContainer:
                                   20, 0, 20],
                 'h_isolationCA15': ["h_" + self._name + "_isolationCA15", "; AK8/CA15 p_{T} ratio ;", 50, 0.5, 1.5],
                 'h_met': ["h_" + self._name + "_met", "; E_{T}^{miss} (GeV) ;", 50, 0, 500],
+                'h_maxAK4_dcsvb': ["h_" + self._name + "_maxAK4_dcsvb", "; Max Opp. Hem. AK4 DeepCSV b ;", 100, 0, 1],
                 'h_pt_ak8': ["h_" + self._name + "_pt_ak8", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
                 'h_eta_ak8': ["h_" + self._name + "_eta_ak8", "; AK8 leading #eta;", 50, -3, 3],
                 'h_pt_ak8_sub1': ["h_" + self._name + "_pt_ak8_sub1", "; AK8 subleading p_{T} (GeV);", 50, 300, 2100],
@@ -1048,12 +1052,15 @@ class sampleContainer:
                     self.h_fBosonPt_weight.Fill(self.genVPt[0], weight) 
             #Find non-matched AK4 jets
             QuarkJets = []
+            OppHemAK4_dcsvb=[0]
             for iak4 in range(0,4):
                 ak4pT   = getattr(self,"AK4Puppijet"+str(iak4)+"_pt")[0]
                 ak4eta  = getattr(self,"AK4Puppijet"+str(iak4)+"_eta")[0]
                 ak4phi  = getattr(self,"AK4Puppijet"+str(iak4)+"_phi")[0]
                 ak4mass = getattr(self,"AK4Puppijet"+str(iak4)+"_mass")[0]
+                ak4dcsvb = getattr(self,"AK4Puppijet"+str(iak4)+"_deepcsvb")[0]
                 dR_ak8  = QGLRutil.deltaR( ak4eta,ak4phi, self.AK8Puppijet0_eta[0], self.AK8Puppijet0_phi[0])
+                dphi_ak8 = math.fabs(ak4phi - jphi_8)
                 #print "nAK4PuppijetsPt30 = %s iak4= %s   ak4pT = %.3f,  dR=%s"%(n_4, iak4,ak4pT, dR_ak8)
                 if ak4pT> 30.0 and dR_ak8>0.8:
                     jet = ROOT.TLorentzVector()
@@ -1061,6 +1068,9 @@ class sampleContainer:
                     jet.qgid = getattr(self,"AK4Puppijet"+str(iak4)+"_qgid")[0]
                     jet.csv  = getattr(self,"AK4Puppijet"+str(iak4)+"_csv")[0]
                     QuarkJets.append(jet)
+                if (dphi_ak8>  ROOT.TMath.Pi()/2):
+                    #print "dphi_ak8 = %.3f, ak4csvb = %.3f"%(dphi_ak8,ak4dcsvb)
+                    OppHemAK4_dcsvb.append(ak4dcsvb)
             #print "N un-matched jet = ", len(QuarkJets)
             #for qj in QuarkJets:
             #    print "[QuarkJets cand: pt=%.3f , eta=%.3f"%( qj.Pt(),qj.Eta())
@@ -1070,6 +1080,7 @@ class sampleContainer:
             #print "highest dEta pair = ",pair, "mass = %.3f, QGLR = %.3f"%(QGLRutil.CalcMqq(QuarkJets,pair),QGLRutil.CalcQGLR(QuarkJets,pair))
             Mqq  = QGLRutil.CalcMqq(QuarkJets,pair)
             QGLR = QGLRutil.CalcQGLR(QuarkJets,pair)
+            maxAK4_dcsvb = max(OppHemAK4_dcsvb)
             if len(QuarkJets)>=2:
                 deta_ak4pt1pt2 = abs(QuarkJets[0].Eta() - QuarkJets[1].Eta())
                 Mqq_ak4pt1pt2  = (QuarkJets[0]+ QuarkJets[1]).M()
@@ -1285,6 +1296,7 @@ class sampleContainer:
                     self.h_n_ak4T150.Fill(n_TPt150dR0p8_4, weight)
                     self.h_isolationCA15.Fill(ratioCA15_04, weight)
                     self.h_met.Fill(met, weight)
+                    self.h_maxAK4_dcsvb.Fill(maxAK4_dcsvb, weight)
 
                 if jpt_8 > PTCUT and jt21P_8 < T21DDTCUT and jmsd_8 > MASSCUT:
                     self.h_msd_ak8_t21ddtCut.Fill(jmsd_8, weight)
@@ -1329,7 +1341,7 @@ class sampleContainer:
                 cut[6] = cut[6] + 1
             #if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and isTightVJet:
                 #cut[7] = cut[7] + 1
-            if (not self._minBranches) and jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and jt21P_8 < T21DDTCUT and isTightVJet:
+            if (not self._minBranches) and jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and maxAK4_dcsvb<0.4941 and n_dR0p8_4 < NJETCUT and jt21P_8 < T21DDTCUT and isTightVJet:
                 if jdb_8 > self.DBTAGCUT:
                     # cut[9]=cut[9]+1
                     self.h_QGLR.Fill(QGLR, weight)
@@ -1356,11 +1368,11 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_topR6_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
 	    if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and isTightVJet and jdb_8 > self.DBTAGCUT and rh_8<-2.1 and rh_8>-6.: 	
 		if (not self._minBranches): self.h_n2b1sdddt_ak8_aftercut.Fill(jtN2b1sdddt_8,weight)
-            if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
+            if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and maxAK4_dcsvb<AK4DCSVCUT and n_dR0p8_4 < NJETCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
                 cut[8] = cut[8] + 1
-		if  rh_8<-2.1 and rh_8>-6.:
-		    cut[7] = cut[7] + 1
-		    if (not self._minBranches): self.h_dbtag_ak8_aftercut.Fill(jdb_8,weight)
+                if  rh_8<-2.1 and rh_8>-6.:
+                    cut[7] = cut[7] + 1
+                    if (not self._minBranches): self.h_dbtag_ak8_aftercut.Fill(jdb_8,weight)
                 if jdb_8 > self.DBTAGCUT:
                     cut[9] = cut[9] + 1
                     self.h_msd_ak8_topR6_N2_pass.Fill(jmsd_8, weight)
