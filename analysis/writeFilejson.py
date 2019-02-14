@@ -28,7 +28,9 @@ def expandPath(fdict):
             d={} 
             for subSname,subpaths in subSample.iteritems():
                 expandedPath = expand(subpaths) 
-                if len(expandedPath)==0:            print "ERROR: %s has no files"%(subSname)
+                if len(expandedPath)==0:
+                    print "ERROR: %s has no files"%(subSname)
+                    print "Trying to expand path with %s"%subpaths
                 d[subSname] = expandedPath 
             rdict[sample] =  d
     return rdict
