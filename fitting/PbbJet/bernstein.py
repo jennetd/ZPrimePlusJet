@@ -60,21 +60,60 @@ def genBernsteinTF(n_rho,n_pT,boundaries,IsMsdPt,qcdeff=True,rescale=True):
         return poly
     return fun2
 
-def getParsfromMLfit(fml_path,pamNames,setTFto1=False):
+#Return 1D TF evaluated at pT 
+def genBernsteinTF1D(n_rho,n_pT,pT,boundaries,IsMsdPt,qcdeff=True,rescale=True): 
+    RHO_LO= boundaries['RHO_LO']
+    RHO_HI= boundaries['RHO_HI']
+    PT_LO = boundaries['PT_LO' ]
+    PT_HI = boundaries['PT_HI' ]
+   
+    def fun2(x, par):
+        if IsMsdPt:
+            rho   = r.TMath.Log((x[0] * x[0]) / (pT * pT)) #convert mass to rho 
+        else:
+            rho   = x[0] 
+        if rescale:
+            rho_norm   = (rho - RHO_LO) /(RHO_HI - RHO_LO)
+            pT_norm    = (pT  - PT_LO ) /(PT_HI  - PT_LO)
+        else:
+            rho_norm   = (rho)
+            pT_norm    = (pT )
+
+        # n_rho=2, n_pT=1      
+        #poly0 = par[0] * bern(pT_norm,0,n_pT) * (          bern(rho_norm,0,n_rho)  + par[1] *  bern(rho_norm,1,n_rho) + par[2] *  bern(rho_norm,2,n_rho) )
+        #poly1 = par[0] * bern(pT_norm,1,n_pT) * ( par[3] * bern(rho_norm,0,n_rho)  + par[4] *  bern(rho_norm,1,n_rho) + par[5] *  bern(rho_norm,2,n_rho) )
+        poly = 0
+        iPar =0
+        for i_pT in range(0,n_pT+1):
+            for i_rho in range(0,n_rho+1):
+                #if iPar==0: 
+                #    poly += par[0] *              bern(pT_norm,i_pT,n_pT) *  bern(rho_norm,i_rho,n_rho)
+                #else:
+                poly += par[0] * par[iPar] *  bern(pT_norm,i_pT,n_pT) *  bern(rho_norm,i_rho,n_rho)
+                iPar+=1
+        if not qcdeff:
+            poly = poly/par[0]  # remove overall qcd eff if not needed
+        return poly
+    return fun2
+
+def getParsfromMLfit(fml_path,pamNames,qcdeff=0,setTFto1=False):
     print "="*20+" "+fml_path+" "+"="*20
     fml = r.TFile(fml_path)
     rfr = r.RooFitResult(fml.Get("fit_s"))
+    print "Using qcd eff = %.4f"%qcdeff
+    pars = [qcdeff]
     for p in lParams:
         if rfr.floatParsFinal().find(p):
-            print p, "=", rfr.floatParsFinal().find(p).getVal(), "+/-", rfr.floatParsFinal().find(p).getError()
+            print p, "= %.3f"%rfr.floatParsFinal().find(p).getVal(), "+/-  %.3f"%rfr.floatParsFinal().find(p).getError()
             if setTFto1 and 'qcdeff' not in p:
                 print "Setting  %s to 1"%p
                 pars.append(1)
             else:
                 pars.append(rfr.floatParsFinal().find(p).getVal())
         else:
-            pass
             #print p, "not found, skipping "
+            pass
+    return pars
 
 def getParsfromWS(ws_path,pamNames):
     ws_tf = r.TFile(ws_path)
@@ -84,7 +123,7 @@ def getParsfromWS(ws_path,pamNames):
     for pamName in pamNames:
         p = ws.var(pamName)
         try:
-            print "%s =  %.3f +/- %.3f "%(p.GetName(), p.getVal(),  p.getError())
+            print "%s =  %.4f +/- %.4f "%(p.GetName(), p.getVal(),  p.getError())
             pars.append(p.getVal())
         except:
             pass
@@ -186,6 +225,7 @@ if __name__ == '__main__':
     pt_max  = 2
     rho_max = 5
     # for r2p1 polynomial
+    print ("Will look for these parameters:")  
     for i_pt in range(0,pt_max+1):
         for i_rho in range(0,rho_max+1):
             print ("p%ir%i"%(i_pt,i_rho))  
@@ -204,8 +244,26 @@ if __name__ == '__main__':
     #pars = getParsfromWS("ddb_Jan31/MC/mcOnly/card_rhalphabet_all_floatZ.root",lParams) 
     #makeTFs(pars,2,1,"ddb_Jan31/MC/mcOnly/")
 
-    pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
-    makeTFs(pars,2,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
+    #pars = getParsfromMLfit("ddb_Feb5/MC/mcOnly/mlfit.root",lParams) 
+    #makeTFs(pars,2,1,"ddb_Feb5/MC/mcOnly/")
+    #pars = getParsfromWS("ddb_Feb5/MC/mcOnly/card_rhalphabet_all_floatZ.root",lParams) 
+    #makeTFs(pars,2,1,"ddb_Feb5/MC/mcOnly/")
+
+    pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
+    makeTFs(pars,2,1,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p1/")
+    pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p2/card_rhalphabet_all_r2p2_floatZ.root",lParams) 
+    makeTFs(pars,2,2,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p2/")
+    pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p1/card_rhalphabet_all_r3p1_floatZ.root",lParams) 
+    makeTFs(pars,3,1,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p1/")
+    pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r4p1/card_rhalphabet_all_r4p1_floatZ.root",lParams) 
+    makeTFs(pars,4,1,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r4p1/")
+    pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p2/card_rhalphabet_all_r3p2_floatZ.root",lParams) 
+    makeTFs(pars,3,2,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p2/")
+    pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r5p1/card_rhalphabet_all_r5p1_floatZ.root",lParams) 
+    makeTFs(pars,5,1,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r5p1/")
+
+    #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
+    #makeTFs(pars,2,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/card_rhalphabet_all_r2p2_floatZ.root",lParams) 
     #makeTFs(pars,2,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/card_rhalphabet_all_r3p1_floatZ.root",lParams) 
@@ -216,6 +274,26 @@ if __name__ == '__main__':
     #makeTFs(pars,3,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/card_rhalphabet_all_r5p1_floatZ.root",lParams) 
     #makeTFs(pars,5,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/")
+
+    qcdeff = 0.0121
+    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/mlfit.root",lParams) 
+    #makeTFs(pars,2,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
+    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/card_rhalphabet_all_r2p2_floatZ.root",lParams) 
+    #makeTFs(pars,2,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/")
+    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/mlfit.root",lParams,qcdeff) 
+    #makeTFs(pars,3,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/mlfit/")                         
+    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/mlfit.root",lParams,qcdeff) 
+    #makeTFs(pars,4,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/mlfit/")                         
+    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/mlfit.root",lParams,qcdeff) 
+    #makeTFs(pars,3,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/mlfit/")                         
+    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/mlfit.root",lParams,qcdeff) 
+    #makeTFs(pars,5,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/mlfit/")
+
+
+    #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/card_rhalphabet_all_r3p1_floatZ.root",lParams) 
+    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/mlfit.root",lParams) 
+    #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/card_rhalphabet_all_r4p1_floatZ.root",lParams) 
+    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/mlfit.root",lParams) 
 
     #pars = getParsfromMLfit('ddb_Jan17/MC/qcdMC_r1/mlfit.root',lParams)
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
