@@ -7,24 +7,23 @@ def exec_me(command, dryRun=False):
     if not dryRun:
         os.system(command)
 
-def write_condor(exe='runjob.sh', arguments = [], files = [],dryRun=True):
-    job_name = exe.replace('.sh','.jdl')
-    out = 'universe = vanilla\n'
-    out += 'Executable = %s\n'%exe
-    out += 'Should_Transfer_Files = YES\n'
-    out += 'WhenToTransferOutput = ON_EXIT_OR_EVICT\n'
-    out += 'Transfer_Input_Files = %s,%s\n'%(exe,','.join(files))
-    out += 'Output = %s.stdout\n'%job_name
-    out += 'Error  = %s.stderr\n'%job_name
-    out += 'Log    = %s.log\n'   %job_name
-    #out += 'notify_user = jduarte1@FNAL.GOV\n'
-    #out += 'x509userproxy = /tmp/x509up_u42518\n'
-    out += 'Arguments = %s\n'%(' '.join(arguments))
-    out += 'Queue 1\n'
-    with open(job_name, 'w') as f:
+def write_condor(njobs, exe='runjob', files = [], dryRun=True):
+    fname = '%s.jdl' % exe
+    out = """universe = vanilla
+Executable = {exe}.sh
+Should_Transfer_Files = YES
+WhenToTransferOutput = ON_EXIT_OR_EVICT
+Transfer_Input_Files = {exe}.sh,{files}
+Output = {exe}.$(Process).stdout
+Error  = {exe}.$(Process).stderr
+Log    = {exe}.$(Process).log
+Arguments = $(Process) {njobs}
+Queue {njobs}
+    """.format(exe=exe, files=','.join(files), njobs=njobs)
+    with open(fname, 'w') as f:
         f.write(out)
     if not dryRun:
-        os.system("condor_submit %s"%job_name)
+        os.system("condor_submit %s" % fname)
 
 def write_bash(temp = 'runjob.sh', command = '' ,gitClone=""):
     out = '#!/bin/bash\n'
@@ -57,20 +56,23 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone=""):
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('--hadd', dest='hadd', action='store_true',default = False, help='hadd roots from subjobs', metavar='hadd')
+    parser.add_option('--dryRun', dest='dryRun', action='store_true',default = False, help='dryRun', metavar='dryRun')
+    parser.add_option('-o', '--odir', dest='odir', default='./', help='directory to write histograms/job output', metavar='odir')
 
     (options, args) = parser.parse_args()
     hadd  = options.hadd
 
     maxJobs = 100
-    dryRun = True
+    dryRun = options.dryRun 
 
-    outpath= 'ratioPlotsGGH_jobs_deepdoubleb_massdecor'
+    #outpath= 'ratioPlotsGGH_jobs_deepdoubleb_massdecor'
+    outpath= options.odir 
     gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
 
     #Small files used by the exe
     files = ['']
     #ouput to ${MAINDIR}/ so that condor transfer the output to submission dir
-    command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/analysis/ratioPlotsGGH.py --lumi 36.7 -o ${MAINDIR}/ --i-split $1 --max-split $2 --double-b-name AK8Puppijet0_deepdoubleb --double-b-cut 0.86'
+    command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/analysis/ratioPlotsGGH.py --lumi 41.1 -o ${MAINDIR}/ --i-split $1 --max-split $2 --double-b-name AK8Puppijet0_deepdoubleb --double-b-cut 0.7'
 
     plot_command = command.replace("-o ${MAINDIR}/ --i-split $1 --max-split $2","-o %s/"%outpath)
 
@@ -79,15 +81,9 @@ if __name__ == '__main__':
             exec_me("mkdir -p %s"%(outpath), False)
         os.chdir(outpath)
         print "submitting jobs from : ",os.getcwd()
-    
-        for iJob in range(0,maxJobs):
-            if os.path.isfile("Ratios_1000pb_weighted_%s.root"%(iJob)):
-                print "Ratios_1000pb_weighted_%s.root exists"%(iJob)
-            else:
-                arguments = [ str(iJob), str(maxJobs)]
-                exe       = "runjob_%s.sh"%iJob
-                write_bash(exe, command,gitClone)
-                write_condor(exe, arguments, files,dryRun)
+        exe = "runjob"
+        write_bash(exe+".sh", command, gitClone)
+        write_condor(maxJobs, exe,  files, dryRun)
     else:
         print "Trying to hadd subjob files from %s"%outpath
         nOutput = len(glob.glob("%s/Ratios_1000pb_weighted_*.root"%outpath))
@@ -96,6 +92,11 @@ if __name__ == '__main__':
             exec_me("hadd %s/Ratios_1000pb_weighted.root %s/Ratios_1000pb_weighted_*.root"%(outpath,outpath),dryRun)
             print "DONE hadd. Removing subjob files"
             exec_me("rm %s/Ratios_1000pb_weighted_*.root"%(outpath),dryRun)
+            print "Cleaning submission files..." 
+            #remove all but _0 file
+            for i in range(1,10):
+                exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
+
             print "Plotting...."
             exec_me(plot_command,dryRun)
         else:
