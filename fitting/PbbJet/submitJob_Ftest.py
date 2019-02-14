@@ -7,24 +7,43 @@ def exec_me(command, dryRun=False):
     if not dryRun:
         os.system(command)
 
-def write_condor(exe='runjob.sh', arguments = [], files = [],dryRun=True):
-    job_name = exe.replace('.sh','.jdl')
-    out = 'universe = vanilla\n'
-    out += 'Executable = %s\n'%exe
-    out += 'Should_Transfer_Files = YES\n'
-    out += 'WhenToTransferOutput = ON_EXIT_OR_EVICT\n'
-    out += 'Transfer_Input_Files = %s,%s\n'%(exe,','.join(files))
-    out += 'Output = %s.stdout\n'%job_name
-    out += 'Error  = %s.stderr\n'%job_name
-    out += 'Log    = %s.log\n'   %job_name
-    #out += 'notify_user = jduarte1@FNAL.GOV\n'
-    #out += 'x509userproxy = /tmp/x509up_u42518\n'
-    out += 'Arguments = %s\n'%(' '.join(arguments))
-    out += 'Queue 1\n'
-    with open(job_name, 'w') as f:
+#def write_condor(exe='runjob.sh', arguments = [], files = [],dryRun=True):
+#    job_name = exe.replace('.sh','.jdl')
+#    out = 'universe = vanilla\n'
+#    out += 'Executable = %s\n'%exe
+#    out += 'Should_Transfer_Files = YES\n'
+#    out += 'WhenToTransferOutput = ON_EXIT_OR_EVICT\n'
+#    out += 'Transfer_Input_Files = %s,%s\n'%(exe,','.join(files))
+#    out += 'Output = %s.stdout\n'%job_name
+#    out += 'Error  = %s.stderr\n'%job_name
+#    out += 'Log    = %s.log\n'   %job_name
+#    #out += 'notify_user = jduarte1@FNAL.GOV\n'
+#    #out += 'x509userproxy = /tmp/x509up_u42518\n'
+#    out += 'Arguments = %s\n'%(' '.join(arguments))
+#    out += 'Queue 1\n'
+#    with open(job_name, 'w') as f:
+#        f.write(out)
+#    if not dryRun:
+#        os.system("condor_submit %s"%job_name)
+
+def write_condor(njobs, exe='runjob', arguments =[], files = [], dryRun=True):
+    fname = '%s.jdl' % exe
+    out = """universe = vanilla
+Executable = {exe}.sh
+Should_Transfer_Files = YES
+WhenToTransferOutput = ON_EXIT_OR_EVICT
+Transfer_Input_Files = {exe}.sh,{files}
+Output = {exe}.$(Process).stdout
+Error  = {exe}.$(Process).stderr
+Log    = {exe}.$(Process).log
+Arguments =  {args}
+Queue {njobs}
+    """.format(exe=exe,args=' '.join(arguments), files=','.join(files), njobs=njobs)
+    with open(fname, 'w') as f:
         f.write(out)
     if not dryRun:
-        os.system("condor_submit %s"%job_name)
+        os.system("condor_submit %s" % fname)
+
 
 def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False):
     out = '#!/bin/bash\n'
@@ -103,7 +122,7 @@ if __name__ == '__main__':
     setUpCombine    = True
 
     nToys           = options.toys
-    nToysPerJob     = 10
+    nToysPerJob     = 20
     maxJobs         = nToys/nToysPerJob
 
     outpath= options.odir
@@ -117,7 +136,11 @@ if __name__ == '__main__':
     #ouput to ${MAINDIR}/ so that condor transfer the output to submission dir
     command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runFtest.py -o ${MAINDIR}/ --seed $1 --toys $2 --ifile ${MAINDIR}/$3 '
     plot_odir    = "/".join(options.odir.split("/")[:-3])
+    
+    #print out command to use after jobs are done
     plot_command = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runFtest.py -o %s --just-plot --ifile %s'%(plot_odir,options.ifile)
+    
+    #Command to create local copy of datacards
     if  options.ifile_loose is not None: 
         files.append( options.ifile_loose)
         command  += '--ifile-loose ${MAINDIR}/$%i'%(files.index( options.ifile_loose)+3)
@@ -136,7 +159,6 @@ if __name__ == '__main__':
             else:
                 command  += " --%s %s "%(opts.dest,getattr(options, opts.dest))
                 plot_command  += " --%s %s "%(opts.dest,getattr(options, opts.dest))
-    
     if not hadd: 
         print "Copying inputfiles to submission dir:"
         if not os.path.exists(outpath):
@@ -158,25 +180,29 @@ if __name__ == '__main__':
         os.chdir(outpath)
         print "submitting jobs from : ",os.getcwd()
     
-        for iJob in range(0,maxJobs):
-            localfiles = [path.split("/")[-1] for path in files]    #Tell script to use the transferred files
-            arguments = [ str(iJob),str(nToysPerJob)]
-            for f in localfiles:
-                arguments.append(str(f))
-            exe       = "runjob_%s.sh"%iJob
-            write_bash(exe, command, gitClone, setUpCombine)
-            write_condor(exe, arguments, localfiles,dryRun)
+        localfiles = [path.split("/")[-1] for path in files]    #Tell script to use the transferred files
+        arguments = [ str("$(Process)"),str(nToysPerJob)]
+        for f in localfiles:
+            arguments.append(str(f))
+        exe       = "runjob"
+        write_bash(exe+".sh", command, gitClone, setUpCombine)
+        write_condor(maxJobs,exe, arguments, localfiles,dryRun)
     else:
         nOutput = len(glob.glob("%s/%s"%(outpath,subToy1)))
-        if nOutput==maxJobs:
-            print "Found %s subjob output files"%nOutput
+        print "Found %s subjob output files in path: %s/%s"%(nOutput,outpath,subToy1)
+        def cleanAndPlot():
             if options.clean:
                 print "Cleaning submission files..." 
                 #remove all but _0 file
-                for i in range(1,10):
-                    exec_me("rm %s/runjob_%s*"%(outpath,i),dryRun)
+                for i in range(1,9):
+                    exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
                 print "Finish cleaning,plotting " 
-                print "plot command: ",plot_command
-                exec_me(plot_command,dryRun)
+            print "plot command: ",plot_command
+            exec_me(plot_command,dryRun)
+        if nOutput==maxJobs:
+            cleanAndPlot()
         else:
             print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
+            proceed = raw_input("Proceed anyway?")
+            if proceed=="yes":
+                cleanAndPlot()
