@@ -61,6 +61,8 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('--hadd', dest='hadd', action='store_true',default = False, help='hadd roots from subjobs', metavar='hadd')
     parser.add_option('--clean', dest='clean', action='store_true',default = False, help='clean submission files', metavar='clean')
+    parser.add_option('--resubmit', dest='resubmit', action='store_true',default = False, help='resubmit missing files', metavar='resubmit')
+    parser.add_option('--dryRun', dest='dryRun', action='store_true',default = False, help='dryRun', metavar='dryRun')
     parser.add_option('-o', '--odir', dest='odir', default='./', help='directory to write histograms/job output', metavar='odir')
     
     script_group  = OptionGroup(parser, "script options")
@@ -77,11 +79,12 @@ if __name__ == '__main__':
     hadd  = options.hadd
 
     maxJobs = 500
-    dryRun = False 
+    dryRun = options.dryRun 
 
     outpath= options.odir 
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
-    gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
+    #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b newTF  git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
     files = ['']
@@ -134,3 +137,15 @@ if __name__ == '__main__':
             exec_me(plot_command,dryRun) 
         else:
             print "%s/%s jobs done, not hadd-ing"%(nOutput,maxJobs)
+            files = glob.glob("%s/Plots_1000pb_weighted_*.root"%outpath)
+            nMissJobs = range(0,maxJobs)
+            for f in files:
+                jobN = int(f.split("/")[-1].replace(".root","").split("_")[-1])
+                if jobN in nMissJobs:
+                    nMissJobs.remove(int(jobN))
+            print "Missing jobs = ",nMissJobs
+            if options.resubmit:
+                os.chdir(outpath)
+                for i_job in nMissJobs:
+                    exec_me("condor_submit rubjob_%s.jdl"%i_job)
+
