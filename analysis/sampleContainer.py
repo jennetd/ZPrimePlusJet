@@ -843,11 +843,6 @@ class sampleContainer:
                 trigweightDown = 1
                 trigweightUp = 1
 
-            print 'WARNING! Not applying trigger weight, setting all trigWeight to 1' 
-            trigweight = 1
-            trigweightDown = 1
-            trigweightUp = 1
-
             weight = puweight * fbweight * self._sf * vjetsKF * trigweight
             weight_triggerUp = puweight * fbweight * self._sf * vjetsKF * trigweightUp
             weight_triggerDown = puweight * fbweight * self._sf * vjetsKF * trigweightDown
