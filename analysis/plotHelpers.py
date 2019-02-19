@@ -6,7 +6,12 @@ from math import sqrt
 import time
 import array
 
+from  bernstein import *
+from buildRhalphabetHbb import BLIND_LO, BLIND_HI, RHO_LO, RHO_HI
 
+useBernstein =True 
+n_rho = 2 
+n_pT  = 1
 def getRatio(hist, reference):
 	ratio = hist.Clone("%s_ratio"%hist.GetName())
 	ratio.SetDirectory(0)
@@ -1046,7 +1051,7 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
     	print ksScore
     	print chiScore
     	ratio.SetStats(0)
-        ratio.GetYaxis().SetRangeUser(0,5)	
+        ratio.GetYaxis().SetRangeUser(0,2)	
         ratio.GetYaxis().SetNdivisions(504)
     	ratio.GetYaxis().SetTitle("Data/Simulation")
     	ratio.GetXaxis().SetTitle(allMC.GetXaxis().GetTitle())    
@@ -1157,14 +1162,34 @@ def makeCanvasRatio(h_denom,h_numer,legname,color,style,outname,pdir="plots",lum
         f1params = array.array('d',list(f2params))
         f1params.append(pt)
         npar = len(f2params)
-        f2 = ROOT.TF2("f2",fun2,h_denom.GetXaxis().GetXmin(),h_denom.GetXaxis().GetXmax(),h_denom.GetYaxis().GetXmin(),h_denom.GetYaxis().GetXmax(),npar)
-        f2.SetParameters(f2params)
-        f1 = ROOT.TF1("f1",fun1,h_denom.GetXaxis().GetXmin(),h_denom.GetXaxis().GetXmax(),npar+1)
-        f1.SetParameters(f1params)
+        if useBernstein:
+            PT_LO =  450
+            PT_HI =  1000 
+            boundaries={'RHO_LO':RHO_LO,'RHO_HI':RHO_HI,'PT_LO':PT_LO,'PT_HI':PT_HI}
+            print boundaries
+
+            msd_pT =True 
+            Include_qcdeff=True
+            fun_mass_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff)
+            f2 = r.TF2("f2", fun_mass_pT,  h_denom.GetXaxis().GetXmin(),h_denom.GetXaxis().GetXmax(),PT_LO,PT_HI,npar)
+            f2.SetParameters(f2params)
+            print n_rho,n_pT
+            print f2params
+            print f2.Eval(197.5,475)
+            fun1bern =  genBernsteinTF1D(n_rho,n_pT,pt,boundaries,msd_pT,Include_qcdeff)
+            f1 = ROOT.TF1("f1",fun1bern,h_denom.GetXaxis().GetXmin(),h_denom.GetXaxis().GetXmax(),npar)
+            f1.SetParameters(f2params)
+        else:
+            f2 = ROOT.TF2("f2",fun2,h_denom.GetXaxis().GetXmin(),h_denom.GetXaxis().GetXmax(),h_denom.GetYaxis().GetXmin(),h_denom.GetYaxis().GetXmax(),npar)
+            f2.SetParameters(f2params)
+            f1 = ROOT.TF1("f1",fun1,h_denom.GetXaxis().GetXmin(),h_denom.GetXaxis().GetXmax(),npar+1)
+            f1.SetParameters(f1params)
 
         h_pred = h_denom.Clone('h_pred')
+        
         for i in range(1,h_pred.GetXaxis().GetNbins()+1):
-            h_pred.SetBinContent(i,f2.Eval(h_pred.GetBinCenter(i),pt)*h_pred.GetBinContent(i))
+            print "pT = %.3f, msd = %.3f , pass/fail = %.3f"%(pt,h_pred.GetBinCenter(i),f2.Eval(h_pred.GetBinCenter(i),pt))
+            h_pred.SetBinContent(i,f1.Eval(h_pred.GetBinCenter(i))*h_pred.GetBinContent(i))
 
         h_pred.SetLineColor(ROOT.kRed)
         h_pred.Draw('histsame')        
@@ -1253,6 +1278,14 @@ def fun2(x, par):
     poly2 = par[0]*(par[6] + par[7]*rho + par[8]*rho*rho)*x[1]*x[1]
     return poly0+poly1+poly2
 
+def fun1(x, par):
+    rho = ROOT.TMath.Log((x[0]*x[0])/(par[9]*par[9]))
+    poly0 = par[0]*(1.0 + par[1]*rho + par[2]*rho*rho)
+    poly1 = par[0]*(par[3] + par[4]*rho + par[5]*rho*rho)*par[9]
+    poly2 = par[0]*(par[6] + par[7]*rho + par[8]*rho*rho)*par[9]*par[9]
+    return poly0+poly1+poly2
+
+
 def fun2rho(x, par):
     rho = x[0]
     poly0 = par[0]*(1.0 + par[1]*rho + par[2]*rho*rho)
@@ -1260,12 +1293,6 @@ def fun2rho(x, par):
     poly2 = par[0]*(par[6] + par[7]*rho + par[8]*rho*rho)*x[1]*x[1]
     return poly0+poly1+poly2
 
-def fun1(x, par):
-    rho = ROOT.TMath.Log((x[0]*x[0])/(par[9]*par[9]))
-    poly0 = par[0]*(1.0 + par[1]*rho + par[2]*rho*rho)
-    poly1 = par[0]*(par[3] + par[4]*rho + par[5]*rho*rho)*par[9]
-    poly2 = par[0]*(par[6] + par[7]*rho + par[8]*rho*rho)*par[9]*par[9]
-    return poly0+poly1+poly2
 
 def makeCanvasRatio2D(h_denom,h_numer,legname,color,style,outname,pdir="plots",lumi=30,ofile=None):
     leg_y = 0.88 - (6)*0.04
@@ -1299,18 +1326,63 @@ def makeCanvasRatio2D(h_denom,h_numer,legname,color,style,outname,pdir="plots",l
 
     ratio.SetLineColor(ROOT.kBlue+1)
 
+    if useBernstein:
+        qcdeff = h_numer.Integral()/h_denom.Integral()
+        print 'qcd eff = %.3f/%.3f = %.3f'%(h_numer.Integral(),h_denom.Integral(),qcdeff)
+    
+        pars = [qcdeff]
+        for i_pt in range(0,n_rho+1):
+            for i_rho in range(0,n_pT+1):
+                pars.append(1)
+        f2params = array.array('d', pars)
+        npar = len(f2params)
+        PT_LO =  ratio.GetYaxis().GetXmin()
+        PT_HI =  ratio.GetYaxis().GetXmax() 
+        boundaries={'RHO_LO':RHO_LO,'RHO_HI':RHO_HI,'PT_LO':PT_LO,'PT_HI':PT_HI}
+        print pars
+        print boundaries
 
-    f2params = array.array('d',[1,0,0,0,0,0,0,0,0])
-    npar = len(f2params)
-    f2 = ROOT.TF2("f2",fun2,ratio.GetXaxis().GetXmin(),ratio.GetXaxis().GetXmax(),ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
-    f2.SetParameters(f2params)
-    #f2.FixParameter(2,0)
-    #f2.FixParameter(5,0)
-    #f2.FixParameter(8,0)
-    f2.FixParameter(6,0)
-    f2.FixParameter(7,0)
-    f2.FixParameter(8,0)
-    fr = ratio.Fit('f2','RNS')
+        msd_pT =True 
+        Include_qcdeff=True
+        fun_mass_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff)
+        print ratio.GetXaxis().GetXmin(),ratio.GetXaxis().GetXmax(),ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar
+        f2 = r.TF2("f2", fun_mass_pT,  ratio.GetXaxis().GetXmin(),ratio.GetXaxis().GetXmax(),ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
+        f2.SetParameters(f2params)
+        f2.FixParameter(0,qcdeff)
+        #f2.FixParameter(1,  0.6627) 
+        #f2.FixParameter(2,  1.4075) 
+        #f2.FixParameter(3,  0.8830) 
+        #f2.FixParameter(4,  0.9250) 
+        #f2.FixParameter(5,  1.3333) 
+        #f2.FixParameter(6,  0.2494) 
+   
+        #f2.FixParameter(1, 1.2791 )
+        #f2.FixParameter(2, 0.1619 )
+        #f2.FixParameter(3, 2.0011 )
+        #f2.FixParameter(4, 0.7438 )
+        #f2.FixParameter(5, 0.9551 )
+        #f2.FixParameter(6, 0.7201 )
+        #f2.FixParameter(7, 1.1807 )
+        #f2.FixParameter(8, 1.3506 )
+        #f2.FixParameter(9, 0.3916 )
+        #f2.FixParameter(10, 0.5204)
+    
+        for i in range(1,npar):
+            f2.SetParLimits(i,-30,30) 
+
+    else:
+        f2params = array.array('d',[1,0,0,0,0,0,0,0,0])
+        npar = len(f2params)
+        f2 = ROOT.TF2("f2",fun2,ratio.GetXaxis().GetXmin(),ratio.GetXaxis().GetXmax(),ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
+        f2.SetParameters(f2params)
+        #f2.FixParameter(2,0)
+        #f2.FixParameter(5,0)
+        #f2.FixParameter(8,0)
+        f2.FixParameter(6,0)
+        f2.FixParameter(7,0)
+        f2.FixParameter(8,0)
+    for i in range(0,3):
+        fr = ratio.Fit('f2','RNS')
     #f2.Draw("surf")
     ratio.Draw('surf1')
 
@@ -1325,9 +1397,14 @@ def makeCanvasRatio2D(h_denom,h_numer,legname,color,style,outname,pdir="plots",l
             z = f2.Eval(x,y)
             if math.log(x*x/(y*y)) < -6 or math.log(x*x/(y*y)) > -2.1:
                 z = 0
-            #print x, y, z
             f2graph.SetPoint(N,x,y,z)
+    #msds = [43.5 ,  50.5 ,  57.5 ,  64.5 ,  71.5 ,  78.5 ,  85.5 ,  92.5 ,  99.5 ,  106.5 , 113.5 ,
+    #         120.5 , 127.5 , 134.5 , 141.5 , 148.5 , 155.5 , 162.5 , 169.5 , 176.5 , 183.5 , 190.5 ,
+    #         197.5 ]
+    #for msd in msds:
+    #        print "pT = %.3f, msd = %.3f , pass/fail = %.3f"%(475,msd,f2.Eval(msd,475))
     f2.Draw("surf fb bb same")
+    #f2.Draw("surf1")
     #f2graph.SetLineColor(ROOT.kRed)
     #f2graph.Draw("surf fb bb same")
 
@@ -1402,8 +1479,15 @@ def makeCanvasRatio2D(h_denom,h_numer,legname,color,style,outname,pdir="plots",l
             z = ratio.GetBinContent(i,j)
             #print N, x, y, z
             ratiorhograph.SetPoint(N,x,y,z)
-    f2rho = ROOT.TF2("f2",fun2rho,-6,-2.1,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
-    f2rho.SetParameters(f2params)
+    if useBernstein:
+        msd_pT = False
+        Include_qcdeff=True
+        fun_rho_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff)
+        f2rho = r.TF2("f2", fun_rho_pT,-6,-2.1  ,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
+        f2rho.SetParameters(f2params)
+    else:
+        f2rho = ROOT.TF2("f2",fun2rho,-6,-2.1,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
+        f2rho.SetParameters(f2params)
     f2rhograph = ROOT.TGraph2D()
     N = -1
     for i in range(101):
