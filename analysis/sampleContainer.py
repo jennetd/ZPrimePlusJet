@@ -50,10 +50,12 @@ class sampleContainer:
         with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerBitMap.json")) as triggerMapFile:
             self._triggerBitMaps = json.load(triggerMapFile)
 
-        self._triggerCut = self.selectTriggers(self._triggerNames,self._triggerBitMaps)
         if not self._triggerNames=={} and isData:
+            self._triggerCut = self.selectTriggers(self._triggerNames,self._triggerBitMaps)
             print "List of OR Triggers : ",self._triggerNames['names']
             print "Using trigger cuts  : ",self._triggerCut
+        else:
+            self._triggerCut ="1"
 
         warnings.filterwarnings(action='ignore', category=RuntimeWarning, message='creating converter.*')
         self._cutFormula = ROOT.TTreeFormula("cutFormula",
@@ -141,6 +143,7 @@ class sampleContainer:
             self._trig_denom = f_trig.Get("h_runBtoF_pass_Mu50")
             self._trig_numer = f_trig.Get("h_runBtoF_pass_Main")
         else:
+            print "Using triggerEff file = ",self._triggerNames['effRoot']
             effRootPath = self._triggerNames['effRoot']
             f_trig = ROOT.TFile.Open(os.path.expandvars(effRootPath), "read")
             self._trig_denom = f_trig.Get("h_denom")
