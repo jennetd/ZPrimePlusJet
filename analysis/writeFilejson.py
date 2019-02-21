@@ -41,13 +41,14 @@ def main(options,args):
         print "Writing to ", os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json")
     finaljson = {}
     finaljson['controlPlotsGGH_2017']      = expandPath(controlPlotsGGH.get2017files()) 
+    finaljson['controlPlotsGGH_2018']      = expandPath(controlPlotsGGH.get2018files()) 
     finaljson['Hbb_create_2017']           = expandPath(Hbb_create.get2017files(False)) 
     finaljson['Hbb_create_2017_muCR']      = expandPath(Hbb_create.get2017files(True)) 
     if not options.printOnly:
         outf.write((json.dumps(finaljson,indent=4)))
     else:
         print (json.dumps(finaljson,indent=4,sort_keys=True))
-    for key,tfiles in finaljson.iteritems():
+    for key,tfiles in sorted(finaljson.iteritems()):
         print "list of samples used by %s =  "%key, sorted(tfiles.keys())
 
 
