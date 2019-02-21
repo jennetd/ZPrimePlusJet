@@ -51,7 +51,7 @@ class sampleContainer:
             self._triggerBitMaps = json.load(triggerMapFile)
 
         self._triggerCut = self.selectTriggers(self._triggerNames,self._triggerBitMaps)
-        if not self._triggerNames=={}:
+        if not self._triggerNames=={} and isData:
             print "List of OR Triggers : ",self._triggerNames['names']
             print "Using trigger cuts  : ",self._triggerCut
 
@@ -131,6 +131,8 @@ class sampleContainer:
         #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
         #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
         #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
+
+        #NOTE: trigger weight for MC is set here, for data, weight_trig is set to 1 later
         if self._triggerNames=={} or 'effRoot' not in self._triggerNames.keys():
             print self._triggerNames.keys()
             ## TODO: find 2016 triggerEff map file as default
@@ -143,14 +145,8 @@ class sampleContainer:
             f_trig = ROOT.TFile.Open(os.path.expandvars(effRootPath), "read")
             self._trig_denom = f_trig.Get("h_denom")
             self._trig_numer = f_trig.Get("h_numer")
-        print self._trig_denom.GetName()    
-        print self._trig_numer.GetName()    
         self._trig_denom.SetDirectory(0)
         self._trig_numer.SetDirectory(0)
-#        self._trig_denom.RebinX(2)
-#        self._trig_numer.RebinX(2)
-#        self._trig_denom.RebinY(5)
-#        self._trig_numer.RebinY(5)
         self._trig_eff = ROOT.TEfficiency()
         if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
             self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
