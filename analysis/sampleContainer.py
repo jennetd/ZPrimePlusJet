@@ -128,12 +128,23 @@ class sampleContainer:
         # get trigger efficiency object
 
         #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
+        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
         #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
         #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
-        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
-        f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017_noPS.root"), "read")
-        self._trig_denom = f_trig.Get("h_runBtoF_pass_Mu50")
-        self._trig_numer = f_trig.Get("h_runBtoF_pass_Main")
+        if self._triggerNames=={} or 'effRoot' not in self._triggerNames.keys():
+            print self._triggerNames.keys()
+            ## TODO: find 2016 triggerEff map file as default
+            print "Did not specify trigger eff root path in triggerNames, using default : $ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017_noPS.root"
+            f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017_noPS.root"), "read")
+            self._trig_denom = f_trig.Get("h_runBtoF_pass_Mu50")
+            self._trig_numer = f_trig.Get("h_runBtoF_pass_Main")
+        else:
+            effRootPath = self._triggerNames['effRoot']
+            f_trig = ROOT.TFile.Open(os.path.expandvars(effRootPath), "read")
+            self._trig_denom = f_trig.Get("h_denom")
+            self._trig_numer = f_trig.Get("h_numer")
+        print self._trig_denom.GetName()    
+        print self._trig_numer.GetName()    
         self._trig_denom.SetDirectory(0)
         self._trig_numer.SetDirectory(0)
 #        self._trig_denom.RebinX(2)
