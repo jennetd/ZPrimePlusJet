@@ -7,24 +7,25 @@ def exec_me(command, dryRun=False):
     if not dryRun:
         os.system(command)
 
-def write_condor(exe='runjob.sh', arguments = [], files = [],dryRun=True):
-    job_name = exe.replace('.sh','.jdl')
-    out = 'universe = vanilla\n'
-    out += 'Executable = %s\n'%exe
-    out += 'Should_Transfer_Files = YES\n'
-    out += 'WhenToTransferOutput = ON_EXIT_OR_EVICT\n'
-    out += 'Transfer_Input_Files = %s,%s\n'%(exe,','.join(files))
-    out += 'Output = %s.stdout\n'%job_name
-    out += 'Error  = %s.stderr\n'%job_name
-    out += 'Log    = %s.log\n'   %job_name
-    #out += 'notify_user = jduarte1@FNAL.GOV\n'
-    #out += 'x509userproxy = /tmp/x509up_u42518\n'
-    out += 'Arguments = %s\n'%(' '.join(arguments))
-    out += 'Queue 1\n'
-    with open(job_name, 'w') as f:
+def write_condor(njobs, exe='runjob', files = [], dryRun=True):
+    fname = '%s.jdl' % exe
+    out = """universe = vanilla
+Executable = {exe}.sh
+Should_Transfer_Files = YES
+WhenToTransferOutput = ON_EXIT_OR_EVICT
+Transfer_Input_Files = {exe}.sh,{files}
+Output = {exe}.$(Process).stdout
+Error  = {exe}.$(Process).stderr
+Log    = {exe}.$(Process).log
+Arguments = $(Process) {njobs}
+Queue {njobs}
+    """.format(exe=exe, files=','.join(files), njobs=njobs)
+    with open(fname, 'w') as f:
         f.write(out)
     if not dryRun:
-        os.system("condor_submit %s"%job_name)
+        os.system("condor_submit %s" % fname)
+
+
 
 def write_bash(temp = 'runjob.sh', command = '' ,gitClone=""):
     out = '#!/bin/bash\n'
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     script_group.add_option("--lumi", dest="lumi", default = 35.9,type=float,help="luminosity", metavar="lumi")
     script_group.add_option('-s','--isData', action='store_true', dest='isData', default =False,help='signal comparison', metavar='isData')
     script_group.add_option('-m','--muonCR', action='store_true', dest='muonCR', default =False,help='for muon CR', metavar='muonCR')
-    script_group.add_option('--is2017', action='store_true', dest='is2017', default =False,help='for using 2017 files', metavar='is2017')
+    script_group.add_option('-y' ,'--year', type='choice', dest='year', default ='2017',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     script_group.add_option("--puOpt"  , dest="puOpt", default="2017", help="select pu weight source", metavar="puOpt")
 
 
@@ -112,14 +113,9 @@ if __name__ == '__main__':
         os.chdir(outpath)
         print "submitting jobs from : ",os.getcwd()
     
-        for iJob in range(0,maxJobs):
-            if os.path.isfile("Plots_1000pb_weighted_%s.root"%(iJob)):
-                print "Plots_1000pb_weighted_%s.root exists"%(iJob)
-            else:
-                arguments = [ str(iJob), str(maxJobs)]
-                exe       = "runjob_%s.sh"%iJob
-                write_bash(exe, command,gitClone)
-                write_condor(exe, arguments, files,dryRun)
+        exe = "runjob"
+        write_bash(exe+".sh", command, gitClone)
+        write_condor(maxJobs, exe,  files, dryRun)
     else:
         print "Trying to hadd subjob files from %s"%outpath
         nOutput = len(glob.glob("%s/Plots_1000pb_weighted_*.root"%outpath))
@@ -132,7 +128,7 @@ if __name__ == '__main__':
                 print "Cleaning submission files..." 
                 #remove all but _0 file
                 for i in range(1,10):
-                    exec_me("rm %s/runjob_%s*"%(outpath,i),dryRun)
+                    exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
             print "Plotting...."
             exec_me(plot_command,dryRun) 
         else:
@@ -147,5 +143,5 @@ if __name__ == '__main__':
             if options.resubmit:
                 os.chdir(outpath)
                 for i_job in nMissJobs:
-                    exec_me("condor_submit rubjob_%s.jdl"%i_job)
+                    exec_me("condor_submit rubjob.%s.jdl"%i_job)
 
