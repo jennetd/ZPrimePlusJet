@@ -18,12 +18,14 @@ DBTMIN=-99
 ##############################################################################
 def main(options,args):
     lumi = options.lumi
+    odir = options.odir
     i_split = options.iSplit
     max_split = options.maxSplit
     idir_1501skim = '/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.01/skim/'
         
     legname = {
 	       'ggHbb': 'ggH(b#bar{b})',
+               'ggHbb_amc': 'ggH(b#bar{b}) aMC@NLO',
                'VBFHbb':'VBF H(b#bar{b})',
 	       'ZHbb': ' Z(q#bar{q})H(b#bar{b})',
 	       'ZnnHbb': ' Z(#nu#nu)H(b#bar{b})',
@@ -32,7 +34,7 @@ def main(options,args):
                }
     
     tfiles = {'ggHbb_amc' :  { 'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8':                glob.glob(idir_1501skim+'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8_*.root')},
-          'ggHbb_amcHpT250' :  { 'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8' : glob.glob(idir_1501skim+'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8_*.root')},
+        'ggHbb_amcHpT250' :  { 'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8' : glob.glob(idir_1501skim+'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8_*.root')},
               'ggHbb'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      glob.glob(idir_1501skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root')},
               'VBFHbb'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              glob.glob(idir_1501skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root')},
               'ZnnHbb'      :          { 
@@ -51,6 +53,7 @@ def main(options,args):
     
     color = {
              'ggHbb': ROOT.kBlue+2,
+             'ggHbb_amc': ROOT.kGreen+2,
              'VBFHbb': ROOT.kAzure+3,
              'ZnnHbb': ROOT.kPink+5,
 	     'ZHbb': ROOT.kPink+1,
@@ -60,13 +63,14 @@ def main(options,args):
 
     style = {
 	     'ggHbb': 1,
+             'ggHbb_amc': 1,
              'VBFHbb': 2,
 	     'ZHbb': 1,
 	     'WHbb':1,
              'ZnnHbb': 1,
 	     'ttHbb':1,		
-               }
-
+             }
+    
     plots = [
         'h_n_ak4'           ,
         'h_met'             ,
@@ -94,7 +98,7 @@ def main(options,args):
     print("Signals... ")
     sigSamples = {}
     sigSamples['ggHbb']  = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['ggHbb_amc']  = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    #sigSamples['ggHbb_amc']  = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
     sigSamples['VBFHbb']  = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
     sigSamples['ZHbb']  = normSampleContainer('ZHbb',tfiles['ZHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
     sigSamples['WHbb']  = normSampleContainer('WHbb',tfiles['WHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
@@ -102,14 +106,18 @@ def main(options,args):
     sigSamples['ZnnHbb']  = normSampleContainer('ZnnHbb',tfiles['ZnnHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
 
     ofile = ROOT.TFile.Open(odir+'/Plots_1000pb_weighted.root','recreate')
-
-    hs = sigSamples
+    
     for plot in plots:
+        hs = {}
+        for process in sigSamples.keys():
+            hs[process] = sigSamples[process][plot]
         c = makeCanvasComparison(hs,legname,color,style,plot.replace('h_','signalcomparison_'),odir,lumi)
         ofile.cd()
         for process, h in hs.iteritems():
             h.Write()        
         c.Write()
+
+    ofile.Close()
 
 ##----##----##----##----##----##----##
 if __name__ == '__main__':
