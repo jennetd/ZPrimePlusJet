@@ -270,10 +270,10 @@ def get2018files():
                             idir_1502skim + 'JetHTRun2018D_PromptReco_v1*.root',
                       ],
               'muon': [
-                       idir_1502+'/SingleMuonRun2018A_17Sep2018_v2/*.root',
-                       idir_1502+'/SingleMuonRun2018B_17Sep2018_v1/*.root',
-                       idir_1502+'/SingleMuonRun2018C_17Sep2018_v1/*.root',
-                       idir_1502+'/SingleMuonRun2018D_PromptReco_v2/*.root',
+                       idir_1502skim+'/SingleMuonRun2018A_17Sep2018_v2*.root',
+                       idir_1502skim+'/SingleMuonRun2018B_17Sep2018_v1*.root',
+                       idir_1502skim+'/SingleMuonRun2018C_17Sep2018_v1*.root',
+                       idir_1502skim+'/SingleMuonRun2018D_PromptReco_v2*.root',
                     ]
             }
     return tfiles
@@ -554,7 +554,7 @@ def main(options,args,outputExists):
             bkgSamples['QCD'] = sampleContainer('QCD',tfiles['QCD'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=options.puOpt)
 
         if isData and muonCR:
-            if year=='2017':
+            if year=='2017' or year=='2018':
                 bkgSamples['Wlnu']  = normSampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
             elif year =='2016':
                 bkgSamples['Wlnu']  = sampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='2016')
