@@ -616,7 +616,7 @@ def main(options,args,outputExists):
         
         ofile = ROOT.TFile.Open(odir+'/Plots_1000pb_weighted_%s.root '%i_split,'recreate')
 
-        normSamples =['QCD','DY','W','Wlnu','ggHbb','ggHbb_amc','ggHbb_amcHpT250','VHbb','VBFHbb','ttHbb','TTbar','SingleTop','Diboson']
+        normSamples =['QCD','DY','W','Wlnu','ggHbb','ggHbb_amc','ggHbb_amcHpT250','VHbb','VBFHbb','ttHbb','TTbar','SingleTop','Diboson','DYll']
         hall_byproc = {}
         for process, s in sigSamples.iteritems():
             hall_byproc[process] = {}
