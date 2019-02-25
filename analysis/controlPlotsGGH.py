@@ -267,7 +267,7 @@ def get2018files():
                             idir_1502skim + 'JetHTRun2018A_17Sep2018_v1*.root',
                             idir_1502skim + 'JetHTRun2018B_17Sep2018_v1*.root',
                             idir_1502skim + 'JetHTRun2018C_PromptReco_v*.root',
-                            idir_1502skim + 'JetHTRun2018D_PromptReco_v1*.root',
+                            idir_1502skim + 'JetHTRun2018D_PromptReco_v*.root',
                       ],
               'muon': [
                        idir_1502skim+'/SingleMuonRun2018A_17Sep2018_v2*.root',
