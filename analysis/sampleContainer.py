@@ -391,6 +391,7 @@ class sampleContainer:
                 'h_isolationCA15': ["h_" + self._name + "_isolationCA15", "; AK8/CA15 p_{T} ratio ;", 50, 0.5, 1.5],
                 'h_met': ["h_" + self._name + "_met", "; E_{T}^{miss} (GeV) ;", 50, 0, 500],
                 'h_maxAK4_dcsvb': ["h_" + self._name + "_maxAK4_dcsvb", "; Max Opp. Hem. AK4 DeepCSV b ;", 100, 0, 1],
+                'h_n_OppHem_AK4': ["h_" + self._name + "_n_OppHem_AK4", "; AK4 n_{jets} #Delta#phi>#pi/2,p_{T}>30 GeV ;", 8, 0, 8],
                 'h_pt_ak8': ["h_" + self._name + "_pt_ak8", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
                 'h_eta_ak8': ["h_" + self._name + "_eta_ak8", "; AK8 leading #eta;", 50, -3, 3],
                 'h_pt_ak8_sub1': ["h_" + self._name + "_pt_ak8_sub1", "; AK8 subleading p_{T} (GeV);", 50, 300, 2100],
@@ -1062,7 +1063,7 @@ class sampleContainer:
                     self.h_fBosonPt_weight.Fill(self.genVPt[0], weight) 
             #Find non-matched AK4 jets
             QuarkJets = []
-            OppHemAK4_dcsvb=[0]
+            OppHemAK4_dcsvb=[]
             for iak4 in range(0,4):
                 ak4pT   = getattr(self,"AK4Puppijet"+str(iak4)+"_pt")[0]
                 ak4eta  = getattr(self,"AK4Puppijet"+str(iak4)+"_eta")[0]
@@ -1078,9 +1079,10 @@ class sampleContainer:
                     jet.qgid = getattr(self,"AK4Puppijet"+str(iak4)+"_qgid")[0]
                     jet.csv  = getattr(self,"AK4Puppijet"+str(iak4)+"_csv")[0]
                     QuarkJets.append(jet)
-                if (dphi_ak8>  ROOT.TMath.Pi()/2):
-                    #print "dphi_ak8 = %.3f, ak4csvb = %.3f"%(dphi_ak8,ak4dcsvb)
-                    OppHemAK4_dcsvb.append(ak4dcsvb)
+                if  ak4pT> 30.0 and abs(ak4eta)<2.5 and (dphi_ak8>  ROOT.TMath.Pi()/2):
+                    #print "dphi_ak8 = %.3f, ak4csvb = %.3f, abs(ak4eta) = %.3f"%(dphi_ak8,ak4dcsvb,abs(ak4eta))
+                    if ak4dcsvb>0:         #avoid invalid entries 
+                        OppHemAK4_dcsvb.append(ak4dcsvb)
             #print "N un-matched jet = ", len(QuarkJets)
             #for qj in QuarkJets:
             #    print "[QuarkJets cand: pt=%.3f , eta=%.3f"%( qj.Pt(),qj.Eta())
@@ -1090,7 +1092,12 @@ class sampleContainer:
             #print "highest dEta pair = ",pair, "mass = %.3f, QGLR = %.3f"%(QGLRutil.CalcMqq(QuarkJets,pair),QGLRutil.CalcQGLR(QuarkJets,pair))
             Mqq  = QGLRutil.CalcMqq(QuarkJets,pair)
             QGLR = QGLRutil.CalcQGLR(QuarkJets,pair)
-            maxAK4_dcsvb = max(OppHemAK4_dcsvb)
+            n_OppHem_AK4 = len(OppHemAK4_dcsvb)
+            maxAK4_dcsvb = 0
+            if n_OppHem_AK4>0:
+                #print "n_OppHem_AK4: ",n_OppHem_AK4
+                maxAK4_dcsvb = max(OppHemAK4_dcsvb)
+    
             if len(QuarkJets)>=2:
                 deta_ak4pt1pt2 = abs(QuarkJets[0].Eta() - QuarkJets[1].Eta())
                 Mqq_ak4pt1pt2  = (QuarkJets[0]+ QuarkJets[1]).M()
@@ -1307,6 +1314,7 @@ class sampleContainer:
                     self.h_isolationCA15.Fill(ratioCA15_04, weight)
                     self.h_met.Fill(met, weight)
                     self.h_maxAK4_dcsvb.Fill(maxAK4_dcsvb, weight)
+                    self.h_n_OppHem_AK4.Fill(n_OppHem_AK4, weight)
 
                 if jpt_8 > PTCUT and jt21P_8 < T21DDTCUT and jmsd_8 > MASSCUT:
                     self.h_msd_ak8_t21ddtCut.Fill(jmsd_8, weight)
