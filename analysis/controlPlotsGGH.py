@@ -230,11 +230,7 @@ def get2018files():
                             'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1502skim + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV_*.root'],
                             },
               'DYll':       {
-                             'DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV'  :[idir_1501+'/DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV/*.root'] , 
-                             'DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV'  :[idir_1501+'/DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV/*.root'] , 
-                             'DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV' :[idir_1501+'/DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV/*.root'],                                     
-                             #'DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV':[idir_1501+'/DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV/*.root'], #waiting for skim                           
-                             #'DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV' :[idir_1501+'/DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV/*.root' ]  #waiting for sample
+                             'DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1502skim+'/DYJetsToLL_M_50_TuneCP5_13TeV_*.root'] , 
                             },
               'SingleTop':  {
                             # 'ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8':[idir_1502skim+'ST_t_channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV_powhegV2_madspin_pythia8_*.root'],
@@ -256,7 +252,7 @@ def get2018files():
                                "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1501skim+'WJetsToLNu_HT_600To800_*.root'],
                                "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8"  :[ idir_1501skim+'WJetsToLNu_HT_800To1200_*.root'],
                                "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1501skim+'WJetsToLNu_HT_1200To2500_*.root'],
-                               "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1501skim+'WJetsToLNu_HT_2500ToInf*.root'],
+                               "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8"  :[ idir_1501skim+'WJetsToLNu_HT_2500ToInf*.root'],
                             },
               'TTbar':      {
                              'TTToHadronic_TuneCP5_13TeV_powheg_pythia8'    :[idir_1502skim+'TTToHadronic_TuneCP5_13TeV-powheg-pythia8_*.root'],
@@ -330,11 +326,11 @@ def get2017files():
                             },
               #'DYll':       [idir_temp+'/DYJetsToLL_M_50_13TeV_ext_1000pb_weighted.root'],
               'DYll':       {
-                             'DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV'  :[idir_1501+'/DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV/*.root'] , 
-                             'DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV'  :[idir_1501+'/DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV/*.root'] , 
-                             'DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV' :[idir_1501+'/DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV/*.root'],                                     
-                             #'DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV':[idir_1501+'/DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV/*.root'], #waiting for skim                           
-                             #'DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV' :[idir_1501+'/DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV/*.root' ]  #waiting for sample
+                             'DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV'  :[idir_1501skim+'/DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV*.root'] , 
+                             'DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV'  :[idir_1501skim+'/DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV*.root'] , 
+                             'DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV' :[idir_1501skim+'/DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV*.root'],                                     
+                             'DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV':[idir_1501skim+'/DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV*.root'], 
+                             'DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV' :[idir_1501skim+'/DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV*.root' ] 
                             },
 
               'SingleTop':  {
@@ -577,7 +573,7 @@ def main(options,args,outputExists):
         if isData and muonCR:
             if year=='2017' or year=='2018':
                 bkgSamples['Wlnu']  = normSampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-                bkgSamples['DYll']  = normSampleContainer('DYll',tfiles['DYll'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, treeName='Events',puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+                bkgSamples['DYll']  = normSampleContainer('DYll',tfiles['DYll'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
             elif year =='2016':
                 bkgSamples['Wlnu']  = sampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt)
                 bkgSamples['DYll']  = sampleContainer('DYll',tfiles['DYll'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt)
