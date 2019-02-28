@@ -6,7 +6,7 @@ import glob
 class normSampleContainer:
     def __init__(self, sampleName, subSamples, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
                  minBranches=False, iSplit = 0, maxSplit = 1, triggerNames={}, treeName='otree', 
-                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt='2016'):
+                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt={}):
 
         self.sampleName            = sampleName
         self.subSampleContainers    = {}
@@ -28,13 +28,12 @@ class normSampleContainer:
                 print "normSampleContainer:: subSample = %s , Nfiles = %s , basePath = %s"%(subSampleName, len(tfiles[subSampleName]), paths[0].replace(paths[0].split("/")[-1],""))
             else:
                 print "normSampleContainer:: subSample = %s  "%(subSampleName)
-            #print datetime.datetime.now()
             Nentries,h_puMC,checksum           = self.getNentriesAndPu(tfiles[subSampleName])
-            print "PUhistogram type= ",type(h_puMC)
-            #print datetime.datetime.now()
+            puOpt['MC'] = h_puMC
+            print "puOpt = ",puOpt
             lumiWeight         =  (xSection*1000*lumi) / Nentries
             print "normSampleContainer:: [sample %s, subsample %s] lumi = %s fb-1, xSection = %.3f pb, nEvent = %s, weight = %.5f, Nfiles=%s,(chkSum=%s)" % (sampleName, subSampleName, lumi, xSection, Nentries, lumiWeight,len(tfiles[subSampleName]),checksum)
-            self.subSampleContainers[subSampleName] = sampleContainer(subSampleName, tfiles[subSampleName], sf, DBTAGCUTMIN, lumiWeight, isData, fillCA15, cutFormula, minBranches, iSplit ,maxSplit,triggerNames,treeName,doublebName,doublebCut,h_puMC)
+            self.subSampleContainers[subSampleName] = sampleContainer(subSampleName, tfiles[subSampleName], sf, DBTAGCUTMIN, lumiWeight, isData, fillCA15, cutFormula, minBranches, iSplit ,maxSplit,triggerNames,treeName,doublebName,doublebCut,puOpt)
 
     #Get the number of events from the NEvents histogram
     def getNentriesAndPu(self,oTreeFiles):

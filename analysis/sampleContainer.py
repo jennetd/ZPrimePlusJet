@@ -31,7 +31,7 @@ AK4DCSVCUT=0.4941
 class sampleContainer:
     def __init__(self, name, fn, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
                  minBranches=False, iSplit = 0, maxSplit = 1, triggerNames={}, treeName='otree', 
-                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt='2016'):
+                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt={}):
         self._name = name
         self.DBTAGCUTMIN = DBTAGCUTMIN
         self.DBTAGCUT = doublebCut
@@ -744,12 +744,16 @@ class sampleContainer:
         cut = []
         cut = [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 
-        if not self.puOpt in ['2016','2017']:
-            if not type(self.puOpt)==type(ROOT.TH1F()):
-                print "Using this file to reweight MC pu:", self.puOpt
-            else:
-                print "Using input histogram reweight MC pu:", self.puOpt.GetName() 
-            h_puw,h_puw_up,h_puw_down = self.get2017puWeight(self.puOpt)
+        if self.puOpt['MC'] =='12.04':
+            print "Using weights directly from analysis/ggH/puWeights_All.root to reweight MC pu", 
+        elif self.puOpt['MC'] =='12.07':
+            print "Using tree branch to set per event weight" 
+        elif  type(self.puOpt['MC'])==type(ROOT.TH1F()):
+            print " Using input histogram reweight MC pu:",self.puOpt['MC'].GetName() 
+            h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
+        elif  type(self.puOpt['MC'])==type("string"):
+            print "Using this file to reweight MC pu:", self.puOpt
+            h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
     
         self._tt.SetNotify(self._cutFormula)
 
@@ -793,11 +797,11 @@ class sampleContainer:
                 sys.stdout.write("\r[" + "=" * int(20 * i / nent) + " " + str(round(100. * i / nent, 0)) + "% done")
                 sys.stdout.flush()
             
-            if self.puOpt =='2017':
+            if self.puOpt['MC'] =='12.07':
                 puweight      = self.puWeight[0] #corrected
                 puweight_up   = self.puWeight_up[0]
                 puweight_down = self.puWeight_down[0]
-            elif self.puOpt=='2016':
+            elif self.puOpt['MC']=='12.04':
                 nPuForWeight  = min(self.npu[0], 49.5)
                 puweight      = self._puw.GetBinContent(self._puw.FindBin(nPuForWeight))
                 puweight_up   = self._puw_up.GetBinContent(self._puw_up.FindBin(nPuForWeight))
@@ -1668,7 +1672,7 @@ class sampleContainer:
             return "||".join(tCuts) 
         else:
             return "1"
-    def get2017puWeight(self,MC_pu):
+    def getPuWeight(self,MC_pu,data_pu):
         if type(MC_pu)==type(ROOT.TH1F()):
             lpuMC = MC_pu
         else:
@@ -1678,11 +1682,16 @@ class sampleContainer:
             f_puMC.Close()
         lpuMC.Scale(1/lpuMC.Integral())
         
-        f_pu2017  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileup_Cert_294927-306462_13TeV_PromptReco_Collisions17_withVar.root"))
+        if data_pu=='2017':
+            f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileup_Cert_294927-306462_13TeV_PromptReco_Collisions17_withVar.root"))
+        elif data_pu=='2018':
+            f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root"))
+        elif data_pu=='2016':
+            f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"))
 
-        lpuData     = f_pu2017.Get("pileup")
-        lpuData_up  = f_pu2017.Get("pileup_plus")
-        lpuData_down= f_pu2017.Get("pileup_minus")
+        lpuData     = f_pu.Get("pileup")
+        lpuData_up  = f_pu.Get("pileup_plus")
+        lpuData_down= f_pu.Get("pileup_minus")
 
         lpuData.Scale(1/lpuData.Integral())
         lpuData_up.Scale(1/lpuData_up.Integral())
