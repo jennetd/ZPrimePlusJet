@@ -392,16 +392,17 @@ def main(options, args):
             tfiles  = json.load(samplefiles)['Hbb_create_2017_muCR']
         else:
             tfiles  = json.load(samplefiles)['Hbb_create_2017']
-        puOpt  = "2017"
+        pu_Opt  = {'data':"2017"}
     elif year=='2018':
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
         if muonCR:
             tfiles  = json.load(samplefiles)['Hbb_create_2018_muCR']
         else:
             tfiles  = json.load(samplefiles)['Hbb_create_2018']
+        pu_Opt  = {'data':"2018"}
     elif year=='2016':
         tfiles = get2016files(muonCR)
-        puOpt  = "2016"
+        pu_Opt  = {'data':"2016",'MC':"12.04"}
 
     passfail    = ['pass','fail']
     systematics = ['JESUp','JESDown','JERUp','JERDown','triggerUp','triggerDown','PuUp','PuDown','matched','unmatched']
@@ -459,49 +460,49 @@ def main(options, args):
 
     sigSamples = {}
     if year=='2017' or year=='2018' :
-        sigSamples['hqq125']   = normSampleContainer('hqq125',tfiles['hqq125']       , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        sigSamples['tthqq125'] = normSampleContainer('tthqq125', tfiles['tthqq125']  , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-        sigSamples['vbfhqq125']= normSampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-        sigSamples['whqq125']  = normSampleContainer('whqq125', tfiles['whqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-        sigSamples['zhqq125']  = normSampleContainer('zhqq125', tfiles['zhqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        sigSamples['hqq125']   = normSampleContainer('hqq125',tfiles['hqq125']       , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        sigSamples['tthqq125'] = normSampleContainer('tthqq125', tfiles['tthqq125']  , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        sigSamples['vbfhqq125']= normSampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        sigSamples['whqq125']  = normSampleContainer('whqq125', tfiles['whqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        sigSamples['zhqq125']  = normSampleContainer('zhqq125', tfiles['zhqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
     elif year=='2016':
-        sigSamples['hqq125'] = sampleContainer('hqq125', tfiles['hqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
+        sigSamples['hqq125'] = sampleContainer('hqq125', tfiles['hqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         #sigSamples['hqq125'] = normSampleContainer('hqq125',tfiles['hqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,treeName='Events',puOpt="default").addPlots(plots)
-        sigSamples['tthqq125'] = sampleContainer('tthqq125', tfiles['tthqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
-        sigSamples['vbfhqq125'] = sampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin, lumi, False, False, '1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
-        sigSamples['whqq125'] = sampleContainer('whqq125', tfiles['whqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
-        sigSamples['zhqq125'] = sampleContainer('zhqq125', tfiles['zhqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
+        sigSamples['tthqq125'] = sampleContainer('tthqq125', tfiles['tthqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+        sigSamples['vbfhqq125'] = sampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin, lumi, False, False, '1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+        sigSamples['whqq125'] = sampleContainer('whqq125', tfiles['whqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+        sigSamples['zhqq125'] = sampleContainer('zhqq125', tfiles['zhqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
 
     print "Backgrounds..."
     bkgSamples = {}
 
     if year=='2017'or year=='2018':
-        bkgSamples['wqq']  = normSampleContainer('wqq',tfiles['wqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['stqq'] = normSampleContainer('stqq', tfiles['stqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-        bkgSamples['zll']  = normSampleContainer('zll', tfiles['zll']  , 1, dbtagmin,lumi,False,False,'1',False ,iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['wqq']  = normSampleContainer('wqq',tfiles['wqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['stqq'] = normSampleContainer('stqq', tfiles['stqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+        bkgSamples['zll']  = normSampleContainer('zll', tfiles['zll']  , 1, dbtagmin,lumi,False,False,'1',False ,iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
         if muonCR:
-            bkgSamples['wlnu'] = normSampleContainer('wlnu',tfiles['wlnu'],  1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt="default",doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['wlnu'] = normSampleContainer('wlnu',tfiles['wlnu'],  1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
         if not options.skipQCD:
-            bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
     elif year=='2016':
-        bkgSamples['wqq']  = sampleContainer('wqq',tfiles['wqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt="2016")
-        bkgSamples['zqq']  = sampleContainer('zqq',tfiles['zqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt="2016")
-        bkgSamples['vvqq'] = sampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
-        bkgSamples['tqq'] = sampleContainer('tqq', tfiles['tqq'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
-        bkgSamples['stqq'] = sampleContainer('stqq', tfiles['stqq'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
+        bkgSamples['wqq']  = sampleContainer('wqq',tfiles['wqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+        bkgSamples['zqq']  = sampleContainer('zqq',tfiles['zqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+        bkgSamples['vvqq'] = sampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+        bkgSamples['tqq'] = sampleContainer('tqq', tfiles['tqq'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+        bkgSamples['stqq'] = sampleContainer('stqq', tfiles['stqq'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         if muonCR:
-            bkgSamples['wlnu'] = sampleContainer('wlnu', tfiles['wlnu'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt="2016")
+            bkgSamples['wlnu'] = sampleContainer('wlnu', tfiles['wlnu'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         if not options.skipQCD:
-            bkgSamples['qcd'] = sampleContainer('qcd', tfiles['qcd'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
-        bkgSamples['zll'] = sampleContainer('zll', tfiles['zll'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt="2016")
+            bkgSamples['qcd'] = sampleContainer('qcd', tfiles['qcd'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+        bkgSamples['zll'] = sampleContainer('zll', tfiles['zll'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
     print "Data..."
     if not options.skipData:
         if muonCR:
-            if year=='2017':
-                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt,doublebName='AK8Puppijet0_deepdoubleb')
+            if year=='2017'or year=='2018':
+                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb')
             elif year=='2016':
                 dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=opuOpt)
         else:
@@ -534,7 +535,7 @@ def main(options, args):
                       }
                 dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,doublebName='AK8Puppijet0_deepdoubleb')
             elif year=='2016':
-                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'((triggerBits&2)&&passJson)', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=puOpt)
+                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'((triggerBits&2)&&passJson)', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
     hall = {}
 
     #normSamples =['wqq','zqq','wlnu','hqq125']
