@@ -230,19 +230,19 @@ class sampleContainer:
             self._branches.extend([('nAK4PuppijetsfwdPt30', 'i', -999), ('nAK4PuppijetsLPt50dR08_0', 'i', -999),
                                    ('nAK4PuppijetsTPt50dR08_0', 'i', -999),
                                    ('nAK4PuppijetsLPt100dR08_0', 'i', -999), ('nAK4PuppijetsMPt100dR08_0', 'i', -999),
-                                   ('nAK4PuppijetsTPt100dR08_ 0', 'i', -999),
+                                   ('nAK4PuppijetsTPt100dR08_0', 'i', -999),
                                    ('nAK4PuppijetsLPt150dR08_0', 'i', -999), ('nAK4PuppijetsMPt150dR08_0', 'i', -999),
                                    ('nAK4PuppijetsTPt150dR08_0', 'i', -999),
                                    ('nAK4PuppijetsLPt50dR08_1', 'i', -999), ('nAK4PuppijetsMPt50dR08_1', 'i', -999),
                                    ('nAK4PuppijetsTPt50dR08_1', 'i', -999),
                                    ('nAK4PuppijetsLPt100dR08_1', 'i', -999), ('nAK4PuppijetsMPt100dR08_1', 'i', -999),
-                                   ('nAK4PuppijetsTPt100dR08_ 1', 'i', -999),
+                                   ('nAK4PuppijetsTPt100dR08_1', 'i', -999),
                                    ('nAK4PuppijetsLPt150dR08_1', 'i', -999), ('nAK4PuppijetsMPt150dR08_1', 'i', -999),
                                    ('nAK4PuppijetsTPt150dR08_1', 'i', -999),
                                    ('nAK4PuppijetsLPt50dR08_2', 'i', -999), ('nAK4PuppijetsMPt50dR08_2', 'i', -999),
                                    ('nAK4PuppijetsTPt50dR08_2', 'i', -999),
                                    ('nAK4PuppijetsLPt100dR08_2', 'i', -999), ('nAK4PuppijetsMPt100dR08_2', 'i', -999),
-                                   ('nAK4PuppijetsTPt100dR08_ 1', 'i', -999),
+                                   ('nAK4PuppijetsTPt100dR08_1', 'i', -999),
                                    ('nAK4PuppijetsLPt150dR08_2', 'i', -999), ('nAK4PuppijetsMPt150dR08_2', 'i', -999),
                                    ('nAK4PuppijetsTPt150dR08_2', 'i', -999),
                                    ('nAK4PuppijetsLPt150dR08_0', 'i', -999), ('nAK4PuppijetsMPt150dR08_0', 'i', -999),
@@ -1693,10 +1693,13 @@ class sampleContainer:
         lpuMC.Scale(1/lpuMC.Integral())
         
         if data_pu=='2017':
+            print "Using 2017 data PU ",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileup_Cert_294927-306462_13TeV_PromptReco_Collisions17_withVar.root")
             f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileup_Cert_294927-306462_13TeV_PromptReco_Collisions17_withVar.root"))
         elif data_pu=='2018':
+            print "Using 2018 data PU ",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root")
             f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root"))
         elif data_pu=='2016':
+            print "Using 2016 data PU ",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root")
             f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"))
 
         lpuData     = f_pu.Get("pileup")
