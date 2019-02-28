@@ -31,7 +31,7 @@ AK4DCSVCUT=0.4941
 class sampleContainer:
     def __init__(self, name, fn, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
                  minBranches=False, iSplit = 0, maxSplit = 1, triggerNames={}, treeName='otree', 
-                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt={}):
+                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt={'MC':"12.04",'data':2016}):
         self._name = name
         self.DBTAGCUTMIN = DBTAGCUTMIN
         self.DBTAGCUT = doublebCut
@@ -1008,7 +1008,8 @@ class sampleContainer:
             n_dR0p8_4_JESUp = n_dR0p8_4
             n_dR0p8_4_JESDown = n_dR0p8_4
             
-            n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
+            #n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
+            n_MdR0p8_4=0
             if not self._minBranches:
                 n_LdR0p8_4 = self.nAK4PuppijetsLPt50dR08_0[0]
                 n_TdR0p8_4 = self.nAK4PuppijetsTPt50dR08_0[0]
@@ -1087,6 +1088,15 @@ class sampleContainer:
                     #print "dphi_ak8 = %.3f, ak4csvb = %.3f, abs(ak4eta) = %.3f"%(dphi_ak8,ak4dcsvb,abs(ak4eta))
                     if ak4dcsvb>0:         #avoid invalid entries 
                         OppHemAK4_dcsvb.append(ak4dcsvb)
+                #2017 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
+                #2018 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
+                if self.puOpt['data']=='2017':
+                    if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4941:
+                        n_MdR0p8_4+=1
+                elif self.puOpt['data']=='2018':
+                    if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4184:
+                        n_MdR0p8_4+=1
+                    
             #print "N un-matched jet = ", len(QuarkJets)
             #for qj in QuarkJets:
             #    print "[QuarkJets cand: pt=%.3f , eta=%.3f"%( qj.Pt(),qj.Eta())
