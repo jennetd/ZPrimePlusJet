@@ -48,7 +48,7 @@ def main(options,args):
 
     nBkgd = len(bkgs)
     nSig = len(sigs)
-    numberOfMassBins = 21    
+    numberOfMassBins = 23    
     numberOfPtBins = 6
     procsToRemove = []
 

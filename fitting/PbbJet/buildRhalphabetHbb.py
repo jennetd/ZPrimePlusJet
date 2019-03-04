@@ -17,10 +17,10 @@ r.gSystem.Load(os.getenv('CMSSW_BASE') + '/lib/' + os.getenv('SCRAM_ARCH') + '/l
 from tools import *
 from hist import *
 
-#MASS_BINS = 23
-#MASS_LO = 40
-MASS_BINS = 21
-MASS_LO = 54
+MASS_BINS = 23
+MASS_LO = 40
+#MASS_BINS = 21
+#MASS_LO = 54
 MASS_HI = 201
 BLIND_LO = 110
 BLIND_HI = 131
