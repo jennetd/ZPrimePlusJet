@@ -19,8 +19,8 @@ from hist import *
 
 #MASS_BINS = 23
 #MASS_LO = 40
-MASS_BINS = 22
-MASS_LO = 47
+MASS_BINS = 21
+MASS_LO = 54
 MASS_HI = 201
 BLIND_LO = 110
 BLIND_HI = 131
