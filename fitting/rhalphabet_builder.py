@@ -961,6 +961,10 @@ class RhalphabetBuilder():
                                 h.GetXaxis().GetBinUpEdge(i))
                             h.SetBinContent(i, 0.)
                             h.SetBinError(i, 0.)
+                        if massVal < self._mass_lo or massVal > self._mass_hi:
+                            print "removing mass = %.2f for %s, because %.2f not in [%i,%i]" % (massVal,h.GetName(),massVal,self._mass_lo, self._mass_hi)
+                            h.SetBinContent(i, 0.)
+                            h.SetBinError(i, 0.)
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
                     # validation
@@ -1075,6 +1079,11 @@ class RhalphabetBuilder():
                                 rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i),
                                 h.GetXaxis().GetBinUpEdge(i))
                             h.SetBinContent(i, 0.)
+                        if massVal < self._mass_lo or massVal > self._mass_hi:
+                            print "removing mass = %.2f for %s, because %.2f not in [%i,%i]" % (massVal,h.GetName(),massVal,self._mass_lo, self._mass_hi)
+                            h.SetBinContent(i, 0.)
+                            h.SetBinError(i, 0.)
+
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
                     if h.GetName().find("scale") > -1:
@@ -1228,6 +1237,13 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
                         histogram.GetYaxis().GetBinUpEdge(j),
                         histogram.GetXaxis().GetBinLowEdge(i), histogram.GetXaxis().GetBinUpEdge(i))
                     histogram.SetBinContent(i, j, 0.)
+                if massVal < mass_range[0] or massVal > mass_range[1]:
+                    print "removing mass = %.2f for %s, pt bin [%i, %i], mass bin [%i,%i]" % (
+                        massVal, histogram.GetName(), histogram.GetYaxis().GetBinLowEdge(j),
+                        histogram.GetYaxis().GetBinUpEdge(j),
+                        histogram.GetXaxis().GetBinLowEdge(i), histogram.GetXaxis().GetBinUpEdge(i))
+                    histogram.SetBinContent(i, j, 0.)
+
         histogram.SetDirectory(0)
 
         # print "lengths = ", len(pass_hists), len(fail_hists)
