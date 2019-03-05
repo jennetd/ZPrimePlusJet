@@ -170,7 +170,31 @@ def getParsfromWS(ws_path,pamNames):
             #print "%s is not present in ws"%pamName
     return pars
 
+def drawOpt(f2,colz,MsdOrRho,ofname):
+    c1 = r.TCanvas("c1","c1",800,800)
+    #fun_mass_pT_str =  genBernsteinTFstring(nrho,npT,f2)
+    #print "TF string = ",fun_mass_pT_str
+    if colz:
+        f2.Draw("colz")
+    else:
+        f2.Draw("surf1")
 
+    if MsdOrRho=='msd':
+        f2.GetXaxis().SetTitle("m_{SD} [GeV]")
+    else:
+        f2.GetXaxis().SetTitle("#rho")
+    f2.GetYaxis().SetTitle("p_{T} [GeV]")
+    f2.GetZaxis().SetTitle("Pass-to-fail Ratio")
+    f2.GetXaxis().SetTitleOffset(1.5)
+    f2.GetYaxis().SetTitleOffset(2)
+    f2.GetZaxis().SetTitleOffset(2)
+    f2.SetTitle("")
+    if colz:
+        c1.SaveAs(ofname.replace(".pdf","_colz.pdf"))
+    else:
+        c1.SaveAs(ofname)
+
+    
 def makeTFs(pars,nrho,npT,odir):
         
     f2params = array.array('d', pars)
@@ -183,79 +207,37 @@ def makeTFs(pars,nrho,npT,odir):
     boundaries['PT_LO' ]= 450.
     boundaries['PT_HI' ]= 1000.
 
-    c1 = r.TCanvas("c1","c1",800,800)
 
-    # Pass-to-Fail ratio in mSD-pT plane
-    fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,True,True,True)
-    f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1000,npar)
-    f2.SetParameters(f2params)
-    #fun_mass_pT_str =  genBernsteinTFstring(nrho,npT,f2)
-    #print "TF string = ",fun_mass_pT_str
-    if colz:
-        f2.Draw("colz")
-    else:
-        f2.Draw("surf1")
-        f2.GetXaxis().SetTitle("m_{SD} [GeV]")
-        f2.GetYaxis().SetTitle("p_{T} [GeV]")
-        f2.GetZaxis().SetTitle("Pass-to-fail Ratio")
-        f2.GetXaxis().SetTitleOffset(1.5)
-        f2.GetYaxis().SetTitleOffset(2)
-        f2.GetZaxis().SetTitleOffset(2)
-        f2.SetTitle("")
-    
-
-    c1.SaveAs(odir+"f2.pdf")
-    # Pass-to-Fail ratio in rho-pT plane
-    fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,False,True,True)
-    f2 = r.TF2("f2", fun_rho_pT, -6,-2.1,450,1000,npar)
-    f2.SetParameters(f2params)
-    if colz:
-        f2.Draw("colz")
-    else:
-        f2.Draw("surf1")
-        f2.GetXaxis().SetTitle("#rho")
-        f2.GetYaxis().SetTitle("p_{T} [GeV]")
-        f2.GetZaxis().SetTitle("Pass-to-fail Ratio")
-        f2.GetXaxis().SetTitleOffset(1.5)
-        f2.GetYaxis().SetTitleOffset(2)
-        f2.GetZaxis().SetTitleOffset(2)
-        f2.SetTitle("")
-
-
-    c1.SaveAs(odir+"f2_rho.pdf")
-
-    # Transfer-factor in mSD-pT plane
-    fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,True,False,True)
-    f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1000,npar)
-    f2.SetParameters(f2params)
-    print "Eval(f2)",f2.Eval(125,700)
-    if colz:
-        f2.Draw("colz")
-    else:
-        f2.Draw("surf1")
-
-    c1.SaveAs(odir+"f2_noqcdeff.pdf")
-
-    # Transfer-factor in rho-pT plane
-    fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,False,False,True)
-    f2 = r.TF2("f2", fun_rho_pT,  -6,-2.1,450,1000,npar)
-    f2.SetParameters(f2params)
-    if colz:
-        f2.Draw("colz")
-    else:
-        f2.Draw("surf1")
-
-    c1.SaveAs(odir+"f2_noqcdeff_rho.pdf")
-
-    # Pass-to-Fail ratio in rho-pT unit plane
-    fun2 =  genBernsteinTF(nrho,npT,boundaries,False,True,False)
-    f2 = r.TF2("f_unit", fun2, 0,1,0,1,npar)
-    f2.SetParameters(f2params)
-    if colz:
-        f2.Draw("colz")
-    else:
-        f2.Draw("surf1")
-    c1.SaveAs(odir+"f_unit.pdf")   
+    for colz in [True,False]:
+        # Pass-to-Fail ratio in mSD-pT plane
+        fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,True,True,True)
+        f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1000,npar)
+        f2.SetParameters(f2params)
+        for pT in [500,700,800]:
+            arr = []
+            for msd in range(120,130):
+                arr.append("%.3f"%f2.Eval(msd,pT))
+            print arr
+        drawOpt(f2,colz,'msd',odir+"f2.pdf")
+        fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,False,True,True)
+        f2 = r.TF2("f2", fun_rho_pT, -6,-2.1,450,1000,npar)
+        f2.SetParameters(f2params)
+        drawOpt(f2,colz,'rho',odir+"f2_rho.pdf")
+        # Transfer-factor in mSD-pT plane
+        fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,True,False,True)
+        f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1000,npar)
+        f2.SetParameters(f2params)
+        drawOpt(f2,colz,'msd',odir+"f2_noqcdeff.pdf")
+        # Transfer-factor in rho-pT plane
+        fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,False,False,True)
+        f2 = r.TF2("f2", fun_rho_pT,  -6,-2.1,450,1000,npar)
+        f2.SetParameters(f2params)
+        drawOpt(f2,colz,'rho',odir+"f2_noqcdeff_rho.pdf")
+        # Pass-to-Fail ratio in rho-pT unit plane
+        fun2 =  genBernsteinTF(nrho,npT,boundaries,False,True,False)
+        f2 = r.TF2("f_unit", fun2, 0,1,0,1,npar)
+        f2.SetParameters(f2params)
+        drawOpt(f2,colz,'rho',odir+"f2_unit.pdf")
         
 if __name__ == '__main__':
 
@@ -266,7 +248,7 @@ if __name__ == '__main__':
     r.gStyle.SetPadTopMargin(0.1)
     r.gStyle.SetPadBottomMargin(0.2)
     r.gStyle.SetPadLeftMargin(0.15)
-    r.gStyle.SetPadRightMargin(0.1)
+    r.gStyle.SetPadRightMargin(0.2)
     r.gStyle.SetPalette(1)
     r.gStyle.SetOptFit(0000)
     r.gROOT.SetBatch()
@@ -292,79 +274,94 @@ if __name__ == '__main__':
     pars = []
       
     #pars = getParsfromWS("ddb_Jan31/MC/mcOnly/card_rhalphabet_all_floatZ.root",lParams) 
-    #makeTFs(pars,2,1,"ddb_Jan31/MC/mcOnly/")
+    #makeTFs(pars,2,1,    "ddb_Jan31/MC/mcOnly/")
 
     #pars = getParsfromMLfit("ddb_Feb5/MC/mcOnly/mlfit.root",lParams) 
-    #makeTFs(pars,2,1,"ddb_Feb5/MC/mcOnly/")
+    #makeTFs(pars,2,1,    "ddb_Feb5/MC/mcOnly/")
     #pars = getParsfromWS("ddb_Feb5/MC/mcOnly/card_rhalphabet_all_floatZ.root",lParams) 
-    #makeTFs(pars,2,1,"ddb_Feb5/MC/mcOnly/")
+    #makeTFs(pars,2,1,    "ddb_Feb5/MC/mcOnly/")
 
-    pars = getParsfromWS("ddb_Feb5/ddb_L_tw1/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,2,1,"ddb_Feb5/ddb_L_tw1/qcdMC_TF21/")
+    pars = getParsfromWS("ddb_Feb5/ddb_M2_pt1200/msd47_TF21/card_rhalphabet_all_floatZ.root",lParams)
+    makeTFs(pars,2,1,    "ddb_Feb5/ddb_M2_pt1200/msd47_TF21/")
+    #pars = getParsfromWS("ddb_Feb5/ddb_M2_pt1200/msd47_TF31/card_rhalphabet_all_floatZ.root",lParams)
+    #makeTFs(pars,3,1,    "ddb_Feb5/ddb_M2_pt1200/msd47_TF31/")
+    #pars = getParsfromWS("ddb_Feb5/ddb_M2_pt1200/msd47_TF22/card_rhalphabet_all_floatZ.root",lParams)
+    #makeTFs(pars,2,2,"ddb_Feb5/ddb_M2_pt1200/msd47_TF22/")
+    pars = getParsfromWS("ddb_Feb5/ddb_M2_pt1200/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
+    makeTFs(pars,2,1,    "ddb_Feb5/ddb_M2_pt1200/qcdMC_TF21/")
+    #pars = getParsfromWS("ddb_Feb5/ddb_M2_pt1200/qcdMC_TF31/card_rhalphabet_all_floatZ.root",lParams)
+    #makeTFs(pars,3,1,    "ddb_Feb5/ddb_M2_pt1200/qcdMC_TF31/")
+    #pars = getParsfromWS("ddb_Feb5/ddb_M2_pt1200/qcdMC_TF22/card_rhalphabet_all_floatZ.root",lParams)
+    #makeTFs(pars,2,2,    "ddb_Feb5/ddb_M2_pt1200/qcdMC_TF22/")
+
+
+
+    #pars = getParsfromWS("ddb_Feb5/ddb_L_tw1/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
+    #makeTFs(pars,2,1,    "ddb_Feb5/ddb_L_tw1/qcdMC_TF21/")
     #pars = getParsfromWS("ddb_Feb5/ddb_M2_tw1/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,2,1,"ddb_Feb5/ddb_M2_tw1/qcdMC_TF21/")
+    #makeTFs(pars,2,1,    "ddb_Feb5/ddb_M2_tw1/qcdMC_TF21/")
 
     #Diff WP. (X) TF21 (X) TF41 
-    pars = getParsfromWS("ddb_Feb5/ddb_L/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,2,1,"ddb_Feb5/ddb_L/qcdMC_TF21/")
+    #pars = getParsfromWS("ddb_Feb5/ddb_L/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
+    #makeTFs(pars,2,1,    "ddb_Feb5/ddb_L/qcdMC_TF21/")
     #pars = getParsfromWS("ddb_Feb5/ddb_M/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,2,1,"ddb_Feb5/ddb_M/qcdMC_TF21/")
+    #makeTFs(pars,2,1,    "ddb_Feb5/ddb_M/qcdMC_TF21/")
     #pars = getParsfromWS("ddb_Feb5/ddb_M2/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,2,1,"ddb_Feb5/ddb_M2/qcdMC_TF21/")
+    #makeTFs(pars,2,1,    "ddb_Feb5/ddb_M2/qcdMC_TF21/")
     #pars = getParsfromWS("ddb_Feb5/ddb_T/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,2,1,"ddb_Feb5/ddb_T/qcdMC_TF21/")
+    #makeTFs(pars,2,1,    "ddb_Feb5/ddb_T/qcdMC_TF21/")
     #pars = getParsfromWS("ddb_Feb5/ddb_T2/qcdMC_TF21/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,2,1,"ddb_Feb5/ddb_T2/qcdMC_TF21/")
+    #makeTFs(pars,2,1,    "ddb_Feb5/ddb_T2/qcdMC_TF21/")
     #pars = getParsfromWS("ddb_Feb5/ddb_L/qcdMC_TF41/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,4,1,"ddb_Feb5/ddb_L/qcdMC_TF41/")
+    #makeTFs(pars,4,1,    "ddb_Feb5/ddb_L/qcdMC_TF41/")
     #pars = getParsfromWS("ddb_Feb5/ddb_M/qcdMC_TF41/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,4,1,"ddb_Feb5/ddb_M/qcdMC_TF41/")
+    #makeTFs(pars,4,1,    "ddb_Feb5/ddb_M/qcdMC_TF41/")
     #pars = getParsfromWS("ddb_Feb5/ddb_M2/qcdMC_TF41/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,4,1,"ddb_Feb5/ddb_M2/qcdMC_TF41/")
+    #makeTFs(pars,4,1,    "ddb_Feb5/ddb_M2/qcdMC_TF41/")
     #pars = getParsfromWS("ddb_Feb5/ddb_T/qcdMC_TF41/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,4,1,"ddb_Feb5/ddb_T/qcdMC_TF41/")
+    #makeTFs(pars,4,1,    "ddb_Feb5/ddb_T/qcdMC_TF41/")
     #pars = getParsfromWS("ddb_Feb5/ddb_T2/qcdMC_TF41/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,4,1,"ddb_Feb5/ddb_T2/qcdMC_TF41/")
+    #makeTFs(pars,4,1,    "ddb_Feb5/ddb_T2/qcdMC_TF41/")
 
     #pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
-    #makeTFs(pars,2,1,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p1/")
+    #makeTFs(pars,2,1,    "ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p1/")
     #pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p2/card_rhalphabet_all_r2p2_floatZ.root",lParams) 
     #makeTFs(pars,2,2,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r2p2/")
     #pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p1/card_rhalphabet_all_r3p1_floatZ.root",lParams) 
-    #makeTFs(pars,3,1,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p1/")
+    #makeTFs(pars,3,1,    "ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p1/")
     #pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r4p1/card_rhalphabet_all_r4p1_floatZ.root",lParams) 
-    #makeTFs(pars,4,1,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r4p1/")
+    #makeTFs(pars,4,1,    "ddb_Feb5/MC/mcOnly/ftest/cards_mc_r4p1/")
     #pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p2/card_rhalphabet_all_r3p2_floatZ.root",lParams) 
     #makeTFs(pars,3,2,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r3p2/")
     #pars = getParsfromWS("ddb_Feb5/MC/mcOnly/ftest/cards_mc_r5p1/card_rhalphabet_all_r5p1_floatZ.root",lParams) 
-    #makeTFs(pars,5,1,"ddb_Feb5/MC/mcOnly/ftest/cards_mc_r5p1/")
+    #makeTFs(pars,5,1,    "ddb_Feb5/MC/mcOnly/ftest/cards_mc_r5p1/")
 
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
-    #makeTFs(pars,2,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
+    #makeTFs(pars,2,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/card_rhalphabet_all_r2p2_floatZ.root",lParams) 
     #makeTFs(pars,2,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/card_rhalphabet_all_r3p1_floatZ.root",lParams) 
-    #makeTFs(pars,3,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/")
+    #makeTFs(pars,3,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/card_rhalphabet_all_r4p1_floatZ.root",lParams) 
-    #makeTFs(pars,4,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/")
+    #makeTFs(pars,4,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/card_rhalphabet_all_r3p2_floatZ.root",lParams) 
     #makeTFs(pars,3,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/card_rhalphabet_all_r5p1_floatZ.root",lParams) 
-    #makeTFs(pars,5,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/")
+    #makeTFs(pars,5,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/")
 
     qcdeff = 0.0121
     #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/mlfit.root",lParams,qcdeff) 
-    #makeTFs(pars,2,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
+    #makeTFs(pars,2,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/card_rhalphabet_all_r2p2_floatZ.root",lParams) 
     #makeTFs(pars,2,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p2/")
     #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/mlfit.root",lParams,qcdeff) 
-    #makeTFs(pars,3,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/mlfit/")                         
+    #makeTFs(pars,3,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/mlfit/")                         
     #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/mlfit.root",lParams,qcdeff) 
-    #makeTFs(pars,4,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/mlfit/")                         
+    #makeTFs(pars,4,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r4p1/mlfit/")                         
     #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/mlfit.root",lParams,qcdeff) 
     #makeTFs(pars,3,2,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p2/mlfit/")                         
     #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/mlfit.root",lParams,qcdeff) 
-    #makeTFs(pars,5,1,"ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/mlfit/")
+    #makeTFs(pars,5,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r5p1/mlfit/")
 
 
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r3p1/card_rhalphabet_all_r3p1_floatZ.root",lParams) 
@@ -376,10 +373,10 @@ if __name__ == '__main__':
     #### OLD TF! ####
     #pars = getParsfromMLfit('ddb_Jan17/MC/qcdMC_r1/mlfit.root',lParams)
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r2p1/card_rhalphabet_all_r2p1_floatZ.root",lParams) 
-    #makeTFs(pars,2,1,"ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r2p1/")
+    #makeTFs(pars,2,1,    "ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r2p1/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r2p2/card_rhalphabet_all_r2p2_floatZ.root",lParams) 
     #makeTFs(pars,2,2,"ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r2p2/")
     #pars = getParsfromWS("ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r3p1/card_rhalphabet_all_r3p1_floatZ.root",lParams) 
-    #makeTFs(pars,3,1,"ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r3p1/")
+    #makeTFs(pars,3,1,    "ddb_Jan17/MC/qcdMC_r1/ftest/cards_mc_r3p1/")
 
 
