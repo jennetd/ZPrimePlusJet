@@ -52,8 +52,7 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False
     out += 'cd ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/\n'
     out += command + '\n'
     out += 'cd ${CWD}\n'
-    out += 'mv ./ftest*/toy*.root .\n'        #collect output
-    out += 'mv ./ftest*/base*.root .\n'        #collect output
+    out += 'mv ./bias*/*.root .\n'        #collect output
     out += 'echo "Inside $MAINDIR:"\n'
     out += 'ls\n'
     out += 'echo "DELETING..."\n'
@@ -100,7 +99,7 @@ if __name__ == '__main__':
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
     #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
-    gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b bias git://github.com/kakwok/ZPrimePlusJet.git"
 
     if options.datacardAlt == parser.get_option("--datacard-alt").default:
         options.datacardAlt = options.datacard
@@ -152,8 +151,8 @@ if __name__ == '__main__':
         write_bash(exe+".sh", command, gitClone, setUpCombine)
         write_condor(maxJobs,exe, arguments, localfiles,dryRun)
     else:
-        nOutput = len(glob.glob("%s/%s"%(outpath,subToy1)))
-        print "Found %s subjob output files in path: %s/%s"%(nOutput,outpath,subToy1)
+        nOutput = len(glob.glob("%s/%s"%(outpath,product)))
+        print "Found %s subjob output files in path: %s/%s"%(nOutput,outpath,product)
         def cleanAndPlot():
             if options.clean:
                 print "Cleaning submission files..." 
