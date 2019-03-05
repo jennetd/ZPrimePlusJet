@@ -961,7 +961,7 @@ class RhalphabetBuilder():
                                 h.GetXaxis().GetBinUpEdge(i))
                             h.SetBinContent(i, 0.)
                             h.SetBinError(i, 0.)
-                        if massVal < self._mass_lo or massVal > self._mass_hi:
+                        if massVal < 47 :
                             print "removing mass = %.2f for %s, because %.2f not in [%i,%i]" % (massVal,h.GetName(),massVal,self._mass_lo, self._mass_hi)
                             h.SetBinContent(i, 0.)
                             h.SetBinError(i, 0.)
@@ -1079,7 +1079,7 @@ class RhalphabetBuilder():
                                 rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i),
                                 h.GetXaxis().GetBinUpEdge(i))
                             h.SetBinContent(i, 0.)
-                        if massVal < self._mass_lo or massVal > self._mass_hi:
+                        if massVal < 47 :
                             print "removing mass = %.2f for %s, because %.2f not in [%i,%i]" % (massVal,h.GetName(),massVal,self._mass_lo, self._mass_hi)
                             h.SetBinContent(i, 0.)
                             h.SetBinError(i, 0.)
