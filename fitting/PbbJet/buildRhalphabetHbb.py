@@ -17,10 +17,10 @@ r.gSystem.Load(os.getenv('CMSSW_BASE') + '/lib/' + os.getenv('SCRAM_ARCH') + '/l
 from tools import *
 from hist import *
 
-#MASS_BINS = 23
-#MASS_LO = 40
-MASS_BINS = 22
-MASS_LO = 47
+MASS_BINS = 23
+MASS_LO = 40
+#MASS_BINS = 22
+#MASS_LO = 47
 MASS_HI = 201
 BLIND_LO = 110
 BLIND_HI = 131
@@ -62,7 +62,7 @@ def main(options, args):
     else:
         sf=SF2016
     #(hpass, hfail) = loadHistograms(f, options.pseudo, options.blind, options.useQCD, options.scale, options.r)
-    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_LO, MASS_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf)
+    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[47, 201], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf)
     #f.Close()
 
     # Build the workspacees
