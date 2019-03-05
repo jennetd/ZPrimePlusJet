@@ -509,14 +509,20 @@ class RhalphabetBuilder():
 
             print rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin), fail_bin_content
 
-            # 50 sigma range + 10 events
-            fail_bin_unc = math.sqrt(fail_bin_content) * 50. + 10.
             # Define the failing category
-            fail_bin_var = r.RooRealVar(rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
-                                        rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
-                                        fail_bin_content, 0., max(fail_bin_content + fail_bin_unc, 0.))
+            fail_bin_var_real = r.RooRealVar(rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
+                                             rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
+                                             0, -20, 20)
+            fail_bin_var_in = r.RooRealVar(rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin) + "_In",
+                                           rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin) + "_In",
+                                           fail_bin_content)
+            fail_bin_var_in.setConstant(True)
+            fail_bin_var = r.RooFormulaVar(rhalph_bkgd_name + "_fail_" + category + self._suffix + "_Bin" + str(mass_bin) + "_func",
+                                           rhalph_bkgd_name + "_fail_" + category + self._suffix + "_Bin" + str(mass_bin) + "_func",
+                                           "pow(1+1/sqrt(max(@1,1)),@0)*@1", r.RooArgList(fail_bin_var_real,fail_bin_var_in))
 
             print "[david debug] fail_bin_var:"
+            fail_bin_var_real.Print()
             fail_bin_var.Print()
 
             # Now define the passing cateogry based on the failing (make sure it can't go negative)
@@ -533,11 +539,14 @@ class RhalphabetBuilder():
             # If the number of events in the failing is small remove the bin from being free in the fit
             if fail_bin_content < 4:
                 print "too small number of events", fail_bin_content, "Bin", str(mass_bin)
+                fail_bin_var = r.RooRealVar(rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
+                                            rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin), fail_bin_content, 0, fail_bin_content)
                 fail_bin_var.setConstant(True)
                 pass_bin_var = r.RooRealVar(rhalph_bkgd_name + "_pass_" + category + "_Bin" + str(mass_bin),
                                             rhalph_bkgd_name + "_pass_" + category + "_Bin" + str(mass_bin), 0, 0, 0)
 
                 pass_bin_var.setConstant(True)
+                print "done setting constant"
 
             # Add bins to the array
             pass_bins.add(pass_bin_var)
@@ -545,6 +554,7 @@ class RhalphabetBuilder():
             self._all_vars.extend([pass_bin_var, fail_bin_var])
             self._all_pars.extend([pass_bin_var, fail_bin_var])
             # print  fail_bin_var.GetName(),"flatParam",lPass#,lPass+"/("+lFail+")*@0"
+            print "done adding to array"
 
         # print "Printing pass_bins:"
         # for i in xrange(pass_bins.getSize()):
@@ -564,13 +574,18 @@ class RhalphabetBuilder():
         pass_norm.Print()
         fail_norm.Print()
         self._all_shapes.extend([pass_rparh, fail_rparh, pass_norm, fail_norm])
-
+        
+        print "make workspace"
         # Now write the wrokspace with the rooparamhist
         pass_workspace = r.RooWorkspace("w_pass_" + str(category))
         fail_workspace = r.RooWorkspace("w_fail_" + str(category))
+        print "import pass_rparh"
         getattr(pass_workspace, 'import')(pass_rparh, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
+        print "import pass_norm"
         getattr(pass_workspace, 'import')(pass_norm, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
+        print "import fail_rparh"
         getattr(fail_workspace, 'import')(fail_rparh, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
+        print "import fail_norm"
         getattr(fail_workspace, 'import')(fail_norm, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
         print "Printing rhalphabet workspace:"
         pass_workspace.Print()
