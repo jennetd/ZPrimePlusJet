@@ -38,10 +38,7 @@ def main(options,args):
     boxes = ['pass', 'fail']
     sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
     bkgs = ['zqq','wqq','tqq']
-    if options.forcomb:
-        bkgs.append('qcd2017')
-    else:
-        bkgs.append('qcd')
+    bkgs.append('qcd')
     systs = ['JER','JES','Pu']
 
     removeUnmatched = options.removeUnmatched
@@ -57,8 +54,6 @@ def main(options,args):
 
     for proc in (sigs+bkgs):
         for box in boxes:
-            if options.forcomb and '2017' in proc:
-                proc = proc.replace("2017","")
             print 'getting histogram for process: %s_%s'%(proc,box)
             histoDict['%s_%s'%(proc,box)] = tfile.Get('%s_%s'%(proc,box))
             if tfile_loose is not None:
@@ -78,10 +73,7 @@ def main(options,args):
                 print 'getting histogram for process: %s_%s_%sDown'%(proc,box,syst)
                 histoDict['%s_%s_%sDown'%(proc,box,syst)] = tfile.Get('%s_%s_%sDown'%(proc,box,syst))
 
-    if options.forcomb:
-        dctpl = open("datacard_2017.tpl")
-    else:
-        dctpl = open("datacard.tpl")
+    dctpl = open("datacard.tpl")
     #dctpl = open("datacardZbb.tpl")
     #dctpl = open("datacardZonly.tpl")
 
@@ -101,8 +93,6 @@ def main(options,args):
         scaleptErrs = {}
         for box in boxes:
             for proc in (sigs+bkgs):
-                if options.forcomb and '2017' in proc:
-                    proc = proc.replace("2017","")
                 rate = histoDict['%s_%s'%(proc,box)].Integral(1, numberOfMassBins, i, i)
                 if rate>0:
                     rateJESUp = histoDict['%s_%s_JESUp'%(proc,box)].Integral(1, numberOfMassBins, i, i)
@@ -174,11 +164,7 @@ def main(options,args):
         mcStatStrings = {}
         mcStatGroupString = 'mcstat group ='
         mcstatsuffix  = options.suffix.lower().strip("_")
-        if options.forcomb:
-            qcdGroupString = 'qcd2017 group = qcd2017eff%s'%options.suffix
-        else:
-            #qcdGroupString = 'qcd group = qcdeff%s'%options.suffix
-            qcdGroupString = 'qcd group = '
+        qcdGroupString = 'qcd group = '
         for box in boxes:
             for proc in sigs+bkgs:
                 for j in range(1,numberOfMassBins+1):
@@ -189,7 +175,7 @@ def main(options,args):
                     
         for box in boxes:
             for proc in sigs+bkgs:
-                if proc=='qcd' or proc=='qcd2017':
+                if proc=='qcd' :
                     jesString += ' -'
                     jerString += ' -'
                     puString += ' -'
@@ -197,24 +183,24 @@ def main(options,args):
                     jesString += ' %.3f'%jesErrs['%s_%s'%(proc,box)]
                     jerString += ' %.3f'%jerErrs['%s_%s'%(proc,box)]
                     puString += ' %.3f'%puErrs['%s_%s'%(proc,box)]                        
-                if proc in ['qcd','tqq','qcd2017']:
+                if proc in ['qcd','tqq']:
                     if i > 1:
                         scaleptString += ' -'
                 else:
                     if i > 1:
                         scaleptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
-                if proc in ['qcd','tqq','wqq','qcd2017']:
+                if proc in ['qcd','tqq','wqq']:
                     bbString += ' -'
                 else:
                     bbString += ' %.3f'%bbErrs['%s_%s'%(proc,box)]
-                if proc in ['qcd','tqq','qcd2017']:
+                if proc in ['qcd','tqq']:
                     vString += ' -'
                 else:
                     vString += ' %.3f'%vErrs['%s_%s'%(proc,box)]
                 for j in range(1,numberOfMassBins+1):
                     for box1 in boxes:                    
                         for proc1 in sigs+bkgs:                            
-                            if proc1==proc and box1==box and proc!='qcd' and proc !='qcd2017':
+                            if proc1==proc and box1==box and proc!='qcd' :
                                 mcStatStrings['%s_%s'%(proc1,box1),i,j] += '\t%.3f'% mcstatErrs['%s_%s'%(proc,box),i,j]
                             else:                        
                                 mcStatStrings['%s_%s'%(proc1,box1),i,j] += '\t-'
@@ -223,8 +209,6 @@ def main(options,args):
         dctmp = open(options.odir+"/card_rhalphabet_%s.txt" % tag, 'w')
         for l in linel:
             if 'shapes qcd' in l:
-                newline = l+options.suffix
-            elif 'shapes qcd2017' in l:
                 newline = l+options.suffix
             elif 'JES' in l:
                 newline = jesString
@@ -269,9 +253,7 @@ def main(options,args):
             dctmp.write(newline + "\n")
         for box in boxes:
             for proc in sigs+bkgs:
-                if options.forcomb and '2017' in proc:
-                    proc = proc.replace("2017","")
-                if options.noMcStatShape and proc!='qcd' and proc!='qcd2017' and (proc, 'cat%i'%i, box) not in procsToRemove:
+                if options.noMcStatShape and proc!='qcd' and (proc, 'cat%i'%i, box) not in procsToRemove:
                     print 'include %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
                     dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,1].replace('mcstat1','mcstat') + "\n")
                     mcStatGroupString += ' %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
@@ -285,7 +267,7 @@ def main(options,args):
                         histo = histoDictLoose['%s_%s%s'%(proc,box,matchString)]
                     else:
                         histo = histoDict['%s_%s%s'%(proc,box,matchString)]
-                    if abs(histo.GetBinContent(j,i)) > 0. and histo.GetBinError(j,i) > 0.5*histo.GetBinContent(j,i) and proc!='qcd' and proc!='qcd2017':
+                    if abs(histo.GetBinContent(j,i)) > 0. and histo.GetBinError(j,i) > 0.5*histo.GetBinContent(j,i) and proc!='qcd':
                         massVal = histo.GetXaxis().GetBinCenter(j)
                         ptVal = histo.GetYaxis().GetBinLowEdge(i) + 0.3*(histo.GetYaxis().GetBinWidth(i))
                         rhoVal = r.TMath.Log(massVal*massVal/ptVal/ptVal)
@@ -299,15 +281,8 @@ def main(options,args):
                         print 'do not include %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
                         
         for im in range(numberOfMassBins):
-            if options.forcomb:
-                dctmp.write("qcd2017_fail_%s_Bin%i%s flatParam \n" % (tag,im+1,options.suffix))
-                qcdGroupString += ' qcd2017_fail_%s_Bin%i%s'%(tag,im+1,options.suffix)
-            else:
-                dctmp.write("qcd_fail_%s_Bin%i%s flatParam \n" % (tag,im+1,options.suffix))
-                qcdGroupString += ' qcd_fail_%s_Bin%i%s'%(tag,im+1,options.suffix)
-        if options.forcomb:
-            flatPars = ['r1p0', 'r2p0', 'r0p1', 'r1p1', 'r2p1', 'qcd2017eff']
-        else:
+            dctmp.write("qcd_fail_%s_Bin%i%s flatParam \n" % (tag,im+1,options.suffix))
+            qcdGroupString += ' qcd_fail_%s_Bin%i%s'%(tag,im+1,options.suffix)
             flatPars = ['p0r0','p0r1', 'p0r2', 'p1r0', 'p1r1', 'p1r2']
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
@@ -365,7 +340,6 @@ if __name__ == '__main__':
     parser.add_option('-o','--odir', dest='odir', default = 'cards/',help='directory to write cards', metavar='odir')
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default =False,help='signal comparison', metavar='isData')
     parser.add_option('--blind', action='store_true', dest='blind', default =False,help='blind signal region', metavar='blind')
-    parser.add_option('--for-comb', action='store_true', dest='forcomb', default =False,help='use 2017 qcd', metavar='forcomb')
     parser.add_option('--is2017', action='store_true', dest='is2017', default =False,help='use 2017 SF', metavar='is2017')
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
