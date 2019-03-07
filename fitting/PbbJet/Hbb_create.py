@@ -346,7 +346,8 @@ def get2017files(isMuonCR):
         	        	     idir_1501skim + 'JetHTRun2017B_17Nov2017_v1_*.root',
                              idir_1501skim + 'JetHTRun2017C_17Nov2017_v1_*.root',
                              idir_1501skim + 'JetHTRun2017D_17Nov2017_v1_*.root',
-                             idir_1501skim + 'JetHTRun2017E_17Nov2017_v1_*.root'
+                             idir_1501skim + 'JetHTRun2017E_17Nov2017_v1_*.root',
+                             idir_1501skim + 'JetHTRun2017F_17Nov2017_v1_*.rootnodupl.root'
                       ],
     }
     if isMuonCR:
