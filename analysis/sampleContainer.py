@@ -62,6 +62,7 @@ class sampleContainer:
                                              "(" + cutFormula + ")&&("+self._triggerCut+")&&(AK8Puppijet0_pt>%f||AK8Puppijet0_pt_JESDown>%f||AK8Puppijet0_pt_JESUp>%f||AK8Puppijet0_pt_JERUp>%f||AK8Puppijet0_pt_JERDown>%f)" % (
                                                  PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR), self._tt)
         self._isData = isData
+        self.SetExternalInputs(self.puOpt['data'])
         # print lumi
         # print self._NEv.GetBinContent(1)
         if isData:
@@ -99,27 +100,6 @@ class sampleContainer:
         # self._puppisd_corrRECO_cen = f_puppi.Get("puppiJECcorr_reco_0eta1v3")
         # self._puppisd_corrRECO_for = f_puppi.Get("puppiJECcorr_reco_1v3eta2v5")
 
-        f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
-        self._znlo = f_ZNLO.Get("NLO")
-        self._znlo.SetDirectory(0)
-        f_ZNLO.Close()
-
-        f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr.root"), "read")
-        self._wnlo = f_WNLO.Get("NLO")
-        self._wnlo.SetDirectory(0)
-        f_WNLO.Close()
-
-
-        f_pu = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/puWeights_All.root"), "read")
-        self._puw = f_pu.Get("puw")
-        self._puw_up = f_pu.Get("puw_p")
-        self._puw_down = f_pu.Get("puw_m")
-
-        self._puw.SetDirectory(0)
-        self._puw_up.SetDirectory(0)
-        self._puw_down.SetDirectory(0)
-        f_pu.Close()
-
         # get histogram for transform
         f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"),
                                   "read")  # GridOutput_v13_WP026.root # smooth version of the ddt ; exp is 4.45 vs 4.32 (3% worse)
@@ -127,56 +107,7 @@ class sampleContainer:
         self._trans_h2ddt.SetDirectory(0)
         f_h2ddt.Close()
 
-        # get trigger efficiency object
 
-        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
-        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
-        #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
-        #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
-
-        #NOTE: trigger weight for MC is set here, for data, weight_trig is set to 1 later
-        if self._triggerNames=={} or 'effRoot' not in self._triggerNames.keys():
-            print self._triggerNames.keys()
-            ## TODO: find 2016 triggerEff map file as default
-            print "Did not specify trigger eff root path in triggerNames, using default : $ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017_noPS.root"
-            f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017_noPS.root"), "read")
-            self._trig_denom = f_trig.Get("h_runBtoF_pass_Mu50")
-            self._trig_numer = f_trig.Get("h_runBtoF_pass_Main")
-        else:
-            print "Using triggerEff file = ",self._triggerNames['effRoot']
-            effRootPath = self._triggerNames['effRoot']
-            f_trig = ROOT.TFile.Open(os.path.expandvars(effRootPath), "read")
-            self._trig_denom = f_trig.Get("h_denom")
-            self._trig_numer = f_trig.Get("h_numer")
-        self._trig_denom.SetDirectory(0)
-        self._trig_numer.SetDirectory(0)
-        self._trig_eff = ROOT.TEfficiency()
-        if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
-            self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
-            self._trig_eff.SetDirectory(0)
-        f_trig.Close()
-
-        # get muon trigger efficiency object
-
-        lumi_GH = 16.146
-        lumi_BCDEF = 19.721
-        lumi_total = lumi_GH + lumi_BCDEF
-
-        f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root"), "read")
-        self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
-        self._mutrig_eff.Sumw2()
-        self._mutrig_eff.SetDirectory(0)
-        f_mutrig_BCDEF.Close()
-
-        # get muon ID efficiency object
-
-        with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/RunBCDEF_data_ID.json")) as ID_input_file:
-                self._muid_eff = json.load(ID_input_file)
-
-        # get muon ISO efficiency object
-
-      	with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/RunBCDEF_data_ISO.json")) as ISO_input_file:
-	    	self._muiso_eff = json.load(ISO_input_file)
 
 
         self._minBranches = minBranches
@@ -1682,6 +1613,103 @@ class sampleContainer:
             return "||".join(tCuts) 
         else:
             return "1"
+
+    def SetTriggerEff(self,year):
+
+        ### OLD code### 
+        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
+        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
+        #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
+        #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
+
+        if year=='2016':
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
+        elif year =="2017":
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
+        elif year =="2018":
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2018_Feb21.root"
+        else:
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
+
+        print "Using triggerEff file = ",effFile
+        f_trig = ROOT.TFile.Open(os.path.expandvars(effFile), "read")
+        self._trig_denom = f_trig.Get("h_denom")
+        self._trig_numer = f_trig.Get("h_numer")
+        self._trig_denom.SetDirectory(0)
+        self._trig_numer.SetDirectory(0)
+        self._trig_eff = ROOT.TEfficiency()
+        if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
+            self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
+            self._trig_eff.SetDirectory(0)
+        f_trig.Close()
+
+    def SetMuonEff(self,year):
+        if year=='2017':
+            f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root"), "read")
+            #self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
+            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff.Sumw2()
+            self._mutrig_eff.SetDirectory(0)
+            f_mutrig_BCDEF.Close()
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ID.json")) as ID_input_file:
+                    self._muid_eff = json.load(ID_input_file)
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ISO.json")) as ISO_input_file:
+                self._muiso_eff = json.load(ISO_input_file)
+        elif year=='2018':
+            f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_AfterHLTUpdate_SF_trig.root"), "read")
+            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_OR_OldMu100_OR_TkMu100_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff.Sumw2()
+            self._mutrig_eff.SetDirectory(0)
+            f_mutrig_BCDEF.Close()
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ID.json")) as ID_input_file:
+                self._muid_eff = json.load(ID_input_file)
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ISO.json")) as ISO_input_file:
+                self._muiso_eff = json.load(ISO_input_file)
+        elif year=='2016':
+            lumi_GH = 16.146
+            lumi_BCDEF = 19.721
+            lumi_total = lumi_GH + lumi_BCDEF
+            f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_BCDEF.root"), "read")
+            self._mutrig_eff_BCDEF = f_mutrig_BCDEF.Get("Mu50_OR_TkMu50_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff_BCDEF.Sumw2()
+            self._mutrig_eff_BCDEF.Scale(lumi_BCDEF/lumi_total)
+
+            f_mutrig_GH    = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_Period4"), "read")
+            self._mutrig_eff_GH = f_mutrig_GH.Get("Mu50_OR_TkMu50_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff_GH.Sumw2()
+            self._mutrig_eff_GH.Scale(lumi_GH / lumi_total)
+
+            self._mutrig_eff = self._mutrig_eff_BCDEF.Clone("pt_abseta_DATA_mutrig_ave")
+            self._mutrig_eff.Add(self._mutrig_eff_GH)
+            self._mutrig_eff.SetDirectory(0)
+
+
+    def SetExternalInputs(self,year):
+
+        #pre14 NLO W/Z k-factors files
+        f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
+        self._znlo = f_ZNLO.Get("NLO")
+        self._znlo.SetDirectory(0)
+        f_ZNLO.Close()
+        f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr.root"), "read")
+        self._wnlo = f_WNLO.Get("NLO")
+        self._wnlo.SetDirectory(0)
+        f_WNLO.Close()
+
+        f_pu = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/puWeights_All.root"), "read")
+        self._puw = f_pu.Get("puw")
+        self._puw_up = f_pu.Get("puw_p")
+        self._puw_down = f_pu.Get("puw_m")
+
+        self._puw.SetDirectory(0)
+        self._puw_up.SetDirectory(0)
+        self._puw_down.SetDirectory(0)
+        f_pu.Close()
+
+        self.SetTriggerEff(year)
+        self.SetMuonEff(year)
+
+        
     def getPuWeight(self,MC_pu,data_pu):
         if type(MC_pu)==type(ROOT.TH1F()):
             lpuMC = MC_pu
