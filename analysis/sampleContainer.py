@@ -31,7 +31,7 @@ AK4DCSVCUT=0.4941
 class sampleContainer:
     def __init__(self, name, fn, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
                  minBranches=False, iSplit = 0, maxSplit = 1, triggerNames={}, treeName='otree', 
-                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt={'MC':"12.04",'data':2016}):
+                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt={'MC':"12.04",'data':"2016"}):
         self._name = name
         self.DBTAGCUTMIN = DBTAGCUTMIN
         self.DBTAGCUT = doublebCut
@@ -1646,14 +1646,17 @@ class sampleContainer:
     def SetMuonEff(self,year):
         if year=='2017':
             f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root"), "read")
+            print "using muon eff SF :",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root")
             #self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
             self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/pt_abseta_ratio")
             self._mutrig_eff.Sumw2()
             self._mutrig_eff.SetDirectory(0)
             f_mutrig_BCDEF.Close()
             with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ID.json")) as ID_input_file:
-                    self._muid_eff = json.load(ID_input_file)
+                print "using muon ID SF :",ID_input_file
+                self._muid_eff = json.load(ID_input_file)
             with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ISO.json")) as ISO_input_file:
+                print "using muon ISO SF :",ISO_input_file
                 self._muiso_eff = json.load(ISO_input_file)
         elif year=='2018':
             f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_AfterHLTUpdate_SF_trig.root"), "read")
@@ -1662,19 +1665,22 @@ class sampleContainer:
             self._mutrig_eff.SetDirectory(0)
             f_mutrig_BCDEF.Close()
             with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ID.json")) as ID_input_file:
+                print "using muon ID SF :",ID_input_file
                 self._muid_eff = json.load(ID_input_file)
             with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ISO.json")) as ISO_input_file:
+                print "using muon ISO SF :",ISO_input_file
                 self._muiso_eff = json.load(ISO_input_file)
         elif year=='2016':
+            # From : https://github.com/kakwok/ZPrimePlusJet/commit/cd12688220ddbc944a9175d8c7f6368f680b02d4
             lumi_GH = 16.146
             lumi_BCDEF = 19.721
             lumi_total = lumi_GH + lumi_BCDEF
-            f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_BCDEF.root"), "read")
+            f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF.root"), "read")
             self._mutrig_eff_BCDEF = f_mutrig_BCDEF.Get("Mu50_OR_TkMu50_PtEtaBins/pt_abseta_ratio")
             self._mutrig_eff_BCDEF.Sumw2()
             self._mutrig_eff_BCDEF.Scale(lumi_BCDEF/lumi_total)
 
-            f_mutrig_GH    = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_Period4"), "read")
+            f_mutrig_GH    = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_Period4.root"), "read")
             self._mutrig_eff_GH = f_mutrig_GH.Get("Mu50_OR_TkMu50_PtEtaBins/pt_abseta_ratio")
             self._mutrig_eff_GH.Sumw2()
             self._mutrig_eff_GH.Scale(lumi_GH / lumi_total)
@@ -1682,6 +1688,13 @@ class sampleContainer:
             self._mutrig_eff = self._mutrig_eff_BCDEF.Clone("pt_abseta_DATA_mutrig_ave")
             self._mutrig_eff.Add(self._mutrig_eff_GH)
             self._mutrig_eff.SetDirectory(0)
+            # use 2017 ID and ISO SF for now
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ID.json")) as ID_input_file:
+                print "using muon ID SF :",ID_input_file
+                self._muid_eff = json.load(ID_input_file)
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ISO.json")) as ISO_input_file:
+                print "using muon ISO SF :",ISO_input_file
+                self._muiso_eff = json.load(ISO_input_file)
 
 
     def SetExternalInputs(self,year):
@@ -1696,6 +1709,7 @@ class sampleContainer:
         self._wnlo.SetDirectory(0)
         f_WNLO.Close()
 
+        # Old PU weight file used by 12.04 
         f_pu = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/puWeights_All.root"), "read")
         self._puw = f_pu.Get("puw")
         self._puw_up = f_pu.Get("puw_p")
