@@ -1647,8 +1647,7 @@ class sampleContainer:
         if year=='2017':
             f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root"), "read")
             print "using muon eff SF :",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root")
-            #self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
-            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
             self._mutrig_eff.Sumw2()
             self._mutrig_eff.SetDirectory(0)
             f_mutrig_BCDEF.Close()
@@ -1661,6 +1660,7 @@ class sampleContainer:
         elif year=='2018':
             f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_AfterHLTUpdate_SF_trig.root"), "read")
             self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_OR_OldMu100_OR_TkMu100_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_OR_OldMu100_OR_TkMu100_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
             self._mutrig_eff.Sumw2()
             self._mutrig_eff.SetDirectory(0)
             f_mutrig_BCDEF.Close()
