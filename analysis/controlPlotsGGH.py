@@ -536,18 +536,14 @@ def main(options,args,outputExists):
                     sys.exit()
         print "Signals... "
         sigSamples = {}
-        if year =='2017':
-            triggerNamesMC= {"effRoot":"$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"}
-        elif year=='2018':
-            triggerNamesMC= {"effRoot":"$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2018_Feb21.root"}
 
         if  year=='2017' or year=='2018':
-            sigSamples['ggHbb_amc']       = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-            sigSamples['ggHbb_amcHpT250'] = normSampleContainer('ggHbb_amcHpT250',tfiles['ggHbb_amcHpT250'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-            sigSamples['ggHbb']           = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-            sigSamples['VHbb']           = normSampleContainer('VHbb',tfiles['VHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-            sigSamples['VBFHbb']         = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
-            sigSamples['ttHbb']          = normSampleContainer('ttHbb',tfiles['ttHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+            sigSamples['ggHbb_amc']       = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            sigSamples['ggHbb_amcHpT250'] = normSampleContainer('ggHbb_amcHpT250',tfiles['ggHbb_amcHpT250'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            sigSamples['ggHbb']           = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+            sigSamples['VHbb']           = normSampleContainer('VHbb',tfiles['VHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+            sigSamples['VBFHbb']         = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+            sigSamples['ttHbb']          = normSampleContainer('ttHbb',tfiles['ttHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
         elif year=='2016':
             sigSamples['ggHbb']  = sampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt) 
             sigSamples['VBFHbb'] = sampleContainer('VBFHbb',tfiles['VBFHbb'], 1, DBTMIN,lumi ,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt) 
@@ -558,12 +554,12 @@ def main(options,args,outputExists):
         subwqqSamples={}
         subzqqSamples={}
         if  year=='2017' or year=='2018':
-            bkgSamples['W']         = normSampleContainer('W',tfiles['W'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC,   puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-            bkgSamples['DY']        = normSampleContainer('DY',tfiles['DY'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-            bkgSamples['TTbar']     = normSampleContainer('TTbar',tfiles['TTbar'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-            bkgSamples['SingleTop'] = normSampleContainer('SingleTop',tfiles['SingleTop'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-            bkgSamples['Diboson']   = normSampleContainer('Diboson',tfiles['Diboson'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-            bkgSamples['QCD']       = normSampleContainer('QCD',tfiles['QCD'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['W']         = normSampleContainer('W',tfiles['W'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,   puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['DY']        = normSampleContainer('DY',tfiles['DY'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['TTbar']     = normSampleContainer('TTbar',tfiles['TTbar'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['SingleTop'] = normSampleContainer('SingleTop',tfiles['SingleTop'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['Diboson']   = normSampleContainer('Diboson',tfiles['Diboson'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+            bkgSamples['QCD']       = normSampleContainer('QCD',tfiles['QCD'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
         elif year=='2016':
             bkgSamples['W']  = sampleContainer('W',tfiles['W'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt)
             bkgSamples['DY']  = sampleContainer('DY',tfiles['DY'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt)
@@ -574,8 +570,8 @@ def main(options,args,outputExists):
 
         if isData and muonCR:
             if year=='2017' or year=='2018':
-                bkgSamples['Wlnu']  = normSampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-                bkgSamples['DYll']  = normSampleContainer('DYll',tfiles['DYll'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNamesMC, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+                bkgSamples['Wlnu']  = normSampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+                bkgSamples['DYll']  = normSampleContainer('DYll',tfiles['DYll'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
             elif year =='2016':
                 bkgSamples['Wlnu']  = sampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt)
                 bkgSamples['DYll']  = sampleContainer('DYll',tfiles['DYll'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt)
@@ -600,7 +596,7 @@ def main(options,args,outputExists):
                                "HLT_PFJet500_v*",
                                "HLT_AK8PFJet500_v*"],
                       }
-                dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, "passJson", False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNames,doublebName='AK8Puppijet0_deepdoubleb')
+                dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, "passJson", False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt, triggerNames=triggerNames,doublebName='AK8Puppijet0_deepdoubleb')
             elif year=='2018':
                 triggerNames={"version":"zprimebit-15.01","branchName":"triggerBits",
                           "names":[
@@ -614,7 +610,7 @@ def main(options,args,outputExists):
                                "HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v*",
                         ],
                       }
-                dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, "passJson", False, iSplit = i_split, maxSplit = max_split, triggerNames=triggerNames,doublebName='AK8Puppijet0_deepdoubleb')
+                dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, "passJson", False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,triggerNames=triggerNames,doublebName='AK8Puppijet0_deepdoubleb')
             elif year=='2016':
                 dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, '((triggerBits&2)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt)
         
@@ -742,6 +738,7 @@ if __name__ == '__main__':
         outputExists = True
         
     main(options,args,outputExists)
+    print "All done"
 ##----##----##----##----##----##----##
 
 
