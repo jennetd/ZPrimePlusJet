@@ -835,13 +835,15 @@ def makeCanvasComparisonStack(hs,hb,legname,color,style,nameS,outname,pdir="plot
     return c
 
 
-def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="plots",lumi=30,ofile=None,normalize=True,ratio=True):
+def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="plots",lumi=30,ofile=None,normalize=True,ratio=True,muonCR=False):
     ttbarInt = 0
     ttbarErr = 0
     ttbarErr2 = 0
     otherInt = 0
     otherErr = 0
     otherErr2 = 0
+    if muonCR:#do not scale QCD to data, apply overall k-factor 0.78
+        qcdkFactor = 0.78
     print "========== Background composition ==========="
     for name, h in sorted(hb.iteritems(),key=lambda (k,v): v.Integral()):            
         error = array.array('d',[0.0])
@@ -850,8 +852,11 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
         if 'TTbar' in name:
             ttbarInt += integral
             ttbarErr2 += error[0]*error[0]
-        else:
-            otherInt += integral
+        elif 'QCD' in name:
+            if muonCR:
+                otherInt += integral*qcdkFactor #scale QCD by 0.78
+            else:
+                otherInt += integral 
             otherErr2 += error[0]*error[0]
 
     ttbarErr = sqrt(ttbarErr2)
@@ -878,9 +883,9 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
 
     hstack = ROOT.THStack("hstack","hstack")
     for name, h in sorted(hb.iteritems(),key=lambda (k,v): v.Integral()):
-        #if 'TTbar' in name:
-        #    print 'scaling %s by k = %f'%(name, kTTbar)
-        #    h.Scale(kTTbar)
+        if 'TTbar' in name and muonCR:
+            print 'scaling %s by k = %f'%(name, kTTbar)
+            h.Scale(kTTbar)
         hstack.Add(h)
         h.SetFillColor(color[name])
         h.SetLineColor(1)
@@ -900,7 +905,8 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
     if normalize:
     	for name, h in sorted(hb.iteritems(),key=lambda (k,v): v.Integral()): 
    	     if 'QCD' in name:	
-    		h.Scale( scalefactor );
+    		if muonCR:        h.Scale( qcdkFactor);
+    		else     : h.Scale( scalefactor );
     hstack2 = ROOT.THStack("hstack2","hstack2");
     for name, h in sorted(hb.iteritems(),key=lambda (k,v): v.Integral()):	
 	hstack2.Add(h);
@@ -941,10 +947,15 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
     count=1
     for name, h in sorted(hb.iteritems(),key=lambda (k,v): -v.Integral()):
         if count <4: 
-		if name in 'QCD': leg.AddEntry(h,legname[name]+" (k-factor %.2f)"%scalefactor,"f")
-		else : leg.AddEntry(h,legname[name],"f")
-	elif count >3 and count<7 : leg2.AddEntry(h,legname[name],"f")
-	elif count >6 : leg3.AddEntry(h,legname[name],"f")
+            if muonCR: #muonCR legend
+                if name in 'TTbar' : leg.AddEntry(h,legname[name]+" (k-factor %.2f)"%kTTbar,"f")
+                elif name in 'QCD' : leg.AddEntry(h,legname[name]+" (k-factor %.2f)"%qcdkFactor,"f")
+                else : leg.AddEntry(h,legname[name],"f")
+            else:          #JetHT lengen
+                if name in 'QCD' : leg.AddEntry(h,legname[name]+" (k-factor %.2f)"%scalefactor,"f")
+                else : leg.AddEntry(h,legname[name],"f")
+        elif count >3 and count<7 : leg2.AddEntry(h,legname[name],"f")
+        elif count >6 : leg3.AddEntry(h,legname[name],"f")
         count = count+1
     for name, h in sorted(hs.iteritems(),key=lambda (k,v): -v.Integral()):
       if 'ggH' in name:
@@ -975,8 +986,8 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
     oben.cd()
  
     hstack2.Draw('hist')
-    hstack2.SetMaximum(10*maxval)
     hstack2.SetMinimum(1.)
+    hstack2.SetMaximum(10*maxval)
     hstack2.GetYaxis().SetRangeUser(1.,10*maxval)
     hstack2.GetYaxis().SetTitle('Events')
     hstack2.GetYaxis().SetTitleOffset(1.0)	
@@ -1100,15 +1111,13 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
     c.SaveAs(pdir+"/"+outname+".pdf")
     c.SaveAs(pdir+"/"+outname+".root")
     oben.SetLogy()
-
-
     c.SaveAs(pdir+"/"+outname+"_log.pdf")
     c.SaveAs(pdir+"/"+outname+"_log.root")
+
 
     if ofile is not None:
         ofile.cd()
         c.Write('c'+outname)
-
     
     return c        
 

@@ -14,9 +14,9 @@ from sampleContainer import *
 from normSampleContainer import *
 DBTMIN=-99
 #
-def makePlots(plot,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases):
+def makePlots(plot,hs,hb,hd,hall,legname,color,style,isData,muonCR,odir,lumi,ofile,canvases):
     if isData:
-        c = makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,plot.replace('h_','stack_'),odir,lumi,ofile)
+        c = makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,plot.replace('h_','stack_'),odir,lumi,ofile,True,True,muonCR)
         canvases.append(c)	
     else:
         c = makeCanvasComparisonStack(hs,hb,legname,color,style,'ggHbb',plot.replace('h_','stack_'),odir,lumi,False,ofile)
@@ -701,7 +701,7 @@ def main(options,args,outputExists):
             elif isData:
                 hd = ofile.Get(plot.replace('h_','h_data_'))
             print plot
-            makePlots(plot,hs,hb,hd,hall,legname,color,style,isData,odir,lumi,ofile,canvases)
+            makePlots(plot,hs,hb,hd,hall,legname,color,style,isData,muonCR,odir,lumi,ofile,canvases)
         
 
 
