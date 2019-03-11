@@ -36,9 +36,9 @@ def main(options,args):
         tfile_loose = r.TFile.Open(options.ifile_loose)
         
     boxes = ['pass', 'fail']
+    #Has to follow the ordering in template datacard
     sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
-    bkgs = ['zqq','wqq','tqq']
-    bkgs.append('qcd')
+    bkgs = ['zqq','wqq','qcd','tqq']
     systs = ['JER','JES','Pu']
 
     removeUnmatched = options.removeUnmatched
