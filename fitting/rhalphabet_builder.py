@@ -971,7 +971,7 @@ class RhalphabetBuilder():
                     rhoRange = [self._rho_lo ,self._rho_hi]
                     blindRange=[self._mass_blind_lo, self._mass_blind_hi]
                     massHistRange = [self._mass_hist_lo, self._mass_hist_hi]
-                    ZeroHistogram1D(h,pt_val,self._blind, massHistRange, blindRange,rhoRange)
+                    ZeroHistogram1D(h,pt_val, blind = self._blind, mass_range = massHistRange, blind_range = blindRange,rho_range = rhoRange)
                     
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
@@ -1079,7 +1079,7 @@ class RhalphabetBuilder():
                     rhoRange = [self._rho_lo ,self._rho_hi]
                     blindRange=[self._mass_blind_lo, self._mass_blind_hi]
                     massHistRange = [self._mass_hist_lo, self._mass_hist_hi]
-                    ZeroHistogram1D(h,pt_val,self._blind, massHistRange, blindRange,rhoRange)
+                    ZeroHistogram1D(h,pt_val, blind = self._blind, mass_range = massHistRange, blind_range = blindRange,rho_range = rhoRange)
 
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
