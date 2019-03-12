@@ -28,7 +28,7 @@ from hist import *
 class RhalphabetBuilder():
     def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
-                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={}):
+                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201):
         self._pass_hists = pass_hists
         self._fail_hists = fail_hists
         self._mass_fit = mass_fit
@@ -50,6 +50,8 @@ class RhalphabetBuilder():
         self._mass_nbins = mass_nbins
         self._mass_lo = mass_lo
         self._mass_hi = mass_hi
+        self._mass_hist_lo = mass_hist_lo
+        self._mass_hist_hi = mass_hist_hi
         self._blind = blind
         self._mass_blind_lo = blind_lo
         self._mass_blind_hi = blind_hi
@@ -965,24 +967,12 @@ class RhalphabetBuilder():
                         hout.append(myhist)
                 # blind if necessary and output to workspace
                 for h in hout:
-                    for i in range(1, h.GetNbinsX() + 1):
-                        massVal = h.GetXaxis().GetBinCenter(i)
-                        rhoVal = r.TMath.Log(massVal * massVal / pt_val / pt_val)
-                        if self._blind and massVal > self._mass_blind_lo and massVal < self._mass_blind_hi:
-                            print "blinding signal region for %s, mass bin [%i,%i] " % (
-                                h.GetName(), h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
-                            h.SetBinContent(i, 0.)
-                            h.SetBinError(i, 0.)
-                        if rhoVal < self._rho_lo or rhoVal > self._rho_hi:
-                            print "removing rho = %.2f for %s, pt_val = %.2f, mass bin [%i,%i]" % (
-                                rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i),
-                                h.GetXaxis().GetBinUpEdge(i))
-                            h.SetBinContent(i, 0.)
-                            h.SetBinError(i, 0.)
-                        if massVal < 47 :
-                            print "removing mass = %.2f for %s, because %.2f not in [%i,%i]" % (massVal,h.GetName(),massVal,self._mass_lo, self._mass_hi)
-                            h.SetBinContent(i, 0.)
-                            h.SetBinError(i, 0.)
+                    #Zero sys. histogram contents
+                    rhoRange = [self._rho_lo ,self._rho_hi]
+                    blindRange=[self._mass_blind_lo, self._mass_blind_hi]
+                    massHistRange = [self._mass_hist_lo, self._mass_hist_hi]
+                    ZeroHistogram1D(h,pt_val,self._blind, massHistRange, blindRange,rhoRange)
+                    
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
                     # validation
@@ -1085,22 +1075,11 @@ class RhalphabetBuilder():
                         hmatchedsys_smear[1]]
                 # blind if necessary and output to workspace
                 for h in hout:
-                    for i in range(1, h.GetNbinsX() + 1):
-                        massVal = h.GetXaxis().GetBinCenter(i)
-                        rhoVal = r.TMath.Log(massVal * massVal / pt_val / pt_val)
-                        if self._blind and massVal > self._mass_blind_lo and massVal < self._mass_blind_hi:
-                            print "blinding signal region for %s, mass bin [%i,%i] " % (
-                                h.GetName(), h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
-                            h.SetBinContent(i, 0.)
-                        if rhoVal < self._rho_lo or rhoVal > self._rho_hi:
-                            print "removing rho = %.2f for %s, pt_val = %.2f, mass bin [%i,%i]" % (
-                                rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i),
-                                h.GetXaxis().GetBinUpEdge(i))
-                            h.SetBinContent(i, 0.)
-                        if massVal < 47 :
-                            print "removing mass = %.2f for %s, because %.2f not in [%i,%i]" % (massVal,h.GetName(),massVal,self._mass_lo, self._mass_hi)
-                            h.SetBinContent(i, 0.)
-                            h.SetBinError(i, 0.)
+                    #Zero sys. histogram contents
+                    rhoRange = [self._rho_lo ,self._rho_hi]
+                    blindRange=[self._mass_blind_lo, self._mass_blind_hi]
+                    massHistRange = [self._mass_hist_lo, self._mass_hist_hi]
+                    ZeroHistogram1D(h,pt_val,self._blind, massHistRange, blindRange,rhoRange)
 
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
@@ -1125,13 +1104,30 @@ class RhalphabetBuilder():
         workspace.Print()
         # workspace.writeToFile(output_path)   
 
-
 ##############################################################################
 ##############################################################################
 #### E N D   O F   C L A S S
 ##############################################################################
 ##############################################################################
 
+def ZeroHistogram1D(h,pt_val,blind,mass_range,blind_range,rho_range):
+    for i in range(1, h.GetNbinsX() + 1):
+        massVal = h.GetXaxis().GetBinCenter(i)
+        rhoVal = r.TMath.Log(massVal * massVal / pt_val / pt_val)
+        if blind and massVal > blind_range[0] and massVal < blind_range[1]:
+            print "blinding signal region for %s, mass bin [%i,%i] " % (h.GetName(), h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
+            h.SetBinContent(i, 0.)
+            h.SetBinError(i, 0.)
+        if rhoVal < rho_range[0] or rhoVal > rho_range[1]:
+            print "removing rho = %.2f for %s, pt_val = %.2f, mass bin [%i,%i]" % (rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i),h.GetXaxis().GetBinUpEdge(i))
+            h.SetBinContent(i, 0.)
+            h.SetBinError(i, 0.)
+        if massVal < mass_range[0] or massVal > mass_range[1] :
+            print "removing mass = %.2f for %s, because %.2f not in [%i,%i]" % (massVal,h.GetName(),massVal,mass_range[0], mass_range[1])
+            h.SetBinContent(i, 0.)
+            h.SetBinError(i, 0.)
+
+    
 ##-------------------------------------------------------------------------------------
 def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={}):
     pass_hists = {}
