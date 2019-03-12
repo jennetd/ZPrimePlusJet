@@ -24,7 +24,6 @@ MUONPTCUT = 55
 METCUT = 140
 MASSCUT = 40
 NJETCUT = 100
-AK4DCSVCUT=0.4941
 
 
 #########################################################################################################
@@ -1022,9 +1021,11 @@ class sampleContainer:
                 #2017 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
                 #2018 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
                 if self.puOpt['data']=='2017':
+                    AK4DCSVCUT=0.4941
                     if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4941:
                         n_MdR0p8_4+=1
                 elif self.puOpt['data']=='2018':
+                    AK4DCSVCUT=0.4184
                     if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4184:
                         n_MdR0p8_4+=1
                     
