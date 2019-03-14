@@ -19,24 +19,92 @@ def end():
             if 1 < len(rep):
                 rep = rep[0]
 
-def plotgaus(iFName,injet,iLabel):
-    lCan   = r.TCanvas(str(iLabel),str(iLabel),800,600)
+def plotgaus(iFName,injet,iLabel,options):
+    lCan   = r.TCanvas(str(iLabel),str(iLabel),500,400)
+    lCan.SetLeftMargin(0.12) 
+    lCan.SetBottomMargin(0.15)
+    lCan.SetTopMargin(0.12)
     lFile = r.TFile(iFName)
-    lTree = lFile.Get("tree_fit_sb")
-    lH    = r.TH1F("h","h",100,-20,20)
-    lTree.Draw("(mu-%i)/muErr>>h" % injet)
-    lH.Fit("gaus")
-    lH.GetXaxis().SetTitle("(#mu_{i}-#bar{#mu})/#sigma")
-    lH.GetFunction("gaus").SetLineColor(2)
-    lH.GetFunction("gaus").SetLineStyle(2)
+    lTree = lFile.Get("tree_fit_sb")    
+    
+    lH = r.TH1D('h_bias','h_bias',50,-4,4)
+    lH_1 = r.TH1D('h_bias_1','h_bias',50,-4,4)
+    lH_2 = r.TH1D('h_bias_2','h_bias',50,-4,4)
+    print 'Entries ',lTree.GetEntriesFast()
+    #tree_fit_sb->Draw("mu-muLoErr","(mu-muLoErr)>-50+1")
+    #lTree.Project('h_bias','(mu-%s)/muErr'% injet,'(muHiErr+mu)<%i-1&&(mu-muLoErr)>%i'%(int(options.rMax)-1,int(options.rMin)+1))
+    #lTree.Project('h_bias_1','(mu-%s)/muLoErr'% injet,'mu>%s&&(muHiErr+mu)<%i&&(mu-muLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
+    #lTree.Project('h_bias_2','(mu-%s)/muHiErr'% injet,'mu<%s&&(muHiErr+mu)<%i&&(mu-muLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
+    lTree.Project('h_bias_1','(r-%s)/rLoErr'% injet,'r>%s&&(rHiErr+r)<%i&&(r-rLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
+    lTree.Project('h_bias_2','(r-%s)/rHiErr'% injet,'r<%s&&(rHiErr+r)<%i&&(r-rLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
+    lH = lH_1
+    lH.Add(lH_2)
+    gaus_func = r.TF1("gaus_func","gaus(0)",-4,4)
+    gaus_func.SetParameter(0,20)
+    gaus_func.SetParameter(1,0)
+    gaus_func.SetParameter(2,1)
+    lH.Fit(gaus_func,"mler")
+    gaus_func.Draw("same")
+    lH.GetXaxis().SetTitle("Bias (#hat{#mu} - #mu)/#sigma_{#mu}")
+    lH.GetYaxis().SetTitle("Pseudoexperiments")
+    lH.GetYaxis().SetTitleOffset(0.8)
+    gaus_func.SetLineColor(r.kRed)
+    gaus_func.SetLineStyle(2)
+    lH.SetMaximum(2.*lH.GetMaximum())
     lH.Draw("ep")
-    lH.GetFunction("gaus").Draw("sames")
+    gaus_func.Draw("sames")
     lH.Draw("ep sames")
+
+    
+    tLeg = r.TLegend(0.5,0.6,0.89,0.89)
+    tLeg.SetLineColor(r.kWhite)
+    tLeg.SetLineWidth(0)
+    tLeg.SetFillStyle(0)
+    tLeg.SetTextFont(42)
+    tLeg.AddEntry(lH,"#splitline{Pseudodata}{%s (%s GeV) #mu=%s}"%('DMSbb', options.mass, options.r),"lep")
+    tLeg.AddEntry(gaus_func,"#splitline{Gaussian fit}{mean = %+1.2f, s.d. = %1.2f}"%(gaus_func.GetParameter(1),gaus_func.GetParameter(2)),"l")
+    tLeg.Draw("same")
+
+    
+    l = r.TLatex()
+    l.SetTextAlign(11)
+    l.SetTextSize(0.06)
+    l.SetTextFont(62)
+    l.SetNDC()
+    l.DrawLatex(0.12,0.91,"CMS")
+    l.SetTextSize(0.05)
+    l.SetTextFont(52)
+    l.DrawLatex(0.23,0.91,"Preliminary")
+    l.SetTextFont(42)
+    l.DrawLatex(0.77,0.91,"%.1f (13 TeV)"%options.lumi)
+    l.SetTextFont(52)
+    l.SetTextSize(0.045)
+
+    pdf_dict = {'r5p5':'(n_{#rho}=5,n_{p_{T}}=5)',
+                'r5p1':'(n_{#rho}=5,n_{p_{T}}=1)',
+                'r5p2':'(n_{#rho}=5,n_{p_{T}}=2)',
+                'r6p1':'(n_{#rho}=6,n_{p_{T}}=1)',
+                'r4p1':'(n_{#rho}=4,n_{p_{T}}=1)',
+                'r3p1':'(n_{#rho}=3,n_{p_{T}}=1)',
+                'r2p1':'(n_{#rho}=2,n_{p_{T}}=1)',
+                }
+
+    pdf_key1 = 'r2p1'
+    pdf_key2 = 'r2p1'
+    for key, value in pdf_dict.iteritems():
+        if key+'_vs' in iLabel:
+            pdf_key1 = key
+        elif key+'_m%s_r%s'%(options.mass,options.r) in iLabel:
+            pdf_key2 = key
+    l.DrawLatex(0.15,0.82,'gen. pdf = %s'%pdf_dict[pdf_key2])
+    l.DrawLatex(0.15,0.75,'fit pdf = %s'%pdf_dict[pdf_key1])
+    
     lCan.Modified()
     lCan.Update()
-    lCan.SaveAs(iLabel+".png")
-    lCan.SaveAs(iLabel+".pdf")
+    lCan.SaveAs(options.odir+'/'+iLabel+".pdf")
+    lCan.SaveAs(options.odir+'/'+iLabel+".C")
     #end()
+
 
 def plotftest(iToys,iCentral,prob,iLabel,options):
     lCan   = r.TCanvas(str(iLabel),str(iLabel),800,600)    
@@ -200,10 +268,14 @@ def ftest(base,alt,ntoys,iLabel,options):
         nToys1 = len(glob.glob("%s/toys1_*.root"%(options.odir)))
         nToys2 = len(glob.glob("%s/toys2_*.root"%(options.odir)))
         if nToys1==nToys2:
-            print "Found %s toy files",nToys1
+            print "Found %s toy files"%nToys1
             nllToys=[] 
             for i in range(0,nToys1):
-                nllToys += (fStat("%s/toys1_%s.root"%(options.odir,i),"%s/toys2_%s.root"%(options.odir,i),options.p1,options.p2,options.n))
+                if not os.path.exists("%s/toys1_%s.root"%(options.odir,i)):
+                    print "cannot find job %i, skipping it"%i
+                else:
+                    print "="*20 +" job %i "%i+"="*20
+                    nllToys += (fStat("%s/toys1_%s.root"%(options.odir,i),"%s/toys2_%s.root"%(options.odir,i),options.p1,options.p2,options.n))
         else:
             print "Using these toys input %s/toys1.root and %s/toys2.root"%(options.odir,options.odir)
             nllToys=fStat("%s/toys1.root"%(options.odir),"%s/toys2.root"%(options.odir),options.p1,options.p2,options.n)
@@ -239,12 +311,25 @@ def goodness(base,ntoys,iLabel,options):
     plotftest(nllToys,nllBase[0],float(lPass)/float(len(nllToys)),iLabel,options)
     return float(lPass)/float(len(nllToys))
 
-def bias(base,alt,ntoys,mu,iLabel):
-    exec_me('combine -M GenerateOnly     %s --rMax 20 --rMin -20 -t %i --expectSignal %i --saveToys ' % (alt,ntoys,mu))
-    exec_me('combine -M MaxLikelihoodFit %s --rMax 20 --rMin -20 -t %i --saveNLL --toysFile higgsCombineTest.GenerateOnly.mH120.123456.root'  % (base,ntoys))
-    exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
-    exec_me('mv  mlfit.root toys.root')
-    plotgaus("toys.root",mu,"pull"+iLabel)
+def bias(base,alt,ntoys,mu,iLabel,options):
+    if not options.justPlot:
+        generate_base ="combine -M GenerateOnly %s --toysFrequentist --saveToys -n %s --redefineSignalPOIs r"%(alt,iLabel)
+        generate_base += " -t %s --expectSignal %i -s %s "%(ntoys,mu,options.seed) 
+        generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
+        generate_base += " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
+        
+        exec_me(generate_base,options.dryRun)
+        fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s --saveNLL --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
+        fitDiag_base+= ' -t %s -s %s '%(ntoys,options.seed)
+        fitDiag_base+= " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
+        fitDiag_base += " --freezeParameters %s "%(options.freezeNuisances) 
+
+        exec_me(fitDiag_base ,options.dryRun)
+        #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
+        exec_me('mv  fitDiagnostics%s.root %s/biastoys_%s_%s.root'%(iLabel, options.odir, iLabel, options.seed), options.dryRun)
+    if options.dryRun: sys.exit()
+    #plotgaus("toys.root",mu,"pull"+iLabel)
+    plotgaus("%s/biastoys_%s_%s.root"%(options.odir,iLabel,options.seed),mu,"pull"+iLabel+"_"+str(options.seed),options)
 
 def fit(base,options):
     exec_me('combine -M MaxLikelihoodFit %s -v 2 --freezeParameters tqqeffSF,tqqnormSF --rMin=-20 --rMax=20 --saveNormalizations --plot --saveShapes --saveWithUncertainties --minimizerTolerance 0.001 --minimizerStrategy 2'%base)
@@ -364,3 +449,7 @@ if __name__ == "__main__":
     elif options.method=='FTest':
         iLabel= 'ftest_%s_vs_%s'%(options.datacard.split('/')[-1].replace('.root',''),options.datacardAlt.split('/')[-1].replace('.root',''))
         ftest(options.datacard, options.datacardAlt, options.toys, iLabel, options)
+    elif options.method=='Bias':
+        #iLabel= 'bias_%s_vs_%s_r%s'%(options.datacard.split('/')[-1].replace('.root',''),options.datacardAlt.split('/')[-1].replace('.root',''),options.r)
+        iLabel= 'bias_self_r%i'%(options.r)
+        bias(options.datacard, options.datacardAlt, options.toys, options.r, iLabel, options)

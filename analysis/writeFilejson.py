@@ -28,7 +28,9 @@ def expandPath(fdict):
             d={} 
             for subSname,subpaths in subSample.iteritems():
                 expandedPath = expand(subpaths) 
-                if len(expandedPath)==0:            print "ERROR: %s has no files"%(subSname)
+                if len(expandedPath)==0:
+                    print "ERROR: %s has no files"%(subSname)
+                    print "Trying to expand path with %s"%subpaths
                 d[subSname] = expandedPath 
             rdict[sample] =  d
     return rdict
@@ -39,13 +41,16 @@ def main(options,args):
         print "Writing to ", os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json")
     finaljson = {}
     finaljson['controlPlotsGGH_2017']      = expandPath(controlPlotsGGH.get2017files()) 
+    finaljson['controlPlotsGGH_2018']      = expandPath(controlPlotsGGH.get2018files()) 
     finaljson['Hbb_create_2017']           = expandPath(Hbb_create.get2017files(False)) 
     finaljson['Hbb_create_2017_muCR']      = expandPath(Hbb_create.get2017files(True)) 
+    finaljson['Hbb_create_2018']           = expandPath(Hbb_create.get2018files(False)) 
+    finaljson['Hbb_create_2018_muCR']      = expandPath(Hbb_create.get2018files(True)) 
     if not options.printOnly:
         outf.write((json.dumps(finaljson,indent=4)))
     else:
         print (json.dumps(finaljson,indent=4,sort_keys=True))
-    for key,tfiles in finaljson.iteritems():
+    for key,tfiles in sorted(finaljson.iteritems()):
         print "list of samples used by %s =  "%key, sorted(tfiles.keys())
 
 

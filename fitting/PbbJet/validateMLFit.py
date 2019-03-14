@@ -37,6 +37,9 @@ def main(options, args):
     histograms_fail_summed = {}
 
     shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125', 'data']
+    bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
+    sigshapes=['hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
+    
 
     for i in range(len(pt_binBoundaries) - 1):
         print i
@@ -45,9 +48,9 @@ def main(options, args):
         histograms_fail_all[i] = {}
         for shape in shapes:
             for hist in tmppass:
-                if re.match(shape,hist.GetName()): histograms_pass_all[i][shape] = hist
+                if hist != None and re.match(shape,hist.GetName()): histograms_pass_all[i][shape] = hist
             for hist in tmpfail:
-                if re.match(shape,hist.GetName()): histograms_fail_all[i][shape] = hist
+                if hist !=None and re.match(shape,hist.GetName()): histograms_fail_all[i][shape] = hist
 
     pass_2d = {}
     fail_2d = {}
@@ -60,8 +63,8 @@ def main(options, args):
                                 array.array('d', pt_binBoundaries))
         for i in range(1, pass_2d[shape].GetNbinsX() + 1):
             for j in range(1, pass_2d[shape].GetNbinsY() + 1):
-                pass_2d[shape].SetBinContent(i, j, histograms_pass_all[j - 1][shape].GetBinContent(i))
-                fail_2d[shape].SetBinContent(i, j, histograms_fail_all[j - 1][shape].GetBinContent(i))
+                if shape in histograms_pass_all[j - 1].keys(): pass_2d[shape].SetBinContent(i, j, histograms_pass_all[j - 1][shape].GetBinContent(i))
+                if shape in histograms_fail_all[j - 1].keys(): fail_2d[shape].SetBinContent(i, j, histograms_fail_all[j - 1][shape].GetBinContent(i))
 
     pass_2d_data_subtract = pass_2d['data'].Clone('data_pass_2d_subtract')
     fail_2d_data_subtract = fail_2d['data'].Clone('data_fail_2d_subtract')
@@ -82,17 +85,37 @@ def main(options, args):
                 ratio_2d_data_subtract.SetBinContent(i, j, 0)
 
     for shape in shapes:
+        if not shape in histograms_pass_all[0].keys(): continue
         histograms_pass_summed[shape] = histograms_pass_all[0][shape].Clone(shape + '_pass_sum')
+        for i in range(1, len(pt_binBoundaries)-1):
+            if not shape in histograms_pass_all[i].keys(): continue
+            histograms_pass_summed[shape].Add(histograms_pass_all[i][shape])
+    for shape in shapes:
+        if not shape in histograms_fail_all[0].keys(): continue
         histograms_fail_summed[shape] = histograms_fail_all[0][shape].Clone(shape + '_fail_sum')
         for i in range(1, len(pt_binBoundaries)-1):
-            histograms_pass_summed[shape].Add(histograms_pass_all[i][shape])
+            if not shape in histograms_fail_all[i].keys(): continue
             histograms_fail_summed[shape].Add(histograms_fail_all[i][shape])
 
-    histograms_pass_summed_list = []
-    histograms_fail_summed_list = []
+    histograms_pass_summed_list = {"bkg":[],"sig":[]}
+    histograms_fail_summed_list = {"bkg":[],"sig":[]}
     for shape in shapes:
-        histograms_pass_summed_list.append(histograms_pass_summed[shape])
-        histograms_fail_summed_list.append(histograms_fail_summed[shape])
+        if shape in histograms_pass_summed.keys():
+            if shape in bkgshapes:
+                histograms_pass_summed_list['bkg'].append(histograms_pass_summed[shape])
+            if shape in sigshapes:
+                histograms_pass_summed_list['sig'].append(histograms_pass_summed[shape])
+            if shape in ['data']:
+                histograms_pass_summed_list['data']=histograms_pass_summed[shape]
+            
+        if shape in histograms_fail_summed.keys():
+            if shape in bkgshapes:
+                histograms_fail_summed_list['bkg'].append(histograms_fail_summed[shape])
+            if shape in sigshapes:
+                histograms_fail_summed_list['sig'].append(histograms_fail_summed[shape])
+            if shape in ['data']:
+                histograms_fail_summed_list['data']=histograms_fail_summed[shape]
+ 
 
     rBestFit = 1
     # print out fit results
@@ -101,12 +124,21 @@ def main(options, args):
         lParams = []
         #lParams.append("qcdeff")
         # for r2p1 polynomial
-        lParams.append("p0r0")
-        lParams.append("p0r1")  
-        lParams.append("p0r2")  
-        lParams.append("p1r0")  
-        lParams.append("p1r1")  
-        lParams.append("p1r2")
+        if options.suffix is not "":
+            lParams.append("p0r0_"+options.suffix)
+            lParams.append("p0r1_"+options.suffix)  
+            lParams.append("p0r2_"+options.suffix)  
+            lParams.append("p1r0_"+options.suffix)  
+            lParams.append("p1r1_"+options.suffix)  
+            lParams.append("p1r2_"+options.suffix)
+        else:
+            lParams.append("p0r0")
+            lParams.append("p0r1")  
+            lParams.append("p0r2")  
+            lParams.append("p1r0")  
+            lParams.append("p1r1")  
+            lParams.append("p1r2")
+
 
         pars = [0.012072]
         for p in lParams:
@@ -129,12 +161,12 @@ def main(options, args):
 
     #print "sum ",histograms_pass_summed_list[0:4], histograms_pass_summed_list[9], histograms_pass_summed_list[4:9]
 
-    [histograms_pass_summed_list] = makeMLFitCanvas(histograms_pass_summed_list[0:4], histograms_pass_summed_list[9],
-                                                    histograms_pass_summed_list[4:9], shapes,
+    [histograms_pass_summed_list] = makeMLFitCanvas(histograms_pass_summed_list['bkg'], histograms_pass_summed_list['data'],
+                                                    histograms_pass_summed_list['sig'], shapes,
                                                     "pass_allcats_" + options.fit, options.odir, rBestFit,
                                                     options.sOverSb, options.splitS, options.ratio)
-    [histograms_fail_summed_list] = makeMLFitCanvas(histograms_fail_summed_list[0:4], histograms_fail_summed_list[9],
-                                                    histograms_fail_summed_list[4:9], shapes,
+    [histograms_fail_summed_list] = makeMLFitCanvas(histograms_fail_summed_list['bkg'], histograms_fail_summed_list['data'],
+                                                    histograms_fail_summed_list['sig'], shapes,
                                                     "fail_allcats_" + options.fit, options.odir, rBestFit,
                                                     options.sOverSb, options.splitS, options.ratio)
 
@@ -158,17 +190,31 @@ def plotCategory(fml, fd, index, fittype):
             # fitdir = "prefit"
             fitdir = fittype
         # print fitdir+"/cat%i_fail_cat%i/%s" % (index,index,ish)
+        if options.suffix is not "":
+            pass_cat_name = "_".join(["cat%i"%index,options.suffix,"pass","cat%i"%index])
+            fail_cat_name = "_".join(["cat%i"%index,options.suffix,"fail","cat%i"%index])
+        else:
+            pass_cat_name = "_".join(["cat%i"%index,"pass","cat%i"%index])
+            fail_cat_name = "_".join(["cat%i"%index,"fail","cat%i"%index])
 
-        histograms_fail.append(fml.Get("shapes_" + fitdir + "/cat%i_fail_cat%i/%s" % (index, index, ish)))
-        histograms_pass.append(fml.Get("shapes_" + fitdir + "/cat%i_pass_cat%i/%s" % (index, index, ish)))
+        histograms_fail.append(fml.Get("shapes_" + fitdir + "/%s/%s" % (fail_cat_name, ish)))
+        histograms_pass.append(fml.Get("shapes_" + fitdir + "/%s/%s" % (pass_cat_name, ish)))
         # print fitdir
         rags = fml.Get("norm_" + fitdir)
         # rags.Print()
 
-        rrv_fail = r.RooRealVar(rags.find("cat%i_fail_cat%i/%s" % (index, index, ish)))
-        curnorm_fail = rrv_fail.getVal()
-        rrv_pass = r.RooRealVar(rags.find("cat%i_pass_cat%i/%s" % (index, index, ish)))
-        curnorm_pass = rrv_pass.getVal()
+
+        print "finding rrv with name = %s/%s" % (pass_cat_name, ish)
+        if rags.find("%s/%s" % (fail_cat_name, ish)) != None:
+          rrv_fail = r.RooRealVar(rags.find("%s/%s" % (fail_cat_name, ish)))
+          curnorm_fail = rrv_fail.getVal()
+        else:
+            print " rrv with name = %s/%s is null" % (fail_cat_name, ish)
+        if  rags.find("%s/%s" % (pass_cat_name, ish)) != None:
+          rrv_pass = r.RooRealVar(rags.find("%s/%s" % (pass_cat_name, ish)))
+          curnorm_pass = rrv_pass.getVal()
+        else:
+            print " rrv with name = %s/%s is null" % (pass_cat_name, ish)
         # if ish=='qcd' and index==4:
         #    histograms_fail[i].SetBinContent(13,(histograms_fail[i].GetBinContent(12)+histograms_fail[i].GetBinContent(14))/2.)
         #    histograms_pass[i].SetBinContent(13,(histograms_pass[i].GetBinContent(12)+histograms_pass[i].GetBinContent(14))/2.)
@@ -267,8 +313,9 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         htotsig.Add(bkgs[ih])
     hsig = hsigs[0].Clone("hsig%s" % tag)
     for ih in range(1, len(hsigs)):
-        hsig.Add(hsigs[ih])
-        htotsig.Add(hsigs[ih])
+        if hsigs[ih] !=None:
+            hsig.Add(hsigs[ih])
+            htotsig.Add(hsigs[ih])
 
     colors = [r.kGreen + 2, r.kRed + 1, r.kMagenta + 3, r.kGray + 2, r.kPink + 7]
     sigcolor = [r.kPink + 7, r.kPink + 1, r.kAzure + 1, r.kOrange + 1, r.kAzure + 3]
@@ -428,6 +475,8 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         ptRange = [550, 600]
     elif 'cat4' in tag:
         ptRange = [600, 675]
+        if "VBF" in options.suffix:
+            ptRange = [600, 1000]
     elif 'cat5' in tag:
         ptRange = [675, 800]
     elif 'cat6' in tag:
@@ -968,6 +1017,7 @@ if __name__ == '__main__':
                       metavar='ratio')
     parser.add_option('--nr','--NR' ,action='store',type='int',dest='NR'   ,default=2, help='order of rho polynomial')
     parser.add_option('--np','--NP' ,action='store',type='int',dest='NP'   ,default=1, help='order of pt polynomial')
+    parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
 
     (options, args) = parser.parse_args()
 
