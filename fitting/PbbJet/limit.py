@@ -61,7 +61,7 @@ def plotgaus(iFName,injet,iLabel,options):
     tLeg.SetLineWidth(0)
     tLeg.SetFillStyle(0)
     tLeg.SetTextFont(42)
-    tLeg.AddEntry(lH,"#splitline{Pseudodata}{%s (%s GeV) #mu=%s}"%('DMSbb', options.mass, options.r),"lep")
+    tLeg.AddEntry(lH,"#splitline{Pseudodata}{Hbb(%s GeV) #mu=%s}"%(options.mass, options.r),"lep")
     tLeg.AddEntry(gaus_func,"#splitline{Gaussian fit}{mean = %+1.2f, s.d. = %1.2f}"%(gaus_func.GetParameter(1),gaus_func.GetParameter(2)),"l")
     tLeg.Draw("same")
 
@@ -317,12 +317,14 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         generate_base += " -t %s --expectSignal %i -s %s "%(ntoys,mu,options.seed) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
         generate_base += " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
+        generate_base += " --setParameterRange r=%s,%s "%(options.rMin,options.rMax) 
         
         exec_me(generate_base,options.dryRun)
         fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s --saveNLL --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
         fitDiag_base+= ' -t %s -s %s '%(ntoys,options.seed)
         fitDiag_base+= " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
         fitDiag_base += " --freezeParameters %s "%(options.freezeNuisances) 
+        fitDiag_base += " --setParameterRange r=%s,%s "%(options.rMin,options.rMax) 
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
