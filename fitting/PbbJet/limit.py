@@ -317,14 +317,16 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         generate_base += " -t %s --expectSignal %i -s %s "%(ntoys,mu,options.seed) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
         generate_base += " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
-        generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax,) 
+        generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+        generate_base += " --setParameter r=1,r_z=1 " 
         
         exec_me(generate_base,options.dryRun)
         fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s --saveNLL --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
         fitDiag_base+= ' -t %s -s %s '%(ntoys,options.seed)
         fitDiag_base+= " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
         fitDiag_base += " --freezeParameters %s "%(options.freezeNuisances) 
-        fitDiag_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax,) 
+        fitDiag_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+        fitDiag_base += " --setParameter r=1,r_z=1 " 
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
