@@ -32,17 +32,21 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False
     out += 'MAINDIR=`pwd`\n'
     out += 'ls\n'
     out += '#CMSSW from scratch (only need for root)\n'
+    out += 'source /cvmfs/cms.cern.ch/cmsset_default.sh\n'
     out += 'export CWD=${PWD}\n'
     out += 'export PATH=${PATH}:/cvmfs/cms.cern.ch/common\n'
     out += 'export CMS_PATH=/cvmfs/cms.cern.ch\n'
     out += 'export SCRAM_ARCH=slc6_amd64_gcc530\n'
-    out += 'scramv1 project CMSSW CMSSW_8_1_0\n'
+    out += 'tar -xf CMSSW_8_1_0.tar.gz\n'
     out += 'cd CMSSW_8_1_0/src\n'
+    out += 'scramv1 b ProjectRename\n'
     out += 'eval `scramv1 runtime -sh` # cmsenv\n'
-    if setUpCombine:
-        out += 'git clone -b v7.0.9 git://github.com/cms-analysis/HiggsAnalysis-CombinedLimit HiggsAnalysis/CombinedLimit\n'
-        #out += 'git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester\n'
-        out += 'scramv1 build \n'
+    #out += 'export CMSSW_BASE=${CWD}/CMSSW_8_1_0/\n'
+    #out += 'echo $CMSSW_BASE\n'
+    #if setUpCombine:
+    #    out += 'git clone -b v7.0.9 git://github.com/cms-analysis/HiggsAnalysis-CombinedLimit HiggsAnalysis/CombinedLimit\n'
+    #    #out += 'git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester\n'
+    #    out += 'scramv1 build \n'
     out += gitClone + '\n'
     out += 'cd ZPrimePlusJet\n'
     out += 'source setup.sh\n'
@@ -78,7 +82,6 @@ if __name__ == '__main__':
 
     script_group.add_option('-m','--mass'   ,action='store',type='int',dest='mass'   ,default=125, help='mass')
     script_group.add_option('-l','--lumi'   ,action='store',type='float',dest='lumi'   ,default=36.4, help='lumi')
-    script_group.add_option('-i','--ifile', dest='ifile', default = 'hist_1DZbb.root',help='file with histogram inputs', metavar='ifile')
     script_group.add_option('-r','--r',dest='r', default=1 ,type='float',help='default value of r')    
     script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
@@ -110,10 +113,10 @@ if __name__ == '__main__':
 
     #ouput to ${MAINDIR}/ so that condor transfer the output to submission dir
     command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runBias.py -o ${MAINDIR}/ --seed $1 --toys $2 --datacard ${MAINDIR}/$3 --datacard-alt ${MAINDIR}/$4'
-    plot_odir    = "/".join(options.odir.split("/")[:-3])
+    plot_odir    = "/".join(options.odir.split("/")[:-2])
     
     #print out command to use after jobs are done
-    plot_command = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runBias.py -o %s --just-plot --ifile %s'%(plot_odir,options.ifile)
+    plot_command = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runBias.py -o %s --just-plot '%(plot_odir)
     
     #Add script options to job command
     for opts in script_group.option_list:
@@ -135,8 +138,10 @@ if __name__ == '__main__':
     else:
         print "plot command: ",plot_command
 
-    product = "biastoys_*.root"
-
+    fileName = 'biastoys_bias_self_r%i_-1.root'%options.r
+    product = 'biastoys_bias_self_r%i_*.root'%options.r
+    cmssw   = os.path.expandvars("$ZPRIMEPLUSJET_BASE/CMSSW_8_1_0.tar.gz")
+    print cmssw
     if not options.hadd:
         if not os.path.exists(outpath):
             exec_me("mkdir -p %s"%(outpath), False)
@@ -144,6 +149,7 @@ if __name__ == '__main__':
         print "submitting jobs from : ",os.getcwd()
     
         localfiles = [path.split("/")[-1] for path in files]    #Tell script to use the transferred files
+        localfiles.append(cmssw)
         arguments = [ str("$(Process)"),str(nToysPerJob)]
         for f in localfiles:
             arguments.append(str(f))
@@ -154,11 +160,15 @@ if __name__ == '__main__':
         nOutput = len(glob.glob("%s/%s"%(outpath,product)))
         print "Found %s subjob output files in path: %s/%s"%(nOutput,outpath,product)
         def cleanAndPlot():
+            if not os.path.exists("%s/%s"%(outpath,fileName)):
+                exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
+                print "DONE hadd. Removing subjob files.."
             if options.clean:
                 print "Cleaning submission files..." 
                 #remove all but _0 file
                 for i in range(1,9):
                     exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
+                    exec_me("rm %s/biastoys_bias_self_r%i_%s.root"%(outpath,options.r,i),dryRun)
                 print "Finish cleaning,plotting " 
             print "plot command: ",plot_command
             exec_me(plot_command,dryRun)

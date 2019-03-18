@@ -30,7 +30,6 @@ def plotgaus(iFName,injet,iLabel,options):
     lH = r.TH1D('h_bias','h_bias',50,-4,4)
     lH_1 = r.TH1D('h_bias_1','h_bias',50,-4,4)
     lH_2 = r.TH1D('h_bias_2','h_bias',50,-4,4)
-    print 'Entries ',lTree.GetEntriesFast()
     #tree_fit_sb->Draw("mu-muLoErr","(mu-muLoErr)>-50+1")
     #lTree.Project('h_bias','(mu-%s)/muErr'% injet,'(muHiErr+mu)<%i-1&&(mu-muLoErr)>%i'%(int(options.rMax)-1,int(options.rMin)+1))
     #lTree.Project('h_bias_1','(mu-%s)/muLoErr'% injet,'mu>%s&&(muHiErr+mu)<%i&&(mu-muLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
@@ -39,6 +38,7 @@ def plotgaus(iFName,injet,iLabel,options):
     lTree.Project('h_bias_2','(r-%s)/rHiErr'% injet,'r<%s&&(rHiErr+r)<%i&&(r-rLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
     lH = lH_1
     lH.Add(lH_2)
+    print 'Tree Entries = %s , pull entries = %s'%(lTree.GetEntriesFast(),lH.GetEntries())
     gaus_func = r.TF1("gaus_func","gaus(0)",-4,4)
     gaus_func.SetParameter(0,20)
     gaus_func.SetParameter(1,0)
@@ -61,7 +61,7 @@ def plotgaus(iFName,injet,iLabel,options):
     tLeg.SetLineWidth(0)
     tLeg.SetFillStyle(0)
     tLeg.SetTextFont(42)
-    tLeg.AddEntry(lH,"#splitline{Pseudodata}{%s (%s GeV) #mu=%s}"%('DMSbb', options.mass, options.r),"lep")
+    tLeg.AddEntry(lH,"#splitline{Pseudodata}{Hbb(%s GeV) #mu=%s}"%(options.mass, options.r),"lep")
     tLeg.AddEntry(gaus_func,"#splitline{Gaussian fit}{mean = %+1.2f, s.d. = %1.2f}"%(gaus_func.GetParameter(1),gaus_func.GetParameter(2)),"l")
     tLeg.Draw("same")
 
@@ -317,12 +317,17 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         generate_base += " -t %s --expectSignal %i -s %s "%(ntoys,mu,options.seed) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
         generate_base += " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
+        generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+        generate_base += " --setParameters r=1,r_z=1 " 
+        generate_base += " --trackParameters r_z,p0r0,p0r1,p0r2,p1r0,p1r1,p1r2,scale,scalept,smear" 
         
         exec_me(generate_base,options.dryRun)
         fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s --saveNLL --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
         fitDiag_base+= ' -t %s -s %s '%(ntoys,options.seed)
         fitDiag_base+= " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
         fitDiag_base += " --freezeParameters %s "%(options.freezeNuisances) 
+        fitDiag_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+        fitDiag_base += " --setParameters r=1,r_z=1 " 
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
