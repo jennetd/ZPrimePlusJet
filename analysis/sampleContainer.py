@@ -990,7 +990,7 @@ class sampleContainer:
                 genVPhi = self.genVPhi[0]
                 genVMass = self.genVMass[0]
                 if genVPt > 0 and genVMass > 0:
-                    dphi = QGLRutil.deltaPhi(genVPhi , jphi_8)
+                    dphi = abs(QGLRutil.deltaPhi(genVPhi , jphi_8))
                     dpt = math.fabs(genVPt - jpt_8) / genVPt
                     dmass = math.fabs(genVMass - jmsd_8) / genVMass
                 if jpt_8> PTCUT:
