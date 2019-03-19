@@ -316,18 +316,18 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         generate_base ="combine -M GenerateOnly %s --toysFrequentist --saveToys -n %s --redefineSignalPOIs r"%(alt,iLabel)
         generate_base += " -t %s --expectSignal %i -s %s "%(ntoys,mu,options.seed) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
-        generate_base += " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
         generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
-        generate_base += " --setParameters r=1,r_z=1 " 
-        generate_base += " --trackParameters r_z,p0r0,p0r1,p0r2,p1r0,p1r1,p1r2,scale,scalept,smear" 
+        #generate_base += " --setParameters r=%s,r_z=1 " %(mu)
+        #generate_base += " --trackParameters p0r0,p0r1,p0r2,p1r0,p1r1,p1r2,scale,scalept,smear" 
+        generate_base += " --trackParameters  'rgx{.*}'" 
         
         exec_me(generate_base,options.dryRun)
-        fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s --saveNLL --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
-        fitDiag_base+= ' -t %s -s %s '%(ntoys,options.seed)
-        fitDiag_base+= " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
+        fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s --saveNLL  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
+        fitDiag_base += ' --robustFit 1 --saveNLL  --saveWorkspace '
+        fitDiag_base += ' -t %s -s %s '%(ntoys,options.seed)
         fitDiag_base += " --freezeParameters %s "%(options.freezeNuisances) 
         fitDiag_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
-        fitDiag_base += " --setParameters r=1,r_z=1 " 
+        #fitDiag_base += " --setParameters r=%s,r_z=1 " %mu
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
