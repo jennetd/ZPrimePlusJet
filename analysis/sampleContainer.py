@@ -1006,7 +1006,7 @@ class sampleContainer:
                 ak4mass = getattr(self,"AK4Puppijet"+str(iak4)+"_mass")[0]
                 ak4dcsvb = getattr(self,"AK4Puppijet"+str(iak4)+"_deepcsvb")[0]
                 dR_ak8  = QGLRutil.deltaR( ak4eta,ak4phi, self.AK8Puppijet0_eta[0], self.AK8Puppijet0_phi[0])
-                dphi_ak8 = QGLRutil.deltaPhi(ak4phi, jphi_8)
+                dphi_ak8 = abs(QGLRutil.deltaPhi(ak4phi, jphi_8))
                 #print "nAK4PuppijetsPt30 = %s iak4= %s   ak4pT = %.3f,  dR=%s"%(n_4, iak4,ak4pT, dR_ak8)
                 if ak4pT> 30.0 and dR_ak8>0.8:
                     jet = ROOT.TLorentzVector()
@@ -1133,8 +1133,8 @@ class sampleContainer:
             for syst in ['JESUp', 'JESDown', 'JERUp', 'JERDown']:
                 if eval(
                                 'jpt_8_%s' % syst) > PTCUTMUCR and jmsd_8 > MASSCUT and nmuLoose == 1 and neleLoose == 0 and ntau == 0 and vmuoLoose0_pt > MUONPTCUT and abs(
-                        vmuoLoose0_eta) < 2.1 and isTightVJet and jtN2b1sdddt_8 < 0 and QGLRutil.deltaPhi(
-                                vmuoLoose0_phi , jphi_8) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
+                        vmuoLoose0_eta) < 2.1 and isTightVJet and jtN2b1sdddt_8 < 0 and abs(QGLRutil.deltaPhi(
+                                vmuoLoose0_phi , jphi_8)) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_muCR4_N2_pass_%s' % syst)).Fill(jmsd_8, weight)
                     elif jdb_8 > self.DBTAGCUTMIN:
