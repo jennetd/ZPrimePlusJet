@@ -313,21 +313,37 @@ def goodness(base,ntoys,iLabel,options):
 
 def bias(base,alt,ntoys,mu,iLabel,options):
     if not options.justPlot:
-        generate_base ="combine -M GenerateOnly %s --toysFrequentist --saveToys -n %s --redefineSignalPOIs r"%(alt,iLabel)
+        if options.scaleLumi>0:
+            ##### Get snapshots with lumiscale=1 for Toy generations ########
+            snapshot_base ="combine -M MultiDimFit  %s  -n .saved "%(alt)
+            snapshot_base += " -t -1 --expectSignal %i --algo none --saveWorkspace --toysFreq "%(mu) 
+            snapshot_base += " --freezeParameters %s "%(options.freezeNuisances) 
+            snapshot_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+            snapshot_base += " --setParameters lumiscale=1 "             
+            exec_me(snapshot_base,options.dryRun)
+    
+        if options.scaleLumi>0:
+            ##### Generation toys from snapshots , setting lumiscale to 10x########
+            generate_base ="combine -M GenerateOnly -d higgsCombine.saved.MultiDimFit.mH120.root --snapshotName MultiDimFit " 
+            generate_base +=" --setParameters lumiscale=%s "%(options.scaleLumi)
+        else:
+            generate_base ="combine -M GenerateOnly %s --toysFrequentist "%(alt)
         generate_base += " -t %s --expectSignal %i -s %s "%(ntoys,mu,options.seed) 
+        generate_base += " --saveToys -n %s --redefineSignalPOIs r"%(iLabel) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
         generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
-        #generate_base += " --setParameters r=%s,r_z=1 " %(mu)
-        #generate_base += " --trackParameters p0r0,p0r1,p0r2,p1r0,p1r1,p1r2,scale,scalept,smear" 
         generate_base += " --trackParameters  'rgx{.*}'" 
-        
         exec_me(generate_base,options.dryRun)
+
         fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
-        fitDiag_base += ' --robustFit 1 --saveNLL  --saveWorkspace '
+        fitDiag_base += ' --robustFit 1 --saveNLL  --saveWorkspace --setRobustFitAlgo Minuit2,Migrad'
         fitDiag_base += ' -t %s -s %s '%(ntoys,options.seed)
         fitDiag_base += " --freezeParameters %s "%(options.freezeNuisances) 
         fitDiag_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
-        #fitDiag_base += " --setParameters r=%s,r_z=1 " %mu
+        if options.scaleLumi>0:
+            fitDiag_base += " --setParameters r_z=1,lumiscale=%s " %(options.scaleLumi)
+        else:
+            fitDiag_base += " --setParameters r_z=1 " 
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
@@ -401,6 +417,7 @@ if __name__ == "__main__":
     parser.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     parser.add_option('--data', action='store_true', dest='isData', default=False, help='is data')
     parser.add_option('-l','--lumi'   ,action='store',type='float',dest='lumi'   ,default=36.4, help='lumi')
+    parser.add_option('--scaleLumi'   ,action='store',type='float',dest='scaleLumi'   ,default=-1, help='scale nuisances by scaleLumi')
     parser.add_option('-r','--r',dest='r', default=0 ,type='float',help='default value of r')
     parser.add_option('--rMin',dest='rMin', default=-20 ,type='float',help='minimum of r (signal strength) in profile likelihood plot')
     parser.add_option('--rMax',dest='rMax', default=20,type='float',help='maximum of r (signal strength) in profile likelihood plot')  
