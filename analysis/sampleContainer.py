@@ -115,6 +115,8 @@ class sampleContainer:
                           ('AK8Puppijet0_pt_JERUp', 'd', -999), ('AK8Puppijet0_pt_JERDown', 'd', -999),
                           ('AK8Puppijet0_pt_JESUp', 'd', -999), ('AK8Puppijet0_pt_JESDown', 'd', -999),
                           ('AK8Puppijet0_eta', 'd', -999), ('AK8Puppijet0_phi', 'd', -999),
+                          ('AK8Puppijet0_isHadronicV', 'i', -999), ('AK8Puppijet0_vMatching', 'd', -999),
+                          ('AK8Puppijet0_vSize','d',-999),
                           ('AK8Puppijet0_tau21', 'd', -999), ('AK8Puppijet0_tau32', 'd', -999),
                           ('AK8Puppijet0_N2sdb1', 'd', -999), ('puWeight', 'f', 0), ('scale1fb', 'f', 0),
 			  ('puWeight_down', 'f', 0), ('puWeight_up', 'f', 0),
@@ -989,6 +991,9 @@ class sampleContainer:
                 genVEta = self.genVEta[0]
                 genVPhi = self.genVPhi[0]
                 genVMass = self.genVMass[0]
+                isHadronicV = self.AK8Puppijet0_isHadronicV[0]
+                vMatching   = self.AK8Puppijet0_vMatching[0]
+                vSize       = self.AK8Puppijet0_vSize[0]
                 if genVPt > 0 and genVMass > 0:
                     dphi = abs(QGLRutil.deltaPhi(genVPhi , jphi_8))
                     dpt = math.fabs(genVPt - jpt_8) / genVPt
@@ -1346,9 +1351,12 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_N2_pass_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
                     self.h_msd_v_pt_ak8_topR6_N2_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                     # for signal morphing
-                    if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
+                    #if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
+                    if isHadronicV>0 and  vMatching<0.8 and vSize< 0.8:
+                        print "pass matched: isHadronicV: %.3f, vMatching= %.3f, vSize= %.3f"%(isHadronicV,vMatching,vSize)
                         self.h_msd_v_pt_ak8_topR6_N2_pass_matched.Fill(jmsd_8, jpt_8, weight)
                     else:
+                        print "pass unmatched isHadronicV: %.3f, vMatching= %.3f, vSize= %.3f"%(isHadronicV,vMatching,vSize)
                         self.h_msd_v_pt_ak8_topR6_N2_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                     if QGquark_pass:  
                         self.h_msd_v_pt_ak8_QGquark_pass.Fill(jmsd_8, jpt_8, weight)
@@ -1380,9 +1388,12 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_N2_fail_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
 
                     # for signal morphing
-                    if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
+                    #if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
+                    if isHadronicV>0 and  vMatching<0.8 and vSize< 0.8:
+                        print "fail matched: isHadronicV: %.3f, vMatching= %.3f, vSize= %.3f"%(isHadronicV,vMatching,vSize)
                         self.h_msd_v_pt_ak8_topR6_N2_fail_matched.Fill(jmsd_8, jpt_8, weight)
                     else:
+                        print "fail unmatched: isHadronicV: %.3f, vMatching= %.3f, vSize= %.3f"%(isHadronicV,vMatching,vSize)
                         self.h_msd_v_pt_ak8_topR6_N2_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
                     if QGquark_pass:  
                         self.h_msd_v_pt_ak8_QGquark_fail.Fill(jmsd_8, jpt_8, weight)
