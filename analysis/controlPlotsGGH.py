@@ -208,6 +208,7 @@ def get2018files():
     tfiles = {
 	          'ggHbb_amc' :          { 'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8':                [idir_1502skim+'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8_*.root']},
 	          'ggHbb_amcHpT250' :    { 'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8' :[idir_1502skim+'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8_*.root']},
+	          'ggHbb_NNLOPS'    :    { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8'        :[idir_1502+'GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8/*.root']},
 	          'ggHbb'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1502skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
 	          'VBFHbb'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1502skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
 	          'VHbb'      :          { 
@@ -544,6 +545,8 @@ def main(options,args,outputExists):
             sigSamples['VHbb']           = normSampleContainer('VHbb',tfiles['VHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
             sigSamples['VBFHbb']         = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
             sigSamples['ttHbb']          = normSampleContainer('ttHbb',tfiles['ttHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+            if year == '2018':
+                sigSamples['ggHbb_NNLOPS'] = normSampleContainer('ggHbb_NNLOPS',tfiles['ggHbb_NNLOPS'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
         elif year=='2016':
             sigSamples['ggHbb']  = sampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt) 
             sigSamples['VBFHbb'] = sampleContainer('VBFHbb',tfiles['VBFHbb'], 1, DBTMIN,lumi ,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt) 
@@ -616,7 +619,7 @@ def main(options,args,outputExists):
         
         ofile = ROOT.TFile.Open(odir+'/Plots_1000pb_weighted_%s.root '%i_split,'recreate')
 
-        normSamples =['QCD','DY','W','Wlnu','ggHbb','ggHbb_amc','ggHbb_amcHpT250','VHbb','VBFHbb','ttHbb','TTbar','SingleTop','Diboson','DYll']
+        normSamples =['QCD','DY','W','Wlnu','ggHbb','ggHbb_amc','ggHbb_amcHpT250','ggHbb_NNLOPS','VHbb','VBFHbb','ttHbb','TTbar','SingleTop','Diboson','DYll']
         hall_byproc = {}
         for process, s in sigSamples.iteritems():
             hall_byproc[process] = {}
