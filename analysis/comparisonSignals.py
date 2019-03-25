@@ -92,18 +92,35 @@ def main(options,args):
         'h_msd_ak8_inc',
         'h_msd_ak8_raw',
         'h_msd_ak8_topR6_N2_pass',
-        'h_msd_ak8_topR6_N2_fail'
+        'h_msd_ak8_topR6_N2_fail',
         ]
-        
+
+
+    year = "2017"       
+    if year=="2017":
+        samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
+        #tfiles  = json.load(samplefiles)['controlPlotsGGH_2017']
+        pu_Opt  = {'data':"2017"}
+    elif year=='2016':
+        tfiles = get2016files()
+        pu_Opt  = {'data':"2016",'MC':"12.04"}
+    elif year=='2018':
+        samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
+        #tfiles  = json.load(samplefiles)['controlPlotsGGH_2018']
+        pu_Opt  = {'data':"2018"}
+    else:
+        print "Invalid choice of year. Aborting"            
+        sys.exit()
+
     print("Signals... ")
     sigSamples = {}
-    sigSamples['ggHbb']  = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    #sigSamples['ggHbb_amc']  = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['VBFHbb']  = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['ZHbb']  = normSampleContainer('ZHbb',tfiles['ZHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['WHbb']  = normSampleContainer('WHbb',tfiles['WHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['ttHbb']  = normSampleContainer('ttHbb',tfiles['ttHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['ZnnHbb']  = normSampleContainer('ZnnHbb',tfiles['ZnnHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['ggHbb']  = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['ggHbb_amc']  = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['VBFHbb']  = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['ZHbb']  = normSampleContainer('ZHbb',tfiles['ZHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['WHbb']  = normSampleContainer('WHbb',tfiles['WHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['ttHbb']  = normSampleContainer('ttHbb',tfiles['ttHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['ZnnHbb']  = normSampleContainer('ZnnHbb',tfiles['ZnnHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
 
     ofile = ROOT.TFile.Open(odir+'/Plots_1000pb_weighted.root','recreate')
     
