@@ -129,6 +129,7 @@ if __name__ == '__main__':
                 #remove all but _0 file
                 for i in range(1,10):
                     exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
+                exec_me("rm %s/core*"%(outpath),dryRun)
             print "Plotting...."
             exec_me(plot_command,dryRun) 
         else:
