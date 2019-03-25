@@ -17,8 +17,9 @@ from  bernstein import *
 from tools import *
 
 msd_binBoundaries = []
-for i in range(0, 24): msd_binBoundaries.append(40 + i * 7)
-pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1000]
+#for i in range(0, 24): msd_binBoundaries.append(40 + i * 7)
+for i in range(1, 24): msd_binBoundaries.append(40 + i * 7)
+pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1200]
 #pt_binBoundaries = [450, 500, 550, 600, 1000]
 
 from buildRhalphabetHbb import BLIND_LO, BLIND_HI, RHO_LO, RHO_HI
@@ -380,9 +381,13 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             if N!=0:
                 L = r.Math.gamma_quantile(alpha/2,N,1.)
             U = r.Math.gamma_quantile_c(alpha/2,N+1,1)
-            g_data.SetPointEYlow(i, (N-L))
-            g_data.SetPointEYhigh(i, (U-N))
-            g_data.SetPointEXlow(i, 0)
+            if options.isData:
+                g_data.SetPointEYlow(i, (N-L))
+                g_data.SetPointEYhigh(i, (U-N))
+            else:
+                g_data.SetPointEYlow( i, h_data.GetBinError(i+1))
+                g_data.SetPointEYhigh(i, h_data.GetBinError(i+1))
+            g_data.SetPointEXlow( i, 0)
             g_data.SetPointEXhigh(i, 0)
             g_data.SetPoint(i, g_data.GetX()[i], N)
         return g_data
@@ -1008,7 +1013,7 @@ if __name__ == '__main__':
     parser.add_option('-o', '--odir', dest='odir', default='cards/', help='directory for plots', metavar='odir')
     parser.add_option('--fit', dest='fit', default='prefit', help='choice is either prefit, fit_s or fit_b',
                       metavar='fit')
-    parser.add_option('--data', action='store_true', dest='isData', default=True, help='is data', metavar='isData')
+    parser.add_option('--data', action='store_true', dest='isData', default=False, help='is data', metavar='isData')
     parser.add_option('--s-over-sb', action='store_true', dest='sOverSb', default=False,
                       help='weight entries by sOverSb', metavar='sOverSb')
     parser.add_option('--splitS', action='store_true', dest='splitS', default=False, help='split signal contribution',
