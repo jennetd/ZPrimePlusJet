@@ -142,7 +142,7 @@ def getParsfromMLfit(fml_path,pamNames,qcdeff=0,setTFto1=False):
     rfr = r.RooFitResult(fml.Get("fit_s"))
     print "Using qcd eff = %.4f"%qcdeff
     pars = [qcdeff]
-    for p in lParams:
+    for p in pamNames:
         if rfr.floatParsFinal().find(p):
             print p, "= %.3f"%rfr.floatParsFinal().find(p).getVal(), "+/-  %.3f"%rfr.floatParsFinal().find(p).getError()
             if setTFto1 and 'qcdeff' not in p:
