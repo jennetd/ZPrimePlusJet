@@ -30,7 +30,7 @@ NJETCUT = 100
 class sampleContainer:
     def __init__(self, name, fn, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
                  minBranches=False, iSplit = 0, maxSplit = 1, triggerNames={}, treeName='otree', 
-                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt='2016'):
+                 doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt={'MC':"12.04",'data':"2016"}):
         self._name = name
         self.DBTAGCUTMIN = DBTAGCUTMIN
         self.DBTAGCUT = doublebCut
@@ -49,16 +49,19 @@ class sampleContainer:
         with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerBitMap.json")) as triggerMapFile:
             self._triggerBitMaps = json.load(triggerMapFile)
 
-        self._triggerCut = self.selectTriggers(self._triggerNames,self._triggerBitMaps)
-        if not self._triggerNames=={}:
+        if not self._triggerNames=={} and isData:
+            self._triggerCut = self.selectTriggers(self._triggerNames,self._triggerBitMaps)
             print "List of OR Triggers : ",self._triggerNames['names']
             print "Using trigger cuts  : ",self._triggerCut
+        else:
+            self._triggerCut ="1"
 
         warnings.filterwarnings(action='ignore', category=RuntimeWarning, message='creating converter.*')
         self._cutFormula = ROOT.TTreeFormula("cutFormula",
                                              "(" + cutFormula + ")&&("+self._triggerCut+")&&(AK8Puppijet0_pt>%f||AK8Puppijet0_pt_JESDown>%f||AK8Puppijet0_pt_JESUp>%f||AK8Puppijet0_pt_JERUp>%f||AK8Puppijet0_pt_JERDown>%f)" % (
                                                  PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR), self._tt)
         self._isData = isData
+        self.SetExternalInputs(self.puOpt['data'])
         # print lumi
         # print self._NEv.GetBinContent(1)
         if isData:
@@ -96,76 +99,8 @@ class sampleContainer:
         # self._puppisd_corrRECO_cen = f_puppi.Get("puppiJECcorr_reco_0eta1v3")
         # self._puppisd_corrRECO_for = f_puppi.Get("puppiJECcorr_reco_1v3eta2v5")
 
-        f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
-        self._znlo = f_ZNLO.Get("NLO")
-        self._znlo.SetDirectory(0)
-        f_ZNLO.Close()
-
-        f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr.root"), "read")
-        self._wnlo = f_WNLO.Get("NLO")
-        self._wnlo.SetDirectory(0)
-        f_WNLO.Close()
 
 
-        f_pu = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/puWeights_All.root"), "read")
-        self._puw = f_pu.Get("puw")
-        self._puw_up = f_pu.Get("puw_p")
-        self._puw_down = f_pu.Get("puw_m")
-
-        self._puw.SetDirectory(0)
-        self._puw_up.SetDirectory(0)
-        self._puw_down.SetDirectory(0)
-        f_pu.Close()
-
-        # get histogram for transform
-        f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"),
-                                  "read")  # GridOutput_v13_WP026.root # smooth version of the ddt ; exp is 4.45 vs 4.32 (3% worse)
-        self._trans_h2ddt = f_h2ddt.Get("Rho2D")
-        self._trans_h2ddt.SetDirectory(0)
-        f_h2ddt.Close()
-
-        # get trigger efficiency object
-
-        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
-        #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
-        #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
-        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
-        f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017_noPS.root"), "read")
-        self._trig_denom = f_trig.Get("h_runBtoF_pass_Mu50")
-        self._trig_numer = f_trig.Get("h_runBtoF_pass_Main")
-        self._trig_denom.SetDirectory(0)
-        self._trig_numer.SetDirectory(0)
-#        self._trig_denom.RebinX(2)
-#        self._trig_numer.RebinX(2)
-#        self._trig_denom.RebinY(5)
-#        self._trig_numer.RebinY(5)
-        self._trig_eff = ROOT.TEfficiency()
-        if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
-            self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
-            self._trig_eff.SetDirectory(0)
-        f_trig.Close()
-
-        # get muon trigger efficiency object
-
-        lumi_GH = 16.146
-        lumi_BCDEF = 19.721
-        lumi_total = lumi_GH + lumi_BCDEF
-
-        f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root"), "read")
-        self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
-        self._mutrig_eff.Sumw2()
-        self._mutrig_eff.SetDirectory(0)
-        f_mutrig_BCDEF.Close()
-
-        # get muon ID efficiency object
-
-        with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/RunBCDEF_data_ID.json")) as ID_input_file:
-                self._muid_eff = json.load(ID_input_file)
-
-        # get muon ISO efficiency object
-
-      	with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/RunBCDEF_data_ISO.json")) as ISO_input_file:
-	    	self._muiso_eff = json.load(ISO_input_file)
 
 
         self._minBranches = minBranches
@@ -206,30 +141,32 @@ class sampleContainer:
                           ('AK4Puppijet0_mass', 'd', -999),('AK4Puppijet1_mass', 'd', -999),
                           ('AK4Puppijet0_qgid', 'd', -999),('AK4Puppijet1_qgid', 'd', -999),  
                           ('AK4Puppijet0_csv' , 'd', -999),('AK4Puppijet1_csv' , 'd', -999),  
+                          ('AK4Puppijet0_deepcsvb' , 'd', -999),('AK4Puppijet1_deepcsvb' , 'd', -999),  
                           ('AK4Puppijet2_eta' , 'd', -999),('AK4Puppijet3_eta' , 'd', -999),
                           ('AK4Puppijet2_phi' , 'd', -999),('AK4Puppijet3_phi' , 'd', -999),
                           ('AK4Puppijet2_pt'  , 'd', -999),('AK4Puppijet3_pt'  , 'd', -999),
                           ('AK4Puppijet2_mass', 'd', -999),('AK4Puppijet3_mass', 'd', -999),
                           ('AK4Puppijet2_qgid', 'd', -999),('AK4Puppijet3_qgid', 'd', -999),  
                           ('AK4Puppijet2_csv' , 'd', -999),('AK4Puppijet3_csv' , 'd', -999),  
+                          ('AK4Puppijet2_deepcsvb' , 'd', -999),('AK4Puppijet3_deepcsvb' , 'd', -999),  
                           ]
         if not self._minBranches:
             self._branches.extend([('nAK4PuppijetsfwdPt30', 'i', -999), ('nAK4PuppijetsLPt50dR08_0', 'i', -999),
                                    ('nAK4PuppijetsTPt50dR08_0', 'i', -999),
                                    ('nAK4PuppijetsLPt100dR08_0', 'i', -999), ('nAK4PuppijetsMPt100dR08_0', 'i', -999),
-                                   ('nAK4PuppijetsTPt100dR08_ 0', 'i', -999),
+                                   ('nAK4PuppijetsTPt100dR08_0', 'i', -999),
                                    ('nAK4PuppijetsLPt150dR08_0', 'i', -999), ('nAK4PuppijetsMPt150dR08_0', 'i', -999),
                                    ('nAK4PuppijetsTPt150dR08_0', 'i', -999),
                                    ('nAK4PuppijetsLPt50dR08_1', 'i', -999), ('nAK4PuppijetsMPt50dR08_1', 'i', -999),
                                    ('nAK4PuppijetsTPt50dR08_1', 'i', -999),
                                    ('nAK4PuppijetsLPt100dR08_1', 'i', -999), ('nAK4PuppijetsMPt100dR08_1', 'i', -999),
-                                   ('nAK4PuppijetsTPt100dR08_ 1', 'i', -999),
+                                   ('nAK4PuppijetsTPt100dR08_1', 'i', -999),
                                    ('nAK4PuppijetsLPt150dR08_1', 'i', -999), ('nAK4PuppijetsMPt150dR08_1', 'i', -999),
                                    ('nAK4PuppijetsTPt150dR08_1', 'i', -999),
                                    ('nAK4PuppijetsLPt50dR08_2', 'i', -999), ('nAK4PuppijetsMPt50dR08_2', 'i', -999),
                                    ('nAK4PuppijetsTPt50dR08_2', 'i', -999),
                                    ('nAK4PuppijetsLPt100dR08_2', 'i', -999), ('nAK4PuppijetsMPt100dR08_2', 'i', -999),
-                                   ('nAK4PuppijetsTPt100dR08_ 1', 'i', -999),
+                                   ('nAK4PuppijetsTPt100dR08_1', 'i', -999),
                                    ('nAK4PuppijetsLPt150dR08_2', 'i', -999), ('nAK4PuppijetsMPt150dR08_2', 'i', -999),
                                    ('nAK4PuppijetsTPt150dR08_2', 'i', -999),
                                    ('nAK4PuppijetsLPt150dR08_0', 'i', -999), ('nAK4PuppijetsMPt150dR08_0', 'i', -999),
@@ -377,6 +314,8 @@ class sampleContainer:
                                   20, 0, 20],
                 'h_isolationCA15': ["h_" + self._name + "_isolationCA15", "; AK8/CA15 p_{T} ratio ;", 50, 0.5, 1.5],
                 'h_met': ["h_" + self._name + "_met", "; E_{T}^{miss} (GeV) ;", 50, 0, 500],
+                'h_maxAK4_dcsvb': ["h_" + self._name + "_maxAK4_dcsvb", "; Max Opp. Hem. AK4 DeepCSV b ;", 100, 0, 1],
+                'h_n_OppHem_AK4': ["h_" + self._name + "_n_OppHem_AK4", "; AK4 n_{jets} #Delta#phi>#pi/2,p_{T}>30 GeV ;", 8, 0, 8],
                 'h_pt_ak8': ["h_" + self._name + "_pt_ak8", "; AK8 leading p_{T} (GeV);", 50, 300, 2100],
                 'h_eta_ak8': ["h_" + self._name + "_eta_ak8", "; AK8 leading #eta;", 50, -3, 3],
                 'h_pt_ak8_sub1': ["h_" + self._name + "_pt_ak8_sub1", "; AK8 subleading p_{T} (GeV);", 50, 300, 2100],
@@ -399,9 +338,11 @@ class sampleContainer:
                 'h_dbtag_ak8_sub1': ["h_" + self._name + "_dbtag_ak8_sub1", "; 2nd p_{T}-leading deep double b-tag;", 40, 0,1],
                 'h_dbtag_ak8_sub2': ["h_" + self._name + "_dbtag_ak8_sub2", "; 3rd p_{T}-leading deep double b-tag;", 40, 0,1],
                 'h_n_unMatchedAK4'     : ["h_" + self._name + "_n_unMatchedAK4", "; Number of non matched AK4 jets ;;", 7, 0, 7],
-                'h_Mqq'     : ["h_" + self._name + "_Mqq", "; Dijet Mass (GeV);;", 50, 0, 3000],
+                'h_Mqq'               : ["h_" + self._name + "_Mqq", "; Dijet Mass (GeV);;", 50, 0, 3000],
+                'h_Mqq_ak4pt1pt2'     : ["h_" + self._name + "_Mqq_ak4pt1pt2", "; M_{qq} of leading 2 AK4 jets(GeV);;", 50, 0, 3000],
                 'h_QGLR'    : ["h_" + self._name + "_QGLR", "; QGLR;", 10, 0,1],
                 'h_Deta_qq' : ["h_" + self._name + "_Deta_qq", "; max Deta qq;;", 30, 0, 10],
+                'h_deta_ak4pt1pt2'     : ["h_" + self._name + "_deta_ak4pt1pt2", "; |#Delta#eta| of leading 2 AK4 jets(GeV);;", 30, 0, 10],
                 'h_t21_ak8': ["h_" + self._name + "_t21_ak8", "; AK8 #tau_{21};", 25, 0, 1.5],
                 'h_t21ddt_ak8': ["h_" + self._name + "_t21ddt_ak8", "; AK8 #tau_{21}^{DDT};", 25, 0, 1.5],
                 'h_t32_ak8': ["h_" + self._name + "_t32_ak8", "; AK8 #tau_{32};", 25, 0, 1.5],
@@ -606,7 +547,7 @@ class sampleContainer:
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000]
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000, 1100, 1200, 1300, 1400, 1500]
         #pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1000]
-        pt_binBoundaries = [450, 500, 550, 600,  1000]
+        pt_binBoundaries = [450, 500, 550, 600,  1200]
 
         histos2d_fix = {
             'h_rhop_v_t21_ak8': ["h_" + self._name + "_rhop_v_t21_ak8", "; AK8 rho^{DDT}; AK8 <#tau_{21}>", 15, -5, 10,
@@ -730,12 +671,16 @@ class sampleContainer:
         cut = []
         cut = [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 
-        if not self.puOpt in ['2016','2017']:
-            if not type(self.puOpt)==type(ROOT.TH1F()):
-                print "Using this file to reweight MC pu:", self.puOpt
-            else:
-                print "Using input histogram reweight MC pu:", self.puOpt.GetName() 
-            h_puw,h_puw_up,h_puw_down = self.get2017puWeight(self.puOpt)
+        if self.puOpt['MC'] =='12.04':
+            print "Using weights directly from analysis/ggH/puWeights_All.root to reweight MC pu", 
+        elif self.puOpt['MC'] =='12.07':
+            print "Using tree branch to set per event weight" 
+        elif  type(self.puOpt['MC'])==type(ROOT.TH1F()):
+            print " Using input histogram reweight MC pu:",self.puOpt['MC'].GetName() 
+            h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
+        elif  type(self.puOpt['MC'])==type("string"):
+            print "Using this file to reweight MC pu:", self.puOpt
+            h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
     
         self._tt.SetNotify(self._cutFormula)
 
@@ -779,11 +724,11 @@ class sampleContainer:
                 sys.stdout.write("\r[" + "=" * int(20 * i / nent) + " " + str(round(100. * i / nent, 0)) + "% done")
                 sys.stdout.flush()
             
-            if self.puOpt =='2017':
+            if self.puOpt['MC'] =='12.07':
                 puweight      = self.puWeight[0] #corrected
                 puweight_up   = self.puWeight_up[0]
                 puweight_down = self.puWeight_down[0]
-            elif self.puOpt=='2016':
+            elif self.puOpt['MC']=='12.04':
                 nPuForWeight  = min(self.npu[0], 49.5)
                 puweight      = self._puw.GetBinContent(self._puw.FindBin(nPuForWeight))
                 puweight_up   = self._puw_up.GetBinContent(self._puw_up.FindBin(nPuForWeight))
@@ -990,7 +935,8 @@ class sampleContainer:
             n_dR0p8_4_JESUp = n_dR0p8_4
             n_dR0p8_4_JESDown = n_dR0p8_4
             
-            n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
+            #n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
+            n_MdR0p8_4=0
             if not self._minBranches:
                 n_LdR0p8_4 = self.nAK4PuppijetsLPt50dR08_0[0]
                 n_TdR0p8_4 = self.nAK4PuppijetsTPt50dR08_0[0]
@@ -1041,7 +987,7 @@ class sampleContainer:
                 genVPhi = self.genVPhi[0]
                 genVMass = self.genVMass[0]
                 if genVPt > 0 and genVMass > 0:
-                    dphi = math.fabs(genVPhi - jphi_8)
+                    dphi = abs(QGLRutil.deltaPhi(genVPhi , jphi_8))
                     dpt = math.fabs(genVPt - jpt_8) / genVPt
                     dmass = math.fabs(genVMass - jmsd_8) / genVMass
                 if jpt_8> PTCUT:
@@ -1049,12 +995,15 @@ class sampleContainer:
                     self.h_fBosonPt_weight.Fill(self.genVPt[0], weight) 
             #Find non-matched AK4 jets
             QuarkJets = []
+            OppHemAK4_dcsvb=[]
             for iak4 in range(0,4):
                 ak4pT   = getattr(self,"AK4Puppijet"+str(iak4)+"_pt")[0]
                 ak4eta  = getattr(self,"AK4Puppijet"+str(iak4)+"_eta")[0]
                 ak4phi  = getattr(self,"AK4Puppijet"+str(iak4)+"_phi")[0]
                 ak4mass = getattr(self,"AK4Puppijet"+str(iak4)+"_mass")[0]
+                ak4dcsvb = getattr(self,"AK4Puppijet"+str(iak4)+"_deepcsvb")[0]
                 dR_ak8  = QGLRutil.deltaR( ak4eta,ak4phi, self.AK8Puppijet0_eta[0], self.AK8Puppijet0_phi[0])
+                dphi_ak8 = abs(QGLRutil.deltaPhi(ak4phi, jphi_8))
                 #print "nAK4PuppijetsPt30 = %s iak4= %s   ak4pT = %.3f,  dR=%s"%(n_4, iak4,ak4pT, dR_ak8)
                 if ak4pT> 30.0 and dR_ak8>0.8:
                     jet = ROOT.TLorentzVector()
@@ -1062,6 +1011,24 @@ class sampleContainer:
                     jet.qgid = getattr(self,"AK4Puppijet"+str(iak4)+"_qgid")[0]
                     jet.csv  = getattr(self,"AK4Puppijet"+str(iak4)+"_csv")[0]
                     QuarkJets.append(jet)
+                if  ak4pT> 30.0 and abs(ak4eta)<2.5 and (dphi_ak8>  ROOT.TMath.Pi()/2):
+                    #print "dphi_ak8 = %.3f, ak4csvb = %.3f, abs(ak4eta) = %.3f"%(dphi_ak8,ak4dcsvb,abs(ak4eta))
+                    if ak4dcsvb>0:         #avoid invalid entries 
+                        OppHemAK4_dcsvb.append(ak4dcsvb)
+                #2017 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
+                #2018 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
+                if self.puOpt['data']=='2017':
+                    AK4DCSVCUT=0.4941
+                    if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4941:
+                        n_MdR0p8_4+=1
+                elif self.puOpt['data']=='2018':
+                    AK4DCSVCUT=0.4184
+                    if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4184:
+                        n_MdR0p8_4+=1
+                elif self.puOpt['data']=='2016':
+                    AK4DCSVCUT=0.6321
+                    n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
+                    
             #print "N un-matched jet = ", len(QuarkJets)
             #for qj in QuarkJets:
             #    print "[QuarkJets cand: pt=%.3f , eta=%.3f"%( qj.Pt(),qj.Eta())
@@ -1071,6 +1038,12 @@ class sampleContainer:
             #print "highest dEta pair = ",pair, "mass = %.3f, QGLR = %.3f"%(QGLRutil.CalcMqq(QuarkJets,pair),QGLRutil.CalcQGLR(QuarkJets,pair))
             Mqq  = QGLRutil.CalcMqq(QuarkJets,pair)
             QGLR = QGLRutil.CalcQGLR(QuarkJets,pair)
+            n_OppHem_AK4 = len(OppHemAK4_dcsvb)
+            maxAK4_dcsvb = 0
+            if n_OppHem_AK4>0:
+                #print "n_OppHem_AK4: ",n_OppHem_AK4
+                maxAK4_dcsvb = max(OppHemAK4_dcsvb)
+    
             if len(QuarkJets)>=2:
                 deta_ak4pt1pt2 = abs(QuarkJets[0].Eta() - QuarkJets[1].Eta())
                 Mqq_ak4pt1pt2  = (QuarkJets[0]+ QuarkJets[1]).M()
@@ -1160,8 +1133,8 @@ class sampleContainer:
             for syst in ['JESUp', 'JESDown', 'JERUp', 'JERDown']:
                 if eval(
                                 'jpt_8_%s' % syst) > PTCUTMUCR and jmsd_8 > MASSCUT and nmuLoose == 1 and neleLoose == 0 and ntau == 0 and vmuoLoose0_pt > MUONPTCUT and abs(
-                        vmuoLoose0_eta) < 2.1 and isTightVJet and jtN2b1sdddt_8 < 0 and abs(
-                                vmuoLoose0_phi - jphi_8) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
+                        vmuoLoose0_eta) < 2.1 and isTightVJet and jtN2b1sdddt_8 < 0 and abs(QGLRutil.deltaPhi(
+                                vmuoLoose0_phi , jphi_8)) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_muCR4_N2_pass_%s' % syst)).Fill(jmsd_8, weight)
                     elif jdb_8 > self.DBTAGCUTMIN:
@@ -1286,6 +1259,8 @@ class sampleContainer:
                     self.h_n_ak4T150.Fill(n_TPt150dR0p8_4, weight)
                     self.h_isolationCA15.Fill(ratioCA15_04, weight)
                     self.h_met.Fill(met, weight)
+                    self.h_maxAK4_dcsvb.Fill(maxAK4_dcsvb, weight)
+                    self.h_n_OppHem_AK4.Fill(n_OppHem_AK4, weight)
 
                 if jpt_8 > PTCUT and jt21P_8 < T21DDTCUT and jmsd_8 > MASSCUT:
                     self.h_msd_ak8_t21ddtCut.Fill(jmsd_8, weight)
@@ -1330,11 +1305,13 @@ class sampleContainer:
                 cut[6] = cut[6] + 1
             #if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and isTightVJet:
                 #cut[7] = cut[7] + 1
-            if (not self._minBranches) and jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and jt21P_8 < T21DDTCUT and isTightVJet:
+            if (not self._minBranches) and jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and maxAK4_dcsvb<AK4DCSVCUT and n_dR0p8_4 < NJETCUT and jt21P_8 < T21DDTCUT and isTightVJet:
                 if jdb_8 > self.DBTAGCUT:
                     # cut[9]=cut[9]+1
                     self.h_QGLR.Fill(QGLR, weight)
                     self.h_Mqq.Fill(Mqq, weight)
+                    self.h_Mqq_ak4pt1pt2.Fill(Mqq_ak4pt1pt2, weight)
+                    self.h_deta_ak4pt1pt2.Fill(deta_ak4pt1pt2, weight)
                     self.h_Deta_qq.Fill(maxdEtaQQ, weight)
                     self.h_msd_ak8_topR6_pass.Fill(jmsd_8, weight)
                     self.h_msd_ak8_raw_SR_pass.Fill(jmsd_8_raw, weight)
@@ -1357,11 +1334,11 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_topR6_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
 	    if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and isTightVJet and jdb_8 > self.DBTAGCUT and rh_8<-2.1 and rh_8>-6.: 	
 		if (not self._minBranches): self.h_n2b1sdddt_ak8_aftercut.Fill(jtN2b1sdddt_8,weight)
-            if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
+            if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and maxAK4_dcsvb<AK4DCSVCUT and n_dR0p8_4 < NJETCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
                 cut[8] = cut[8] + 1
-		if  rh_8<-2.1 and rh_8>-6.:
-		    cut[7] = cut[7] + 1
-		    if (not self._minBranches): self.h_dbtag_ak8_aftercut.Fill(jdb_8,weight)
+                if  rh_8<-2.1 and rh_8>-6.:
+                    cut[7] = cut[7] + 1
+                    if (not self._minBranches): self.h_dbtag_ak8_aftercut.Fill(jdb_8,weight)
                 if jdb_8 > self.DBTAGCUT:
                     cut[9] = cut[9] + 1
                     self.h_msd_ak8_topR6_N2_pass.Fill(jmsd_8, weight)
@@ -1433,7 +1410,7 @@ class sampleContainer:
 
             for syst in ['JESUp', 'JESDown', 'JERUp', 'JERDown']:
                 if (not self._minBranches) and eval('jpt_8_%s' % syst) > PTCUT and jmsd_8 > MASSCUT and eval('met_%s' % syst) < METCUT and eval(
-                                'n_dR0p8_4_%s' % syst) < NJETCUT and jt21P_8 < T21DDTCUT and isTightVJet:
+                                'n_dR0p8_4_%s' % syst) < NJETCUT and maxAK4_dcsvb<AK4DCSVCUT and jt21P_8 < T21DDTCUT and isTightVJet:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_topR6_pass_%s' % syst)).Fill(jmsd_8, weight)
                         (getattr(self, 'h_msd_v_pt_ak8_topR6_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
@@ -1441,7 +1418,7 @@ class sampleContainer:
                         (getattr(self, 'h_msd_ak8_topR6_fail_%s' % syst)).Fill(jmsd_8, weight)
                         (getattr(self, 'h_msd_v_pt_ak8_topR6_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
                 if eval('jpt_8_%s' % syst) > PTCUT and jmsd_8 > MASSCUT and eval('met_%s' % syst) < METCUT and eval(
-                                'n_dR0p8_4_%s' % syst) < NJETCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
+                                'n_dR0p8_4_%s' % syst) < NJETCUT and  maxAK4_dcsvb<AK4DCSVCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, weight)
                         (getattr(self, 'h_msd_v_pt_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
@@ -1639,7 +1616,144 @@ class sampleContainer:
             return "||".join(tCuts) 
         else:
             return "1"
-    def get2017puWeight(self,MC_pu):
+
+    def SetTriggerEff(self,year):
+
+        ### OLD code### 
+        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_SingleMuon_Run2017_RunCtoF.root"), "read")
+        #f_trig = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/TriggerEfficiencies_Run2017.root"), "read")
+        #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
+        #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
+
+        if year=='2016':
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/RUNTriggerEfficiencies_SingleMuon_Run2016_V2p1_v03.root"
+        elif year =="2017":
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
+        elif year =="2018":
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2018_Feb21.root"
+        else:
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
+
+        if year=='2017' or year=='2018':
+            print "Using triggerEff file = ",effFile
+            f_trig = ROOT.TFile.Open(os.path.expandvars(effFile), "read")
+            self._trig_denom = f_trig.Get("h_denom")
+            self._trig_numer = f_trig.Get("h_numer")
+            self._trig_denom.SetDirectory(0)
+            self._trig_numer.SetDirectory(0)
+            self._trig_eff = ROOT.TEfficiency()
+            if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
+                self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
+                self._trig_eff.SetDirectory(0)
+            f_trig.Close()
+        if year =='2016':
+            print "Using triggerEff file = ",effFile
+            f_trig = ROOT.TFile.Open(os.path.expandvars(effFile), "read")
+            self._trig_denom = f_trig.Get("DijetTriggerEfficiencySeveralTriggers/jet1SoftDropMassjet1PtDenom_cutJet")
+            self._trig_numer = f_trig.Get("DijetTriggerEfficiencySeveralTriggers/jet1SoftDropMassjet1PtPassing_cutJet")
+            self._trig_denom.SetDirectory(0)
+            self._trig_numer.SetDirectory(0)
+            self._trig_denom.RebinX(2)
+            self._trig_numer.RebinX(2)
+            self._trig_denom.RebinY(5)
+            self._trig_numer.RebinY(5)
+            self._trig_eff = ROOT.TEfficiency()
+            if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
+                self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
+                self._trig_eff.SetDirectory(0)
+            f_trig.Close()
+
+
+    def SetMuonEff(self,year):
+        if year=='2017':
+            f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root"), "read")
+            print "using muon eff SF :",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF_Nov17Nov2017.root")
+            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
+            self._mutrig_eff.Sumw2()
+            self._mutrig_eff.SetDirectory(0)
+            f_mutrig_BCDEF.Close()
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ID.json")) as ID_input_file:
+                print "using muon ID SF :",ID_input_file
+                self._muid_eff = json.load(ID_input_file)
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ISO.json")) as ISO_input_file:
+                print "using muon ISO SF :",ISO_input_file
+                self._muiso_eff = json.load(ISO_input_file)
+        elif year=='2018':
+            f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_AfterHLTUpdate_SF_trig.root"), "read")
+            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_OR_OldMu100_OR_TkMu100_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_OR_OldMu100_OR_TkMu100_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
+            self._mutrig_eff.Sumw2()
+            self._mutrig_eff.SetDirectory(0)
+            f_mutrig_BCDEF.Close()
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ID.json")) as ID_input_file:
+                print "using muon ID SF :",ID_input_file
+                self._muid_eff = json.load(ID_input_file)
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ISO.json")) as ISO_input_file:
+                print "using muon ISO SF :",ISO_input_file
+                self._muiso_eff = json.load(ISO_input_file)
+        elif year=='2016':
+            # From : https://github.com/kakwok/ZPrimePlusJet/commit/cd12688220ddbc944a9175d8c7f6368f680b02d4
+            lumi_GH = 16.146
+            lumi_BCDEF = 19.721
+            lumi_total = lumi_GH + lumi_BCDEF
+            f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF.root"), "read")
+            self._mutrig_eff_BCDEF = f_mutrig_BCDEF.Get("Mu50_OR_TkMu50_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff_BCDEF.Sumw2()
+            self._mutrig_eff_BCDEF.Scale(lumi_BCDEF/lumi_total)
+
+            f_mutrig_GH    = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_Period4.root"), "read")
+            self._mutrig_eff_GH = f_mutrig_GH.Get("Mu50_OR_TkMu50_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff_GH.Sumw2()
+            self._mutrig_eff_GH.Scale(lumi_GH / lumi_total)
+
+            self._mutrig_eff = self._mutrig_eff_BCDEF.Clone("pt_abseta_DATA_mutrig_ave")
+            self._mutrig_eff.Add(self._mutrig_eff_GH)
+            self._mutrig_eff.SetDirectory(0)
+            # use 2017 ID and ISO SF for now
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ID.json")) as ID_input_file:
+                print "using muon ID SF :",ID_input_file
+                self._muid_eff = json.load(ID_input_file)
+            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ISO.json")) as ISO_input_file:
+                print "using muon ISO SF :",ISO_input_file
+                self._muiso_eff = json.load(ISO_input_file)
+
+
+    def SetExternalInputs(self,year):
+
+        #pre14 NLO W/Z k-factors files
+        f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
+        self._znlo = f_ZNLO.Get("NLO")
+        self._znlo.SetDirectory(0)
+        f_ZNLO.Close()
+        f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr.root"), "read")
+        self._wnlo = f_WNLO.Get("NLO")
+        self._wnlo.SetDirectory(0)
+        f_WNLO.Close()
+
+        # Old PU weight file used by 12.04 
+        f_pu = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/puWeights_All.root"), "read")
+        self._puw = f_pu.Get("puw")
+        self._puw_up = f_pu.Get("puw_p")
+        self._puw_down = f_pu.Get("puw_m")
+
+        self._puw.SetDirectory(0)
+        self._puw_up.SetDirectory(0)
+        self._puw_down.SetDirectory(0)
+        f_pu.Close()
+
+        # get histogram for transform
+        #f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"), "read")  # GridOutput_v13_WP026.root # smooth version of the ddt ; exp is 4.45 vs 4.32 (3% worse)
+        f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/n2ddt_map_38percent_GaussianFilter.root"), "read") 
+        self._trans_h2ddt = f_h2ddt.Get("Rho2D")
+        self._trans_h2ddt.SetDirectory(0)
+        f_h2ddt.Close()
+
+
+        self.SetTriggerEff(year)
+        self.SetMuonEff(year)
+
+        
+    def getPuWeight(self,MC_pu,data_pu):
         if type(MC_pu)==type(ROOT.TH1F()):
             lpuMC = MC_pu
         else:
@@ -1649,11 +1763,19 @@ class sampleContainer:
             f_puMC.Close()
         lpuMC.Scale(1/lpuMC.Integral())
         
-        f_pu2017  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileup_Cert_294927-306462_13TeV_PromptReco_Collisions17_withVar.root"))
+        if data_pu=='2017':
+            print "Using 2017 data PU ",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileup_Cert_294927-306462_13TeV_PromptReco_Collisions17_withVar.root")
+            f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileup_Cert_294927-306462_13TeV_PromptReco_Collisions17_withVar.root"))
+        elif data_pu=='2018':
+            print "Using 2018 data PU ",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root")
+            f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root"))
+        elif data_pu=='2016':
+            print "Using 2016 data PU ",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root")
+            f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"))
 
-        lpuData     = f_pu2017.Get("pileup")
-        lpuData_up  = f_pu2017.Get("pileup_plus")
-        lpuData_down= f_pu2017.Get("pileup_minus")
+        lpuData     = f_pu.Get("pileup")
+        lpuData_up  = f_pu.Get("pileup_plus")
+        lpuData_down= f_pu.Get("pileup_minus")
 
         lpuData.Scale(1/lpuData.Integral())
         lpuData_up.Scale(1/lpuData_up.Integral())

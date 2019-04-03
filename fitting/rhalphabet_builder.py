@@ -28,7 +28,7 @@ from hist import *
 class RhalphabetBuilder():
     def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
-                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={}):
+                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201):
         self._pass_hists = pass_hists
         self._fail_hists = fail_hists
         self._mass_fit = mass_fit
@@ -50,6 +50,8 @@ class RhalphabetBuilder():
         self._mass_nbins = mass_nbins
         self._mass_lo = mass_lo
         self._mass_hi = mass_hi
+        self._mass_hist_lo = mass_hist_lo
+        self._mass_hist_hi = mass_hist_hi
         self._blind = blind
         self._mass_blind_lo = blind_lo
         self._mass_blind_hi = blind_hi
@@ -369,11 +371,17 @@ class RhalphabetBuilder():
         m2.setEps(1e-5)
         m2.optimizeConst(2)
 
+        
         migrad_status = m2.minimize('Minuit2', 'migrad')
         improve_status = m2.minimize('Minuit2', 'improve')
         hesse_status = m2.minimize('Minuit2', 'hesse')
+        
         fr = m2.save()
         fr.Print('v')
+
+        #print "qcd_fail_cat1_Bin1_func", w.function("qcd_fail_cat1_Bin1_func").getVal()
+        #print "qcd_fail_cat1_Bin1_In", w.var("qcd_fail_cat1_Bin1_In").getVal()
+        #print "qcd_fail_cat1_Bin1_Unc", w.var("qcd_fail_cat1_Bin1_Unc").getVal()
 
         icat = 0
         for cat in self._categories:
@@ -443,7 +451,7 @@ class RhalphabetBuilder():
             print "------- this bin pT value ", this_pt
 
             # Make the rhalphabet fit for this pt bin
-            (rhalphabet_hist_pass, rhalphabet_hist_fail) = self.MakeRhalphabet(["data_obs", "wqq", "zqq", "tqq"],
+            (rhalphabet_hist_pass, rhalphabet_hist_fail) = self.MakeRhalphabet(["data_obs", "wqq", "zqq", "tqq","hqq125","vbfhqq125","tthqq125","zhqq125","whqq125"],
                                                                                fail_hists_ptbin, this_pt,
                                                                                "cat" + str(pt_bin))
 
@@ -475,7 +483,7 @@ class RhalphabetBuilder():
 
         # Fix the pt (top) and the qcd eff
         self._lPt.setVal(pt)
-        self._lEffQCD.setConstant(False)
+        self._lEffQCD.setConstant(True)
 
         polynomial_variables = []
         #self.buildPolynomialArray(polynomial_variables, self._poly_degree_pt, self._poly_degree_rho, "p", "r", -30, 30)
@@ -512,16 +520,28 @@ class RhalphabetBuilder():
                     fail_bin_content -= fail_histograms[sample].GetBinContent(mass_bin)  # subtract W/Z/ttbar from data
             if fail_bin_content < 0: fail_bin_content = 0.
 
-            print rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin), fail_bin_content
+            fail_bin_unc = 1.+1./math.sqrt(max(fail_bin_content,1))
 
-            # 50 sigma range + 10 events
-            fail_bin_unc = math.sqrt(fail_bin_content) * 50. + 10.
+            print rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin), fail_bin_content, fail_bin_unc
+
             # Define the failing category
-            fail_bin_var = r.RooRealVar(rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
-                                        rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
-                                        fail_bin_content, 0., max(fail_bin_content + fail_bin_unc, 0.))
+            fail_bin_var_real = r.RooRealVar(rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
+                                             rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin),
+                                             0, -50, 50)
+            fail_bin_var_in = r.RooRealVar(rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin) + "_In",
+                                           rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin) + "_In",
+                                           fail_bin_content)
+            fail_bin_var_unc = r.RooRealVar(rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin) + "_Unc",
+                                            rhalph_bkgd_name + "_fail_" + category + "_Bin" + str(mass_bin) + "_Unc",
+                                            fail_bin_unc)
+            fail_bin_var_in.setConstant(True)
+            fail_bin_var_unc.setConstant(True)
+            fail_bin_var = r.RooFormulaVar(rhalph_bkgd_name + "_fail_" + category + self._suffix + "_Bin" + str(mass_bin) + "_func",
+                                           rhalph_bkgd_name + "_fail_" + category + self._suffix + "_Bin" + str(mass_bin) + "_func",
+                                           "@1*pow(@2,@0)", r.RooArgList(fail_bin_var_real,fail_bin_var_in,fail_bin_var_unc))
 
             print "[david debug] fail_bin_var:"
+            fail_bin_var_real.Print()
             fail_bin_var.Print()
 
             # Now define the passing cateogry based on the failing (make sure it can't go negative)
@@ -529,6 +549,7 @@ class RhalphabetBuilder():
             pass_bin_var = r.RooFormulaVar(rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            "@0*max(@1,0)*@2", lArg)
+
             print "Pass=fail*poly*eff RooFormulaVar:"
             print pass_bin_var.Print()
 
@@ -537,7 +558,7 @@ class RhalphabetBuilder():
             # If the number of events in the failing is small remove the bin from being free in the fit
             if fail_bin_content < 4:
                 print "too small number of events", fail_bin_content, "Bin", str(mass_bin)
-                fail_bin_var.setConstant(True)
+                fail_bin_var_real.setConstant(True)
                 pass_bin_var = r.RooRealVar(rhalph_bkgd_name + "_pass_" + category + "_Bin" + str(mass_bin),
                                             rhalph_bkgd_name + "_pass_" + category + "_Bin" + str(mass_bin), 0, 0, 0)
 
@@ -546,8 +567,8 @@ class RhalphabetBuilder():
             # Add bins to the array
             pass_bins.add(pass_bin_var)
             fail_bins.add(fail_bin_var)
-            self._all_vars.extend([pass_bin_var, fail_bin_var])
-            self._all_pars.extend([pass_bin_var, fail_bin_var])
+            self._all_vars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
+            self._all_pars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
             # print  fail_bin_var.GetName(),"flatParam",lPass#,lPass+"/("+lFail+")*@0"
 
         # print "Printing pass_bins:"
@@ -568,8 +589,8 @@ class RhalphabetBuilder():
         pass_norm.Print()
         fail_norm.Print()
         self._all_shapes.extend([pass_rparh, fail_rparh, pass_norm, fail_norm])
-
-        # Now write the wrokspace with the rooparamhist
+        
+        # Now write the workspace with the rooparamhist
         pass_workspace = r.RooWorkspace("w_pass_" + str(category))
         fail_workspace = r.RooWorkspace("w_fail_" + str(category))
         getattr(pass_workspace, 'import')(pass_rparh, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
@@ -671,14 +692,14 @@ class RhalphabetBuilder():
         for pRVar in range(0, self._poly_degree_rho + 1):
             lTmpArray = r.RooArgList()
             for pVar in range(0, self._poly_degree_pt + 1):
-                if lNCount == 0:
-                    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
-                else:
-                    print "lNCount = " + str(lNCount)
-                    lTmpArray.add(iVars[lNCount])
-                    print "iVars[lNCount]: ", iVars[lNCount]
-                    print "iVars[lNCount]"
-                    iVars[lNCount].Print()
+                #if lNCount == 0:
+                #    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
+                #else:
+                print "lNCount = " + str(lNCount)
+                lTmpArray.add(iVars[lNCount])
+                print "iVars[lNCount]: ", iVars[lNCount]
+                print "iVars[lNCount]"
+                iVars[lNCount].Print()
                 lNCount = lNCount + 1
             pLabel = "Var_Pol_Bin_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)) + "_" + str(pRVar)
             lTmpArray.add(lPt_rescaled)
@@ -748,7 +769,8 @@ class RhalphabetBuilder():
                     pXMin = iXMin0
                     pXMax = iXMax0
 
-                pRooVar = r.RooRealVar(pVar, pVar, 0.0, pXMin, pXMax)
+                pRooVar = r.RooRealVar(pVar, pVar, 1.0, pXMin, pXMax)
+                #pRooVar = r.RooRealVar(pVar, pVar, self._lEffQCD.getVal(), pXMin, pXMax)
                 # print("========  here i0 %s i1 %s"%(i0,i1))
                 print pVar
                 # print(" is : %s  +/- %s"%(value[i0*3+i1],error[i0*3+i1]))
@@ -945,20 +967,12 @@ class RhalphabetBuilder():
                         hout.append(myhist)
                 # blind if necessary and output to workspace
                 for h in hout:
-                    for i in range(1, h.GetNbinsX() + 1):
-                        massVal = h.GetXaxis().GetBinCenter(i)
-                        rhoVal = r.TMath.Log(massVal * massVal / pt_val / pt_val)
-                        if self._blind and massVal > self._mass_blind_lo and massVal < self._mass_blind_hi:
-                            print "blinding signal region for %s, mass bin [%i,%i] " % (
-                                h.GetName(), h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
-                            h.SetBinContent(i, 0.)
-                            h.SetBinError(i, 0.)
-                        if rhoVal < self._rho_lo or rhoVal > self._rho_hi:
-                            print "removing rho = %.2f for %s, pt_val = %.2f, mass bin [%i,%i]" % (
-                                rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i),
-                                h.GetXaxis().GetBinUpEdge(i))
-                            h.SetBinContent(i, 0.)
-                            h.SetBinError(i, 0.)
+                    #Zero sys. histogram contents
+                    rhoRange = [self._rho_lo ,self._rho_hi]
+                    blindRange=[self._mass_blind_lo, self._mass_blind_hi]
+                    massHistRange = [self._mass_hist_lo, self._mass_hist_hi]
+                    ZeroHistogram1D(h,pt_val, blind = self._blind, mass_range = massHistRange, blind_range = blindRange,rho_range = rhoRange)
+                    
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
                     # validation
@@ -1061,18 +1075,12 @@ class RhalphabetBuilder():
                         hmatchedsys_smear[1]]
                 # blind if necessary and output to workspace
                 for h in hout:
-                    for i in range(1, h.GetNbinsX() + 1):
-                        massVal = h.GetXaxis().GetBinCenter(i)
-                        rhoVal = r.TMath.Log(massVal * massVal / pt_val / pt_val)
-                        if self._blind and massVal > self._mass_blind_lo and massVal < self._mass_blind_hi:
-                            print "blinding signal region for %s, mass bin [%i,%i] " % (
-                                h.GetName(), h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
-                            h.SetBinContent(i, 0.)
-                        if rhoVal < self._rho_lo or rhoVal > self._rho_hi:
-                            print "removing rho = %.2f for %s, pt_val = %.2f, mass bin [%i,%i]" % (
-                                rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i),
-                                h.GetXaxis().GetBinUpEdge(i))
-                            h.SetBinContent(i, 0.)
+                    #Zero sys. histogram contents
+                    rhoRange = [self._rho_lo ,self._rho_hi]
+                    blindRange=[self._mass_blind_lo, self._mass_blind_hi]
+                    massHistRange = [self._mass_hist_lo, self._mass_hist_hi]
+                    ZeroHistogram1D(h,pt_val, blind = self._blind, mass_range = massHistRange, blind_range = blindRange,rho_range = rhoRange)
+
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
                     if h.GetName().find("scale") > -1:
@@ -1096,13 +1104,30 @@ class RhalphabetBuilder():
         workspace.Print()
         # workspace.writeToFile(output_path)   
 
-
 ##############################################################################
 ##############################################################################
 #### E N D   O F   C L A S S
 ##############################################################################
 ##############################################################################
 
+def ZeroHistogram1D(h,pt_val,blind,mass_range,blind_range,rho_range):
+    for i in range(1, h.GetNbinsX() + 1):
+        massVal = h.GetXaxis().GetBinCenter(i)
+        rhoVal = r.TMath.Log(massVal * massVal / pt_val / pt_val)
+        if blind and massVal > blind_range[0] and massVal < blind_range[1]:
+            print "blinding signal region for %s, mass bin [%i,%i] " % (h.GetName(), h.GetXaxis().GetBinLowEdge(i), h.GetXaxis().GetBinUpEdge(i))
+            h.SetBinContent(i, 0.)
+            h.SetBinError(i, 0.)
+        if rhoVal < rho_range[0] or rhoVal > rho_range[1]:
+            print "removing rho = %.2f for %s, pt_val = %.2f, mass bin [%i,%i]" % (rhoVal, h.GetName(), pt_val, h.GetXaxis().GetBinLowEdge(i),h.GetXaxis().GetBinUpEdge(i))
+            h.SetBinContent(i, 0.)
+            h.SetBinError(i, 0.)
+        if massVal < mass_range[0] or massVal > mass_range[1] :
+            print "removing mass = %.2f for %s, because %.2f not in [%i,%i]" % (massVal,h.GetName(),massVal,mass_range[0], mass_range[1])
+            h.SetBinContent(i, 0.)
+            h.SetBinError(i, 0.)
+
+    
 ##-------------------------------------------------------------------------------------
 def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={}):
     pass_hists = {}
@@ -1117,14 +1142,12 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
         if bkg == 'qcd':
             qcd_fail = f.Get('qcd_fail')
             qcd_fail.Scale(1. / scale)
-            qcd_fail.SetBinContent(13, 4, (
-                qcd_fail.GetBinContent(12, 4) + qcd_fail.GetBinContent(14, 4)) / 2.)  # REMOVE HIGH WEIGHT EVENT BIN
-            qcd_fail.SetBinError(13, 4, (
-                qcd_fail.GetBinError(12, 4) + qcd_fail.GetBinError(14, 4)) / 2.)  # REMOVE HIGH WEIGHT EVENT BIN
             if useQCD:
+                print "Using QCD MC"
                 qcd_pass = f.Get('qcd_pass').Clone()
                 qcd_pass.Scale(1. / scale)
             else:
+                print "Using  qcd_pass = qcd_fail * eff(pass)/eff(fail)"
                 qcd_pass_real = f.Get('qcd_pass').Clone('qcd_pass_real')
                 qcd_pass_real.Scale(1. / scale)
                 qcd_pass = qcd_fail.Clone('qcd_pass')
@@ -1228,6 +1251,13 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
                         histogram.GetYaxis().GetBinUpEdge(j),
                         histogram.GetXaxis().GetBinLowEdge(i), histogram.GetXaxis().GetBinUpEdge(i))
                     histogram.SetBinContent(i, j, 0.)
+                if massVal < mass_range[0] or massVal > mass_range[1]:
+                    print "removing mass = %.2f for %s, pt bin [%i, %i], mass bin [%i,%i]" % (
+                        massVal, histogram.GetName(), histogram.GetYaxis().GetBinLowEdge(j),
+                        histogram.GetYaxis().GetBinUpEdge(j),
+                        histogram.GetXaxis().GetBinLowEdge(i), histogram.GetXaxis().GetBinUpEdge(i))
+                    histogram.SetBinContent(i, j, 0.)
+
         histogram.SetDirectory(0)
 
         # print "lengths = ", len(pass_hists), len(fail_hists)

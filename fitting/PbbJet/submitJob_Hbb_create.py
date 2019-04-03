@@ -7,24 +7,23 @@ def exec_me(command, dryRun=False):
     if not dryRun:
         os.system(command)
 
-def write_condor(exe='runjob.sh', arguments = [], files = [],dryRun=True):
-    job_name = exe.replace('.sh','.jdl')
-    out = 'universe = vanilla\n'
-    out += 'Executable = %s\n'%exe
-    out += 'Should_Transfer_Files = YES\n'
-    out += 'WhenToTransferOutput = ON_EXIT_OR_EVICT\n'
-    out += 'Transfer_Input_Files = %s,%s\n'%(exe,','.join(files))
-    out += 'Output = %s.stdout\n'%job_name
-    out += 'Error  = %s.stderr\n'%job_name
-    out += 'Log    = %s.log\n'   %job_name
-    #out += 'notify_user = jduarte1@FNAL.GOV\n'
-    #out += 'x509userproxy = /tmp/x509up_u42518\n'
-    out += 'Arguments = %s\n'%(' '.join(arguments))
-    out += 'Queue 1\n'
-    with open(job_name, 'w') as f:
+def write_condor(njobs, exe='runjob', files = [], dryRun=True):
+    fname = '%s.jdl' % exe
+    out = """universe = vanilla
+Executable = {exe}.sh
+Should_Transfer_Files = YES
+WhenToTransferOutput = ON_EXIT_OR_EVICT
+Transfer_Input_Files = {exe}.sh,{files}
+Output = {exe}.$(Process).stdout
+Error  = {exe}.$(Process).stderr
+Log    = {exe}.$(Process).log
+Arguments = $(Process) {njobs}
+Queue {njobs}
+    """.format(exe=exe, files=','.join(files), njobs=njobs)
+    with open(fname, 'w') as f:
         f.write(out)
     if not dryRun:
-        os.system("condor_submit %s"%job_name)
+        os.system("condor_submit %s" % fname)
 
 def write_bash(temp = 'runjob.sh', command = '' ,gitClone=""):
     out = '#!/bin/bash\n'
@@ -62,6 +61,7 @@ if __name__ == '__main__':
     parser.add_option('--hadd', dest='hadd', action='store_true',default = False, help='hadd roots from subjobs', metavar='hadd')
     parser.add_option('--clean', dest='clean', action='store_true',default = False, help='clean submission files', metavar='clean')
     parser.add_option('-o', '--odir', dest='odir', default='./', help='directory to write histograms/job output', metavar='odir')
+    parser.add_option('-n', '--njobs', dest='njobs', default=500, type="int", help='Number of jobs to split into', metavar='njobs')
 
     script_group  = OptionGroup(parser, "script options")
     script_group.add_option("--bb", action='store_true', dest="bb", default=False, help="sort by double b-tag")
@@ -74,23 +74,24 @@ if __name__ == '__main__':
     script_group.add_option('--skip-qcd', action='store_true', dest='skipQCD', default=False, help='skip QCD', metavar='skip-qcd')
     script_group.add_option('--skip-data', action='store_true', dest='skipData', default=False, help='skip Data', metavar='skip-data')
     script_group.add_option("--lumi", dest="lumi", default=41.3, type="float", help="luminosity", metavar="lumi")
-    script_group.add_option("--is2017"  , dest="is2017", action='store_true', default=False, help="use 2017 files", metavar="is2017")
+    script_group.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     script_group.add_option("--sfData" , dest="sfData", default=1, type="int", help="process 1/sf of data", metavar="sfData")
     script_group.add_option("--region" , dest="region", default='topR6_N2',choices=['topR6_N2','QGquark','QGgluon'], help="region for pass/fail doubleB tag", metavar="region")
+    script_group.add_option("--doublebName"  , dest="doublebName", default="AK8Puppijet0_deepdoubleb", help="double-b name", metavar="doublebName")
     parser.add_option_group(script_group)
 
     (options, args) = parser.parse_args()
     hadd  = options.hadd
     dryRun= False 
 
-    maxJobs = 500
+    maxJobs = options.njobs 
 
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
-    gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
-    files = ['']
+    files = []
     #ouput to ${MAINDIR}/ so that condor transfer the output to submission dir
     command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/Hbb_create.py -o ${MAINDIR}/ --i-split $1 --max-split $2'
     #Add script options to job command
@@ -120,13 +121,10 @@ if __name__ == '__main__':
             exec_me("mkdir -p %s"%(outpath), False)
         os.chdir(outpath)
         print "submitting jobs from : ",os.getcwd()
-    
-        for iJob in range(0,maxJobs):
-            #if not iJob==0: continue
-            arguments = [ str(iJob), str(maxJobs)]
-            exe       = "runjob_%s.sh"%iJob
-            write_bash(exe, command,gitClone)
-            write_condor(exe, arguments, files,dryRun)
+        exe = "runjob"
+        write_bash(exe+".sh", command, gitClone)
+        #write_condor(maxJobs, exe, arguments, files, dryRun)
+        write_condor(maxJobs, exe,  files, dryRun)
     else:
         print "Trying to hadd subjob files from %s/%s"%(outpath,subFileName)
         nOutput = len(glob.glob("%s/%s"%(outpath,subFileName)))
@@ -139,6 +137,14 @@ if __name__ == '__main__':
                 print "Cleaning submission files..." 
                 #remove all but _0 file
                 for i in range(1,10):
-                    exec_me("rm %s/runjob_%s*"%(outpath,i),dryRun)
+                    exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
+                exec_me("rm %s/core*"%(outpath),dryRun)
         else:
             print "%s/%s jobs done, not hadd-ing"%(nOutput,maxJobs)
+            nMissJobs = range(0,maxJobs)
+            files = glob.glob("%s/hist_1DZbb_pt_scalesmear_*.root"%outpath)
+            for f in files:
+                jobN = int(f.split("/")[-1].replace(".root","").split("_")[-1])
+                if jobN in nMissJobs:
+                    nMissJobs.remove(int(jobN))
+            print "Missing jobs = ",nMissJobs

@@ -10,14 +10,17 @@ import sys
 import time
 import array
 import re
+from  bernstein import *
 
 # including other directories
 # sys.path.insert(0, '../.')
 from tools import *
 
 msd_binBoundaries = []
-for i in range(0, 24): msd_binBoundaries.append(40 + i * 7)
-pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1000]
+#for i in range(0, 24): msd_binBoundaries.append(40 + i * 7)
+for i in range(1, 24): msd_binBoundaries.append(40 + i * 7)
+pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1200]
+#pt_binBoundaries = [450, 500, 550, 600, 1000]
 
 from buildRhalphabetHbb import BLIND_LO, BLIND_HI, RHO_LO, RHO_HI
 
@@ -35,16 +38,20 @@ def main(options, args):
     histograms_fail_summed = {}
 
     shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125', 'data']
+    bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
+    sigshapes=['hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
+    
 
     for i in range(len(pt_binBoundaries) - 1):
+        print i
         (tmppass, tmpfail) = plotCategory(fml, fd, i + 1, options.fit)
         histograms_pass_all[i] = {}
         histograms_fail_all[i] = {}
         for shape in shapes:
             for hist in tmppass:
-                if re.match(shape,hist.GetName()): histograms_pass_all[i][shape] = hist
+                if hist != None and re.match(shape,hist.GetName()): histograms_pass_all[i][shape] = hist
             for hist in tmpfail:
-                if re.match(shape,hist.GetName()): histograms_fail_all[i][shape] = hist
+                if hist !=None and re.match(shape,hist.GetName()): histograms_fail_all[i][shape] = hist
 
     pass_2d = {}
     fail_2d = {}
@@ -57,8 +64,8 @@ def main(options, args):
                                 array.array('d', pt_binBoundaries))
         for i in range(1, pass_2d[shape].GetNbinsX() + 1):
             for j in range(1, pass_2d[shape].GetNbinsY() + 1):
-                pass_2d[shape].SetBinContent(i, j, histograms_pass_all[j - 1][shape].GetBinContent(i))
-                fail_2d[shape].SetBinContent(i, j, histograms_fail_all[j - 1][shape].GetBinContent(i))
+                if shape in histograms_pass_all[j - 1].keys(): pass_2d[shape].SetBinContent(i, j, histograms_pass_all[j - 1][shape].GetBinContent(i))
+                if shape in histograms_fail_all[j - 1].keys(): fail_2d[shape].SetBinContent(i, j, histograms_fail_all[j - 1][shape].GetBinContent(i))
 
     pass_2d_data_subtract = pass_2d['data'].Clone('data_pass_2d_subtract')
     fail_2d_data_subtract = fail_2d['data'].Clone('data_fail_2d_subtract')
@@ -79,44 +86,62 @@ def main(options, args):
                 ratio_2d_data_subtract.SetBinContent(i, j, 0)
 
     for shape in shapes:
+        if not shape in histograms_pass_all[0].keys(): continue
         histograms_pass_summed[shape] = histograms_pass_all[0][shape].Clone(shape + '_pass_sum')
+        for i in range(1, len(pt_binBoundaries)-1):
+            if not shape in histograms_pass_all[i].keys(): continue
+            histograms_pass_summed[shape].Add(histograms_pass_all[i][shape])
+    for shape in shapes:
+        if not shape in histograms_fail_all[0].keys(): continue
         histograms_fail_summed[shape] = histograms_fail_all[0][shape].Clone(shape + '_fail_sum')
         for i in range(1, len(pt_binBoundaries)-1):
-            histograms_pass_summed[shape].Add(histograms_pass_all[i][shape])
+            if not shape in histograms_fail_all[i].keys(): continue
             histograms_fail_summed[shape].Add(histograms_fail_all[i][shape])
 
-    histograms_pass_summed_list = []
-    histograms_fail_summed_list = []
+    histograms_pass_summed_list = {"bkg":[],"sig":[]}
+    histograms_fail_summed_list = {"bkg":[],"sig":[]}
     for shape in shapes:
-        histograms_pass_summed_list.append(histograms_pass_summed[shape])
-        histograms_fail_summed_list.append(histograms_fail_summed[shape])
+        if shape in histograms_pass_summed.keys():
+            if shape in bkgshapes:
+                histograms_pass_summed_list['bkg'].append(histograms_pass_summed[shape])
+            if shape in sigshapes:
+                histograms_pass_summed_list['sig'].append(histograms_pass_summed[shape])
+            if shape in ['data']:
+                histograms_pass_summed_list['data']=histograms_pass_summed[shape]
+            
+        if shape in histograms_fail_summed.keys():
+            if shape in bkgshapes:
+                histograms_fail_summed_list['bkg'].append(histograms_fail_summed[shape])
+            if shape in sigshapes:
+                histograms_fail_summed_list['sig'].append(histograms_fail_summed[shape])
+            if shape in ['data']:
+                histograms_fail_summed_list['data']=histograms_fail_summed[shape]
+ 
 
     rBestFit = 1
     # print out fit results
     if options.fit == "fit_b" or options.fit == "fit_s":
         rfr = r.RooFitResult(fml.Get(options.fit))
         lParams = []
-        lParams.append("qcdeff")
-        # for r2p2 polynomial
-        # lParams.append("r0p1") # -> r1p0
-        # lParams.append("r0p2") # -> r2p0
-        # lParams.append("r1p0") # -> r1p0
-        # lParams.append("r1p1") # -> r1p1
-        # lParams.append("r1p2")
-        # lParams.append("r2p0")
-        # lParams.append("r2p1")
-        # lParams.append("r2p2")
+        #lParams.append("qcdeff")
         # for r2p1 polynomial
-        lParams.append("r2p0")  # -> r1p0
-        lParams.append("r1p1")  # -> r2p0
-        lParams.append("r1p0")  # -> r0p1
-        lParams.append("r0p1")  # -> r1p1
-        lParams.append("r2p1")  # -> r2p1
-        lParams.append("r0p2")
-        lParams.append("r1p2")
-        lParams.append("r2p2")
+        if options.suffix is not "":
+            lParams.append("p0r0_"+options.suffix)
+            lParams.append("p0r1_"+options.suffix)  
+            lParams.append("p0r2_"+options.suffix)  
+            lParams.append("p1r0_"+options.suffix)  
+            lParams.append("p1r1_"+options.suffix)  
+            lParams.append("p1r2_"+options.suffix)
+        else:
+            lParams.append("p0r0")
+            lParams.append("p0r1")  
+            lParams.append("p0r2")  
+            lParams.append("p1r0")  
+            lParams.append("p1r1")  
+            lParams.append("p1r2")
 
-        pars = []
+
+        pars = [0.012072]
         for p in lParams:
             if rfr.floatParsFinal().find(p):
                 print p, "=", rfr.floatParsFinal().find(p).getVal(), "+/-", rfr.floatParsFinal().find(p).getError()
@@ -130,16 +155,19 @@ def main(options, args):
             rBestFit = 0
 
         # Plot TF poly
-        makeTF(pars, ratio_2d_data_subtract)
+        includeQCDeff = True
+        makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
+        includeQCDeff = False
+        makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
 
     #print "sum ",histograms_pass_summed_list[0:4], histograms_pass_summed_list[9], histograms_pass_summed_list[4:9]
 
-    [histograms_pass_summed_list] = makeMLFitCanvas(histograms_pass_summed_list[0:4], histograms_pass_summed_list[9],
-                                                    histograms_pass_summed_list[4:9], shapes,
+    [histograms_pass_summed_list] = makeMLFitCanvas(histograms_pass_summed_list['bkg'], histograms_pass_summed_list['data'],
+                                                    histograms_pass_summed_list['sig'], shapes,
                                                     "pass_allcats_" + options.fit, options.odir, rBestFit,
                                                     options.sOverSb, options.splitS, options.ratio)
-    [histograms_fail_summed_list] = makeMLFitCanvas(histograms_fail_summed_list[0:4], histograms_fail_summed_list[9],
-                                                    histograms_fail_summed_list[4:9], shapes,
+    [histograms_fail_summed_list] = makeMLFitCanvas(histograms_fail_summed_list['bkg'], histograms_fail_summed_list['data'],
+                                                    histograms_fail_summed_list['sig'], shapes,
                                                     "fail_allcats_" + options.fit, options.odir, rBestFit,
                                                     options.sOverSb, options.splitS, options.ratio)
 
@@ -163,17 +191,31 @@ def plotCategory(fml, fd, index, fittype):
             # fitdir = "prefit"
             fitdir = fittype
         # print fitdir+"/cat%i_fail_cat%i/%s" % (index,index,ish)
+        if options.suffix is not "":
+            pass_cat_name = "_".join(["cat%i"%index,options.suffix,"pass","cat%i"%index])
+            fail_cat_name = "_".join(["cat%i"%index,options.suffix,"fail","cat%i"%index])
+        else:
+            pass_cat_name = "_".join(["cat%i"%index,"pass","cat%i"%index])
+            fail_cat_name = "_".join(["cat%i"%index,"fail","cat%i"%index])
 
-        histograms_fail.append(fml.Get("shapes_" + fitdir + "/cat%i_fail_cat%i/%s" % (index, index, ish)))
-        histograms_pass.append(fml.Get("shapes_" + fitdir + "/cat%i_pass_cat%i/%s" % (index, index, ish)))
+        histograms_fail.append(fml.Get("shapes_" + fitdir + "/%s/%s" % (fail_cat_name, ish)))
+        histograms_pass.append(fml.Get("shapes_" + fitdir + "/%s/%s" % (pass_cat_name, ish)))
         # print fitdir
         rags = fml.Get("norm_" + fitdir)
         # rags.Print()
 
-        rrv_fail = r.RooRealVar(rags.find("cat%i_fail_cat%i/%s" % (index, index, ish)))
-        curnorm_fail = rrv_fail.getVal()
-        rrv_pass = r.RooRealVar(rags.find("cat%i_pass_cat%i/%s" % (index, index, ish)))
-        curnorm_pass = rrv_pass.getVal()
+
+        print "finding rrv with name = %s/%s" % (pass_cat_name, ish)
+        if rags.find("%s/%s" % (fail_cat_name, ish)) != None:
+          rrv_fail = r.RooRealVar(rags.find("%s/%s" % (fail_cat_name, ish)))
+          curnorm_fail = rrv_fail.getVal()
+        else:
+            print " rrv with name = %s/%s is null" % (fail_cat_name, ish)
+        if  rags.find("%s/%s" % (pass_cat_name, ish)) != None:
+          rrv_pass = r.RooRealVar(rags.find("%s/%s" % (pass_cat_name, ish)))
+          curnorm_pass = rrv_pass.getVal()
+        else:
+            print " rrv with name = %s/%s is null" % (pass_cat_name, ish)
         # if ish=='qcd' and index==4:
         #    histograms_fail[i].SetBinContent(13,(histograms_fail[i].GetBinContent(12)+histograms_fail[i].GetBinContent(14))/2.)
         #    histograms_pass[i].SetBinContent(13,(histograms_pass[i].GetBinContent(12)+histograms_pass[i].GetBinContent(14))/2.)
@@ -234,9 +276,6 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     weight = 1
     if sOverSb:
         [bkgs, data, hsigs, weight] = weightBySOverSpB(bkgs, data, hsigs, tag)
-        data.GetYaxis().SetTitle('S/(S+B) Weighted Events / 7 GeV')
-    else:
-        data.GetYaxis().SetTitle('Events / 7 GeV')
 
     c = r.TCanvas("c%s" % tag, "c%s" % tag, 800, 800)
     SetOwnership(c, False)
@@ -257,6 +296,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     htot.SetLineColor(r.kBlack)
     htot.SetLineStyle(1)
     htot.SetFillStyle(3001)
+    #htot.SetFillStyle(0)
     htot.SetFillColor(r.kAzure - 5)
     htot.SetLineColor(r.kAzure - 5)
     htot.SetMinimum(0)
@@ -267,14 +307,16 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     htotsig.SetFillStyle(3001)
     htotsig.SetFillColor(r.kPink + 3)
     htotsig.SetLineColor(r.kPink + 3)
+    htotsig.SetLineWidth(2)
     # htotsig.Draw("")
     for ih in range(1, len(bkgs)):
         htot.Add(bkgs[ih])
         htotsig.Add(bkgs[ih])
     hsig = hsigs[0].Clone("hsig%s" % tag)
     for ih in range(1, len(hsigs)):
-        hsig.Add(hsigs[ih])
-        htotsig.Add(hsigs[ih])
+        if hsigs[ih] !=None:
+            hsig.Add(hsigs[ih])
+            htotsig.Add(hsigs[ih])
 
     colors = [r.kGreen + 2, r.kRed + 1, r.kMagenta + 3, r.kGray + 2, r.kPink + 7]
     sigcolor = [r.kPink + 7, r.kPink + 1, r.kAzure + 1, r.kOrange + 1, r.kAzure + 3]
@@ -286,7 +328,9 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         b.SetLineStyle(style[i])
         b.SetLineWidth(2)
 
-    if splitS:
+    if 'fit_b' not in tag:
+        l = r.TLegend(0.6, 0.55, 0.75, 0.85)
+    elif splitS:
         l = r.TLegend(0.6, 0.4, 0.75, 0.85)
     else:
         l = r.TLegend(0.6, 0.5, 0.75, 0.85)
@@ -297,14 +341,15 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     legnames = {'wqq': 'W', 'zqq': 'Z', 'qcd': 'Multijet', 'tqq': 't#bar{t}'}
     for i in range(len(bkgs)):
         l.AddEntry(bkgs[i], legnames[leg[i]], "l")
-    l.AddEntry(htot, "Total Background", "lf")
+    l.AddEntry(htot, "Total background", "lf")
     # l.AddEntry(htotsig,"Total Bkg. + Sig.","lf")
-    if splitS:
-        for ih in range(0, len(hsigs)):
-            hsigs[ih].SetLineColor(sigcolor[ih])
-            l.AddEntry(hsigs[ih], sleg[ih], "lf")
-    else:
-        l.AddEntry(hsig, "H(b#bar{b})", "lf")
+    if 'fit_b' not in tag:
+        if splitS:
+            for ih in range(0, len(hsigs)):
+                hsigs[ih].SetLineColor(sigcolor[ih])
+                l.AddEntry(hsigs[ih], sleg[ih], "lf")
+        else:
+            l.AddEntry(hsig, "H(b#bar{b})", "lf")
 
     l.AddEntry(data, "Data", "pe")
 
@@ -336,25 +381,34 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             if N!=0:
                 L = r.Math.gamma_quantile(alpha/2,N,1.)
             U = r.Math.gamma_quantile_c(alpha/2,N+1,1)
-            g_data.SetPointEYlow(i, (N-L))
-            g_data.SetPointEYhigh(i, (U-N))
+            if options.isData:
+                g_data.SetPointEYlow(i, (N-L))
+                g_data.SetPointEYhigh(i, (U-N))
+            else:
+                g_data.SetPointEYlow( i, h_data.GetBinError(i+1))
+                g_data.SetPointEYhigh(i, h_data.GetBinError(i+1))
+            g_data.SetPointEXlow( i, 0)
+            g_data.SetPointEXhigh(i, 0)
             g_data.SetPoint(i, g_data.GetX()[i], N)
         return g_data
             
     g_data = getDataGraphFromHist(data)
     
 
-    data.GetXaxis().SetTitle('m_{SD}^{PUPPI} (GeV)')
-    data.Draw('pez')    
-    if 'cat1' in tag:
-        data.GetXaxis().SetRangeUser(40,201 - 7*5)
-    elif 'cat2' in tag:
-        data.GetXaxis().SetRangeUser(40,201 - 7*3)
-    else:
-        data.GetXaxis().SetRangeUser(40,201)
-    htot.Draw('E2same')
-    #    htotsig.Draw('E2same')
+    maximum = data.GetMaximum()    
+    htot.GetXaxis().SetTitle('m_{SD} (GeV)')
+    htot.GetYaxis().SetTitle('Events / 7 GeV')
+    htot.GetYaxis().SetTitleSize(0.06)
+    htot.GetYaxis().SetLabelSize(0.05)
+    htot.GetYaxis().SetTitleOffset(1.25)
 
+    htot.Draw('')
+    if 'cat1' in tag:
+        htot.GetXaxis().SetRangeUser(40,201 - 7*5)
+    elif 'cat2' in tag:
+        htot.GetXaxis().SetRangeUser(40,201 - 7*3)
+    else:
+        htot.GetXaxis().SetRangeUser(40,201)
         
     htot_line = htot.Clone('htot_line%s' % tag)
     htot_line.SetFillStyle(0)
@@ -363,11 +417,30 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     htotsig_line.SetFillStyle(0)
     # htotsig_line.Draw('histsame')
     hstackMC = r.THStack("hstackMC","hstackMC")
-    for b  in sorted(bkgs,key=lambda (v): v.Integral()):
+
+    def mysort(v):
+        name = v.GetName()
+        if 'tqq' in name:
+            return 0
+        elif 'qcd' in name:
+            return 1
+        elif 'wqq' in name: 
+            return 2
+        elif 'zqq' in name:
+            return 3
+        elif 'hqq125' in name:
+            return 4
+        elif 'Sbb' in name:
+            return 5
+        else:
+            return 6
+
+    for b in sorted(bkgs,key=mysort):
 	if 'qcd' in b.GetName():
-        	b.Draw('hist sames')
-	else : 
-	   hstackMC.Add(b)
+            b.Draw('hist sames')
+            #hstackMC.Add(b)
+        else:
+            hstackMC.Add(b)
     hsig.SetLineColor(r.kPink + 7)
     hsig.SetFillColor(r.kPink + 7)
     # hsig.SetLineStyle(2)
@@ -379,6 +452,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         for ih in range(0, len(hsigs)):
 	    hstackMC.Add(hsigs[ih])	
             #hsigs[ih].Draw('hist sames')
+    htot.Draw('E2same')
     hstackMC.Draw("hist sames")
     g_data.Draw('pezsame')
     l.Draw()
@@ -406,29 +480,46 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         ptRange = [550, 600]
     elif 'cat4' in tag:
         ptRange = [600, 675]
+        if "VBF" in options.suffix:
+            ptRange = [600, 1000]
     elif 'cat5' in tag:
         ptRange = [675, 800]
     elif 'cat6' in tag:
         ptRange = [800, 1000]
         
-    passTag = 'double-b tag > 0.9'
+    passTag = 'Deep double-b tagger'
+    passTag2 = 'Passing region'
     if 'fail' in tag:
-        passTag = 'double-b tag < 0.9'
+        passTag = 'Deep double-b tagger'
+        passTag2 = 'Failing region'
 
-
-    tag4 = r.TLatex(0.37, 0.77, "#splitline{%i < p_{T} < %i GeV}{%s}"%(ptRange[0],ptRange[1],passTag))
+    tag4 = r.TLatex(0.25, 0.77, "%i < p_{T} < %i GeV"%(ptRange[0],ptRange[1]))
+    tag4b = r.TLatex(0.25, 0.72, "%s"%(passTag))
+    tag4c = r.TLatex(0.25, 0.67, "%s"%(passTag2))
+    #tag4 = r.TLatex(0.36, 0.81, "%i < p_{T} < %i GeV"%(ptRange[0],ptRange[1]))
+    #tag4b = r.TLatex(0.36, 0.75, "%s"%(passTag))
+    #tag4c = r.TLatex(0.36, 0.69, "%s"%(passTag2))
     tag4.SetNDC()
     tag4.SetTextFont(42)
+    tag4b.SetNDC()
+    tag4b.SetTextFont(42)
+    tag4c.SetNDC()
+    tag4c.SetTextFont(42)
     tag3.SetNDC()
     tag3.SetTextFont(52)
     tag2.SetTextSize(0.055)
     tag3.SetTextSize(0.045)
-    tag4.SetTextSize(0.035)
+    tag4.SetTextSize(0.038)
+    tag4b.SetTextSize(0.038)
+    tag4c.SetTextSize(0.038)
     tag1.Draw()
     tag2.Draw()
     #tag3.Draw()
     tag4.Draw()
-    data.SetMaximum(data.GetMaximum() * 1.2)
+    tag4b.Draw()
+    tag4c.Draw()
+    htot.SetMaximum(maximum * 1.5)
+
 
     c.cd()
     p22.Draw()
@@ -452,9 +543,10 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             U = r.Math.gamma_quantile_c(alpha / 2, N + 1, 1)
             iRatioGraph.SetPointEYlow(i, (N - L) / htot.GetBinContent(i + 1) * weight)
             iRatioGraph.SetPointEYhigh(i, (U - N) / htot.GetBinContent(i + 1) * weight)
+            iRatioGraph.SetPointEXlow(i, 0)
+            iRatioGraph.SetPointEXhigh(i, 0)
             iRatioGraph.SetPoint(i, iRatioGraph.GetX()[i], N / htot.GetBinContent(i + 1) * weight)
-    else:
-	
+    else:	
         for i in range(iRatio.GetNbinsX()):
             if hqcd.GetBinContent(i + 1) > 0:
                 value_data = data.GetBinContent(i + 1)
@@ -470,24 +562,28 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
 		if (value_data - value_fit) / err_tot_data > maxdata : maxdata = (value_data - value_fit) / err_tot_data
 		
                 iRatio.SetBinError(i + 1, 1)  # data.GetBinError(i+1)+hqcd.GetBinError(i+1) )
-            iRatioGraph = r.TGraphAsymmErrors(iRatio)
+        iRatioGraph = r.TGraphAsymmErrors(iRatio)
+        for i in range(iRatio.GetNbinsX()):
+            iRatioGraph.SetPointEXlow(i, 0)
+            iRatioGraph.SetPointEXhigh(i, 0)
 
-    data.GetXaxis().SetTitleOffset(100)
-    data.GetXaxis().SetLabelOffset(100)
-    if ratio:
-        iRatio.SetTitle("; m_{SD} (GeV); Data/Prediction")
-    else:
-        iRatio.SetTitle("; m_{SD} (GeV); #frac{Data #minus (Multijet + t#bar{t})}{#sigma_{Data}}")
-    iRatio.SetMaximum(1.5)
-    iRatio.SetMinimum(0.)
-    iRatio.GetYaxis().SetTitleSize(0.1)
-    iRatio.GetYaxis().SetNdivisions(6)
-    iRatio.GetYaxis().SetLabelSize(0.12)
-    iRatio.GetYaxis().SetTitleOffset(0.7)
-    iRatio.GetXaxis().SetTitleSize(0.13)
-    iRatio.GetXaxis().SetLabelSize(0.12)
-    iRatio.GetXaxis().SetTitleOffset(0.9)
     iOneWithErrors = htot.Clone('iOneWithErrors%s' % tag)
+    htot.GetXaxis().SetTitleOffset(100)
+    htot.GetXaxis().SetLabelOffset(100)    
+    if ratio:
+        iOneWithErrors.SetTitle("; m_{SD} (GeV); Data/Prediction")
+    else:
+        iOneWithErrors.SetTitle("; m_{SD} (GeV); #frac{Data #minus (Multijet + t#bar{t})}{#sigma_{Data}}")
+    iOneWithErrors.SetMaximum(1.5)
+    iOneWithErrors.SetMinimum(0.)
+    iOneWithErrors.GetYaxis().SetTitleSize(0.1)
+    iOneWithErrors.GetYaxis().SetNdivisions(6)
+    iOneWithErrors.GetYaxis().SetLabelSize(0.12)
+    iOneWithErrors.GetYaxis().SetTitleOffset(0.7)
+    iOneWithErrors.GetXaxis().SetTitleSize(0.13)
+    iOneWithErrors.GetXaxis().SetLabelSize(0.12)
+    iOneWithErrors.GetXaxis().SetTitleOffset(0.9)
+
     if ratio:
         iOneWithErrors.Divide(htot.Clone())
         for i in range(iOneWithErrors.GetNbinsX()):
@@ -498,6 +594,8 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
                 iOneWithErrors.SetBinError(i + 1, 0)
     else:
         iOneWithErrors.Add((-1) * htot.Clone())
+        for i in range(iOneWithErrors.GetNbinsX()):
+            iOneWithErrors.SetBinError(i+1, 0)
     iOneWithErrors.SetFillStyle(3001)
     if ratio: 
 	iOneWithErrors.SetFillColor(r.kAzure - 5)
@@ -507,21 +605,21 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
 	iOneWithErrors.SetFillColor(r.kGray+2)
     iOneWithErrors.SetMarkerSize(0)
     iOneWithErrors.SetLineWidth(2)
-    iRatio.Draw('pez')
+    iOneWithErrors.Draw('')
     if 'cat1' in tag:
-        iRatio.GetXaxis().SetRangeUser(40,201 - 7*5)
+        iOneWithErrors.GetXaxis().SetRangeUser(40,201 - 7*5)
     elif 'cat2' in tag:
-        iRatio.GetXaxis().SetRangeUser(40,201 - 7*3)
+        iOneWithErrors.GetXaxis().SetRangeUser(40,201 - 7*3)
     else:
-        iRatio.GetXaxis().SetRangeUser(40,201)
+        iOneWithErrors.GetXaxis().SetRangeUser(40,201)
     iOneWithErrorsLine = iOneWithErrors.Clone('iOneWithErrorsLine%s' % tag)
     iOneWithErrorsLine.SetFillStyle(0)
 
     if ratio: 
 	iOneWithErrors.Draw("e2 sames")
-        iRatio.GetYaxis().SetRangeUser(0.51, 1.49)
+        iOneWithErrors.GetYaxis().SetRangeUser(0.51, 1.49)
     else:
-        iRatio.GetYaxis().SetRangeUser(-5, maxdata*1.5)
+        iOneWithErrors.GetYaxis().SetRangeUser(-5, maxdata*1.5)
     
     sigHistResiduals = []
     if splitS:
@@ -547,7 +645,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             sigHistResidual.SetBinContent(bin+1,sig_residual)
         sigHistResiduals.append(sigHistResidual)
     hstack = r.THStack("hstack","hstack")
-    for sigHistResidual in sorted(sigHistResiduals,key=lambda (v): v.Integral()):
+    for sigHistResidual in sorted(sigHistResiduals,key=mysort):
 	hstack.Add(sigHistResidual) 	
     #    sigHistResidual.Draw("hist sames")
     hstack.Draw("hist sames")	
@@ -556,40 +654,34 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
 
     if sOverSb:
         tag += '_sOverSb'
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + ".pdf")
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + ".C")
-    data.SetMinimum(5e-1)
-    # r.gPad.SetLogy()
+
+    p12.RedrawAxis()
+    p22.RedrawAxis()
+    htot.SetMinimum(0)
+    c.SaveAs(odir + "/mlfit_" + tag + ".pdf")
+    c.SaveAs(odir + "/mlfit_" + tag + ".C")
+
     p12.SetLogy()
-    data.SetMaximum(data.GetMaximum() * 2)
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + "-log.pdf")
-    c.SaveAs(odir + "/mlfit/mlfit_" + tag + "-log.C")
+    htot.SetMinimum(0.5)
+    htot.SetMaximum(htot.GetMaximum() * 2)
+    p12.RedrawAxis()
+    p22.RedrawAxis()
+    c.SaveAs(odir + "/mlfit_" + tag + "-log.pdf")
+    c.SaveAs(odir + "/mlfit_" + tag + "-log.C")
 
     return [bkgs + hsigs + [data]]
 
 
-def fun2(x, par):
-    rho = r.TMath.Log((x[0] * x[0]) / (x[1] * x[1]))
-    poly0 = par[0] * (1.0 + par[1] * rho + par[2] * rho * rho)
-    poly1 = par[0] * (par[3] + par[4] * rho + par[5] * rho * rho) * x[1]
-    poly2 = par[0] * (par[6] + par[7] * rho + par[8] * rho * rho) * x[1] * x[1]
-    return poly0 + poly1 + poly2
-
-
-def fun2rho(x, par):
-    rho = x[0]
-    poly0 = par[0]*(1.0 + par[1]*rho + par[2]*rho*rho)
-    poly1 = par[0]*(par[3] + par[4]*rho + par[5]*rho*rho)*x[1]
-    poly2 = par[0]*(par[6] + par[7]*rho + par[8]*rho*rho)*x[1]*x[1]
-    return poly0+poly1+poly2
-
-def makeTF(pars, ratio):
+def makeTF(pars, ratio,n_rho,n_pT,Include_qcdeff):
     ratio.GetXaxis().SetTitle('m_{SD}^{PUPPI} (GeV)')
     ratio.GetYaxis().SetTitle('p_{T} (GeV)')
 
     ratio.GetXaxis().SetTitleOffset(1.5)
     ratio.GetYaxis().SetTitleOffset(1.5)
-    ratio.GetZaxis().SetTitle('Pass-to-fail Ratio')
+    if Include_qcdeff:
+        ratio.GetZaxis().SetTitle('Pass-fail Ratio')
+    else:
+        ratio.GetZaxis().SetTitle('Transfer Factor')
     ratio.GetXaxis().SetNdivisions(504)
     ratio.GetYaxis().SetNdivisions(504)
     ratio.GetZaxis().SetNdivisions(504)
@@ -597,8 +689,15 @@ def makeTF(pars, ratio):
     f2params = array.array('d', pars)
     npar = len(f2params)
 
-    f2 = r.TF2("f2", fun2, ratio.GetXaxis().GetXmin() + 3.5, ratio.GetXaxis().GetXmax() - 3.5,
-               ratio.GetYaxis().GetXmin() + 25., ratio.GetYaxis().GetXmax() - 100., npar)
+    PT_LO =  ratio.GetYaxis().GetXmin() 
+    PT_HI =  ratio.GetYaxis().GetXmax() 
+    boundaries={'RHO_LO':RHO_LO,'RHO_HI':RHO_HI,'PT_LO':PT_LO,'PT_HI':PT_HI}
+    print boundaries
+  
+    msd_pT = True 
+    fun_mass_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
+    f2 = r.TF2("f2", fun_mass_pT,  ratio.GetXaxis().GetXmin(),ratio.GetXaxis().GetXmax(),
+                                   ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
     f2.SetParameters(f2params)
 
     c = r.TCanvas("cTF", "cTF", 1000, 800)
@@ -618,7 +717,7 @@ def makeTF(pars, ratio):
     # f2.FixParameter(8,0)
     # ratio.Fit('f2','RN')
     f2.Draw("surf fb bb same")
-    # f2.Draw("surf fb bb")
+    #f2.Draw("surf1")
 
     r.gPad.SetTheta(30)
     r.gPad.SetPhi(30 + 270)
@@ -644,8 +743,12 @@ def makeTF(pars, ratio):
     tag2.Draw()
     tag3.Draw()
 
-    c.SaveAs(options.odir + "/mlfit/tf.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf.C")
+    if Include_qcdeff:
+        c.SaveAs(options.odir + "/tf.pdf")
+        c.SaveAs(options.odir + "/tf.C")
+    else:
+        c.SaveAs(options.odir + "/tf_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_noeff.C")
 
     # raw_input("Press Enter to continue...")
 
@@ -726,7 +829,10 @@ def makeTF(pars, ratio):
             z = ratio.GetBinContent(i,j)
             #print N, x, y, z
             ratiorhograph.SetPoint(N,x,y,z)
-    f2rho = r.TF2("f2",fun2rho,-6,-2.1,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
+
+    msd_pT = False  #switch to use msd-pT /rho-pT
+    fun_rho_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
+    f2rho = r.TF2("f2",fun_rho_pT,-6,-2.1,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
     f2rho.SetParameters(f2params)
     f2rhograph = r.TGraph2D()
     N = -1
@@ -753,7 +859,7 @@ def makeTF(pars, ratio):
     f2rho.Draw("surf fb bb same")
     #f2rhograph.SetLineColor(r.kRed)
     #f2rhograph.Draw("surf fb bb same")
-    tag1 = r.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%options.lumi)
+    tag1 = r.TLatex(0.55,0.92,"%.1f fb^{-1} (13 TeV)"%options.lumi)
     tag1.SetNDC(); tag1.SetTextFont(42)
     tag1.SetTextSize(0.045)
     tag2 = r.TLatex(0.15,0.92,"CMS")
@@ -767,9 +873,13 @@ def makeTF(pars, ratio):
     tag1.Draw()
     tag2.Draw()
     tag3.Draw()
-    
-    c.SaveAs(options.odir + "/mlfit/tf_rho.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_rho.C")
+   
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_rho.pdf")
+        c.SaveAs(options.odir + "/tf_rho.C")
+    else:
+        c.SaveAs(options.odir + "/tf_rho_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_rho_noeff.C")
     
     # to plot TF2
     #f2.Draw("colz")
@@ -783,10 +893,10 @@ def makeTF(pars, ratio):
     f2graph.GetHistogram().GetYaxis().SetTitle(ratio.GetYaxis().GetTitle())
     f2graph.GetHistogram().GetZaxis().SetTitle(ratio.GetZaxis().GetTitle())
     f2graph.GetHistogram().GetZaxis().SetTitleOffset(1.3)
-    tag1 = r.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%options.lumi)
+    tag1 = r.TLatex(0.55,0.92,"%.1f fb^{-1} (13 TeV)"%options.lumi)
     tag1.SetNDC(); tag1.SetTextFont(42)
     tag1.SetTextSize(0.045)
-    tag2 = r.TLatex(0.15,0.92,"CMS")
+    tag2 = r.TLatex(0.2,0.82,"CMS")
     tag2.SetNDC()
     tag2.SetTextFont(62)
     tag3 = r.TLatex(0.25,0.92,"Preliminary")
@@ -825,9 +935,12 @@ def makeTF(pars, ratio):
     pave_param2.Draw()
     
 
-    
-    c.SaveAs(options.odir + "/mlfit/tf_msdcolz.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_msdcolz.C")
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_msdcolz.pdf")
+        c.SaveAs(options.odir + "/tf_msdcolz.C")
+    else:
+        c.SaveAs(options.odir + "/tf_msdcolz_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_msdcolz_noeff.C")
 
     # to plot TF2
     #f2rho.Draw("colz")
@@ -881,9 +994,13 @@ def makeTF(pars, ratio):
     text2.SetTextAlign(22)
     text2.SetTextSize(0.045)
     pave_param2.Draw()
-    
-    c.SaveAs(options.odir + "/mlfit/tf_rhocolz.pdf")
-    c.SaveAs(options.odir + "/mlfit/tf_rhocolz.C")
+   
+    if Include_qcdeff: 
+        c.SaveAs(options.odir + "/tf_rhocolz.pdf")
+        c.SaveAs(options.odir + "/tf_rhocolz.C")
+    else:
+        c.SaveAs(options.odir + "/tf_rhocolz_noeff.pdf")
+        c.SaveAs(options.odir + "/tf_rhocolz_noeff.C")
     
 
 
@@ -896,13 +1013,16 @@ if __name__ == '__main__':
     parser.add_option('-o', '--odir', dest='odir', default='cards/', help='directory for plots', metavar='odir')
     parser.add_option('--fit', dest='fit', default='prefit', help='choice is either prefit, fit_s or fit_b',
                       metavar='fit')
-    parser.add_option('--data', action='store_true', dest='isData', default=True, help='is data', metavar='isData')
+    parser.add_option('--data', action='store_true', dest='isData', default=False, help='is data', metavar='isData')
     parser.add_option('--s-over-sb', action='store_true', dest='sOverSb', default=False,
                       help='weight entries by sOverSb', metavar='sOverSb')
     parser.add_option('--splitS', action='store_true', dest='splitS', default=False, help='split signal contribution',
                       metavar='splitS')
     parser.add_option('--ratio', action='store_true', dest='ratio', default=False, help='ratio or data-mc',
                       metavar='ratio')
+    parser.add_option('--nr','--NR' ,action='store',type='int',dest='NR'   ,default=2, help='order of rho polynomial')
+    parser.add_option('--np','--NP' ,action='store',type='int',dest='NP'   ,default=1, help='order of pt polynomial')
+    parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
 
     (options, args) = parser.parse_args()
 
@@ -919,9 +1039,9 @@ if __name__ == '__main__':
     #r.gStyle.SetPalette(r.kBird)
     #r.gStyle.SetPalette(r.kBlackBody)
     stops = [ 0.0, 1.0]
-    red =   [ 1.0, 0.3]
-    green = [ 1.0, 0.3]
-    blue =  [ 1.0, 1.0]
+    red =   [ 1.0, 0.0]
+    green = [ 1.0, 0.0]
+    blue =  [ 1.0, 0.6]
 
     s = array.array('d', stops)
     rs = array.array('d', red)
