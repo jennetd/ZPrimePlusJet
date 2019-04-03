@@ -1742,8 +1742,8 @@ class sampleContainer:
         f_pu.Close()
 
         # get histogram for transform
-        #f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"), "read")  # GridOutput_v13_WP026.root # smooth version of the ddt ; exp is 4.45 vs 4.32 (3% worse)
-        f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/n2ddt_map_38percent_GaussianFilter.root"), "read") 
+        f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"), "read")  # GridOutput_v13_WP026.root # smooth version of the ddt ; exp is 4.45 vs 4.32 (3% worse)
+        #f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/n2ddt_map_38percent_GaussianFilter.root"), "read") 
         self._trans_h2ddt = f_h2ddt.Get("Rho2D")
         self._trans_h2ddt.SetDirectory(0)
         f_h2ddt.Close()
