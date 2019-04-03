@@ -32,7 +32,8 @@ SF2017={
             'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
             's_data'    : 8.701,            's_data_err': 0.433,
             's_mc'      : 8.027,            's_mc_err'  : 0.607,
-            'BB_SF'     : 0.72,             'BB_SF_ERR' : 0.06, #2017 double-b SF
+            #'BB_SF'     : 0.72,             'BB_SF_ERR' : 0.06, #2017 double-b SF
+            'BB_SF'     : 0.9,              'BB_SF_ERR' : 0.06, #2017 prelim ddb SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
 }
 SF2016={
