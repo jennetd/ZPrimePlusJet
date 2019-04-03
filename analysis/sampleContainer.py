@@ -344,9 +344,11 @@ class sampleContainer:
                 'h_dbtag_ak8_sub1': ["h_" + self._name + "_dbtag_ak8_sub1", "; 2nd p_{T}-leading deep double b-tag;", 40, 0,1],
                 'h_dbtag_ak8_sub2': ["h_" + self._name + "_dbtag_ak8_sub2", "; 3rd p_{T}-leading deep double b-tag;", 40, 0,1],
                 'h_n_unMatchedAK4'     : ["h_" + self._name + "_n_unMatchedAK4", "; Number of non matched AK4 jets ;;", 7, 0, 7],
-                'h_Mqq'     : ["h_" + self._name + "_Mqq", "; Dijet Mass (GeV);;", 50, 0, 3000],
+                'h_Mqq'               : ["h_" + self._name + "_Mqq", "; Dijet Mass (GeV);;", 50, 0, 3000],
+                'h_Mqq_ak4pt1pt2'     : ["h_" + self._name + "_Mqq_ak4pt1pt2", "; M_{qq} of leading 2 AK4 jets(GeV);;", 50, 0, 3000],
                 'h_QGLR'    : ["h_" + self._name + "_QGLR", "; QGLR;", 10, 0,1],
                 'h_Deta_qq' : ["h_" + self._name + "_Deta_qq", "; max Deta qq;;", 30, 0, 10],
+                'h_deta_ak4pt1pt2'     : ["h_" + self._name + "_deta_ak4pt1pt2", "; |#Delta#eta| of leading 2 AK4 jets(GeV);;", 30, 0, 10],
                 'h_t21_ak8': ["h_" + self._name + "_t21_ak8", "; AK8 #tau_{21};", 25, 0, 1.5],
                 'h_t21ddt_ak8': ["h_" + self._name + "_t21ddt_ak8", "; AK8 #tau_{21}^{DDT};", 25, 0, 1.5],
                 'h_t32_ak8': ["h_" + self._name + "_t32_ak8", "; AK8 #tau_{32};", 25, 0, 1.5],
@@ -1028,6 +1030,9 @@ class sampleContainer:
                     AK4DCSVCUT=0.4184
                     if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4184:
                         n_MdR0p8_4+=1
+                elif self.puOpt['data']=='2016':
+                    AK4DCSVCUT=0.6321
+                    n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
                     
             #print "N un-matched jet = ", len(QuarkJets)
             #for qj in QuarkJets:
@@ -1310,6 +1315,8 @@ class sampleContainer:
                     # cut[9]=cut[9]+1
                     self.h_QGLR.Fill(QGLR, weight)
                     self.h_Mqq.Fill(Mqq, weight)
+                    self.h_Mqq_ak4pt1pt2.Fill(Mqq_ak4pt1pt2, weight)
+                    self.h_deta_ak4pt1pt2.Fill(deta_ak4pt1pt2, weight)
                     self.h_Deta_qq.Fill(maxdEtaQQ, weight)
                     self.h_msd_ak8_topR6_pass.Fill(jmsd_8, weight)
                     self.h_msd_ak8_raw_SR_pass.Fill(jmsd_8_raw, weight)
@@ -1624,7 +1631,7 @@ class sampleContainer:
         #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
 
         if year=='2016':
-            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
+            effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/RUNTriggerEfficiencies_SingleMuon_Run2016_V2p1_v03.root"
         elif year =="2017":
             effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
         elif year =="2018":
@@ -1632,17 +1639,35 @@ class sampleContainer:
         else:
             effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
 
-        print "Using triggerEff file = ",effFile
-        f_trig = ROOT.TFile.Open(os.path.expandvars(effFile), "read")
-        self._trig_denom = f_trig.Get("h_denom")
-        self._trig_numer = f_trig.Get("h_numer")
-        self._trig_denom.SetDirectory(0)
-        self._trig_numer.SetDirectory(0)
-        self._trig_eff = ROOT.TEfficiency()
-        if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
-            self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
-            self._trig_eff.SetDirectory(0)
-        f_trig.Close()
+        if year=='2017' or year=='2018':
+            print "Using triggerEff file = ",effFile
+            f_trig = ROOT.TFile.Open(os.path.expandvars(effFile), "read")
+            self._trig_denom = f_trig.Get("h_denom")
+            self._trig_numer = f_trig.Get("h_numer")
+            self._trig_denom.SetDirectory(0)
+            self._trig_numer.SetDirectory(0)
+            self._trig_eff = ROOT.TEfficiency()
+            if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
+                self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
+                self._trig_eff.SetDirectory(0)
+            f_trig.Close()
+        if year =='2016':
+            print "Using triggerEff file = ",effFile
+            f_trig = ROOT.TFile.Open(os.path.expandvars(effFile), "read")
+            self._trig_denom = f_trig.Get("DijetTriggerEfficiencySeveralTriggers/jet1SoftDropMassjet1PtDenom_cutJet")
+            self._trig_numer = f_trig.Get("DijetTriggerEfficiencySeveralTriggers/jet1SoftDropMassjet1PtPassing_cutJet")
+            self._trig_denom.SetDirectory(0)
+            self._trig_numer.SetDirectory(0)
+            self._trig_denom.RebinX(2)
+            self._trig_numer.RebinX(2)
+            self._trig_denom.RebinY(5)
+            self._trig_numer.RebinY(5)
+            self._trig_eff = ROOT.TEfficiency()
+            if (ROOT.TEfficiency.CheckConsistency(self._trig_numer, self._trig_denom)):
+                self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
+                self._trig_eff.SetDirectory(0)
+            f_trig.Close()
+
 
     def SetMuonEff(self,year):
         if year=='2017':
