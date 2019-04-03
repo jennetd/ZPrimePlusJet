@@ -1134,6 +1134,8 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     fail_hists = {}
     f.ls()
 
+    qcdkfactor =0.7
+    #qcdkfactor  =1.0
     # backgrounds
     pass_hists_bkg = {}
     fail_hists_bkg = {}
@@ -1141,10 +1143,12 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     for i, bkg in enumerate(background_names):
         if bkg == 'qcd':
             qcd_fail = f.Get('qcd_fail')
+            qcd_fail.Scale(qcdkfactor)
             qcd_fail.Scale(1. / scale)
             if useQCD:
                 print "Using QCD MC"
                 qcd_pass = f.Get('qcd_pass').Clone()
+                qcd_pass.Scale(qcdkfactor)
                 qcd_pass.Scale(1. / scale)
             else:
                 print "Using  qcd_pass = qcd_fail * eff(pass)/eff(fail)"

@@ -250,6 +250,41 @@ def DB_MC_main(options):
     options.cats = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
     main(options, mode,dryRun)
 
+def DDB_MC_combination(options):
+    dryRun = options.dryRun
+    mode   = 'norm'
+    options.blind  = ""
+    options.pseudo = True
+    options.is2017 = True
+    options.scaleLumi = False
+    options.iloose = ""
+    options.nr     = 2 
+    options.np     = 1
+    options.idir  = "ddb_Mar19/ddb_M2/"  #fix delta-phi , 0.7 qcd kfactor, 0.9 beff SF
+    #options.ifile  = options.idir+"fakeQCD/hist_1DZbb_pt_scalesmear.root"
+    #options.odir  = "ddb_comb_Mar29/msd47_TF21_fakeQCD/2017/"
+    options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
+    options.odir  = "ddb_comb_Mar29/msd47_TF21/2017/"
+    options.suffix = "2017"
+    options.cats = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
+    cards2017    = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
+    main(options, mode,dryRun)
+    options.idir   = "ddb2018_Mar19/ddb_M2/"  #fix delta-phi 
+    #options.ifile  = options.idir+"fakeQCD/hist_1DZbb_pt_scalesmear.root"
+    #options.odir   = "ddb_comb_Mar29/msd47_TF21_fakeQCD/2018/"
+    options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
+    options.odir   = "ddb_comb_Mar29/msd47_TF21/2018/"
+    options.suffix = "2018"
+    options.cats   = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
+    cards2018    = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
+    main(options, mode,dryRun)
+    options.suffix = ""
+    #options.odir  = "ddb_comb_Mar29/msd47_TF21_fakeQCD/comb1718/"
+    options.odir  = "ddb_comb_Mar29/msd47_TF21/comb1718/"
+    options.cats  = cards2017+cards2018 
+    main(options, mode,dryRun)
+
+
 
 def DDB_MC_main(options):
     dryRun = options.dryRun
@@ -259,7 +294,7 @@ def DDB_MC_main(options):
     options.pseudo = True
     options.is2017 = True
     options.scaleLumi = False
-    options.nr     = 4 
+    options.nr     = 2 
     options.np     = 1
     options.idir  = "ddb_dec31/MC/" #first ddb
     options.idir  = "ddb_Jan17/MC/" #fix QCD xsec
@@ -267,13 +302,21 @@ def DDB_MC_main(options):
     options.idir  = "ddb_Feb5/MC/"  #ttbar rejection round1
     options.idir  = "ddb_Mar7/ddb_M2/"  #fix JEC/JER ,default pT1200 
     options.idir  = "ddb_Mar19/ddb_M2/"  #fix delta-phi 
-    options.idir  = "matching/ddb_M2/"  #fix delta-phi 
+    #options.idir  = "ddb2018_Mar19/ddb_M2/"  #fix delta-phi 
+    #options.idir  = "coffea_Mar27/ddb_M2/"  #fix delta-phi 
+    #options.idir  = "matching/ddb_M2/"  #fix delta-phi,alternative matching
     options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
-    #options.muonCR = options.idir+"/muonCR/hist_1DZbb_muonCR.root"
-    options.muonCR = "" 
+    #options.ifile  = options.idir+"fakeQCD/hist_1DZbb_pt_scalesmear.root"
+    #options.ifile  = options.idir+"fakeData/hist_1DZbb_pt_scalesmear.root"
+    #options.ifile  = options.idir+"poissonQCD/hist_1DZbb_pt_scalesmear.root"
+    options.muonCR = options.idir+"/muonCR/hist_1DZbb_muonCR.root"
+    #options.muonCR = "" 
     #options.iloose = options.idir+"/looserWZ/hist_1DZbb_pt_scalesmear.root"
     options.iloose = ""
-    options.odir  = "matching/ddb_M2/msd47_TF21/"
+    #options.odir  = "ddb2018_Mar19/ddb_M2/msd47_TF21_fakeQCD/"
+    #options.odir  = "ddb_Mar19/ddb_M2/msd47_TF21_muonCR_fakeQCD/"
+    options.odir  = "ddb_Mar19/ddb_M2/msd47_TF21_muonCR/"
+    #options.odir  = "coffea_Mar27/ddb_M2/msd47_TF21/"
 
     options.cats = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
     main(options, mode,dryRun)
@@ -297,22 +340,23 @@ def DDB_10p_main(options):
     dryRun = options.dryRun
     mode   = 'norm'
     options.suffix = ""
-    options.blind  = False 
+    options.blind  = True 
     options.pseudo = False 
     options.is2017 = True
     #options.idir  = "ddb_Jan9_10p/"
     #options.odir  = "ddb_Jan9_10p/10p_blind/"
     #options.idir  = "ddb_Jan17/10p_blind/"
     #ptions.odir  = "ddb_Jan17/10p_blind/10p_blind_muonCR/"
+    #options.odir  = "ddb_Mar19/ddb_M2_p10/msd47_TF21_x10/"
     options.idir  = "ddb_Mar19/ddb_M2_p10/"
-    options.odir  = "ddb_Mar19/ddb_M2_p10/msd47_TF21_x10/"
+    options.odir  = "ddb_Mar19/ddb_M2_p10/msd47_TF21_muonCR_blind/"
     options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
-    #options.muonCR = options.idir+"muonCR/hist_1DZbb_muonCR.root"
-    options.muonCR = ""
+    #options.muonCR = ""
+    options.muonCR = "ddb_Mar19/ddb_M2/muonCR/hist_1DZbb_muonCR.root"
     options.iloose = ""
     options.nr     = 2
     options.np     = 1
-    options.scaleLumi = True
+    options.scaleLumi = False 
 
     options.cats = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
     main(options, mode,dryRun)
@@ -336,6 +380,7 @@ if __name__ == '__main__':
     #secJetMain(options)
     ############# DDB jet ###########
     #DDB_MC_main(options)
+    #DDB_MC_combination(options)
     #DB_MC_main(options)
     DDB_10p_main(options)
 

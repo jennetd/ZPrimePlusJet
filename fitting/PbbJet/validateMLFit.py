@@ -469,7 +469,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         tag3 = r.TLatex(0.2, 0.77, "Simulation Preliminary")
 
         
-    ptRange = [450, 1000]
+    ptRange = [450, 1200]
     if 'cat1' in tag:
         ptRange = [450, 500]
     elif 'cat2' in tag:
@@ -485,7 +485,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     elif 'cat5' in tag:
         ptRange = [675, 800]
     elif 'cat6' in tag:
-        ptRange = [800, 1000]
+        ptRange = [800, 1200]
         
     passTag = 'Deep double-b tagger'
     passTag2 = 'Passing region'

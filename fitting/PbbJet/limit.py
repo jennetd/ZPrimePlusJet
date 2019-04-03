@@ -24,8 +24,13 @@ def plotgaus(iFName,injet,iLabel,options):
     lCan.SetLeftMargin(0.12) 
     lCan.SetBottomMargin(0.15)
     lCan.SetTopMargin(0.12)
-    lFile = r.TFile(iFName)
-    lTree = lFile.Get("tree_fit_sb")    
+    if type(iFName)==type("string"):
+        lFile = r.TFile(iFName)
+        lTree = lFile.Get("tree_fit_sb")    
+    elif type(iFName)==type([]):
+        lTree = r.TChain("tree_fit_sb")
+        for f in iFName: lTree.Add(f)
+ 
     
     lH = r.TH1D('h_bias','h_bias',50,-4,4)
     lH_1 = r.TH1D('h_bias_1','h_bias',50,-4,4)
@@ -351,6 +356,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
     if options.dryRun: sys.exit()
     #plotgaus("toys.root",mu,"pull"+iLabel)
     plotgaus("%s/biastoys_%s_%s.root"%(options.odir,iLabel,options.seed),mu,"pull"+iLabel+"_"+str(options.seed),options)
+    #plotgaus(glob.glob("%s/biastoys_%s_*.root"%(options.odir,iLabel)),mu,"pull"+iLabel+"_"+str(options.seed),options)
 
 def fit(base,options):
     exec_me('combine -M MaxLikelihoodFit %s -v 2 --freezeParameters tqqeffSF,tqqnormSF --rMin=-20 --rMax=20 --saveNormalizations --plot --saveShapes --saveWithUncertainties --minimizerTolerance 0.001 --minimizerStrategy 2'%base)
@@ -462,7 +468,7 @@ if __name__ == "__main__":
     ## plotftest(nllToys,nllBase[0],float(lPass)/float(len(nllToys)),'ftest_r2p2_v_r3p2')
 
     if options.method=='GoodnessOfFit':
-        iLabel= 'goodness_%s'%(options.datacard.split('/')[-1].replace('.root',''))
+        iLabel= 'goodness_%s_%s'%(options.algo,options.datacard.split('/')[-1].replace('.root',''))
         goodness(options.datacard, options.toys, iLabel, options)
 
     elif options.method=='MaxLikelihoodFit':

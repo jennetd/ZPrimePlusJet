@@ -86,6 +86,7 @@ if __name__ == '__main__':
     script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
+    script_group.add_option('--scaleLumi'   ,action='store',type='float',dest='scaleLumi'   ,default=-1, help='scale nuisances by scaleLumi')
 
 
     parser.add_option_group(script_group)
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
     #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
-    gitClone = "git clone -b bias git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
 
     if options.datacardAlt == parser.get_option("--datacard-alt").default:
         options.datacardAlt = options.datacard
@@ -162,20 +163,25 @@ if __name__ == '__main__':
         def cleanAndPlot():
             if not os.path.exists("%s/%s"%(outpath,fileName)):
                 exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
-                print "DONE hadd. Removing subjob files.."
+                print "DONE hadd. Removing subjob files next"
+            else:
+                print "Found old hadd file. Replacing a new one"
+                #exec_me("rm  %s/%s "%(outpath,fileName),dryRun)
+                #exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
+                print "DONE hadd. Removing subjob files next"
             if options.clean:
                 print "Cleaning submission files..." 
                 #remove all but _0 file
-                for i in range(1,9):
+                for i in range(1,10):
                     exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
-                    exec_me("rm %s/biastoys_bias_self_r%i_%s.root"%(outpath,options.r,i),dryRun)
+                    exec_me("rm %s/biastoys_bias_self_r%i_%s*.root"%(outpath,options.r,i),dryRun)
                 print "Finish cleaning,plotting " 
             print "plot command: ",plot_command
             exec_me(plot_command,dryRun)
         if nOutput==maxJobs:
             cleanAndPlot()
         else:
-            print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
-            proceed = raw_input("Proceed anyway?")
-            if proceed=="yes":
-                cleanAndPlot()
+            #print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
+            #proceed = raw_input("Proceed anyway?")
+            #if proceed=="yes":
+            cleanAndPlot()
