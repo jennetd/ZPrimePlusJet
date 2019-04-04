@@ -1099,40 +1099,40 @@ class sampleContainer:
                     if jdb_8 > 0.7 and jt21P_8 < T21DDTCUT:
                         self.h_msd_ak8_muCR6.Fill(jmsd_8, weight_mu)
 
-                if jtN2b1sdddt_8 < 0:
-                    self.h_dbtag_ak8_muCR4_N2.Fill(jdb_8, weight_mu)
-                    self.h_msd_ak8_muCR4_N2.Fill(jmsd_8, weight_mu)
-                    self.h_pt_ak8_muCR4_N2.Fill(jpt_8, weight_mu)
-                    self.h_eta_ak8_muCR4_N2.Fill(jeta_8, weight_mu)
-                    self.h_pt_mu_muCR4_N2.Fill(vmuoLoose0_pt, weight_mu)
-                    self.h_eta_mu_muCR4_N2.Fill(vmuoLoose0_eta, weight_mu)
-                    if jdb_8 > self.DBTAGCUT:
-                        self.h_msd_ak8_muCR4_N2_pass.Fill(jmsd_8, weight_mu)
-                        self.h_msd_v_pt_ak8_muCR4_N2_pass.Fill(jmsd_8, jpt_8, weight_mu)
-                        self.h_msd_ak8_muCR4_N2_pass_mutriggerUp.Fill(jmsd_8, weight_mutriggerUp)
-                        self.h_msd_ak8_muCR4_N2_pass_mutriggerDown.Fill(jmsd_8, weight_mutriggerDown)
-                        self.h_msd_ak8_muCR4_N2_pass_muidUp.Fill(jmsd_8, weight_muidUp)
-                        self.h_msd_ak8_muCR4_N2_pass_muidDown.Fill(jmsd_8, weight_muidDown)
-                        self.h_msd_ak8_muCR4_N2_pass_muisoUp.Fill(jmsd_8, weight_muisoUp)
-                        self.h_msd_ak8_muCR4_N2_pass_muisoDown.Fill(jmsd_8, weight_muisoDown)
-                        self.h_msd_ak8_muCR4_N2_pass_PuUp.Fill(jmsd_8, weight_mu_pu_up)
-                        self.h_msd_ak8_muCR4_N2_pass_PuDown.Fill(jmsd_8, weight_mu_pu_down)
-                    elif jdb_8 > self.DBTAGCUTMIN:
-                        self.h_msd_ak8_muCR4_N2_fail.Fill(jmsd_8, weight_mu)
-                        self.h_msd_v_pt_ak8_muCR4_N2_fail.Fill(jmsd_8, jpt_8, weight_mu)
-                        self.h_msd_ak8_muCR4_N2_fail_mutriggerUp.Fill(jmsd_8, weight_mutriggerUp)
-                        self.h_msd_ak8_muCR4_N2_fail_mutriggerDown.Fill(jmsd_8, weight_mutriggerDown)
-                        self.h_msd_ak8_muCR4_N2_fail_muidUp.Fill(jmsd_8, weight_muidUp)
-                        self.h_msd_ak8_muCR4_N2_fail_muidDown.Fill(jmsd_8, weight_muidDown)
-                        self.h_msd_ak8_muCR4_N2_fail_muisoUp.Fill(jmsd_8, weight_muisoUp)
-                        self.h_msd_ak8_muCR4_N2_fail_muisoDown.Fill(jmsd_8, weight_muisoDown)
-                        self.h_msd_ak8_muCR4_N2_fail_PuUp.Fill(jmsd_8, weight_mu_pu_up)
-                        self.h_msd_ak8_muCR4_N2_fail_PuDown.Fill(jmsd_8, weight_mu_pu_down)
+                #if jtN2b1sdddt_8 < 0:
+                self.h_dbtag_ak8_muCR4_N2.Fill(jdb_8, weight_mu)
+                self.h_msd_ak8_muCR4_N2.Fill(jmsd_8, weight_mu)
+                self.h_pt_ak8_muCR4_N2.Fill(jpt_8, weight_mu)
+                self.h_eta_ak8_muCR4_N2.Fill(jeta_8, weight_mu)
+                self.h_pt_mu_muCR4_N2.Fill(vmuoLoose0_pt, weight_mu)
+                self.h_eta_mu_muCR4_N2.Fill(vmuoLoose0_eta, weight_mu)
+                if jdb_8 > self.DBTAGCUT:
+                    self.h_msd_ak8_muCR4_N2_pass.Fill(jmsd_8, weight_mu)
+                    self.h_msd_v_pt_ak8_muCR4_N2_pass.Fill(jmsd_8, jpt_8, weight_mu)
+                    self.h_msd_ak8_muCR4_N2_pass_mutriggerUp.Fill(jmsd_8, weight_mutriggerUp)
+                    self.h_msd_ak8_muCR4_N2_pass_mutriggerDown.Fill(jmsd_8, weight_mutriggerDown)
+                    self.h_msd_ak8_muCR4_N2_pass_muidUp.Fill(jmsd_8, weight_muidUp)
+                    self.h_msd_ak8_muCR4_N2_pass_muidDown.Fill(jmsd_8, weight_muidDown)
+                    self.h_msd_ak8_muCR4_N2_pass_muisoUp.Fill(jmsd_8, weight_muisoUp)
+                    self.h_msd_ak8_muCR4_N2_pass_muisoDown.Fill(jmsd_8, weight_muisoDown)
+                    self.h_msd_ak8_muCR4_N2_pass_PuUp.Fill(jmsd_8, weight_mu_pu_up)
+                    self.h_msd_ak8_muCR4_N2_pass_PuDown.Fill(jmsd_8, weight_mu_pu_down)
+                elif jdb_8 > self.DBTAGCUTMIN:
+                    self.h_msd_ak8_muCR4_N2_fail.Fill(jmsd_8, weight_mu)
+                    self.h_msd_v_pt_ak8_muCR4_N2_fail.Fill(jmsd_8, jpt_8, weight_mu)
+                    self.h_msd_ak8_muCR4_N2_fail_mutriggerUp.Fill(jmsd_8, weight_mutriggerUp)
+                    self.h_msd_ak8_muCR4_N2_fail_mutriggerDown.Fill(jmsd_8, weight_mutriggerDown)
+                    self.h_msd_ak8_muCR4_N2_fail_muidUp.Fill(jmsd_8, weight_muidUp)
+                    self.h_msd_ak8_muCR4_N2_fail_muidDown.Fill(jmsd_8, weight_muidDown)
+                    self.h_msd_ak8_muCR4_N2_fail_muisoUp.Fill(jmsd_8, weight_muisoUp)
+                    self.h_msd_ak8_muCR4_N2_fail_muisoDown.Fill(jmsd_8, weight_muisoDown)
+                    self.h_msd_ak8_muCR4_N2_fail_PuUp.Fill(jmsd_8, weight_mu_pu_up)
+                    self.h_msd_ak8_muCR4_N2_fail_PuDown.Fill(jmsd_8, weight_mu_pu_down)
 
             for syst in ['JESUp', 'JESDown', 'JERUp', 'JERDown']:
                 if eval(
                                 'jpt_8_%s' % syst) > PTCUTMUCR and jmsd_8 > MASSCUT and nmuLoose == 1 and neleLoose == 0 and ntau == 0 and vmuoLoose0_pt > MUONPTCUT and abs(
-                        vmuoLoose0_eta) < 2.1 and isTightVJet and jtN2b1sdddt_8 < 0 and abs(QGLRutil.deltaPhi(
+                        vmuoLoose0_eta) < 2.1 and isTightVJet and  abs(QGLRutil.deltaPhi(
                                 vmuoLoose0_phi , jphi_8)) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_muCR4_N2_pass_%s' % syst)).Fill(jmsd_8, weight)
@@ -1333,7 +1333,8 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_topR6_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
 	    if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and isTightVJet and jdb_8 > self.DBTAGCUT and rh_8<-2.1 and rh_8>-6.: 	
 		if (not self._minBranches): self.h_n2b1sdddt_ak8_aftercut.Fill(jtN2b1sdddt_8,weight)
-            if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and maxAK4_dcsvb<AK4DCSVCUT and n_dR0p8_4 < NJETCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
+            #if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and maxAK4_dcsvb<AK4DCSVCUT and n_dR0p8_4 < NJETCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
+            if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and maxAK4_dcsvb<AK4DCSVCUT and n_dR0p8_4 < NJETCUT  and isTightVJet:
                 cut[8] = cut[8] + 1
                 if  rh_8<-2.1 and rh_8>-6.:
                     cut[7] = cut[7] + 1
@@ -1417,7 +1418,7 @@ class sampleContainer:
                         (getattr(self, 'h_msd_ak8_topR6_fail_%s' % syst)).Fill(jmsd_8, weight)
                         (getattr(self, 'h_msd_v_pt_ak8_topR6_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
                 if eval('jpt_8_%s' % syst) > PTCUT and jmsd_8 > MASSCUT and eval('met_%s' % syst) < METCUT and eval(
-                                'n_dR0p8_4_%s' % syst) < NJETCUT and  maxAK4_dcsvb<AK4DCSVCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
+                                'n_dR0p8_4_%s' % syst) < NJETCUT and  maxAK4_dcsvb<AK4DCSVCUT  and isTightVJet:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, weight)
                         (getattr(self, 'h_msd_v_pt_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
