@@ -92,18 +92,23 @@ def main(options,args):
         'h_msd_ak8_inc',
         'h_msd_ak8_raw',
         'h_msd_ak8_topR6_N2_pass',
-        'h_msd_ak8_topR6_N2_fail'
+        'h_msd_ak8_topR6_N2_fail',
+        'h_rho_ak8',
+        'h_maxAK4_dcsvb',
+        'h_n_ak4M'
         ]
+
         
     print("Signals... ")
     sigSamples = {}
-    sigSamples['ggHbb']  = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    #sigSamples['ggHbb_amc']  = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['VBFHbb']  = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['ZHbb']  = normSampleContainer('ZHbb',tfiles['ZHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['WHbb']  = normSampleContainer('WHbb',tfiles['WHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['ttHbb']  = normSampleContainer('ttHbb',tfiles['ttHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
-    sigSamples['ZnnHbb']  = normSampleContainer('ZnnHbb',tfiles['ZnnHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt='default',doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    pu_Opt  = {'data':"2017"}
+    sigSamples['ggHbb']  = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    #sigSamples['ggHbb_amc']  = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['VBFHbb']  = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['ZHbb']  = normSampleContainer('ZHbb',tfiles['ZHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['WHbb']  = normSampleContainer('WHbb',tfiles['WHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['ttHbb']  = normSampleContainer('ttHbb',tfiles['ttHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
+    sigSamples['ZnnHbb']  = normSampleContainer('ZnnHbb',tfiles['ZnnHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
 
     ofile = ROOT.TFile.Open(odir+'/Plots_1000pb_weighted.root','recreate')
     
@@ -124,7 +129,7 @@ if __name__ == '__main__':
 
     parser = OptionParser()
     parser.add_option('-b', action='store_true', dest='noX', default=False, help='no X11 windows')
-    parser.add_option("--lumi", dest="lumi", type=float,default = 41,help="luminosity", metavar="lumi")
+    parser.add_option("--lumi", dest="lumi", type=float,default = 41.1,help="luminosity", metavar="lumi")
     parser.add_option('-i','--idir', dest='idir', default = 'data/',help='directory with data', metavar='idir')
     parser.add_option('-o','--odir', dest='odir', default = 'plots/',help='directory to write plots', metavar='odir')
     parser.add_option("--max-split", dest="maxSplit", default=1, type="int", help="max number of jobs", metavar="maxSplit")
