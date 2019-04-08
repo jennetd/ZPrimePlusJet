@@ -813,7 +813,7 @@ class sampleContainer:
             if self.nmuLoose[0] > 0:
                 muPtForId = self.vmuoLoose0_pt[0]
                 muEtaForId = abs(self.vmuoLoose0_eta[0])
-                for etaKey, values in sorted(self._muid_eff["NUM_SoftID_DEN_genTracks"]["abseta_pt"].iteritems()) :
+                for etaKey, values in sorted(self._muid_eff["NUM_LooseID_DEN_genTracks"]["abseta_pt"].iteritems()) :
                     if float(etaKey[8:12]) < muEtaForId and float(etaKey[13:17]) > muEtaForId:
                         for ptKey, result in sorted(values.iteritems()) :
                             if float(ptKey[4:9]) < muPtForId and float(ptKey[10:15]) > muPtForId:
@@ -1055,8 +1055,8 @@ class sampleContainer:
 
             # Single Muon Control Regions
             if jpt_8 > PTCUTMUCR and jmsd_8 > MASSCUT and nmuLoose == 1 and neleLoose == 0 and ntau == 0 and vmuoLoose0_pt > MUONPTCUT and abs(
-                    vmuoLoose0_eta) < 2.1 and isTightVJet and abs(
-                            vmuoLoose0_phi - jphi_8) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
+                    vmuoLoose0_eta) < 2.1 and isTightVJet and abs(QGLRutil.deltaPhi(
+                            vmuoLoose0_phi , jphi_8)) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
                 if not self._minBranches:
                     ht_ = 0.
                     if (abs(self.AK4Puppijet0_eta[0]) < 2.4 and self.AK4Puppijet0_pt[0] > 30): ht_ = ht_ + \
@@ -1135,9 +1135,9 @@ class sampleContainer:
                         vmuoLoose0_eta) < 2.1 and isTightVJet and jtN2b1sdddt_8 < 0 and abs(QGLRutil.deltaPhi(
                                 vmuoLoose0_phi , jphi_8)) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
                     if jdb_8 > self.DBTAGCUT:
-                        (getattr(self, 'h_msd_ak8_muCR4_N2_pass_%s' % syst)).Fill(jmsd_8, weight)
+                        (getattr(self, 'h_msd_ak8_muCR4_N2_pass_%s' % syst)).Fill(jmsd_8, weight_mu)
                     elif jdb_8 > self.DBTAGCUTMIN:
-                        (getattr(self, 'h_msd_ak8_muCR4_N2_fail_%s' % syst)).Fill(jmsd_8, weight)
+                        (getattr(self, 'h_msd_ak8_muCR4_N2_fail_%s' % syst)).Fill(jmsd_8, weight_mu)
 
             if not self._minBranches:
                 jmsd_8_sub1 = self.AK8Puppijet1_msd[0]
