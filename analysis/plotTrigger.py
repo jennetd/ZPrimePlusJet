@@ -266,6 +266,90 @@ def main(options, args):
         tag2.SetTextSize(0.042); tag3.SetTextSize(0.033);
         tag1.Draw(); tag2.Draw(); tag3.Draw()
         d.Print('muiso_eff_2017.pdf')
+
+        
+        # 2018
+        
+        lumi_2018 = 59.9
+        
+        f_mutrig_ABCD = rt.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_AfterHLTUpdate_SF_trig.root"), "read")
+        mutrig_eff = f_mutrig_ABCD.Get("Mu50_OR_OldMu100_OR_TkMu100_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
+        mutrig_eff.Sumw2()
+        mutrig_eff.SetDirectory(0)
+        f_mutrig_ABCD.Close()
+        
+        d.SetLogx()
+        mutrig_eff.SetMinimum(0)
+        mutrig_eff.SetMaximum(1)
+        mutrig_eff.GetXaxis().SetMoreLogLabels(1)
+        mutrig_eff.GetXaxis().SetNoExponent()
+        mutrig_eff.Draw('colztexte')
+        rt.gStyle.SetPaintTextFormat("3.3f")
+        
+        tag1 = rt.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%(lumi_2017))
+        tag1.SetNDC(); tag1.SetTextFont(42)
+        tag1.SetTextSize(0.033)
+        tag2 = rt.TLatex(0.17,0.92,"CMS")
+        tag2.SetNDC(); tag2.SetTextFont(62)
+        tag3 = rt.TLatex(0.25,0.92,"Preliminary")
+        tag3.SetNDC(); tag3.SetTextFont(52)
+        tag2.SetTextSize(0.042); tag3.SetTextSize(0.033);
+        tag1.Draw(); tag2.Draw(); tag3.Draw()        
+        d.Print('mutrig_eff_2018.pdf') 
+
+        f_muid_ABCD = rt.TFile.Open("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ID.root", "read")
+        muid_eff = f_muid_ABCD.Get(
+            "NUM_LooseID_DEN_TrackerMuons_pt_abseta")
+        muid_eff.Sumw2()
+        muid_eff.SetDirectory(0)
+        f_muid_ABCD.Close()
+        
+        muid_eff.SetMinimum(0)
+        muid_eff.SetMaximum(1)
+        muid_eff.GetXaxis().SetMoreLogLabels(1)
+        muid_eff.GetXaxis().SetNoExponent()
+        #muid_eff.GetZaxis().SetTitle('')
+        muid_eff.Draw('colztexte')
+        rt.gPad.Modified()
+        rt.gPad.Update()
+        rt.gStyle.SetPaintTextFormat("3.3f")
+        
+        tag1 = rt.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%lumi_2018)
+        tag1.SetNDC(); tag1.SetTextFont(42)
+        tag1.SetTextSize(0.033)
+        tag2 = rt.TLatex(0.17,0.92,"CMS")
+        tag2.SetNDC(); tag2.SetTextFont(62)
+        tag3 = rt.TLatex(0.25,0.92,"Preliminary")
+        tag3.SetNDC(); tag3.SetTextFont(52)
+        tag2.SetTextSize(0.042); tag3.SetTextSize(0.033);
+        tag1.Draw(); tag2.Draw(); tag3.Draw()
+        d.Print('muid_eff_2018.pdf')
+
+        
+        f_muiso_ABCD = rt.TFile.Open("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ISO.root", "read")
+        muiso_eff = f_muiso_ABCD.Get("NUM_LooseRelIso_DEN_LooseID_pt_abseta")
+        muiso_eff.Sumw2()
+        muiso_eff.SetDirectory(0)
+        f_muiso_ABCD.Close()
+
+        muiso_eff.SetMinimum(0)
+        muiso_eff.SetMaximum(1)
+        muiso_eff.GetXaxis().SetMoreLogLabels(1)
+        muiso_eff.GetXaxis().SetNoExponent()
+        muiso_eff.Draw('colztexte')
+        rt.gStyle.SetPaintTextFormat("4.4f")
+        
+        tag1 = rt.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%lumi_2017)
+        tag1.SetNDC(); tag1.SetTextFont(42)
+        tag1.SetTextSize(0.033)
+        tag2 = rt.TLatex(0.17,0.92,"CMS")
+        tag2.SetNDC(); tag2.SetTextFont(62)
+        tag3 = rt.TLatex(0.25,0.92,"Preliminary")
+        tag3.SetNDC(); tag3.SetTextFont(52)
+        tag2.SetTextSize(0.042); tag3.SetTextSize(0.033);
+        tag1.Draw(); tag2.Draw(); tag3.Draw()
+        d.Print('muiso_eff_2018.pdf')
+
         
     
 if __name__ == '__main__':

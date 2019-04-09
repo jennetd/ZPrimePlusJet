@@ -5,6 +5,7 @@ from scipy.interpolate import Rbf, interp1d
 import itertools
 import numpy as np
 import glob
+import math
 
 def exec_me(command,dryRun=True):
     print command
@@ -140,6 +141,12 @@ def interpolate2D(hist,epsilon=0.2,smooth=1):
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('--data', action='store_true', dest='isData', default=False, help='is data')
+    parser.add_option('--rMin',dest='rMin', default=0 ,type='float',help='minimum of r (signal strength) in profile likelihood plot')
+    parser.add_option('--rMax',dest='rMax', default=20,type='float',help='maximum of r (signal strength) in profile likelihood plot')  
+    parser.add_option('--rzMin',dest='rzMin', default=0 ,type='float',help='minimum of r_z (signal strength) in profile likelihood plot')
+    parser.add_option('--rzMax',dest='rzMax', default=20,type='float',help='maximum of r_z (signal strength) in profile likelihood plot')  
+    parser.add_option('-n','--npoints'   ,action='store',type='int',dest='npoints'   ,default=100, help='npoints')
+    parser.add_option('-l','--lumi'   ,action='store',type='float',dest='lumi'   ,default=36.4, help='lumi')
     (options, args) = parser.parse_args()
      
     import tdrstyle
@@ -172,6 +179,10 @@ if __name__ == '__main__':
     rt.gStyle.SetNumberContours(999)
 
     #exec_me('combine -M MultiDimFit --minimizerTolerance 0.001 --minimizerStrategy 2  --setPhysicsModelParameterRanges r=0,5:r_z=0,2 --algo grid --points 100 -d card_rhalphabet_muonCR_floatZ.root -n 2D --saveWorkspace',True)
+    #combineTool.py -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2  --setParameterRanges r=-3,7:r_z=0.5,2 --algo grid --points 400 -d card_rhalphabet_all_2017_floatZ.root -n 2D_asimov -t -1 --toysFreq --setParameters r=1,r_z=1 --saveWorkspace --freezeParameters tqqeffSF,tqqnormSF
+    #combineTool.py -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2  --setParameterRanges r=-3,7:r_z=0.5,2 --algo grid --points 400 -d card_rhalphabet_all_2018_floatZ.root -n 2D_asimov -t -1 --toysFreq --setParameters r=1,r_z=1 --saveWorkspace --freezeParameters tqqeffSF,tqqnormSF
+    #combineTool.py -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2  --setParameterRanges r=-3,7:r_z=0.5,2 --algo grid --points 400 -d card_rhalphabet_all_floatZ.root -n 2D_asimov -t -1 --toysFreq --setParameters r=1,r_z=1 --saveWorkspace --freezeParameters tqqeffSF,tqqnormSF
+
     c = rt.TCanvas('c','c',500,400)
     
     if options.isData:
@@ -182,13 +193,13 @@ if __name__ == '__main__':
         dataTag = 'asimov'
 
     limit = rt.TChain('limit') 
-    for ifile in glob.glob('higgsCombine2D_%s.POINTS.*.MultiDimFit.mH120.root'%dataTag):
-        limit.Add(ifile)
-    #tfile = rt.TFile.Open('higgsCombine2D_%s.MultiDimFit.mH120.root'%(dataTag))
-    #limit = tfile.Get('limit')
+    #for ifile in glob.glob('higgsCombine2D_%s.POINTS.*.MultiDimFit.mH120.root'%dataTag):
+    #    limit.Add(ifile)
+    tfile = rt.TFile.Open('higgsCombine2D_%s.MultiDimFit.mH120.root'%(dataTag))
+    limit = tfile.Get('limit')
     fit = bestFit(limit, 'r', 'r_z')
     print limit.GetEntries()
-    limit.Draw("r_z:r>>htemp(100,-4,8,100,0,3)","2*deltaNLL*(quantileExpected>-1)*(deltaNLL>0)*(deltaNLL<100)","colz")
+    limit.Draw("r_z:r>>htemp(%s,%s,%s,%s,%s,%s)"%(math.sqrt(options.npoints),options.rMin,options.rMax,math.sqrt(options.npoints),options.rzMin,options.rzMax),"2*deltaNLL*(quantileExpected>-1)*(deltaNLL>0)*(deltaNLL<100)","colz")
     #limit.Draw("r_z:r>>htemp(21,-4,8,21,0,3)","2*deltaNLL*(quantileExpected>-1)*(deltaNLL>0)*(deltaNLL<100)","colz")
     #limit.Draw("r_z:r>>htemp(21,-6,12,21,0,3)","2*deltaNLL*(quantileExpected>-1)*(deltaNLL>0)*(deltaNLL<100)","colz")
     #contours = array('d',[2.3,5.99])
@@ -243,8 +254,7 @@ if __name__ == '__main__':
     m.SetMarkerStyle(29)
     m.DrawMarker(smx,smy)
 
-    lumi = 35.9
-    tag1 = rt.TLatex(0.65,0.92,"%.1f fb^{-1} (13 TeV)"%lumi)
+    tag1 = rt.TLatex(0.65,0.92,"%.1f fb^{-1} (13 TeV)"%options.lumi)
     tag1.SetNDC(); tag1.SetTextFont(42)
     tag1.SetTextSize(0.04)
     tag2 = rt.TLatex(0.19,0.82,"CMS")
