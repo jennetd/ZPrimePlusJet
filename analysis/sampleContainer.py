@@ -744,19 +744,17 @@ class sampleContainer:
             # if self._name=='tqq' or 'TTbar' in self._name:
             #    fbweight = fbweight/self.topPtWeight[0] # remove top pt reweighting (assuming average weight is ~ 1)
             vjetsKF = 1.
-	    wscale=[1.0,1.0,1.0,1.20,1.25,1.25,1.0]
-	    ptscale=[0, 500, 600, 700, 800, 900, 1000,3000]
-	    ptKF=1.
+            wscale=[1.0,1.0,1.0,1.20,1.25,1.25,1.0]
+            ptscale=[0, 500, 600, 700, 800, 900, 1000,3000]
+            ptKF=1.
             if 'wqq' in self._name or  self._name == 'W':
-                # print self._name
-		for i in range(0, len(ptscale)):
-			if self.genVPt[0] > ptscale[i] and self.genVPt[0]<ptscale[i+1]:  ptKF=wscale[i]
+                for i in range(0, len(ptscale)):
+                    if self.genVPt[0] > ptscale[i] and self.genVPt[0]<ptscale[i+1]:  ptKF=wscale[i]
                 vjetsKF = self.kfactor[0] * 1.35 * ptKF  # ==1 for not V+jets events
             elif 'zqq' in self._name or  self._name == 'DY':
-                # print self._name
                 vjetsKF = self.kfactor[0] * 1.45  # ==1 for not V+jets events
             
-            ### works only for 2017 HT binned sample, constructed with normSampleContainer
+            ### Apply k-factor for sampleContainer onstructed with normSampleContainer
             if 'ZJetsToQQ_' in self._name:    
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))  
                 #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
@@ -1719,7 +1717,7 @@ class sampleContainer:
 
     def SetExternalInputs(self,year):
 
-        #pre14 NLO W/Z k-factors files
+        #pre zprimebit 14 NLO W/Z k-factors files
         f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
         self._znlo = f_ZNLO.Get("NLO")
         self._znlo.SetDirectory(0)
@@ -1739,6 +1737,9 @@ class sampleContainer:
         self._puw_up.SetDirectory(0)
         self._puw_down.SetDirectory(0)
         f_pu.Close()
+
+        
+
 
         # get histogram for transform
         # GridOutput_v13_WP026.root # smooth version of the ddt ; exp is 4.45 vs 4.32 (3% worse)
