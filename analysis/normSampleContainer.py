@@ -5,7 +5,7 @@ import glob
 
 class normSampleContainer:
     def __init__(self, sampleName, subSamples, sf=1, DBTAGCUTMIN=-99., lumi=1, isData=False, fillCA15=False, cutFormula='1',
-                 minBranches=False, iSplit = 0, maxSplit = 1, triggerNames={}, treeName='otree', 
+                 minBranches=False, iSplit = 0, maxSplit = 1, triggerNames={}, treeName='', 
                  doublebName='AK8Puppijet0_doublecsv', doublebCut = 0.9, puOpt={}):
 
         self.sampleName            = sampleName
@@ -18,6 +18,7 @@ class normSampleContainer:
         self.DBTAGCUT = doublebCut
         self.doublebName = doublebName
         self.xsectionFile    = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/xSections.dat")
+        self.treeName        = treeName
 
         # subSamples = {subsampleName: [paths]}
         for subSampleName,paths in self.subSamples.iteritems():
@@ -28,12 +29,29 @@ class normSampleContainer:
                 print "normSampleContainer:: subSample = %s , Nfiles = %s , basePath = %s"%(subSampleName, len(tfiles[subSampleName]), paths[0].replace(paths[0].split("/")[-1],""))
             else:
                 print "normSampleContainer:: subSample = %s  "%(subSampleName)
+            #look up TreeName in the first file if not specified
+            if self.treeName =='':
+                self.SetTreeName(tfiles[subSampleName])
             Nentries,h_puMC,checksum           = self.getNentriesAndPu(tfiles[subSampleName])
             puOpt['MC'] = h_puMC
             print "puOpt = ",puOpt
             lumiWeight         =  (xSection*1000*lumi) / Nentries
             print "normSampleContainer:: [sample %s, subsample %s] lumi = %s fb-1, xSection = %.3f pb, nEvent = %s, weight = %.5f, Nfiles=%s,(chkSum=%s)" % (sampleName, subSampleName, lumi, xSection, Nentries, lumiWeight,len(tfiles[subSampleName]),checksum)
-            self.subSampleContainers[subSampleName] = sampleContainer(subSampleName, tfiles[subSampleName], sf, DBTAGCUTMIN, lumiWeight, isData, fillCA15, cutFormula, minBranches, iSplit ,maxSplit,triggerNames,treeName,doublebName,doublebCut,puOpt)
+            self.subSampleContainers[subSampleName] = sampleContainer(subSampleName, tfiles[subSampleName], sf, DBTAGCUTMIN, lumiWeight, isData, fillCA15, cutFormula, minBranches, iSplit ,maxSplit,triggerNames,self.treeName,doublebName,doublebCut,puOpt)
+
+    #Set treeName
+    def SetTreeName(self,oTreeFiles):
+        treeNames=["otree","Events"]
+        print "Trying to get tree with file=",oTreeFiles[0]
+        exampleFile = TFile.Open(oTreeFiles[0])
+        for tName in treeNames:
+            if exampleFile.Get(tName):
+                print "Found tree=",tName
+                self.treeName= tName
+                break 
+        if self.treeName=="":       
+            print "Error! Cannot find any tress with names= ",treeNames
+        return  
 
     #Get the number of events from the NEvents histogram
     def getNentriesAndPu(self,oTreeFiles):
