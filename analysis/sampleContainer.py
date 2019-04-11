@@ -754,7 +754,7 @@ class sampleContainer:
             elif 'zqq' in self._name or  self._name == 'DY':
                 vjetsKF = self.kfactor[0] * 1.45  # ==1 for not V+jets events
             
-            ### Apply k-factor for sampleContainer onstructed with normSampleContainer
+            ### Apply k-factor for sampleContainer constructed with normSampleContainer
             if 'ZJetsToQQ_' in self._name:    
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))  
                 #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
@@ -764,8 +764,24 @@ class sampleContainer:
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))
                 vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0] 
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0],self.kfactorQCD[0])
-        
-                
+       
+
+            ### TODO: Make this compatible with old bits 
+            ### pT reweighting, production 15.03+, for sampleContainer constructed with normSampleContainer
+            if 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix' in self._name:    
+                ptForNLO = max(0., min(self.genVPt[0], 1000.)) #0-1000 GeV
+                vjetsKF = self.h_vbf_num.GetBinContent( self.h_vbf_num.FindBin(ptForNLO))/self.h_vbf_den.GetBinContent( self.h_vbf_den.FindBin(ptForNLO))  
+                #print "sameple: %s , pT = %.3f, weight = %.3f"% (self._name, ptForNLO, vjetsKF)
+            if 'GluGluHToBB_M125_13TeV_powheg_pythia8' in self._name:    
+                ptForNLO =  min(self.genVPt[0], 1200.) #300-1200 GeV
+                if ptForNLO < 300.0:
+                    vjetsKF = 1.0                      #weight at 300 = 0.97 
+                else:
+                    vjetsKF = self.h_ggh_num.GetBinContent( self.h_ggh_num.FindBin(ptForNLO))/self.h_ggh_den.GetBinContent( self.h_ggh_den.FindBin(ptForNLO))  
+                #print "sameple: %s , pT = %.3f, weight = %.3f"% (self._name, ptForNLO, vjetsKF)
+
+
+
             # trigger weight
             #massForTrig = min(self.AK8Puppijet0_msd[0], 300.)
             massForTrig = min(max(self.AK8Puppijet0_msd[0],0), 300.)
@@ -1738,8 +1754,25 @@ class sampleContainer:
         self._puw_down.SetDirectory(0)
         f_pu.Close()
 
-        
+        # for zprimebit 15.03+, VBF N3LO pT reweighting
+        fvbf = ROOT.TFile.Open(os.path.expandvars("${ZPRIMEPLUSJET_BASE}/analysis/ggH/vbf_ptH_n3lo.root"),'read')
+        self.h_vbf_num = fvbf.Get('h_nnnlo_ptH')
+        self.h_vbf_den = fvbf.Get('h_lo_ptH')
+        self.h_vbf_num.SetDirectory(0)
+        self.h_vbf_den.SetDirectory(0)
+        fvbf.Close() 
 
+        # for zprimebit 15.03+, ggH pT reweighting
+        fggh = ROOT.TFile.Open(os.path.expandvars("${ZPRIMEPLUSJET_BASE}/analysis/ggH/ggh_ptH_n3lo.root"),'read')
+        #"NNNLO" from /eos/uscms/store/user/lpchbb/zprimebits-v12.05/GluGluHToBB_M125_13TeV_powheg_pythia8_CKKW_1000pb_weighted.root
+        self.h_ggh_num = fggh.Get('h_nnnlo_ptH')
+        #"LO"     From /eos/uscms/store/user/lpchbb/zprimebits-v12.04/cvernier/GluGluHToBB_M125_13TeV_powheg_pythia8_all_1000pb_weighted.root
+        self.h_ggh_den = fggh.Get('h_lo_ptH')
+        self.h_ggh_num.SetDirectory(0)
+        self.h_ggh_den.SetDirectory(0)
+        fggh.Close() 
+
+       
 
         # get histogram for transform
         # GridOutput_v13_WP026.root # smooth version of the ddt ; exp is 4.45 vs 4.32 (3% worse)
