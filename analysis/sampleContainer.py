@@ -769,7 +769,7 @@ class sampleContainer:
             ### TODO: Make this compatible with old bits 
             ### pT reweighting, production 15.03+, for sampleContainer constructed with normSampleContainer
             if 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix' in self._name:    
-                ptForNLO = max(0., min(self.genVPt[0], 1000.)) #0-1000 GeV
+                ptForNLO = max(0., min(self.genVPt[0], 999.)) #0-1000 GeV
                 vjetsKF = self.h_vbf_num.GetBinContent( self.h_vbf_num.FindBin(ptForNLO))/self.h_vbf_den.GetBinContent( self.h_vbf_den.FindBin(ptForNLO))  
                 #print "sameple: %s , pT = %.3f, weight = %.3f"% (self._name, ptForNLO, vjetsKF)
             if 'GluGluHToBB_M125_13TeV_powheg_pythia8' in self._name:    
