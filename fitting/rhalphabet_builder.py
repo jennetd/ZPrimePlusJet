@@ -452,7 +452,7 @@ class RhalphabetBuilder():
 
             # Make the rhalphabet fit for this pt bin
             (rhalphabet_hist_pass, rhalphabet_hist_fail) = self.MakeRhalphabet(["data_obs", "wqq", "zqq", "tqq","hqq125","vbfhqq125","tthqq125","zhqq125","whqq125"],
-                                                                               fail_hists_ptbin, this_pt,
+                                                                               fail_hists_ptbin,pass_hists_ptbin , this_pt,
                                                                                "cat" + str(pt_bin))
 
             # Get signals
@@ -474,7 +474,7 @@ class RhalphabetBuilder():
                 print "qcd_fail_cat%i_Bin%i flatParam" % (pt_bin, mass_bin)
 
     # iHs = dict of fail histograms
-    def MakeRhalphabet(self, samples, fail_histograms, pt, category):
+    def MakeRhalphabet(self, samples, fail_histograms,pass_histograms, pt, category):
         print "---- [MakeRhalphabet]"
 
         rhalph_bkgd_name = "qcd";
@@ -518,6 +518,7 @@ class RhalphabetBuilder():
                     print sample, fail_histograms[sample].GetName(), "subtract W/Z/ttbar"
                     print "\t-={}".format(fail_histograms[sample].GetBinContent(mass_bin))
                     fail_bin_content -= fail_histograms[sample].GetBinContent(mass_bin)  # subtract W/Z/ttbar from data
+            
             if fail_bin_content < 0: fail_bin_content = 0.
 
             fail_bin_unc = 1.+1./math.sqrt(max(fail_bin_content,1))
@@ -544,8 +545,22 @@ class RhalphabetBuilder():
             fail_bin_var_real.Print()
             fail_bin_var.Print()
 
+            qcd_fail_bin_content = fail_histograms['qcd'].GetBinContent(mass_bin)
+            qcd_pass_bin_content = pass_histograms['qcd'].GetBinContent(mass_bin)
+            qcd_bin_ratio        = 1.0
+            if qcd_fail_bin_content>0:
+                print "qcd fail =%.3f , pass = %.3f, qcd P/F = %.3f, qcd_incl. eff = %.3f "%(
+                    qcd_fail_bin_content,qcd_pass_bin_content,qcd_pass_bin_content/qcd_fail_bin_content,self._lEffQCD.getVal())
+                qcd_bin_ratio        = qcd_pass_bin_content/qcd_fail_bin_content
+            lEffQCD_bin = r.RooRealVar("qcdeff_"+category+self._suffix + "_Bin" + str(mass_bin),
+                                         "qcdeff_"+category+self._suffix + "_Bin" + str(mass_bin),
+                                          0.01, 0., 10.)
+            lEffQCD_bin.setVal(qcd_bin_ratio)
+            lEffQCD_bin.setConstant(True)
+
             # Now define the passing cateogry based on the failing (make sure it can't go negative)
-            lArg = r.RooArgList(fail_bin_var, roopolyarray, self._lEffQCD)
+            #lArg = r.RooArgList(fail_bin_var, roopolyarray, self._lEffQCD)
+            lArg = r.RooArgList(fail_bin_var, roopolyarray, lEffQCD_bin)  #Use bin-by-bin qcd-eff
             pass_bin_var = r.RooFormulaVar(rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            "@0*max(@1,0)*@2", lArg)
@@ -567,8 +582,7 @@ class RhalphabetBuilder():
             # Add bins to the array
             pass_bins.add(pass_bin_var)
             fail_bins.add(fail_bin_var)
-            self._all_vars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
-            self._all_pars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
+            self._all_vars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real,lEffQCD_bin])
             # print  fail_bin_var.GetName(),"flatParam",lPass#,lPass+"/("+lFail+")*@0"
 
         # print "Printing pass_bins:"
