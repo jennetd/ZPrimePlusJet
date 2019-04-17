@@ -514,9 +514,11 @@ def main(options, args):
         bkgSamples['zll'] = sampleContainer('zll', tfiles['zll'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
     print "Data..."
     if not options.skipData:
+        if 'skim' in tfiles['data_obs'][0]: dataTree = 'otree'
+        else:                               dataTree = 'Events'
         if muonCR:
             if year=='2017'or year=='2018':
-                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName)
+                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName,treeName = dataTree)
             elif year=='2016':
                 dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         else:
@@ -532,7 +534,7 @@ def main(options, args):
                                "HLT_PFJet500_v*",
                                "HLT_AK8PFJet500_v*"]
                       }
-                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,puOpt=pu_Opt,doublebName=doublebName)
+                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,puOpt=pu_Opt,doublebName=doublebName,treeName = dataTree)
             elif year=='2018':
                 # 2018 triggerBits
                 triggerNames={"version":"zprimebit-15.01","branchName":"triggerBits",
@@ -547,7 +549,7 @@ def main(options, args):
                                "HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v*",
                         ],
                       }
-                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,puOpt=pu_Opt,doublebName=doublebName)
+                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,puOpt=pu_Opt,doublebName=doublebName,treeName = dataTree)
             elif year=='2016':
                 dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'((triggerBits&2)&&passJson)', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
     hall = {}
