@@ -263,11 +263,11 @@ def get2018files():
                              'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8'       :[idir_1505skim+'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_*.root'       ],
                             },
               'QCD':        {
-                             'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1505+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8/*.root'  ],
-                             'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8/*.root' ],
+                             'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1505skim+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'  ],
+                             'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505skim+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ],
                              'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1505skim+'/QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
                              'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1505skim+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
-                             'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8/*.root' ]
+                             'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505skim+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
                             },
               'data': [
                             #idir_1505 + 'JetHTRun2018A_17Sep2018_v1/*.root',
