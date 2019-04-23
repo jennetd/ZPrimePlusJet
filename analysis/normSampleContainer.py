@@ -32,12 +32,12 @@ class normSampleContainer:
             #look up TreeName in the first file if not specified
             if self.treeName =='':
                 self.SetTreeName(tfiles[subSampleName])
-            print "puOpt = ",puOpt
             neventsName = "_".join(['h',sampleName,subSampleName,'n'])
             puName      = "_".join(['h',sampleName,subSampleName,'pu'])
             Nentries = normRoot.Get(str(neventsName)).GetBinContent(1)
             h_puMC   = normRoot.Get(str(puName))
             puOpt['MC'] = h_puMC
+            print "puOpt = ",puOpt
             lumiWeight         =  (xSection*1000*lumi) / Nentries
             print "normSampleContainer:: [sample %s, subsample %s] lumi = %s fb-1, xSection = %.3f pb, nEvent = %s, weight = %.5f, Nfiles=%s" % (sampleName, subSampleName, lumi, xSection, Nentries, lumiWeight,len(tfiles[subSampleName]))
             self.subSampleContainers[subSampleName] = sampleContainer(subSampleName, tfiles[subSampleName], sf, DBTAGCUTMIN, lumiWeight, isData, fillCA15, cutFormula, minBranches, iSplit ,maxSplit,triggerNames,self.treeName,doublebName,doublebCut,puOpt)
