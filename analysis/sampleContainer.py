@@ -670,16 +670,17 @@ class sampleContainer:
         cut = []
         cut = [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 
-        if self.puOpt['MC'] =='12.04':
-            print "Using weights directly from analysis/ggH/puWeights_All.root to reweight MC pu", 
-        elif self.puOpt['MC'] =='12.07':
-            print "Using tree branch to set per event weight" 
-        elif  type(self.puOpt['MC'])==type(ROOT.TH1F()):
-            print " Using input histogram reweight MC pu:",self.puOpt['MC'].GetName() 
-            h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
-        elif  type(self.puOpt['MC'])==type("string"):
-            print "Using this file to reweight MC pu:", self.puOpt
-            h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
+        if not self._isData:
+            if self.puOpt['MC'] =='12.04':
+                print "Using weights directly from analysis/ggH/puWeights_All.root to reweight MC pu", 
+            elif self.puOpt['MC'] =='12.07':
+                print "Using tree branch to set per event weight" 
+            elif  type(self.puOpt['MC'])==type(ROOT.TH1F()):
+                print " Using input histogram reweight MC pu:",self.puOpt['MC'].GetName() 
+                h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
+            elif  type(self.puOpt['MC'])==type("string"):
+                print "Using this file to reweight MC pu:", self.puOpt
+                h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
     
         self._tt.SetNotify(self._cutFormula)
 
