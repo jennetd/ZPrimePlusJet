@@ -52,11 +52,14 @@ def getNentriesAndPu(oTreeFiles):
             f.Close()
         return n,h_puMC
 
-def makeNormRoot(diffjson):
+def makeNormRoot(diffjson,remakeAllnorms=False):
     #diffjsonf  = open('test.json','r')
     #diffjson  = json.load(diffjsonf)
     for fset,samples in  diffjson.iteritems():
-        norm = r.TFile("ggH/norm_%s.root"%fset,"UPDATE")
+        if remakeAllnorms==True:
+            norm = r.TFile("ggH/norm_%s.root"%fset,"RECREATE")
+        else:
+            norm = r.TFile("ggH/norm_%s.root"%fset,"UPDATE")
         for sample,subsample in samples.iteritems():
             #ignore data
             if type(subsample)==type([]):continue
@@ -117,14 +120,14 @@ def main(options,args):
     finaljson['Hbb_create_2018_muCR']      = expandPath(Hbb_create.get2018files(True)) 
     print "LoadedJson == new json: ", loadedJson == finaljson
     updateNorms = True 
-    remakeAllnorms = False 
+    remakeAllnorms = options.remakeAllnorms
     if loadedJson != finaljson and updateNorms :
         diffed_json, changed_subsamples = diffDict(loadedJson,finaljson)
-        print "Following subsamples are changed:"
-        for s in changed_subsamples: print s
+        #print "Following subsamples are changed:"
+        #for s in changed_subsamples: print s
         makeNormRoot(diffed_json)
     if remakeAllnorms:
-        makeNormRoot(finaljson)
+        makeNormRoot(finaljson,remakeAllnorms=True)
         
 
     if not options.printOnly and finaljson is not {}:

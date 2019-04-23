@@ -199,9 +199,9 @@ def get2018files(isMuonCR):
 	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1505skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
         'zhqq125'    : { 
                            'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1505skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1505+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1505skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
                            #'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1505+'/ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
-                           'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1505+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
+                           'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1505skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
                        },
         'whqq125'    : {
                            'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1505skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -408,16 +408,20 @@ def main(options, args):
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
         if muonCR:
             tfiles  = json.load(samplefiles)['Hbb_create_2017_muCR']
+            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2017_muCR.root")
         else:
             tfiles  = json.load(samplefiles)['Hbb_create_2017']
-        pu_Opt  = {'data':"2017"}
+            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2017.root")
+        pu_Opt  = {'data':"2017",'norm':normfile}
     elif year=='2018':
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
         if muonCR:
             tfiles  = json.load(samplefiles)['Hbb_create_2018_muCR']
+            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2018_muCR.root")
         else:
             tfiles  = json.load(samplefiles)['Hbb_create_2018']
-        pu_Opt  = {'data':"2018"}
+            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2018.root")
+        pu_Opt  = {'data':"2018",'norm':normfile}
     elif year=='2016':
         tfiles = get2016files(muonCR)
         pu_Opt  = {'data':"2016",'MC':"12.04"}
