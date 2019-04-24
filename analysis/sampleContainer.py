@@ -670,16 +670,17 @@ class sampleContainer:
         cut = []
         cut = [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
 
-        if self.puOpt['MC'] =='12.04':
-            print "Using weights directly from analysis/ggH/puWeights_All.root to reweight MC pu", 
-        elif self.puOpt['MC'] =='12.07':
-            print "Using tree branch to set per event weight" 
-        elif  type(self.puOpt['MC'])==type(ROOT.TH1F()):
-            print " Using input histogram reweight MC pu:",self.puOpt['MC'].GetName() 
-            h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
-        elif  type(self.puOpt['MC'])==type("string"):
-            print "Using this file to reweight MC pu:", self.puOpt
-            h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
+        if not self._isData:
+            if self.puOpt['MC'] =='12.04':
+                print "Using weights directly from analysis/ggH/puWeights_All.root to reweight MC pu", 
+            elif self.puOpt['MC'] =='12.07':
+                print "Using tree branch to set per event weight" 
+            elif  type(self.puOpt['MC'])==type(ROOT.TH1F()):
+                print " Using input histogram reweight MC pu:",self.puOpt['MC'].GetName() 
+                h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
+            elif  type(self.puOpt['MC'])==type("string"):
+                print "Using this file to reweight MC pu:", self.puOpt
+                h_puw,h_puw_up,h_puw_down = self.getPuWeight(self.puOpt['MC'],self.puOpt['data'])
     
         self._tt.SetNotify(self._cutFormula)
 
@@ -722,22 +723,25 @@ class sampleContainer:
             if (nent / 100 > 0 and i % (1 * nent / 100) == 0):
                 sys.stdout.write("\r[" + "=" * int(20 * i / nent) + " " + str(round(100. * i / nent, 0)) + "% done")
                 sys.stdout.flush()
-            
-            if self.puOpt['MC'] =='12.07':
-                puweight      = self.puWeight[0] #corrected
-                puweight_up   = self.puWeight_up[0]
-                puweight_down = self.puWeight_down[0]
-            elif self.puOpt['MC']=='12.04':
-                nPuForWeight  = min(self.npu[0], 49.5)
-                puweight      = self._puw.GetBinContent(self._puw.FindBin(nPuForWeight))
-                puweight_up   = self._puw_up.GetBinContent(self._puw_up.FindBin(nPuForWeight))
-                puweight_down = self._puw_down.GetBinContent(self._puw_down.FindBin(nPuForWeight))
+           
+            if not self._isData: 
+                if self.puOpt['MC'] =='12.07':
+                    puweight      = self.puWeight[0] #corrected
+                    puweight_up   = self.puWeight_up[0]
+                    puweight_down = self.puWeight_down[0]
+                elif self.puOpt['MC']=='12.04':
+                    nPuForWeight  = min(self.npu[0], 49.5)
+                    puweight      = self._puw.GetBinContent(self._puw.FindBin(nPuForWeight))
+                    puweight_up   = self._puw_up.GetBinContent(self._puw_up.FindBin(nPuForWeight))
+                    puweight_down = self._puw_down.GetBinContent(self._puw_down.FindBin(nPuForWeight))
+                else:
+                    nPuForWeight  = min(self.npu[0], 99.5)
+                    puweight      = h_puw.GetBinContent(     h_puw.FindBin(nPuForWeight))
+                    puweight_up   = h_puw_up.GetBinContent(  h_puw_up.FindBin(nPuForWeight))
+                    puweight_down = h_puw_down.GetBinContent(h_puw_down.FindBin(nPuForWeight))
+                    #print (nPuForWeight,puweight,puweight_up,puweight_down)
             else:
-                nPuForWeight  = min(self.npu[0], 99.5)
-                puweight      = h_puw.GetBinContent(     h_puw.FindBin(nPuForWeight))
-                puweight_up   = h_puw_up.GetBinContent(  h_puw_up.FindBin(nPuForWeight))
-                puweight_down = h_puw_down.GetBinContent(h_puw_down.FindBin(nPuForWeight))
-                #print (nPuForWeight,puweight,puweight_up,puweight_down)
+                (puweight,puweight_up,puweight_down) = (1,1,1)
 
 
             fbweight = self.scale1fb[0] * self._lumi

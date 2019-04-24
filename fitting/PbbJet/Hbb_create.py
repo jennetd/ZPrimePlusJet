@@ -188,81 +188,94 @@ def get2018files(isMuonCR):
     idir_1502 = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.02/'
     idir_1502skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.02/skim/'
     idir_1501skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.01/skim/'
+    idir_1504     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/'
+    idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
+    idir_1505     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/'
+    idir_1505skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/skim/'
+
 
     tfiles = {
-	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1502skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
-	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1502skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
+	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1505skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1505skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
         'zhqq125'    : { 
-                           'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1502skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1502skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1502skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           #'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp':         [idir_1502skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp_*.root'],
+                           'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1505skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1505skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           #'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1505+'/ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
+                           'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1505skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
                        },
         'whqq125'    : {
-                           'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1502skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1502skim+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1505skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1505skim+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
                        },
-	    'tthqq125'   : { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1502skim+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8_*.root']},
+	    'tthqq125'   : { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1505skim+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8_*.root']},
         'vvqq':        {
-                             'WW_TuneCP5_13TeV-pythia8':[idir_1502skim+'WW_TuneCP5_13TeV_pythia8_*.root'],
-                             'WZ_TuneCP5_13TeV-pythia8':[idir_1502skim+'WZ_TuneCP5_13TeV_pythia8_*.root'],
-                             'ZZ_TuneCP5_13TeV-pythia8':[idir_1502skim+'ZZ_TuneCP5_13TeV_pythia8_*.root']
+                             'WW_TuneCP5_13TeV-pythia8':[idir_1505skim+'WW_TuneCP5_13TeV_pythia8_*.root'],
+                             'WZ_TuneCP5_13TeV-pythia8':[idir_1505skim+'WZ_TuneCP5_13TeV_pythia8_*.root'],
+                             'ZZ_TuneCP5_13TeV-pythia8':[idir_1505skim+'ZZ_TuneCP5_13TeV_pythia8_*.root']
                        },
         'zqq':         {
-                            'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1502skim + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV_*.root'],
-                            'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1502skim + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV_*.root'],
-                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1502skim + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV_*.root'],
+                            'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1505skim + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV_*.root'],
+                            'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1505skim + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV_*.root'],
+                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1505skim + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV_*.root'],
                         },
         'zll':          {
-                            'DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1502skim+'/DYJetsToLL_M_50_TuneCP5_13TeV_*.root']
+                            'DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1505skim+'/DYJetsToLL_M_50_TuneCP5_13TeV_*.root']
                         },
-        # ZJetsToQQ_HT600toInf_13TeV_madgraph_1000pb_weighted.root'],#DYJetsToQQ_HT180_13TeV_1000pb_weighted.root '],
         'stqq':  {
-                             'ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8':[idir_1502skim+'ST_t_channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV_powheg_madspin_pythia8_*.root'],
-                             'ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8'    :[idir_1502skim+'ST_t_channel_top_4f_InclusiveDecays_TuneCP5_13TeV_powheg_madspin_pythia8_*.root'],
-                             'ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8'                 :[idir_1502skim+'ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV_powheg_pythia8_*.root'],
-                             'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8'                     :[idir_1502skim+'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV_powheg_pythia8_*.root']
+                             'ST_s-channel_4f_hadronicDecays_TuneCP5_13TeV-madgraph-pythia8'                 :[idir_1505skim+'ST_s_channel_4f_hadronicDecays_TuneCP5_13TeV_madgraph_pythia8_*.root'],
+                             'ST_t-channel_antitop_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8':[idir_1505skim+'ST_t_channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV_powheg_madspin_pythia8_*.root'],
+                             'ST_t-channel_top_4f_inclusiveDecays_TuneCP5_13TeV-powhegV2-madspin-pythia8'    :[idir_1505skim+'ST_t_channel_top_4f_InclusiveDecays_TuneCP5_13TeV_powheg_madspin_pythia8_*.root'],
+                             'ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8'                 :[idir_1505skim+'ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV_powheg_pythia8_*.root'],
+                             'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8'                     :[idir_1505skim+'ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV_powheg_pythia8_*.root']
                             },
         'wqq'         : {
-                              'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV': [idir_1502skim + 'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV_*.root'],
-                              'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV': [idir_1502skim + 'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV_*.root'],
-                              'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV':[idir_1502skim + 'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV_*.root'],
+                              'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV': [idir_1505skim + 'WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV_*.root'],
+                              'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV': [idir_1505skim + 'WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV_*.root'],
+                              'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV':[idir_1505skim + 'WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV_*.root'],
                              },
         'wlnu':         {
                               # "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8"               :[ idir_1401skim+'WJetsToLNu_TuneCP5_13TeV*.root'],
-                               "WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1501skim+'WJetsToLNu_HT_200To400_*.root'],
-                               "WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1501skim+'WJetsToLNu_HT_400To600_*.root'],
-                               "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1501skim+'WJetsToLNu_HT_600To800_*.root'],
-                               "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8"  :[ idir_1501skim+'WJetsToLNu_HT_800To1200_*.root'],
-                               "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1501skim+'WJetsToLNu_HT_1200To2500_*.root'],
-                               "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1501skim+'WJetsToLNu_HT_2500ToInf*.root'],
+                               "WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_200To400_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_400To600_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_600To800_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8"  :[ idir_1504skim+'WJetsToLNu_HT_800To1200_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1504skim+'WJetsToLNu_HT_1200To2500_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8"  :[ idir_1504skim+'WJetsToLNu_HT_2500ToInf_TuneCP5_13TeV_*.root'],
                             },
         'tqq':      {
-                       'TTToHadronic_TuneCP5_13TeV_powheg_pythia8'    :[idir_1502skim+'TTToHadronic_TuneCP5_13TeV-powheg-pythia8_*.root'],
-                       'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8':[idir_1502skim+'TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_*.root'],
-                       'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8'       :[idir_1502skim+'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_*.root'       ],
+                       'TTToHadronic_TuneCP5_13TeV_powheg_pythia8'    :[idir_1505skim+'TTToHadronic_TuneCP5_13TeV-powheg-pythia8_*.root'],
+                       'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8':[idir_1505skim+'TTToSemiLeptonic_TuneCP5_13TeV_powheg_pythia8_*.root'],
+                       'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8'       :[idir_1505skim+'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_*.root'       ],
                       },
         'qcd':        {
-                       'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1502skim+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'  ],
-                       'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1502skim+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ],
-                       'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1502skim+'/QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
-                       'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1502skim+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
-                       'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1502skim+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
+                       'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1505skim+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'  ],
+                       'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505skim+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ],
+                       'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1505skim+'/QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
+                       'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1505skim+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
+                       'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505skim+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
                       },
         'data_obs': [
-                            idir_1502skim + 'JetHTRun2018A_17Sep2018_v1*.root',
-                            idir_1502skim + 'JetHTRun2018B_17Sep2018_v1*.root',
-                            idir_1502skim + 'JetHTRun2018C_PromptReco_v*.root',
-                            idir_1502skim + 'JetHTRun2018D_PromptReco_v*.root',
-
+                            #idir_1505 + 'JetHTRun2018A_17Sep2018_v1/*.root',
+                            #idir_1505 + 'JetHTRun2018B_17Sep2018_v1/*.root',
+                            #idir_1505 + 'JetHTRun2018C_PromptReco_v*/*.root',
+                            #idir_1505 + 'JetHTRun2018D_PromptReco_v*/*.root',
+                            idir_1505skim + 'JetHTRun2018A_17Sep2018_v1*.root',
+                            idir_1505skim + 'JetHTRun2018B_17Sep2018_v1*.root',
+                            idir_1505skim + 'JetHTRun2018C_PromptReco_v*.root',
+                            idir_1505skim + 'JetHTRun2018D_PromptReco_v*.root',
                       ],
     }
     if isMuonCR:
         tfiles['data_obs'] = [
-                       idir_1502skim+'/SingleMuonRun2018A_17Sep2018_v2*.root',
-                       idir_1502skim+'/SingleMuonRun2018B_17Sep2018_v1*.root',
-                       idir_1502skim+'/SingleMuonRun2018C_17Sep2018_v1*.root',
-                       idir_1502skim+'/SingleMuonRun2018D_PromptReco_v2*.root',
+                       #idir_1505+'/SingleMuonRun2018A_17Sep2018_v2/*.root',
+                       #idir_1505+'/SingleMuonRun2018B_17Sep2018_v1/*.root',
+                       #idir_1505+'/SingleMuonRun2018C_17Sep2018_v1/*.root',
+                       #idir_1505+'/SingleMuonRun2018D_PromptReco_v2*/*.root',
+                       idir_1505skim+'/SingleMuonRun2018A_17Sep2018_v2*.root',
+                       idir_1505skim+'/SingleMuonRun2018B_17Sep2018_v1*.root',
+                       idir_1505skim+'/SingleMuonRun2018C_17Sep2018_v1*.root',
+                       idir_1505skim+'/SingleMuonRun2018D_PromptReco_v2*.root',
+
                     ]
     return tfiles
 
@@ -286,8 +299,8 @@ def get2017files(isMuonCR):
         'zhqq125'    : { 
                            'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1504skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
                            'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1504skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1504skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           #'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp':         [idir_1504skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_herwigpp_*.root'],
+                           #'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1504skim+'/ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
+                           'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1504skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8*.root'],
                        },
         'whqq125'    : {
                            'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1504skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -305,11 +318,11 @@ def get2017files(isMuonCR):
                             'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1504skim + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV_*.root'],
                         },
         'zll':         {
-                             'DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV'  :[idir_1504skim+'/DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV*.root'] , 
-                             'DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV'  :[idir_1504skim+'/DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV*.root'] , 
-                             'DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV' :[idir_1504skim+'/DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV*.root'],                                     
-                             'DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV':[idir_1504skim+'/DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV*.root'], 
-                             'DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV' :[idir_1504skim+'/DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV*.root' ] 
+                             'DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV'  :[idir_1504skim+'/DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV_*.root'] , 
+                             'DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV'  :[idir_1504skim+'/DYJetsToLL_M_50_HT_600to800_TuneCP5_13TeV_*.root'] , 
+                             'DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV' :[idir_1504skim+'/DYJetsToLL_M_50_HT_800to1200_TuneCP5_13TeV_*.root'],                                     
+                             'DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV':[idir_1504skim+'/DYJetsToLL_M_50_HT_1200to2500_TuneCP5_13TeV_*.root'], 
+                             'DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV' :[idir_1504skim+'/DYJetsToLL_M_50_HT_2500toInf_TuneCP5_13TeV_*.root' ] 
                        },
         # ZJetsToQQ_HT600toInf_13TeV_madgraph_1000pb_weighted.root'],#DYJetsToQQ_HT180_13TeV_1000pb_weighted.root '],
         'stqq':  {
@@ -325,12 +338,12 @@ def get2017files(isMuonCR):
                              },
         'wlnu':         {
                               # "WJetsToLNu_TuneCP5_13TeV-madgraphMLM-pythia8"               :[ idir_1401skim+'WJetsToLNu_TuneCP5_13TeV*.root'],
-                               "WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_200To400_*.root'],
-                               "WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_400To600_*.root'],
-                               "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_600To800_*.root'],
-                               "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8"  :[ idir_1504skim+'WJetsToLNu_HT_800To1200_*.root'],
-                               "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1504skim+'WJetsToLNu_HT_1200To2500_*.root'],
-                               "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1504skim+'WJetsToLNu_HT_2500ToInf*.root'],
+                               "WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_200To400_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_400To600_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8"   :[ idir_1504skim+'WJetsToLNu_HT_600To800_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8"  :[ idir_1504skim+'WJetsToLNu_HT_800To1200_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8" :[ idir_1504skim+'WJetsToLNu_HT_1200To2500_TuneCP5_13TeV_*.root'],
+                               "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8"  :[ idir_1504skim+'WJetsToLNu_HT_2500ToInf_TuneCP5_13TeV_*.root'],
                             },
         'tqq':      {
                        'TTToHadronic_TuneCP5_13TeV_powheg_pythia8'    :[idir_1504skim+'TTToHadronic_TuneCP5_13TeV_powheg_pythia8_*.root'],
@@ -350,7 +363,7 @@ def get2017files(isMuonCR):
                              idir_1504skim + 'JetHTRun2017D_17Nov2017_v1_*.root',
                              idir_1504skim + 'JetHTRun2017E_17Nov2017_v1_*.root',
                              idir_1504skim + 'JetHTRun2017F_17Nov2017_v1_*.root',
-                             #idir_1504skim + 'JetHTRun2017F_17Nov2017_v1_*.rootnodupl.root'
+                             #idir_1501 + 'JetHTRun2017F_17Nov2017_v1/*.rootnodupl.root'
                       ],
     }
     if isMuonCR:
@@ -395,16 +408,20 @@ def main(options, args):
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
         if muonCR:
             tfiles  = json.load(samplefiles)['Hbb_create_2017_muCR']
+            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2017_muCR.root")
         else:
             tfiles  = json.load(samplefiles)['Hbb_create_2017']
-        pu_Opt  = {'data':"2017"}
+            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2017.root")
+        pu_Opt  = {'data':"2017",'norm':normfile}
     elif year=='2018':
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
         if muonCR:
             tfiles  = json.load(samplefiles)['Hbb_create_2018_muCR']
+            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2018_muCR.root")
         else:
             tfiles  = json.load(samplefiles)['Hbb_create_2018']
-        pu_Opt  = {'data':"2018"}
+            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2018.root")
+        pu_Opt  = {'data':"2018",'norm':normfile}
     elif year=='2016':
         tfiles = get2016files(muonCR)
         pu_Opt  = {'data':"2016",'MC':"12.04"}
@@ -501,9 +518,11 @@ def main(options, args):
         bkgSamples['zll'] = sampleContainer('zll', tfiles['zll'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
     print "Data..."
     if not options.skipData:
+        if 'skim' in tfiles['data_obs'][0]: dataTree = 'otree'
+        else:                               dataTree = 'Events'
         if muonCR:
             if year=='2017'or year=='2018':
-                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName)
+                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName,treeName = dataTree)
             elif year=='2016':
                 dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         else:
@@ -519,7 +538,7 @@ def main(options, args):
                                "HLT_PFJet500_v*",
                                "HLT_AK8PFJet500_v*"]
                       }
-                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,puOpt=pu_Opt,doublebName=doublebName)
+                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,puOpt=pu_Opt,doublebName=doublebName,treeName = dataTree)
             elif year=='2018':
                 # 2018 triggerBits
                 triggerNames={"version":"zprimebit-15.01","branchName":"triggerBits",
@@ -534,7 +553,7 @@ def main(options, args):
                                "HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_np4_v*",
                         ],
                       }
-                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,puOpt=pu_Opt,doublebName=doublebName)
+                dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'passJson', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,triggerNames=triggerNames,puOpt=pu_Opt,doublebName=doublebName,treeName = dataTree)
             elif year=='2016':
                 dataSample = sampleContainer('data_obs', tfiles['data_obs'], sfData, dbtagmin, lumi, True, False,'((triggerBits&2)&&passJson)', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
     hall = {}
