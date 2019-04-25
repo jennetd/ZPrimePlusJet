@@ -271,7 +271,7 @@ def get2018files(isMuonCR):
                        #idir_1505+'/SingleMuonRun2018B_17Sep2018_v1/*.root',
                        #idir_1505+'/SingleMuonRun2018C_17Sep2018_v1/*.root',
                        #idir_1505+'/SingleMuonRun2018D_PromptReco_v2*/*.root',
-                       idir_1505skim+'/SingleMuonRun2018A_17Sep2018_v2*.root',
+                       idir_1505skim+'/SingleMuonRun2018A_17Sep2018_v2_v2*.root',
                        idir_1505skim+'/SingleMuonRun2018B_17Sep2018_v1*.root',
                        idir_1505skim+'/SingleMuonRun2018C_17Sep2018_v1*.root',
                        idir_1505skim+'/SingleMuonRun2018D_PromptReco_v2*.root',
