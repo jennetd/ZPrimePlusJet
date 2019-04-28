@@ -36,8 +36,8 @@ class sampleContainer:
         self.DBTAGCUT = doublebCut
         self.doublebName = doublebName
         self._fn = fn
-        if len(fn) > 0:
-            self._tf = ROOT.TFile.Open(self._fn[0])
+        #if len(fn) > 0:
+        #    self._tf = ROOT.TFile.Open(self._fn[0])
         self._tt = ROOT.TChain(treeName)
         print "constructing with tree name = ",treeName
         for fn in self._fn: self._tt.Add(fn)
@@ -759,12 +759,29 @@ class sampleContainer:
                 vjetsKF = self.kfactor[0] * 1.45  # ==1 for not V+jets events
             
             ### Apply k-factor for sampleContainer constructed with normSampleContainer
-            if 'ZJetsToQQ_' in self._name:    
+            if 'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' in self._name:  #for 2016legacy
+                ptForNLO = max(200., min(self.genVPt[0], 1000.))  
+                iEWKKF = self._hEWK_Z.GetBinContent(self._hEWK_Z.FindBin(ptForNLO));
+                iQCDKF = 1.45;
+                vjetsKF = iQCDKF*iEWKKF;
+            elif 'ZJetsToQQ_' in self._name:    
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))  
                 #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
                 vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0], self.kfactorQCD[0])
-            if 'WJetsToQQ_' in self._name:
+
+            if 'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' in self._name:  #for 2016legacy
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
+                W_SF=1.35
+                iQCDKF = self._hQCD_W.GetBinContent(self._hQCD_W.FindBin(ptForNLO));
+                iEWKKF = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));
+                wscale=[1.0,1.0,1.0,1.20,1.25,1.25,1.0];
+                ptscale=[0, 500, 600, 700, 800, 900, 1000,3000];
+                ptKF=1.
+                for i in range(0, len(ptscale)):
+                    if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
+                vjetsKF = W_SF*iEWKKF*iQCDKF*ptKF;
+            elif 'WJetsToQQ_' in self._name:
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))
                 vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0] 
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0],self.kfactorQCD[0])
@@ -829,15 +846,22 @@ class sampleContainer:
             muidweightDown = 1
             muidweightUp = 1
             if self.nmuLoose[0] > 0:
-                muPtForId = self.vmuoLoose0_pt[0]
-                muEtaForId = abs(self.vmuoLoose0_eta[0])
-                for etaKey, values in sorted(self._muid_eff["NUM_LooseID_DEN_genTracks"]["abseta_pt"].iteritems()) :
-                    if float(etaKey[8:12]) < muEtaForId and float(etaKey[13:17]) > muEtaForId:
-                        for ptKey, result in sorted(values.iteritems()) :
-                            if float(ptKey[4:9]) < muPtForId and float(ptKey[10:15]) > muPtForId:
-                                muidweight = result["value"]
-                                muidweightUp = result["value"] + result["error"]
-                                muidweightDown = result["value"] - result["error"]
+                if self.puOpt['data'] in ['2016','2016legacy']: 
+                    muPtForId = max(20., min(self.vmuoLoose0_pt[0], 100.))
+                    muEtaForId = min(abs(self.vmuoLoose0_eta[0]), 2.3)
+                    muidweight = self._muid_eff.GetBinContent(self._muid_eff.FindBin(muPtForId, muEtaForId))
+                    muidweightUp = muidweight + self._muid_eff.GetBinError(self._muid_eff.FindBin(muPtForId, muEtaForId))
+                    muidweightDown = muidweight - self._muid_eff.GetBinError(self._muid_eff.FindBin(muPtForId, muEtaForId))
+                else:
+                    muPtForId = self.vmuoLoose0_pt[0]
+                    muEtaForId = abs(self.vmuoLoose0_eta[0])
+                    for etaKey, values in sorted(self._muid_eff["NUM_LooseID_DEN_genTracks"]["abseta_pt"].iteritems()) :
+                        if float(etaKey[8:12]) < muEtaForId and float(etaKey[13:17]) > muEtaForId:
+                            for ptKey, result in sorted(values.iteritems()) :
+                                if float(ptKey[4:9]) < muPtForId and float(ptKey[10:15]) > muPtForId:
+                                    muidweight = result["value"]
+                                    muidweightUp = result["value"] + result["error"]
+                                    muidweightDown = result["value"] - result["error"]
                 if muidweight <= 0 or muidweightDown <= 0 or muidweightUp <= 0:
                     print 'muidweights are %f, %f, %f, setting all to 1' % (muidweight, muidweightUp, muidweightDown)
                     muidweight = 1
@@ -848,15 +872,24 @@ class sampleContainer:
             muisoweightDown = 1
             muisoweightUp = 1
             if self.nmuLoose[0] > 0:
-                muPtForIso = self.vmuoLoose0_pt[0]
-                muEtaForIso = abs(self.vmuoLoose0_eta[0])
-                for etaKey, values in sorted(self._muiso_eff["NUM_LooseRelIso_DEN_LooseID"]["abseta_pt"].iteritems()) :
-                    if float(etaKey[8:12]) < muEtaForId and float(etaKey[13:17]) > muEtaForId:
-                        for ptKey, result in sorted(values.iteritems()) :
-                            if float(ptKey[4:9]) < muPtForId and float(ptKey[10:15]) > muPtForId:
-                                muisoweight = result["value"]
-                                muisoweightUp = result["value"] + result["error"]
-                                muisoweightDown = result["value"] - result["error"]
+                if self.puOpt['data'] in ['2016','2016legacy']: 
+                    muPtForIso = max(20., min(self.vmuoLoose0_pt[0], 100.))
+                    muEtaForIso = min(abs(self.vmuoLoose0_eta[0]), 2.3)
+                    muisoweight = self._muiso_eff.GetBinContent(self._muiso_eff.FindBin(muPtForIso, muEtaForIso))
+                    muisoweightUp = muisoweight + self._muiso_eff.GetBinError(
+                        self._muiso_eff.FindBin(muPtForIso, muEtaForIso))
+                    muisoweightDown = muisoweight - self._muiso_eff.GetBinError(
+                        self._muiso_eff.FindBin(muPtForIso, muEtaForIso))
+                else:
+                    muPtForIso = self.vmuoLoose0_pt[0]
+                    muEtaForIso = abs(self.vmuoLoose0_eta[0])
+                    for etaKey, values in sorted(self._muiso_eff["NUM_LooseRelIso_DEN_LooseID"]["abseta_pt"].iteritems()) :
+                        if float(etaKey[8:12]) < muEtaForId and float(etaKey[13:17]) > muEtaForId:
+                            for ptKey, result in sorted(values.iteritems()) :
+                                if float(ptKey[4:9]) < muPtForId and float(ptKey[10:15]) > muPtForId:
+                                    muisoweight = result["value"]
+                                    muisoweightUp = result["value"] + result["error"]
+                                    muisoweightDown = result["value"] - result["error"]
                 if muisoweight <= 0 or muisoweightDown <= 0 or muisoweightUp <= 0:
                     print 'muisoweights are %f, %f, %f, setting all to 1' % (
                     muisoweight, muisoweightUp, muisoweightDown)
@@ -1042,7 +1075,7 @@ class sampleContainer:
                     AK4DCSVCUT=0.4184
                     if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4184:
                         n_MdR0p8_4+=1
-                elif self.puOpt['data']=='2016':
+                elif self.puOpt['data'] in ['2016','2016legacy']:
                     AK4DCSVCUT=0.6321
                     n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
                     
@@ -1642,7 +1675,7 @@ class sampleContainer:
         #self._trig_denom = f_trig.Get("data_obs_muCR4_denominator")
         #self._trig_numer = f_trig.Get("data_obs_muCR4_numerator")
 
-        if year=='2016':
+        if '2016' in year:
             effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/RUNTriggerEfficiencies_SingleMuon_Run2016_V2p1_v03.root"
         elif year =="2017":
             effFile = "$ZPRIMEPLUSJET_BASE/analysis/ggH/TrigEff_2017BtoF_noPS_Feb21.root"
@@ -1663,7 +1696,7 @@ class sampleContainer:
                 self._trig_eff = ROOT.TEfficiency(self._trig_numer, self._trig_denom)
                 self._trig_eff.SetDirectory(0)
             f_trig.Close()
-        if year =='2016':
+        if '2016' in year:
             print "Using triggerEff file = ",effFile
             f_trig = ROOT.TFile.Open(os.path.expandvars(effFile), "read")
             self._trig_denom = f_trig.Get("DijetTriggerEfficiencySeveralTriggers/jet1SoftDropMassjet1PtDenom_cutJet")
@@ -1697,7 +1730,6 @@ class sampleContainer:
                 self._muiso_eff = json.load(ISO_input_file)
         elif year=='2018':
             f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_AfterHLTUpdate_SF_trig.root"), "read")
-            self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_OR_OldMu100_OR_TkMu100_PtEtaBins/pt_abseta_ratio")
             self._mutrig_eff = f_mutrig_BCDEF.Get("Mu50_OR_OldMu100_OR_TkMu100_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
             self._mutrig_eff.Sumw2()
             self._mutrig_eff.SetDirectory(0)
@@ -1708,34 +1740,75 @@ class sampleContainer:
             with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2018_RunABCD_SF_ISO.json")) as ISO_input_file:
                 print "using muon ISO SF :",ISO_input_file
                 self._muiso_eff = json.load(ISO_input_file)
-        elif year=='2016':
+        elif year in ['2016','2016legacy']:
             # From : https://github.com/kakwok/ZPrimePlusJet/commit/cd12688220ddbc944a9175d8c7f6368f680b02d4
             lumi_GH = 16.146
             lumi_BCDEF = 19.721
             lumi_total = lumi_GH + lumi_BCDEF
             f_mutrig_BCDEF = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_RunBtoF.root"), "read")
-            self._mutrig_eff_BCDEF = f_mutrig_BCDEF.Get("Mu50_OR_TkMu50_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff_BCDEF = f_mutrig_BCDEF.Get("Mu50_OR_TkMu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
             self._mutrig_eff_BCDEF.Sumw2()
             self._mutrig_eff_BCDEF.Scale(lumi_BCDEF/lumi_total)
 
             f_mutrig_GH    = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_Period4.root"), "read")
-            self._mutrig_eff_GH = f_mutrig_GH.Get("Mu50_OR_TkMu50_PtEtaBins/pt_abseta_ratio")
+            self._mutrig_eff_GH = f_mutrig_GH.Get("Mu50_OR_TkMu50_PtEtaBins/efficienciesDATA/pt_abseta_DATA")
             self._mutrig_eff_GH.Sumw2()
             self._mutrig_eff_GH.Scale(lumi_GH / lumi_total)
 
             self._mutrig_eff = self._mutrig_eff_BCDEF.Clone("pt_abseta_DATA_mutrig_ave")
             self._mutrig_eff.Add(self._mutrig_eff_GH)
             self._mutrig_eff.SetDirectory(0)
-            # use 2017 ID and ISO SF for now
-            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ID.json")) as ID_input_file:
-                print "using muon ID SF :",ID_input_file
-                self._muid_eff = json.load(ID_input_file)
-            with open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Muon2017_RunBCDEF_SF_ISO.json")) as ISO_input_file:
-                print "using muon ISO SF :",ISO_input_file
-                self._muiso_eff = json.load(ISO_input_file)
-
+            #2016 muon ISO
+            f_muiso_GH = ROOT.TFile.Open("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_ISO_GH.root", "read")
+            self._muiso_eff_GH = f_muiso_GH.Get("LooseISO_LooseID_pt_eta/efficienciesDATA/pt_abseta_DATA")
+            self._muiso_eff_GH.Sumw2()
+            self._muiso_eff_GH.SetDirectory(0)
+            f_muiso_GH.Close()
+    
+            f_muiso_BCDEF = ROOT.TFile.Open("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_ISO_BCDEF.root", "read")
+            self._muiso_eff_BCDEF = f_muiso_BCDEF.Get("LooseISO_LooseID_pt_eta/efficienciesDATA/pt_abseta_DATA")
+            self._muiso_eff_BCDEF.Sumw2()
+            self._muiso_eff_BCDEF.SetDirectory(0)
+            f_muiso_BCDEF.Close()
+    
+            self._muiso_eff = self._muiso_eff_GH.Clone('pt_abseta_DATA_muiso_ave')
+            self._muiso_eff.Scale(lumi_GH / lumi_total)
+            self._muiso_eff.Add(self._muiso_eff_BCDEF, lumi_BCDEF / lumi_total)
+            #2016 muon ID
+            f_muid_GH = ROOT.TFile.Open("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_GH.root", "read")
+            self._muid_eff_GH = f_muid_GH.Get("MC_NUM_LooseID_DEN_genTracks_PAR_pt_eta/efficienciesDATA/pt_abseta_DATA")
+            self._muid_eff_GH.Sumw2()
+            self._muid_eff_GH.SetDirectory(0)
+            f_muid_GH.Close()
+            f_muid_BCDEF = ROOT.TFile.Open("$ZPRIMEPLUSJET_BASE/analysis/ggH/EfficienciesAndSF_BCDEF.root", "read")
+            self._muid_eff_BCDEF = f_muid_BCDEF.Get("MC_NUM_LooseID_DEN_genTracks_PAR_pt_eta/efficienciesDATA/pt_abseta_DATA")
+            self._muid_eff_BCDEF.Sumw2()
+            self._muid_eff_BCDEF.SetDirectory(0)
+            f_muid_BCDEF.Close()
+    
+            self._muid_eff = self._muid_eff_GH.Clone('pt_abseta_DATA_muid_ave')
+            self._muid_eff.Scale(lumi_GH / lumi_total)
+            self._muid_eff.Add(self._muid_eff_BCDEF, lumi_BCDEF / lumi_total)
+         
 
     def SetExternalInputs(self,year):
+        #2016legacy DYJetsQQ /WJetsQQ kfactors
+        #From  https://github.com/cmantill/ZPrimePlusJet/blob/24f30f16e911b480f03b4b6dee5d8a1fbc24f324/analysis/zqq_utils.py#L298
+        f_kfactors = ROOT.TFile.Open("ggH/kfactors.root")
+        self._hQCD_Z = f_kfactors.Get('ZJets_012j_NLO/nominal')
+        self._hQCD_W = f_kfactors.Get('WJets_012j_NLO/nominal')
+        self._hLO_Z = f_kfactors.Get('ZJets_LO/inv_pt')
+        self._hLO_W = f_kfactors.Get('WJets_LO/inv_pt')
+        self._hEWK_Z = f_kfactors.Get('EWKcorr/Z')
+        self._hEWK_W = f_kfactors.Get('EWKcorr/W')
+        self._hQCD_Z.SetDirectory(0)
+        self._hQCD_W.SetDirectory(0)
+        self._hLO_Z.SetDirectory(0)
+        self._hLO_W.SetDirectory(0)
+        self._hEWK_Z.SetDirectory(0)
+        self._hEWK_W.SetDirectory(0)
+        f_kfactors.Close()
+    
 
         #pre zprimebit 14 NLO W/Z k-factors files
         f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
@@ -1807,7 +1880,7 @@ class sampleContainer:
         elif data_pu=='2018':
             print "Using 2018 data PU ",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root")
             f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.root"))
-        elif data_pu=='2016':
+        elif data_pu in ['2016','2016legacy']:
             print "Using 2016 data PU ",os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root")
             f_pu  = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/pileUp_Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root"))
 
