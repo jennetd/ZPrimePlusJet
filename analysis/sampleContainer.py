@@ -1794,7 +1794,7 @@ class sampleContainer:
     def SetExternalInputs(self,year):
         #2016legacy DYJetsQQ /WJetsQQ kfactors
         #From  https://github.com/cmantill/ZPrimePlusJet/blob/24f30f16e911b480f03b4b6dee5d8a1fbc24f324/analysis/zqq_utils.py#L298
-        f_kfactors = ROOT.TFile.Open("ggH/kfactors.root")
+        f_kfactors = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/kfactors.root"), "read")
         self._hQCD_Z = f_kfactors.Get('ZJets_012j_NLO/nominal')
         self._hQCD_W = f_kfactors.Get('WJets_012j_NLO/nominal')
         self._hLO_Z = f_kfactors.Get('ZJets_LO/inv_pt')

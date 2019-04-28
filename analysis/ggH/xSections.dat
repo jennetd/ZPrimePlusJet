@@ -110,6 +110,9 @@ DYJetsToLL_M-5to50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8           
 DYJetsToLL_M-5to50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8               3.581 # *1.23 remove k-factor from SUSY
 DYJetsToLL_M-5to50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8               1.124 # *1.23 remove k-factor from SUSY
 DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8					 1187 # from DAS, 1338.95 from Phil Harris`
+DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8                                   2.991      #from XSDB
+DYJetsToLL_Pt_400To650_13TeV_amcatnloFXFX_pythia8                                   0.3882     #from XSDB
+DYJetsToLL_Pt_650ToInf_13TeV_amcatnloFXFX_pythia8                                   0.03737    #from XSDB
 ZJetsToNuNu_HT-100To200_13TeV-madgraph                                            280.35 # *1.23 remove k-factor from SUSY
 ZJetsToNuNu_HT-200To400_13TeV-madgraph                                             77.67 # *1.23 remove k-factor from SUSY
 ZJetsToNuNu_HT-400To600_13TeV-madgraph                                             10.73 # *1.23 remove k-factor from SUSY
