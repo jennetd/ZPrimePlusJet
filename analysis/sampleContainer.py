@@ -764,6 +764,7 @@ class sampleContainer:
                 iEWKKF = self._hEWK_Z.GetBinContent(self._hEWK_Z.FindBin(ptForNLO));
                 iQCDKF = 1.45;
                 vjetsKF = iQCDKF*iEWKKF;
+                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'ZJetsToQQ_' in self._name:    
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))  
                 #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
@@ -781,6 +782,7 @@ class sampleContainer:
                 for i in range(0, len(ptscale)):
                     if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
                 vjetsKF = W_SF*iEWKKF*iQCDKF*ptKF;
+                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'WJetsToQQ_' in self._name:
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))
                 vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0] 
@@ -1808,6 +1810,10 @@ class sampleContainer:
         self._hEWK_Z.SetDirectory(0)
         self._hEWK_W.SetDirectory(0)
         f_kfactors.Close()
+        self._hEWK_Z.Divide(self._hQCD_Z);
+        self._hEWK_W.Divide(self._hQCD_W);
+        self._hQCD_Z.Divide(self._hLO_Z);
+        self._hQCD_W.Divide(self._hLO_W);
     
 
         #pre zprimebit 14 NLO W/Z k-factors files
