@@ -254,7 +254,7 @@ def get2018files(isMuonCR):
                        'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1505skim+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
                        'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505skim+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
                       },
-        'data_obs': [
+        'data_obs_jet': [
                             #idir_1505 + 'JetHTRun2018A_17Sep2018_v1/*.root',
                             #idir_1505 + 'JetHTRun2018B_17Sep2018_v1/*.root',
                             #idir_1505 + 'JetHTRun2018C_PromptReco_v*/*.root',
@@ -264,9 +264,7 @@ def get2018files(isMuonCR):
                             idir_1505skim + 'JetHTRun2018C_PromptReco_v*.root',
                             idir_1505skim + 'JetHTRun2018D_PromptReco_v*.root',
                       ],
-    }
-    if isMuonCR:
-        tfiles['data_obs'] = [
+        'data_obs_mu': [
                        #idir_1505+'/SingleMuonRun2018A_17Sep2018_v2/*.root',
                        #idir_1505+'/SingleMuonRun2018B_17Sep2018_v1/*.root',
                        #idir_1505+'/SingleMuonRun2018C_17Sep2018_v1/*.root',
@@ -275,8 +273,8 @@ def get2018files(isMuonCR):
                        idir_1505skim+'/SingleMuonRun2018B_17Sep2018_v1*.root',
                        idir_1505skim+'/SingleMuonRun2018C_17Sep2018_v1*.root',
                        idir_1505skim+'/SingleMuonRun2018D_PromptReco_v2*.root',
-
                     ]
+    }
     return tfiles
 
 def get2016legacyfiles():
@@ -438,7 +436,7 @@ def get2017files(isMuonCR):
                        'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1504skim+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
                        'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1504skim+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
                       },
-        'data_obs': [
+        'data_obs_jet': [
         	        	     idir_1504skim + 'JetHTRun2017B_17Nov2017_v1_*.root',
                              idir_1504skim + 'JetHTRun2017C_17Nov2017_v1_*.root',
                              idir_1504skim + 'JetHTRun2017D_17Nov2017_v1_*.root',
@@ -446,15 +444,14 @@ def get2017files(isMuonCR):
                              idir_1504skim + 'JetHTRun2017F_17Nov2017_v1_*.root',
                              #idir_1501 + 'JetHTRun2017F_17Nov2017_v1/*.rootnodupl.root'
                       ],
-    }
-    if isMuonCR:
-        tfiles['data_obs'] = [
+        'data_obs_mu' :[
                        idir_1504skim+'/SingleMuonRun2017B_17Nov2017_v1_*.root',
                        idir_1504skim+'/SingleMuonRun2017C_17Nov2017_v1_*.root',
                        idir_1504skim+'/SingleMuonRun2017D_17Nov2017_v1_*.root',
                        idir_1504skim+'/SingleMuonRun2017E_17Nov2017_v1_*.root',
                        idir_1504skim+'/SingleMuonRun2017F_17Nov2017_v1_*.root'
                     ]
+    }
     return tfiles
 
 
@@ -487,21 +484,22 @@ def main(options, args):
     if year=='2017':
         #tfiles = get2017files(muonCR)
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
+        tfiles  = json.load(samplefiles)['Hbb_create_2017']
+        normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2017.root")
         if muonCR:
-            tfiles  = json.load(samplefiles)['Hbb_create_2017_muCR']
-            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2017_muCR.root")
+            tfiles['data_obs']  = tfiles['data_obs_mu'] 
         else:
-            tfiles  = json.load(samplefiles)['Hbb_create_2017']
-            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2017.root")
+            tfiles['data_obs']  = tfiles['data_obs_jet'] 
+
         pu_Opt  = {'data':"2017",'norm':normfile}
     elif year=='2018':
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
+        tfiles  = json.load(samplefiles)['Hbb_create_2018']
+        normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2018.root")
         if muonCR:
-            tfiles  = json.load(samplefiles)['Hbb_create_2018_muCR']
-            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2018_muCR.root")
+            tfiles['data_obs']  = tfiles['data_obs_mu'] 
         else:
-            tfiles  = json.load(samplefiles)['Hbb_create_2018']
-            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2018.root")
+            tfiles['data_obs']  = tfiles['data_obs_jet'] 
         pu_Opt  = {'data':"2018",'norm':normfile}
     elif year=='2016legacy':
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
@@ -515,6 +513,7 @@ def main(options, args):
     elif year=='2016':
         tfiles = get2016files(muonCR)
         pu_Opt  = {'data':"2016",'MC':"12.04"}
+
 
     passfail    = ['pass','fail']
     systematics = ['JESUp','JESDown','JERUp','JERDown','triggerUp','triggerDown','PuUp','PuDown','matched','unmatched']
@@ -615,6 +614,8 @@ def main(options, args):
                 dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName,treeName = dataTree)
             elif year=='2016':
                 dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+            elif year=='2016legacy':
+                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)||(triggerBits&2))&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName,treeName=dataTree)
         else:
             if year=='2017':
                 # 2017 triggerBits

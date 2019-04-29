@@ -1067,6 +1067,7 @@ class sampleContainer:
                     #print "dphi_ak8 = %.3f, ak4csvb = %.3f, abs(ak4eta) = %.3f"%(dphi_ak8,ak4dcsvb,abs(ak4eta))
                     if ak4dcsvb>0:         #avoid invalid entries 
                         OppHemAK4_dcsvb.append(ak4dcsvb)
+                #2016 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation2016Legacy
                 #2017 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation94X
                 #2018 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
                 if self.puOpt['data']=='2017':
@@ -1077,7 +1078,10 @@ class sampleContainer:
                     AK4DCSVCUT=0.4184
                     if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4184:
                         n_MdR0p8_4+=1
-                elif self.puOpt['data'] in ['2016','2016legacy']:
+                elif self.puOpt['data'] == '2016':
+                    AK4DCSVCUT=0.6324
+                    n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
+                elif self.puOpt['data'] == '2016legacy':
                     AK4DCSVCUT=0.6321
                     n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
                     
