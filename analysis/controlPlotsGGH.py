@@ -253,7 +253,7 @@ def get2016legacyfiles():
               'QCD':        {
                              'QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503skim+'/QCD_HT300to500_*.root'  ],
                              'QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503+'/QCD_HT500to700_13TeV/*.root'  ],
-                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503+'QCD_HT500to700_13TeV/*.root' ],
+                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503+'/QCD_HT700to1000_13TeV/*.root' ],
                              'QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1503skim+'/QCD_HT1000to1500_*.root'],
                              'QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1503skim+'/QCD_HT1500to2000_*.root'],
                              'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503skim+'/QCD_HT2000toInf_*.root' ]

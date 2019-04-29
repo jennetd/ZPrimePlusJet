@@ -279,7 +279,7 @@ def get2018files(isMuonCR):
                     ]
     return tfiles
 
-def get2016legacyfiles(isMuonCR):
+def get2016legacyfiles():
     idir_temp = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpchbb/zprimebits-v12.04/cvernier/'
     idir_1504     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/'
     idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
@@ -336,12 +336,12 @@ def get2016legacyfiles(isMuonCR):
               'qcd':        {
                              'QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503skim+'/QCD_HT300to500_*.root'  ],
                              'QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503+'/QCD_HT500to700_13TeV/*.root'  ],
-                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503+'QCD_HT500to700_13TeV/*.root' ],
+                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503+'/QCD_HT700to1000_13TeV/*.root' ],
                              'QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1503skim+'/QCD_HT1000to1500_*.root'],
                              'QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1503skim+'/QCD_HT1500to2000_*.root'],
                              'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503skim+'/QCD_HT2000toInf_*.root' ]
                             },
-              'data_obs': [
+              'data_obs_jet': [
                             idir_1503skim + 'JetHTRun2016B_07Aug17_v*_ddb8X*.root',
                             idir_1503skim + 'JetHTRun2016C_07Aug17_v*_ddb8X*.root',
                             idir_1503skim + 'JetHTRun2016D_07Aug17_v*_ddb8X*.root',
@@ -349,9 +349,7 @@ def get2016legacyfiles(isMuonCR):
                             idir_1503skim + 'JetHTRun2016F_07Aug17_v*_ddb8X*.root',
                             idir_1503skim + 'JetHTRun2016G_07Aug17_v*_ddb8X*.root',
                       ],
-     }
-    if isMuonCR:
-           tfiles['data_obs']= [
+           'data_obs_mu' :[
                        idir_1503skim+'/SingleMuonRun2016B_07Aug17_v*_ddb8X_*.root',
                        idir_1503skim+'/SingleMuonRun2016C_07Aug17_v*_ddb8X_*.root',
                        idir_1503skim+'/SingleMuonRun2016D_07Aug17_v*_ddb8X_*.root',
@@ -359,6 +357,7 @@ def get2016legacyfiles(isMuonCR):
                        idir_1503skim+'/SingleMuonRun2016F_07Aug17_v*_ddb8X_*.root',
                        idir_1503skim+'/SingleMuonRun2016G_07Aug17_v*_ddb8X_*.root',
                     ]
+    }
     return tfiles
 
 
@@ -506,12 +505,12 @@ def main(options, args):
         pu_Opt  = {'data':"2018",'norm':normfile}
     elif year=='2016legacy':
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
+        tfiles  = json.load(samplefiles)['Hbb_create_2016legacy']
+        normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2016legacy.root")
         if muonCR:
-            tfiles  = json.load(samplefiles)['Hbb_create_2016legacy_muCR']
-            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2016legacy_muCR.root")
+            tfiles['data_obs']  = tfiles['data_obs_mu'] 
         else:
-            tfiles  = json.load(samplefiles)['Hbb_create_2016legacy']
-            normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_Hbb_create_2016legacy.root")
+            tfiles['data_obs']  = tfiles['data_obs_jet'] 
         pu_Opt  = {'data':"2016legacy",'norm':normfile}
     elif year=='2016':
         tfiles = get2016files(muonCR)

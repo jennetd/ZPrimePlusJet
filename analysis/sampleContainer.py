@@ -1859,8 +1859,15 @@ class sampleContainer:
 
         # get histogram for transform
         # GridOutput_v13_WP026.root # smooth version of the ddt ; exp is 4.45 vs 4.32 (3% worse)
-        f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"), "read")          
-        #f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/n2ddt_map_38percent_GaussianFilter.root"), "read") 
+        if '2016' in year:
+            f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/GridOutput_v13_WP026.root"), "read")          
+        elif year =='2017':
+            f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"), "read")          
+            #f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/n2ddt_map_38percent_GaussianFilter.root"), "read")
+        elif year=='2018':
+            #TODO: Add 2018 ddt map
+            f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"), "read")          
+
         self._trans_h2ddt = f_h2ddt.Get("Rho2D")
         self._trans_h2ddt.SetDirectory(0)
         f_h2ddt.Close()
