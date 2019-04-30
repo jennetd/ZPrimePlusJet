@@ -20,7 +20,7 @@ msd_binBoundaries = []
 #for i in range(0, 24): msd_binBoundaries.append(40 + i * 7)
 for i in range(1, 24): msd_binBoundaries.append(40 + i * 7)
 pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1200]
-#pt_binBoundaries = [450, 500, 550, 600, 1000]
+#pt_binBoundaries = [450, 500, 550, 600, 1200]
 
 from buildRhalphabetHbb import BLIND_LO, BLIND_HI, RHO_LO, RHO_HI
 
@@ -174,6 +174,8 @@ def main(options, args):
 
 def plotCategory(fml, fd, index, fittype):
     shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
+    bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
+    sigshapes=['hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
     histograms_fail = []
     histograms_pass = []
 
@@ -184,7 +186,7 @@ def plotCategory(fml, fd, index, fittype):
             rBestFit = rfr.floatParsFinal().find('r').getVal()
         else:
             rBestFit = 0
-    for i, ish in enumerate(shapes):
+    for i, ish in enumerate(bkgshapes+sigshapes):
         if i < 4:
             fitdir = fittype
         else:
@@ -205,23 +207,19 @@ def plotCategory(fml, fd, index, fittype):
         # rags.Print()
 
 
-        print "finding rrv with name = %s/%s" % (pass_cat_name, ish)
+        print "finding rrv with name = %s/%s, %s/%s" % (pass_cat_name, ish,fail_cat_name,ish)
         if rags.find("%s/%s" % (fail_cat_name, ish)) != None:
           rrv_fail = r.RooRealVar(rags.find("%s/%s" % (fail_cat_name, ish)))
           curnorm_fail = rrv_fail.getVal()
         else:
             print " rrv with name = %s/%s is null" % (fail_cat_name, ish)
+            curnorm_fail = 0
         if  rags.find("%s/%s" % (pass_cat_name, ish)) != None:
           rrv_pass = r.RooRealVar(rags.find("%s/%s" % (pass_cat_name, ish)))
           curnorm_pass = rrv_pass.getVal()
         else:
+            curnorm_pass = 0
             print " rrv with name = %s/%s is null" % (pass_cat_name, ish)
-        # if ish=='qcd' and index==4:
-        #    histograms_fail[i].SetBinContent(13,(histograms_fail[i].GetBinContent(12)+histograms_fail[i].GetBinContent(14))/2.)
-        #    histograms_pass[i].SetBinContent(13,(histograms_pass[i].GetBinContent(12)+histograms_pass[i].GetBinContent(14))/2.)
-
-
-        #print "here",ish, curnorm_fail, curnorm_pass, index
 	
         if curnorm_fail > 0.: histograms_fail[i].Scale(curnorm_fail / histograms_fail[i].Integral())
         if curnorm_pass > 0.: histograms_pass[i].Scale(curnorm_pass / histograms_pass[i].Integral())
@@ -242,10 +240,21 @@ def plotCategory(fml, fd, index, fittype):
     histograms_fail.append(data_fail)
     histograms_pass.append(data_pass)
 
-    [histograms_fail] = makeMLFitCanvas(histograms_fail[:4], data_fail, histograms_fail[4:-1], shapes,
+    (bkg_fail,sig_fail) = ([],[])
+    (bkg_pass,sig_pass) = ([],[])
+
+    for i,ish in enumerate(bkgshapes+sigshapes):
+        if ish in bkgshapes:
+            if histograms_fail[i] !=None: bkg_fail.append(histograms_fail[i])
+            if histograms_pass[i] !=None: bkg_pass.append(histograms_pass[i])
+        if ish in sigshapes:
+            if histograms_fail[i] !=None: sig_fail.append(histograms_fail[i])
+            if histograms_pass[i] !=None: sig_pass.append(histograms_pass[i])
+
+    [histograms_fail] = makeMLFitCanvas(bkg_fail, data_fail, sig_fail, shapes,
                                         "fail_cat" + str(index) + "_" + fittype, options.odir, rBestFit,
                                         options.sOverSb, options.splitS, options.ratio)
-    [histograms_pass] = makeMLFitCanvas(histograms_pass[:4], data_pass, histograms_pass[4:-1], shapes,
+    [histograms_pass] = makeMLFitCanvas(bkg_pass, data_pass, sig_pass, shapes,
                                         "pass_cat" + str(index) + "_" + fittype, options.odir, rBestFit,
                                         options.sOverSb, options.splitS, options.ratio)
 
@@ -480,8 +489,8 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         ptRange = [550, 600]
     elif 'cat4' in tag:
         ptRange = [600, 675]
-        if "VBF" in options.suffix:
-            ptRange = [600, 1000]
+        if "vbf" in options.suffix:
+            ptRange = [600, 1200]
     elif 'cat5' in tag:
         ptRange = [675, 800]
     elif 'cat6' in tag:
