@@ -198,6 +198,85 @@ def get2016files():
         }
     return tfiles
 
+def get2016legacyfiles():
+    idir_temp = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpchbb/zprimebits-v12.04/cvernier/'
+    idir_1504     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/'
+    idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
+    idir_1503     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/'
+    idir_1503skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/skim/'
+    tfiles = {
+	          'ggHbb'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1503skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	          'VBFHbb'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1503skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
+	          'VHbb'      :          { 
+                                    'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1503skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1503skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1503skim+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1503skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1503skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
+                                    },
+	          'ttHbb'    :          { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1503skim+'/ttHTobb_M125_13TeV_powheg_pythia8*.root']},
+              'Diboson':    {
+                             'WW_TuneCUETP8M1_13TeV-pythia8':[idir_1503skim+'WW_13TeV_pythia8*.root'],
+                             'WZ_TuneCUETP8M1_13TeV-pythia8':[idir_1503skim+'WZ_13TeV_pythia8*.root'],
+                             #'ZZ_13TeV_pythia8':[idir_1503skim+'ZZ_13TeV_pythia8*.root']  #missing
+                            },
+              'DY':         {
+                            'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1503skim + '/DYJetsToQQ_HT180_13TeV_*.root'],
+                            },
+              'DYll':       {
+                             'DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8'  :[idir_1503skim+'/DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8*.root'] , 
+                             'DYJetsToLL_Pt_400To650_13TeV_amcatnloFXFX_pythia8'  :[idir_1503skim+'/DYJetsToLL_Pt_400To650_13TeV_amcatnloFXFX_pythia8*.root'] , 
+                             'DYJetsToLL_Pt_650ToInf_13TeV_amcatnloFXFX_pythia8'  :[idir_1503skim+'/DYJetsToLL_Pt_650ToInf_13TeV_amcatnloFXFX_pythia8*.root'] , 
+                            },
+              'SingleTop':  {
+                             'ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1'              :[idir_1503skim+'ST_s_channel_4f_leptonDecays_13TeV_amcatnlo_pythia8_TuneCUETP8M1*.root'              ],             
+                             'ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1' :[idir_1503skim+'ST_t_channel_antitop_4f_inclusiveDecays_13TeV_powhegV2_madspin_pythia8_TuneCUETP8M1_*.root' ],
+                             'ST_t-channel_top_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1'     :[idir_1503skim+'ST_t_channel_top_4f_inclusiveDecays_13TeV_powhegV2_madspin_pythia8_TuneCUETP8M1_*.root'     ],    
+                             'ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1'          :[idir_1503skim+'ST_tW_antitop_5f_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M2T4*.root'          ],         
+                             'ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1'              :[idir_1503skim+'ST_tW_top_5f_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M2T4*.root'              ],             
+                            },
+              'W'         : {
+                              'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8': [idir_1503skim + 'WJetsToQQ_HT180_13TeV_*.root'],
+                            },
+              'Wlnu':       {
+                               "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"   :[ idir_1503skim+'WJetsToLNu_HT_100To200_*.root'],
+                               "WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"   :[ idir_1503skim+'WJetsToLNu_HT_200To400_*.root'],
+                               "WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"   :[ idir_1503skim+'WJetsToLNu_HT_400To600_*.root'],
+                               "WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"   :[ idir_1503skim+'WJetsToLNu_HT_600To800_*.root'],
+                               "WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"  :[ idir_1503skim+'WJetsToLNu_HT_800To1200_*.root'],
+                               "WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8" :[ idir_1503skim+'WJetsToLNu_HT_1200To2500_*.root'],
+                               "WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"  :[ idir_1503skim+'WJetsToLNu_HT_2500ToInf_*.root'],
+                            },
+              'TTbar':      {
+                             'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8'    :[idir_1503skim+'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8*.root'],
+                            },
+              'QCD':        {
+                             'QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503skim+'/QCD_HT300to500_*.root'  ],
+                             'QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503+'/QCD_HT500to700_13TeV/*.root'  ],
+                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503+'/QCD_HT700to1000_13TeV/*.root' ],
+                             'QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1503skim+'/QCD_HT1000to1500_*.root'],
+                             'QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1503skim+'/QCD_HT1500to2000_*.root'],
+                             'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503skim+'/QCD_HT2000toInf_*.root' ]
+                            },
+              'data': [
+                            idir_1503skim + 'JetHTRun2016B_07Aug17_v*_ddb8X*.root',
+                            idir_1503skim + 'JetHTRun2016C_07Aug17_v*_ddb8X*.root',
+                            idir_1503skim + 'JetHTRun2016D_07Aug17_v*_ddb8X*.root',
+                            idir_1503skim + 'JetHTRun2016E_07Aug17_v*_ddb8X*.root',
+                            idir_1503skim + 'JetHTRun2016F_07Aug17_v*_ddb8X*.root',
+                            idir_1503skim + 'JetHTRun2016G_07Aug17_v*_ddb8X*.root',
+                      ],
+              'muon': [
+                       idir_1503skim+'/SingleMuonRun2016B_07Aug17_v*_ddb8X_*.root',
+                       idir_1503skim+'/SingleMuonRun2016C_07Aug17_v*_ddb8X_*.root',
+                       idir_1503skim+'/SingleMuonRun2016D_07Aug17_v*_ddb8X_*.root',
+                       idir_1503skim+'/SingleMuonRun2016E_07Aug17_v*_ddb8X_*.root',
+                       idir_1503skim+'/SingleMuonRun2016F_07Aug17_v*_ddb8X_*.root',
+                       idir_1503skim+'/SingleMuonRun2016G_07Aug17_v*_ddb8X_*.root',
+                    ]
+            }
+    return tfiles
+
 
 def get2018files():
     idir_temp = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpchbb/zprimebits-v12.04/cvernier/'
@@ -211,7 +290,7 @@ def get2018files():
     idir_1505skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/skim/'
     tfiles = {
 	          'ggHbb_amc' :          { 'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8':                [idir_1505skim+'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8_*.root']},
-	          'ggHbb_amcHpT250' :    { 'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8' :[idir_1505+'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8/*.root']},
+	          'ggHbb_amcHpT250' :    { 'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8' :[idir_1505skim+'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8_*.root']},
 	          'ggHbb_NNLOPS'    :    { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8'        :[idir_1505skim+'GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
 	          'ggHbb'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1505skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
 	          'VBFHbb'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1505skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
@@ -220,10 +299,10 @@ def get2018files():
                                     #'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1505+'/ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
                                     'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1505skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
                                     'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1505skim+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                                    'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1505+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                                    'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1505+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
+                                    'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1505skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1505skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
                                     },
-	          'ttHbb'    :          { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1505+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8/*.root']},
+	          'ttHbb'    :          { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1505skim+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8_*.root']},
               'Diboson':    {
                              'WW_TuneCP5_13TeV-pythia8':[idir_1505skim+'WW_TuneCP5_13TeV_pythia8_*.root'],
                              'WZ_TuneCP5_13TeV-pythia8':[idir_1505skim+'WZ_TuneCP5_13TeV_pythia8_*.root'],
@@ -263,11 +342,11 @@ def get2018files():
                              'TTTo2L2Nu_TuneCP5_13TeV_powheg_pythia8'       :[idir_1505skim+'TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_*.root'       ],
                             },
               'QCD':        {
-                             'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1505+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8/*.root'  ],
-                             'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8/*.root' ],
+                             'QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1505skim+'/QCD_HT500to700_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'  ],
+                             'QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505skim+'/QCD_HT700to1000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ],
                              'QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1505skim+'/QCD_HT1000to1500_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
                              'QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8':[idir_1505skim+'/QCD_HT1500to2000_TuneCP5_13TeV-madgraphMLM-pythia8_*.root'],
-                             'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8/*.root' ]
+                             'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1505skim+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
                             },
               'data': [
                             #idir_1505 + 'JetHTRun2018A_17Sep2018_v1/*.root',
@@ -285,7 +364,7 @@ def get2018files():
                        #idir_1505+'/SingleMuonRun2018B_17Sep2018_v1/*.root',
                        #idir_1505+'/SingleMuonRun2018C_17Sep2018_v1/*.root',
                        #idir_1505+'/SingleMuonRun2018D_PromptReco_v2*/*.root',
-                       idir_1505skim+'/SingleMuonRun2018A_17Sep2018_v2*.root',
+                       idir_1505skim+'/SingleMuonRun2018A_17Sep2018_v2_v2*.root',
                        idir_1505skim+'/SingleMuonRun2018B_17Sep2018_v1*.root',
                        idir_1505skim+'/SingleMuonRun2018C_17Sep2018_v1*.root',
                        idir_1505skim+'/SingleMuonRun2018D_PromptReco_v2*.root',
@@ -435,15 +514,22 @@ def main(options,args,outputExists):
 
     if year=="2017":
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
-        tfiles  = json.load(samplefiles)['controlPlotsGGH_2017']
-        pu_Opt  = {'data':"2017"}
+        tfiles        = json.load(samplefiles)['controlPlotsGGH_2017']
+        normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_controlPlotsGGH_2017.root")
+        pu_Opt  = {'data':"2017",'norm':normfile}
     elif year=='2016':
         tfiles = get2016files()
         pu_Opt  = {'data':"2016",'MC':"12.04"}
+    elif year=='2016legacy':
+        samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
+        tfiles  = json.load(samplefiles)['controlPlotsGGH_2016legacy']
+        normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_controlPlotsGGH_2016legacy.root")
+        pu_Opt  = {'data':"2016legacy",'norm':normfile}
     elif year=='2018':
         samplefiles   = open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/samplefiles.json"),"r")
         tfiles  = json.load(samplefiles)['controlPlotsGGH_2018']
-        pu_Opt  = {'data':"2018"}
+        normfile      = os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/norm_controlPlotsGGH_2018.root")
+        pu_Opt  = {'data':"2018",'norm':normfile}
     else:
         print "Invalid choice of year. Aborting"            
         sys.exit()
@@ -543,7 +629,12 @@ def main(options,args,outputExists):
         print "Signals... "
         sigSamples = {}
 
-        if  year=='2017' or year=='2018':
+        if year in ['2016legacy']:
+            sigSamples['ggHbb']           = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+            sigSamples['VHbb']           = normSampleContainer('VHbb',tfiles['VHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+            sigSamples['VBFHbb']         = normSampleContainer('VBFHbb',tfiles['VBFHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+            sigSamples['ttHbb']          = normSampleContainer('ttHbb',tfiles['ttHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
+        elif year in ['2017','2018']:
             sigSamples['ggHbb_amc']       = normSampleContainer('ggHbb_amc',tfiles['ggHbb_amc']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
             sigSamples['ggHbb_amcHpT250'] = normSampleContainer('ggHbb_amcHpT250',tfiles['ggHbb_amcHpT250'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
             sigSamples['ggHbb']           = normSampleContainer('ggHbb',tfiles['ggHbb']  , 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
@@ -561,7 +652,7 @@ def main(options,args,outputExists):
         bkgSamples = {}    
         subwqqSamples={}
         subzqqSamples={}
-        if  year=='2017' or year=='2018':
+        if year in ['2017','2018','2016legacy']:
             bkgSamples['W']         = normSampleContainer('W',tfiles['W'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,   puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
             bkgSamples['DY']        = normSampleContainer('DY',tfiles['DY'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
             bkgSamples['TTbar']     = normSampleContainer('TTbar',tfiles['TTbar'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
@@ -577,7 +668,7 @@ def main(options,args,outputExists):
             bkgSamples['QCD'] = sampleContainer('QCD',tfiles['QCD'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = options.iSplit, maxSplit = options.maxSplit,puOpt=pu_Opt)
 
         if isData and muonCR:
-            if year=='2017' or year=='2018':
+            if year in ['2017','2018','2016legacy']:
                 bkgSamples['Wlnu']  = normSampleContainer('Wlnu',tfiles['Wlnu'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots)
                 bkgSamples['DYll']  = normSampleContainer('DYll',tfiles['DYll'], 1, DBTMIN,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, puOpt=pu_Opt,doublebName='AK8Puppijet0_deepdoubleb').addPlots(plots) 
             elif year =='2016':
@@ -590,10 +681,12 @@ def main(options,args,outputExists):
             if 'skim' in tfiles['muon'][0]: dataTree = 'otree'
             else:                           dataTree = 'Events'
             #Muon CR
-            if year=='2017' or year=='2018':
+            if year in ['2017','2018']:
                 dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&1)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,treeName = dataTree,doublebName='AK8Puppijet0_deepdoubleb')
             elif year=='2016':
                 dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,treeName = dataTree)
+            elif year=='2016legacy':
+                dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&1||triggerBits&2))&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,treeName = dataTree,doublebName='AK8Puppijet0_deepdoubleb')
         elif isData:
             if 'skim' in tfiles['data'][0]: dataTree = 'otree'
             else:                           dataTree = 'Events'
@@ -623,6 +716,20 @@ def main(options,args,outputExists):
                         ],
                       }
                 dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, "passJson", False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,triggerNames=triggerNames,treeName = dataTree,doublebName='AK8Puppijet0_deepdoubleb')
+            elif year=='2016legacy':
+                triggerNames={"version":"zprimebit-15.01","branchName":"triggerBits",
+                          "names":[
+                               "HLT_PFHT800_v*",
+                               "HLT_PFHT900_v*",
+                               "HLT_AK8PFJet360_TrimMass30_v*",
+                               'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v*',
+                               "HLT_PFHT650_WideJetMJJ950DEtaJJ1p5_v*",
+                               "HLT_PFHT650_WideJetMJJ900DEtaJJ1p5_v*",
+                               "HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV_p20_v*" ,
+                               "HLT_PFJet450_v*",
+                               ],
+                      }
+                dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, "passJson", False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt, triggerNames=triggerNames,treeName = dataTree,doublebName='AK8Puppijet0_deepdoubleb')
             elif year=='2016':
                 dataSample = sampleContainer('data',tfiles['data'], 1, DBTMIN,lumi, isData, False, '((triggerBits&2)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,treeName = dataTree)
         
@@ -642,12 +749,12 @@ def main(options,args,outputExists):
 
         for plot in plots:
             for process, s in sigSamples.iteritems():
-                if (year=='2017' or year=='2018') and process in normSamples:
+                if (year in ['2017','2018','2016legacy']) and process in normSamples:
                     hall_byproc[process][plot] = sigSamples[process][plot]   #get plot from normSampleContainer
                 else:
                     hall_byproc[process][plot] = getattr(s,plot)
             for process, s in bkgSamples.iteritems():
-                if (year=='2017' or year=='2018') and process in normSamples:
+                if (year in ['2017','2018','2016legacy']) and process in normSamples:
                     hall_byproc[process][plot] = bkgSamples[process][plot]   #get plot from normSampleContainer
                 else:
                     hall_byproc[process][plot] = getattr(s,plot)
@@ -669,14 +776,14 @@ def main(options,args,outputExists):
             hall={}
             hd = None
             for process, s in sigSamples.iteritems():
-                if (year=='2017' or year=='2018') and process in normSamples:
+                if (year in ['2017','2018','2016legacy']) and process in normSamples:
                     hs[process]  =sigSamples[process][plot]   #get plot from normSampleContainer
                     hall[process]=sigSamples[process][plot]   #get plot from normSampleContainer
                 else:
                     hs[process]   = getattr(s,plot)
                     hall[process] = getattr(s,plot)
             for process, s in bkgSamples.iteritems():
-                if (year=='2017' or year=='2018') and process in normSamples:
+                if (year in ['2017','2018','2016legacy']) and process in normSamples:
                     hb[process]   =bkgSamples[process][plot]   #get plot from normSampleContainer 
                     hall[process] =bkgSamples[process][plot]   #get plot from normSampleContainer 
                 else:
@@ -727,7 +834,7 @@ if __name__ == '__main__':
     parser.add_option('-o','--odir', dest='odir', default = 'plots/',help='directory to write plots', metavar='odir')
     parser.add_option('-s','--isData', action='store_true', dest='isData', default =False,help='signal comparison', metavar='isData')
     parser.add_option('-m','--muonCR', action='store_true', dest='muonCR', default =False,help='for muon CR', metavar='muonCR')
-    parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2017',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
+    parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2017',choices=['2016legacy','2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option("--max-split", dest="maxSplit", default=1, type="int", help="max number of jobs", metavar="maxSplit")
     parser.add_option("--i-split"  , dest="iSplit", default=0, type="int", help="job number", metavar="iSplit")
 
