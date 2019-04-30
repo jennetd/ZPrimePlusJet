@@ -86,10 +86,13 @@ def diffDict(loadedJson,finaljson):
         changed_subsamples = []
         for fset in  finaljson.keys():
             diffed_json[fset] = copy.deepcopy(finaljson[fset])
-            if len(finaljson[fset]) is not len(loadedJson[fset]):
-                print "list of sample changed."
+            #if len(finaljson[fset]) is not len(loadedJson[fset]):
+            #    print "list of sample changed."
             samples       = finaljson[fset]
-            loadedsamples = loadedJson[fset]
+            if fset in loadedJson.keys():
+                loadedsamples = loadedJson[fset]
+            else:
+                loadedsamples = samples
             for sample,subsample in samples.iteritems():
                 if type(subsample)==type([]):
                     ## ignore data 
@@ -97,7 +100,12 @@ def diffDict(loadedJson,finaljson):
                 elif type(subsample)==type({}):
                     loadedsubsamples = loadedsamples[sample]
                     for s,paths in subsample.iteritems():
-                        loadedpaths = loadedsubsamples[s]
+                        if s in loadedsubsamples.keys():
+                            loadedpaths = loadedsubsamples[s]
+                        else:
+                            print s,'is different'
+                            changed_subsamples.append(s)
+                            diffed_json[fset][sample][s] = paths 
                         if len(loadedpaths) != len(paths):
                             print s,'is different'
                             changed_subsamples.append(s)
@@ -112,12 +120,12 @@ def main(options,args):
     loadedJson = json.load(outf)
 
     finaljson = {}
+    finaljson['controlPlotsGGH_2016legacy']      = expandPath(controlPlotsGGH.get2016legacyfiles()) 
     finaljson['controlPlotsGGH_2017']      = expandPath(controlPlotsGGH.get2017files()) 
     finaljson['controlPlotsGGH_2018']      = expandPath(controlPlotsGGH.get2018files()) 
     finaljson['Hbb_create_2017']           = expandPath(Hbb_create.get2017files(False)) 
-    finaljson['Hbb_create_2017_muCR']      = expandPath(Hbb_create.get2017files(True)) 
+    finaljson['Hbb_create_2016legacy']     = expandPath(Hbb_create.get2016legacyfiles()) 
     finaljson['Hbb_create_2018']           = expandPath(Hbb_create.get2018files(False)) 
-    finaljson['Hbb_create_2018_muCR']      = expandPath(Hbb_create.get2018files(True)) 
     print "LoadedJson == new json: ", loadedJson == finaljson
     updateNorms = True 
     remakeAllnorms = options.remakeAllnorms
