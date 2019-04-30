@@ -1,5 +1,6 @@
 import math,array
 import ROOT as r
+import os
 from optparse import OptionParser,OptionGroup
 
 def bern(x,v,n):
@@ -136,30 +137,35 @@ def genBernsteinTF1D(n_rho,n_pT,pT,boundaries,IsMsdPt,qcdeff=True,rescale=True):
         return poly
     return fun1
 
-def getParsfromMLfit(fml_path,pamNames,qcdeff=0,setTFto1=False):
+def getParsfromMLfit(ws_path,fml_path,pamNames,qcdeff=0,setTFto1=False,fit_type = "fit_s"):
     print "="*20+" "+fml_path+" "+"="*20
     fml = r.TFile(fml_path)
-    rfr = r.RooFitResult(fml.Get("fit_s"))
-    print "Using qcd eff = %.4f"%qcdeff
-    pars = [qcdeff]
-    for p in pamNames:
-        if rfr.floatParsFinal().find(p):
-            print p, "= %.3f"%rfr.floatParsFinal().find(p).getVal(), "+/-  %.3f"%rfr.floatParsFinal().find(p).getError()
-            if setTFto1 and 'qcdeff' not in p:
-                print "Setting  %s to 1"%p
-                pars.append(1)
-            else:
-                pars.append(rfr.floatParsFinal().find(p).getVal())
-        else:
-            #print p, "not found, skipping "
-            pass
-    ## generic way to find many parameters, not sure how to enforce orders
-    #fitpams = rfr.floatParsFinal().selectByName("p*r*")
-    #for i in range(0,len(fitpams)):
-    #    p =  fitpams[i]
-    #    print p, "= %.3f"%rfr.floatParsFinal().find(p).getVal(), "+/-  %.3f"%rfr.floatParsFinal().find(p).getError()
-    #    #print p.GetName()," = ", p.getVal(), "+/-", p.getError()
+    rfr = r.RooFitResult(fml.Get(fit_type))
 
+    try:
+        ws_tf = r.TFile(ws_path)
+        ws    = ws_tf.Get("w")
+        qcdeff = ws.var('qcdeff').getVal()
+    except:
+        ## for per-bin-eff where no qcdeff is in the ws
+        qcdeff = -999
+        print "cannot qcdeff in  workspace %s"%ws_path
+        
+    print "Using qcd eff = %.4f"%qcdeff
+    
+    # {pName:Value,'arr':[]}, initialize with input value
+    pars    = {'qcdeff':qcdeff}
+    parsArr = [qcdeff]
+    ## generic way to find many parameters, not sure how to enforce orders
+    fitpams = rfr.floatParsFinal().selectByName("p*r*")
+    ## sort the fitparameters in accending x and y, where pam = pxry
+    fitpamNames = sorted([ fitpams[i].GetName() for i in range(0,len(fitpams))])
+    for p in fitpamNames:
+        print p, "= %.3f"%rfr.floatParsFinal().find(p).getVal(), "+/-  %.3f"%rfr.floatParsFinal().find(p).getError()
+        pars[p] = rfr.floatParsFinal().find(p).getVal()
+        parsArr.append( rfr.floatParsFinal().find(p).getVal())
+    pars['arr'] = parsArr
+    print pars
     return pars
 
 def getParsfromWS(ws_path,pamNames):
@@ -173,11 +179,17 @@ def getParsfromWS(ws_path,pamNames):
         try:
             print "%s =  %.4f +/- %.4f "%(p.GetName(), p.getVal(),  p.getError())
             parsArr.append(p.getVal())
-            pars[pamName] = p.getVal()
+            if 'qcdeff' in pamName:
+                pars['qcdeff'] = p.getVal()
+            else:
+                pars[pamName] = p.getVal()
         except:
-            pass
-            pars[pamName] = -999. 
+            if 'qcdeff' in pamName:
+                pars['qcdeff'] =-999. 
+            else:
+                pars[pamName] = -999. 
             #print "%s is not present in ws"%pamName
+            pass
     pars['arr'] = parsArr
     return pars
 
@@ -338,7 +350,7 @@ def makeTFs(pars,nrho,npT,odir):
         print " Cannot find qcdeff, assume it's 1"
         f2params = array.array('d', [1.0]+pars['arr'])
     npar = len(f2params)
-    print f2params, npar
+    #print f2params, npar
     colz = False 
 
     boundaries={}
@@ -408,10 +420,18 @@ if __name__ == '__main__':
     setTFto1 = False 
     pars = []
 
-    #pars = getParsfromWS("ddb_Mar7/ddb_M2/msd47_TF21_rescaled/card_rhalphabet_all_floatZ.root",lParams)
-    #makeTFs(pars,2,1,    "ddb_Mar7/ddb_M2/msd47_TF21_rescaled/")
+    cards =[
+        #{'card':'ddb_Apr17/ddb_M2_full/msd47_TF21_muonCR_blind/card_rhalphabet_all_floatZ.root','n_rho':2,'n_pT':1},
+        {'card':'ddb_Apr17/ddb_M2_full/msd47_TF21_pbeff_blind/card_rhalphabet_all_floatZ.root','n_rho':2,'n_pT':1}
+    ]
+    for card in cards:
+        card_path = card['card']
+        (nr,npT)  = (card['n_rho'],card['n_pT'])
+        pars = getParsfromWS(card_path,lParams)
+        makeTFs(pars,nr,npT,  card_path.replace(card_path.split("/")[-1],""))
 
-    #qcdeff = 0.0121
-    #pars = getParsfromMLfit("ddb_Jan17/MC/qcdMC_newTF21/mlfit.root",lParams,qcdeff) 
-    #makeTFs(pars,2,1,    "ddb_Jan17/MC/qcdMC_newTF21/ftest/cards_mc_r2p1/")
+        mlfit_path = card_path.replace(card_path.split("/")[-1],"")+"mlfit.root"
+        if os.path.exists(mlfit_path):
+            pars = getParsfromMLfit(card_path,mlfit_path,lParams)
+            makeTFs(pars,nr,npT,  card_path.replace(card_path.split("/")[-1],"mlfit/"))
 
