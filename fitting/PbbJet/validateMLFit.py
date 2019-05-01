@@ -124,9 +124,9 @@ def main(options, args):
     #Sum all cats for each shapes, for each suffix
     for shape in shapes:
         suffix0 = suffixes[0]
+        if not shape in histograms_pass_all[suffix][0].keys(): continue
         histograms_pass_summed[shape] = histograms_pass_all[suffix0][0][shape].Clone(shape + '_pass_sum')
         for suffix in suffixes:
-            if not shape in histograms_pass_all[suffix][0].keys(): continue
             for i in range(1, len(pt_binBoundaries)-1):
                 if not shape in histograms_pass_all[suffix][i].keys(): continue
                 if shape=='data':
@@ -135,9 +135,9 @@ def main(options, args):
                     histograms_pass_summed[shape].Add(histograms_pass_all[suffix][i][shape])
     for shape in shapes:
         suffix0 = suffixes[0]
+        if not shape in histograms_fail_all[suffix][0].keys(): continue
         histograms_fail_summed[shape] = histograms_fail_all[suffix0][0][shape].Clone(shape + '_fail_sum')
         for suffix in suffixes:
-            if not shape in histograms_fail_all[suffix][0].keys(): continue
             for i in range(1, len(pt_binBoundaries)-1):
                 if not shape in histograms_fail_all[suffix][i].keys(): continue
                 if shape=='data':
