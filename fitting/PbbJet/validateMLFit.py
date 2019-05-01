@@ -23,7 +23,7 @@ pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1200]
 #pt_binBoundaries = [450, 500, 550, 600, 1200]
 
 from buildRhalphabetHbb import BLIND_LO, BLIND_HI, RHO_LO, RHO_HI
-
+BIN_WIDTH = 7
 
 ##-------------------------------------------------------------------------------------
 def main(options, args):
@@ -44,36 +44,41 @@ def main(options, args):
     suffixes = options.suffix.split(":")
 
     for suffix in suffixes:
+        #if suffix is '': suffix = 'default'
+        histograms_pass_all[suffix] = {}
+        histograms_fail_all[suffix] = {}
+
         for i in range(len(pt_binBoundaries) - 1):
             print i,suffix
             (tmppass, tmpfail) = plotCategory(fml, fd, i + 1, options.fit,suffix)
-            histograms_pass_all[i] = {}
-            histograms_fail_all[i] = {}
+            histograms_pass_all[suffix][i] = {}
+            histograms_fail_all[suffix][i] = {}
             for shape in shapes:
                 for hist in tmppass:
-                    if hist != None and re.match(shape,hist.GetName()): histograms_pass_all[i][shape] = hist
+                    if hist != None and re.match(shape,hist.GetName()): histograms_pass_all[suffix][i][shape] = hist
                 for hist in tmpfail:
-                    if hist !=None and re.match(shape,hist.GetName()): histograms_fail_all[i][shape] = hist
+                    if hist !=None and re.match(shape,hist.GetName()): histograms_fail_all[suffix][i][shape] = hist
 
-    #print histograms_pass_all
+    print histograms_pass_all
     pass_2d = {}
     fail_2d = {}
-    for shape in shapes:
-        pass_2d[shape] = r.TH2F('%s_pass_2d' % shape, '%s_pass_2d' % shape, len(msd_binBoundaries) - 1,
-                                array.array('d', msd_binBoundaries), len(pt_binBoundaries) - 1,
-                                array.array('d', pt_binBoundaries))
-        fail_2d[shape] = r.TH2F('%s_fail_2d' % shape, '%s_fail_2d' % shape, len(msd_binBoundaries) - 1,
-                                array.array('d', msd_binBoundaries), len(pt_binBoundaries) - 1,
-                                array.array('d', pt_binBoundaries))
-        for i in range(1, pass_2d[shape].GetNbinsX() + 1):
-            for j in range(1, pass_2d[shape].GetNbinsY() + 1):
-                if shape =='data': #data is a TAsymErrorGraph:
-                    binCenter = pass_2d[shape].GetXaxis().GetBinCenter(i)
-                    pass_2d[shape].SetBinContent(i, j, histograms_pass_all[j - 1][shape].Eval(binCenter))
-                    fail_2d[shape].SetBinContent(i, j, histograms_pass_all[j - 1][shape].Eval(binCenter))
-                else:
-                    if shape in histograms_pass_all[j - 1].keys(): pass_2d[shape].SetBinContent(i, j, histograms_pass_all[j - 1][shape].GetBinContent(i))
-                    if shape in histograms_fail_all[j - 1].keys(): fail_2d[shape].SetBinContent(i, j, histograms_fail_all[j - 1][shape].GetBinContent(i))
+    for suffix in suffixes:
+        for shape in shapes:
+            pass_2d[shape] = r.TH2F('%s_pass_2d' % shape, '%s_pass_2d' % shape, len(msd_binBoundaries) - 1,
+                                    array.array('d', msd_binBoundaries), len(pt_binBoundaries) - 1,
+                                    array.array('d', pt_binBoundaries))
+            fail_2d[shape] = r.TH2F('%s_fail_2d' % shape, '%s_fail_2d' % shape, len(msd_binBoundaries) - 1,
+                                    array.array('d', msd_binBoundaries), len(pt_binBoundaries) - 1,
+                                    array.array('d', pt_binBoundaries))
+            for i in range(1, pass_2d[shape].GetNbinsX() + 1):
+                for j in range(1, pass_2d[shape].GetNbinsY() + 1):
+                    if shape =='data': #data is a TAsymErrorGraph:
+                        binCenter = pass_2d[shape].GetXaxis().GetBinCenter(i)
+                        pass_2d[shape].SetBinContent(i, j, histograms_pass_all[suffix][j - 1][shape].Eval(binCenter))
+                        fail_2d[shape].SetBinContent(i, j, histograms_pass_all[suffix][j - 1][shape].Eval(binCenter))
+                    else:
+                        if shape in histograms_pass_all[suffix][j - 1].keys(): pass_2d[shape].SetBinContent(i, j, histograms_pass_all[suffix][j - 1][shape].GetBinContent(i))
+                        if shape in histograms_fail_all[suffix][j - 1].keys(): fail_2d[shape].SetBinContent(i, j, histograms_fail_all[suffix][j - 1][shape].GetBinContent(i))
 
     pass_2d_data_subtract = pass_2d['data'].Clone('data_pass_2d_subtract')
     fail_2d_data_subtract = fail_2d['data'].Clone('data_fail_2d_subtract')
@@ -116,25 +121,29 @@ def main(options, args):
             g1.SetPointEXlow(ipt,0)
             g1.SetPointEXhigh(ipt,0)
     
-
+    #Sum all cats for each shapes, for each suffix
     for shape in shapes:
-        if not shape in histograms_pass_all[0].keys(): continue
-        histograms_pass_summed[shape] = histograms_pass_all[0][shape].Clone(shape + '_pass_sum')
-        for i in range(1, len(pt_binBoundaries)-1):
-            if not shape in histograms_pass_all[i].keys(): continue
-            if shape=='data':
-                AddGraphs(histograms_pass_summed[shape], histograms_pass_all[i][shape])
-            else:
-                histograms_pass_summed[shape].Add(histograms_pass_all[i][shape])
+        suffix0 = suffixes[0]
+        histograms_pass_summed[shape] = histograms_pass_all[suffix0][0][shape].Clone(shape + '_pass_sum')
+        for suffix in suffixes:
+            if not shape in histograms_pass_all[suffix][0].keys(): continue
+            for i in range(1, len(pt_binBoundaries)-1):
+                if not shape in histograms_pass_all[suffix][i].keys(): continue
+                if shape=='data':
+                    AddGraphs(histograms_pass_summed[shape], histograms_pass_all[suffix][i][shape])
+                else:
+                    histograms_pass_summed[shape].Add(histograms_pass_all[suffix][i][shape])
     for shape in shapes:
-        if not shape in histograms_fail_all[0].keys(): continue
-        histograms_fail_summed[shape] = histograms_fail_all[0][shape].Clone(shape + '_fail_sum')
-        for i in range(1, len(pt_binBoundaries)-1):
-            if not shape in histograms_fail_all[i].keys(): continue
-            if shape=='data':
-                AddGraphs(histograms_fail_summed[shape], histograms_fail_all[i][shape])
-            else:
-                histograms_fail_summed[shape].Add(histograms_fail_all[i][shape])
+        suffix0 = suffixes[0]
+        histograms_fail_summed[shape] = histograms_fail_all[suffix0][0][shape].Clone(shape + '_fail_sum')
+        for suffix in suffixes:
+            if not shape in histograms_fail_all[suffix][0].keys(): continue
+            for i in range(1, len(pt_binBoundaries)-1):
+                if not shape in histograms_fail_all[suffix][i].keys(): continue
+                if shape=='data':
+                    AddGraphs(histograms_fail_summed[shape], histograms_fail_all[suffix][i][shape])
+                else:
+                    histograms_fail_summed[shape].Add(histograms_fail_all[suffix][i][shape])
 
     histograms_pass_summed_list = {"bkg":[],"sig":[]}
     histograms_fail_summed_list = {"bkg":[],"sig":[]}
@@ -403,6 +412,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         else:
             l.AddEntry(hsig, "H(b#bar{b})", "lf")
 
+
     l.AddEntry(data, "Data", "pe")
 
     htot.SetLineColor(r.kBlack)
@@ -423,6 +433,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     htot.SetMarkerSize(0)
     htot.SetMarkerColor(r.kGray + 2)
     htot.SetLineWidth(2)
+    data.SetMarkerStyle(r.kFullDotLarge)
     
     def getDataGraphFromHist(h_data):    
         g_data = r.TGraphAsymmErrors(h_data)    
@@ -443,10 +454,34 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             g_data.SetPointEXhigh(i, 0)
             g_data.SetPoint(i, g_data.GetX()[i], N)
         return g_data
-            
+ 
+    def getGraphFromDensity(g):
+        gClone = g.Clone(g.GetName()+"_copy")
+        alpha = 1-0.6827
+        for i in range(0,gClone.GetN()):
+            N = gClone.GetY()[i]*BIN_WIDTH
+            L = 0
+            if N!=0:
+                L = r.Math.gamma_quantile(alpha/2,N,1.)
+            U = r.Math.gamma_quantile_c(alpha/2,N+1,1)
+
+            eyh = gClone.GetErrorYhigh(i)
+            eyl = gClone.GetErrorYlow(i)
+            gClone.SetPoint(i,gClone.GetX()[i], N)
+            if options.isData:
+                gClone.SetPointEYhigh(i, (N-L))
+                gClone.SetPointEYlow(i, (U-N))
+            else:
+                gClone.SetPointEYhigh(i, eyh*BIN_WIDTH)
+                gClone.SetPointEYlow(i, eyl*BIN_WIDTH)
+            gClone.SetPointEXhigh(i,0) 
+            gClone.SetPointEXlow(i, 0)
+        return gClone
+
+          
     #g_data = getDataGraphFromHist(data)
-    g_data = data.Clone("g_data")
-    
+    #g_data = data.Clone("g_data")
+    g_data = getGraphFromDensity(data)
 
     maximum = htot.GetMaximum()    
     htot.GetXaxis().SetTitle('m_{SD} (GeV)')
@@ -507,7 +542,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             #hsigs[ih].Draw('hist sames')
     htot.Draw('E2same')
     hstackMC.Draw("hist sames")
-    data.Draw('pezsame')
+    g_data.Draw('pezsame')
     l.Draw()
     tag1 = r.TLatex(0.67, 0.92, "%.1f fb^{-1} (13 TeV)" % options.lumi)
     tag1.SetNDC()
@@ -604,7 +639,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             if hqcd.GetBinContent(i + 1) > 0:
                 x,y = (r.Double(),r.Double())
                 #value_data = data.GetBinContent(i + 1)
-                data.GetPoint(i,x,y)
+                g_data.GetPoint(i,x,y)
                 value_data = y  
                 value_fit = hqcd.GetBinContent(i + 1)                
                 err_low_data = g_data.GetEYlow()[i]
@@ -644,7 +679,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         iOneWithErrors.Divide(htot.Clone())
         for i in range(iOneWithErrors.GetNbinsX()):
             # print i+1, htot.GetBinContent(i+1)
-            if htot.GetBinContent(i + 1) > 0. and data.GetBinContent > 0.:
+            if htot.GetBinContent(i + 1) > 0. and g_data.GetBinContent > 0.:
                 iOneWithErrors.SetBinError(i + 1, htot.GetBinError(i + 1) / htot.GetBinContent(i + 1))
             else:
                 iOneWithErrors.SetBinError(i + 1, 0)
@@ -724,6 +759,8 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     p22.RedrawAxis()
     c.SaveAs(odir + "/mlfit_" + tag + "-log.pdf")
     c.SaveAs(odir + "/mlfit_" + tag + "-log.C")
+
+    #raw_input("test")
 
     return [bkgs + hsigs + [data]]
 
