@@ -615,7 +615,7 @@ def main(options, args):
             elif year=='2016':
                 dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
             elif year=='2016legacy':
-                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '((triggerBits&1)||(triggerBits&2))&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName,treeName=dataTree)
+                dataSample = sampleContainer('data_obs',tfiles['data_obs'], 1, dbtagmin,lumi, True, False, '(((triggerBits&1)||(triggerBits&2))&&passJson)',False, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName,treeName=dataTree)
         else:
             if year=='2017':
                 # 2017 triggerBits
