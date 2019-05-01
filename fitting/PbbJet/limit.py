@@ -248,6 +248,7 @@ def goodnessVals(iFName1):
     for i0 in range(0,lTree1.GetEntries()):
         lTree1.GetEntry(i0)
         lDiffs.append(lTree1.limit)
+    print iFName1,lDiffs
     return lDiffs
 
 def ftest(base,alt,ntoys,iLabel,options):
@@ -299,11 +300,29 @@ def ftest(base,alt,ntoys,iLabel,options):
 def goodness(base,ntoys,iLabel,options):
     if not options.justPlot:
         # --fixedSignalStrength %f  --freezeParameters tqqnormSF,tqqeffSF 
-        exec_me('combine -M GoodnessOfFit %s  --rMax 20 --rMin -20 --algorithm %s -n %s --freezeParameters %s'% (base,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
+        removetth = " --setParameter r_tth=0 "
+        goodness_name = base.split('/')[-1].replace('.root','')
+        goodness_base = "combine -M GoodnessOfFit %s --algorithm %s -n %s"%(base,options.algo,goodness_name)
+        goodness_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+        goodness_base += " --freezeParameters %s "%options.freezeNuisances
+        goodness_base += removetth
+        exec_me(goodness_base,options.dryRun)
         exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/goodbase.root'%(base.split('/')[-1].replace('.root',''),options.odir),options.dryRun)
-        exec_me('combine -M GenerateOnly %s --rMax 20 --rMin -20 --toysFrequentist -t %i --expectSignal %f --saveToys -n %s --freezeParameters %s' % (base,ntoys,options.r,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
-        exec_me('cp higgsCombine%s.GenerateOnly.mH120.123456.root %s/'%(base.split('/')[-1].replace('.root',''),options.odir),options.dryRun)        
-        exec_me('combine -M GoodnessOfFit %s --rMax 20 --rMin -20 -t %i --toysFile %s/higgsCombine%s.GenerateOnly.mH120.123456.root --algorithm %s -n %s --freezeParameters %s' % (base,ntoys,options.odir,base.split('/')[-1].replace('.root',''),options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
+
+        gen_toys = "combine -M GenerateOnly %s --toysFrequentist -t %i "%(base,ntoys)
+        gen_toys+= " --expectSignal %f --saveToys -n %s"%(options.r,goodness_name)
+        gen_toys+= " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+        gen_toys+= " --freezeParameters %s "%options.freezeNuisances
+        gen_toys+= removetth
+        exec_me(gen_toys,options.dryRun)
+        exec_me('cp higgsCombine%s.GenerateOnly.mH120.123456.root %s/'%(base.split('/')[-1].replace('.root',''),options.odir),options.dryRun)       
+
+        goodness_toys = "combine -M GoodnessOfFit %s -t %i --algorithm %s -n %s "%(base,ntoys,options.algo,goodness_name)
+        goodness_toys+= " --toysFile %s/higgsCombine%s.GenerateOnly.mH120.123456.root "%(options.odir,goodness_name)
+        goodness_toys+= " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+        goodness_toys+= " --freezeParameters %s "%options.freezeNuisances
+        goodness_toys+= removetth
+        exec_me(goodness_toys,options.dryRun)
         exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.123456.root %s/goodtoys.root'%(base.split('/')[-1].replace('.root',''),options.odir),options.dryRun)        
     if options.dryRun: sys.exit()
     nllBase=goodnessVals('%s/goodbase.root'%options.odir)
