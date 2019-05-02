@@ -59,7 +59,6 @@ def main(options, args):
                 for hist in tmpfail:
                     if hist !=None and re.match(shape,hist.GetName()): histograms_fail_all[suffix][i][shape] = hist
 
-    print histograms_pass_all
     pass_2d = {}
     fail_2d = {}
     for suffix in suffixes:
@@ -127,24 +126,31 @@ def main(options, args):
         if not shape in histograms_pass_all[suffix][0].keys(): continue
         histograms_pass_summed[shape] = histograms_pass_all[suffix0][0][shape].Clone(shape + '_pass_sum')
         for suffix in suffixes:
-            for i in range(1, len(pt_binBoundaries)-1):
+            for i in range( len(pt_binBoundaries)-1):
                 if not shape in histograms_pass_all[suffix][i].keys(): continue
+                print suffix,shape,i, histograms_pass_summed[shape].Integral(), " + ", histograms_pass_all[suffix][i][shape].Integral()
                 if shape=='data':
                     AddGraphs(histograms_pass_summed[shape], histograms_pass_all[suffix][i][shape])
                 else:
                     histograms_pass_summed[shape].Add(histograms_pass_all[suffix][i][shape])
+                print "= ",histograms_pass_summed[shape].Integral()
+
+        #    print suffix, shape, histograms_pass_summed[shape].Integral()
+        #print 'total', shape, histograms_pass_summed[shape].Integral()
+
     for shape in shapes:
         suffix0 = suffixes[0]
         if not shape in histograms_fail_all[suffix][0].keys(): continue
         histograms_fail_summed[shape] = histograms_fail_all[suffix0][0][shape].Clone(shape + '_fail_sum')
         for suffix in suffixes:
-            for i in range(1, len(pt_binBoundaries)-1):
+            for i in range( len(pt_binBoundaries)-1):
                 if not shape in histograms_fail_all[suffix][i].keys(): continue
                 if shape=='data':
                     AddGraphs(histograms_fail_summed[shape], histograms_fail_all[suffix][i][shape])
                 else:
                     histograms_fail_summed[shape].Add(histograms_fail_all[suffix][i][shape])
 
+    ## sort histograms into bkg sig and data
     histograms_pass_summed_list = {"bkg":[],"sig":[]}
     histograms_fail_summed_list = {"bkg":[],"sig":[]}
     for shape in shapes:
