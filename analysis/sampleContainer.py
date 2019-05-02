@@ -142,6 +142,7 @@ class sampleContainer:
                           ('AK4Puppijet0_qgid', 'd', -999),('AK4Puppijet1_qgid', 'd', -999),  
                           ('AK4Puppijet0_csv' , 'd', -999),('AK4Puppijet1_csv' , 'd', -999),  
                           ('AK4Puppijet0_deepcsvb' , 'd', -999),('AK4Puppijet1_deepcsvb' , 'd', -999),  
+                          ('AK4Puppijet0_deepcsvbb' , 'd', -999),('AK4Puppijet1_deepcsvbb' , 'd', -999),  
                           ('AK4Puppijet2_eta' , 'd', -999),('AK4Puppijet3_eta' , 'd', -999),
                           ('AK4Puppijet2_phi' , 'd', -999),('AK4Puppijet3_phi' , 'd', -999),
                           ('AK4Puppijet2_pt'  , 'd', -999),('AK4Puppijet3_pt'  , 'd', -999),
@@ -149,6 +150,7 @@ class sampleContainer:
                           ('AK4Puppijet2_qgid', 'd', -999),('AK4Puppijet3_qgid', 'd', -999),  
                           ('AK4Puppijet2_csv' , 'd', -999),('AK4Puppijet3_csv' , 'd', -999),  
                           ('AK4Puppijet2_deepcsvb' , 'd', -999),('AK4Puppijet3_deepcsvb' , 'd', -999),  
+                          ('AK4Puppijet2_deepcsvbb' , 'd', -999),('AK4Puppijet3_deepcsvbb' , 'd', -999),  
                           ]
         if not self._minBranches:
             self._branches.extend([('nAK4PuppijetsfwdPt30', 'i', -999), ('nAK4PuppijetsLPt50dR08_0', 'i', -999),
@@ -1053,7 +1055,9 @@ class sampleContainer:
                 ak4eta  = getattr(self,"AK4Puppijet"+str(iak4)+"_eta")[0]
                 ak4phi  = getattr(self,"AK4Puppijet"+str(iak4)+"_phi")[0]
                 ak4mass = getattr(self,"AK4Puppijet"+str(iak4)+"_mass")[0]
-                ak4dcsvb = getattr(self,"AK4Puppijet"+str(iak4)+"_deepcsvb")[0]
+                #dcsvb discriminant = deepcsvb + deepcsvbb, see twiki
+                ak4dcsvb = getattr(self,"AK4Puppijet"+str(iak4)+"_deepcsvb")[0]+getattr(self,"AK4Puppijet"+str(iak4)+"_deepcsvbb")[0]
+
                 dR_ak8  = QGLRutil.deltaR( ak4eta,ak4phi, self.AK8Puppijet0_eta[0], self.AK8Puppijet0_phi[0])
                 dphi_ak8 = abs(QGLRutil.deltaPhi(ak4phi, jphi_8))
                 #print "nAK4PuppijetsPt30 = %s iak4= %s   ak4pT = %.3f,  dR=%s"%(n_4, iak4,ak4pT, dR_ak8)
@@ -1072,12 +1076,14 @@ class sampleContainer:
                 #2018 cut values from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation102X
                 if self.puOpt['data']=='2017':
                     AK4DCSVCUT=0.4941
-                    if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4941:
-                        n_MdR0p8_4+=1
+                    #if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4941:
+                    #    n_MdR0p8_4+=1
+                    n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
                 elif self.puOpt['data']=='2018':
                     AK4DCSVCUT=0.4184
-                    if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4184:
-                        n_MdR0p8_4+=1
+                    #if  ak4pT> 50.0 and abs(ak4eta)<2.5 and (dR_ak8>0.8) and ak4dcsvb>0.4184:
+                    #    n_MdR0p8_4+=1
+                    n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
                 elif self.puOpt['data'] == '2016':
                     AK4DCSVCUT=0.6324
                     n_MdR0p8_4 = self.nAK4PuppijetsMPt50dR08_0[0]
