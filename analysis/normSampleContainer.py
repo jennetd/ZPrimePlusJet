@@ -32,6 +32,8 @@ class normSampleContainer:
             #look up TreeName in the first file if not specified
             if self.treeName =='':
                 subsampleTname = self.SetTreeName(tfiles[subSampleName])
+            else:
+                subsampleTname = self.treeName 
             neventsName = "_".join(['h',sampleName,subSampleName,'n'])
             puName      = "_".join(['h',sampleName,subSampleName,'pu'])
             Nentries = normRoot.Get(str(neventsName)).GetBinContent(1)
