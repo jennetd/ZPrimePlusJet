@@ -686,7 +686,7 @@ def main(options,args,outputExists):
             elif year=='2016':
                 dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&4)&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,treeName = dataTree)
             elif year=='2016legacy':
-                dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '((triggerBits&1||triggerBits&2))&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,treeName = dataTree,doublebName='AK8Puppijet0_deepdoubleb')
+                dataSample = sampleContainer('muon',tfiles['muon'], 1, DBTMIN,lumi, isData, False, '(((triggerBits&1||triggerBits&2))&&passJson)',False, iSplit = i_split, maxSplit = max_split,puOpt=pu_Opt,treeName = dataTree,doublebName='AK8Puppijet0_deepdoubleb')
         elif isData:
             if 'skim' in tfiles['data'][0]: dataTree = 'otree'
             else:                           dataTree = 'Events'
