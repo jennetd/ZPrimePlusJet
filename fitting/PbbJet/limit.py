@@ -337,6 +337,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         generate_base += " --saveToys -n %s --redefineSignalPOIs r"%(iLabel) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
         generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+        generate_base += " --setParameters %s "%(options.setParameters) 
         generate_base += " --trackParameters  'rgx{.*}'" 
         exec_me(generate_base,options.dryRun)
 
@@ -348,7 +349,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         if options.scaleLumi>0:
             fitDiag_base += " --setParameters r_z=1,lumiscale=%s " %(options.scaleLumi)
         else:
-            fitDiag_base += " --setParameters r_z=1 " 
+            fitDiag_base += " --setParameters r_z=1,%s "%(options.setParameters) 
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
@@ -428,8 +429,13 @@ if __name__ == "__main__":
     parser.add_option('--rMin',dest='rMin', default=-20 ,type='float',help='minimum of r (signal strength) in profile likelihood plot')
     parser.add_option('--rMax',dest='rMax', default=20,type='float',help='maximum of r (signal strength) in profile likelihood plot')  
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
-    parser.add_option('--dry-run',dest="dryRun",default=False,action='store_true',
-                  help="Just print out commands to run")    
+    parser.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
+    parser.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=1, help='order of rho polynomial for gen.pdf bias 1')
+    parser.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for gen. pdf bias 1')
+    parser.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for fit pdf bias ')
+    parser.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for fit pdf bias')
+
+    parser.add_option('--dry-run',dest="dryRun",default=False,action='store_true',help="Just print out commands to run")    
 
 
     (options,args) = parser.parse_args()

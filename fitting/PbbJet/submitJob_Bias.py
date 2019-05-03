@@ -83,8 +83,9 @@ if __name__ == '__main__':
     script_group.add_option('-m','--mass'   ,action='store',type='int',dest='mass'   ,default=125, help='mass')
     script_group.add_option('-l','--lumi'   ,action='store',type='float',dest='lumi'   ,default=36.4, help='lumi')
     script_group.add_option('-r','--r',dest='r', default=1 ,type='float',help='default value of r')    
-    script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
+    script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot',metavar='justPlot')
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
+    script_group.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
     script_group.add_option('--scaleLumi'   ,action='store',type='float',dest='scaleLumi'   ,default=-1, help='scale nuisances by scaleLumi')
 
@@ -114,7 +115,8 @@ if __name__ == '__main__':
 
     #ouput to ${MAINDIR}/ so that condor transfer the output to submission dir
     command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runBias.py -o ${MAINDIR}/ --seed $1 --toys $2 --datacard ${MAINDIR}/$3 --datacard-alt ${MAINDIR}/$4'
-    plot_odir    = "/".join(options.odir.split("/")[:-2])
+    #plot_odir    = "/".join(options.odir.split("/")[:-2])
+    plot_odir    = options.odir
     
     #print out command to use after jobs are done
     plot_command = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runBias.py -o %s --just-plot '%(plot_odir)
@@ -181,7 +183,10 @@ if __name__ == '__main__':
         if nOutput==maxJobs:
             cleanAndPlot()
         else:
-            #print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
-            #proceed = raw_input("Proceed anyway?")
-            #if proceed=="yes":
-            cleanAndPlot()
+            print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
+            proceed = raw_input("Proceed anyway?")
+            if proceed=="yes":
+                cleanAndPlot()
+            print "plot command: ",plot_command
+            exec_me(plot_command,dryRun)
+
