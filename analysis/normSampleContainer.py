@@ -31,7 +31,9 @@ class normSampleContainer:
                 print "normSampleContainer:: subSample = %s  "%(subSampleName)
             #look up TreeName in the first file if not specified
             if self.treeName =='':
-                self.SetTreeName(tfiles[subSampleName])
+                subsampleTname = self.SetTreeName(tfiles[subSampleName])
+            else:
+                subsampleTname = self.treeName 
             neventsName = "_".join(['h',sampleName,subSampleName,'n'])
             puName      = "_".join(['h',sampleName,subSampleName,'pu'])
             Nentries = normRoot.Get(str(neventsName)).GetBinContent(1)
@@ -40,7 +42,7 @@ class normSampleContainer:
             print "puOpt = ",puOpt
             lumiWeight         =  (xSection*1000*lumi) / Nentries
             print "normSampleContainer:: [sample %s, subsample %s] lumi = %s fb-1, xSection = %.3f pb, nEvent = %s, weight = %.5f, Nfiles=%s" % (sampleName, subSampleName, lumi, xSection, Nentries, lumiWeight,len(tfiles[subSampleName]))
-            self.subSampleContainers[subSampleName] = sampleContainer(subSampleName, tfiles[subSampleName], sf, DBTAGCUTMIN, lumiWeight, isData, fillCA15, cutFormula, minBranches, iSplit ,maxSplit,triggerNames,self.treeName,doublebName,doublebCut,puOpt)
+            self.subSampleContainers[subSampleName] = sampleContainer(subSampleName, tfiles[subSampleName], sf, DBTAGCUTMIN, lumiWeight, isData, fillCA15, cutFormula, minBranches, iSplit ,maxSplit,triggerNames,subsampleTname,doublebName,doublebCut,puOpt)
         normRoot.Close()
 
     #Set treeName
@@ -48,14 +50,15 @@ class normSampleContainer:
         treeNames=["otree","Events"]
         print "Trying to get tree with file=",oTreeFiles[0]
         exampleFile = ROOT.TFile.Open(oTreeFiles[0])
+        exampleTname = ''
         for tName in treeNames:
             if exampleFile.Get(tName):
                 print "Found tree=",tName
-                self.treeName= tName
+                exampleTname = tName
                 break 
-        if self.treeName=="":       
+        if exampleTname=="":       
             print "Error! Cannot find any tress with names= ",treeNames
-        return  
+        return  exampleTname
 
 
     def getXsection(self,fDataSet,xSectionFile):
