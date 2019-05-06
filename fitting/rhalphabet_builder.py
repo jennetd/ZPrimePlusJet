@@ -18,6 +18,7 @@ r.gSystem.Load(os.getenv('CMSSW_BASE')+'/lib/'+os.getenv('SCRAM_ARCH')+'/libHigg
 import tools as tools
 from RootIterator import RootIterator
 from hist import *
+import bernstein
 
 ##############################################################################
 ##############################################################################
@@ -28,7 +29,7 @@ from hist import *
 class RhalphabetBuilder():
     def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
-                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201):
+                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201,qcdTFpars={}):
         self._pass_hists = pass_hists
         self._fail_hists = fail_hists
         self._mass_fit = mass_fit
@@ -122,6 +123,19 @@ class RhalphabetBuilder():
         for mass in [125]:
             for sig in ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]:
                 self._signal_names.append(sig + str(mass))
+
+        ## qcdTFpars = {'n_rho':n_rho,'n_pT':n_pT,'pars':[p0r0,...]}
+        f2params    = array.array('d', qcdTFpars['pars'])
+        npar        = len(f2params)
+        boundaries={}
+        boundaries['RHO_LO']=-6.
+        boundaries['RHO_HI']=-2.1
+        boundaries['PT_LO' ]= 450.
+        boundaries['PT_HI' ]= 1200.
+        f_bernstein = bernstein.genBernsteinTF(qcdTFpars['n_rho'],qcdTFpars['n_pT'],boundaries,IsMsdPt=True,qcdeff=True,rescale=True)
+        self._tf2   = r.TF2("f2", f_bernstein, 40,201,450,1200,npar)
+        self._tf2.SetParameters(f2params)
+
 
     def run(self):
         self.LoopOverPtBins()
@@ -474,7 +488,7 @@ class RhalphabetBuilder():
                 print "qcd_fail_cat%i_Bin%i flatParam" % (pt_bin, mass_bin)
 
     # iHs = dict of fail histograms
-    def MakeRhalphabet(self, samples, fail_histograms,pass_histograms, pt, category):
+    def MakeRhalphabet(self, samples, fail_histograms,pass_histograms,  pt, category):
         print "---- [MakeRhalphabet]"
 
         rhalph_bkgd_name = "qcd";
@@ -545,13 +559,20 @@ class RhalphabetBuilder():
             fail_bin_var_real.Print()
             fail_bin_var.Print()
 
+            qcd_bin_ratio = self._tf2.Eval(self._lMSD.getVal(),pt)
             qcd_fail_bin_content = fail_histograms['qcd'].GetBinContent(mass_bin)
             qcd_pass_bin_content = pass_histograms['qcd'].GetBinContent(mass_bin)
-            qcd_bin_ratio        = 1.0
             if qcd_fail_bin_content>0:
-                print "qcd fail =%.3f , pass = %.3f, qcd P/F = %.3f, qcd_incl. eff = %.3f "%(
-                    qcd_fail_bin_content,qcd_pass_bin_content,qcd_pass_bin_content/qcd_fail_bin_content,self._lEffQCD.getVal())
-                qcd_bin_ratio        = qcd_pass_bin_content/qcd_fail_bin_content
+                print "Evaluating TF2 at : msd = %.3f, pT = %.3f"%(self._lMSD.getVal(),pt)
+                print "qcd fail =%.3f , pass = %.3f, qcd P/F = %.3f, qcdTF eff = %.3f, qcd_incl. eff = %.3f "%(
+                    qcd_fail_bin_content,qcd_pass_bin_content,qcd_pass_bin_content/qcd_fail_bin_content,qcd_bin_ratio,self._lEffQCD.getVal())
+
+            #qcd_bin_ratio        = 1.0
+            #if qcd_fail_bin_content>0:
+            #    print "qcd fail =%.3f , pass = %.3f, qcd P/F = %.3f, qcd_incl. eff = %.3f "%(
+            #        qcd_fail_bin_content,qcd_pass_bin_content,qcd_pass_bin_content/qcd_fail_bin_content,self._lEffQCD.getVal())
+            #    qcd_bin_ratio        = qcd_pass_bin_content/qcd_fail_bin_content
+
             lEffQCD_bin = r.RooRealVar("qcdeff_"+category+self._suffix + "_Bin" + str(mass_bin),
                                          "qcdeff_"+category+self._suffix + "_Bin" + str(mass_bin),
                                           0.01, 0., 10.)

@@ -44,6 +44,18 @@ SF2016={
             'BB_SF'     : 0.91,             'BB_SF_ERR' : 0.03,
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
         }
+#==================== ddb_Apr17/ddb_M2/msd47_TF21/card_rhalphabet_all_floatZ.root ====================
+#qcdeff =  0.0153 +/- 0.0000 
+#p0r0 =  -0.7085  +/- 0.0529 
+#p0r1 =  2.2649   +/- 0.0350 
+#p0r2 =  0.7067   +/- 0.0155 
+#p1r0 =  1.1266   +/- 0.0919 
+#p1r1 =  1.7097   +/- 0.1284 
+#p1r2 =  -0.8651  +/- 0.0997 
+qcdTFpars={
+            'n_rho':2, 'n_pT':1,
+            'pars':[  0.0153,-0.7085 ,2.2649  ,0.7067  ,1.1266  ,1.7097  ,-0.8651     ]
+        }
 
 def main(options, args):
     ifile = options.ifile
@@ -69,7 +81,7 @@ def main(options, args):
     # Build the workspacees
     #dazsleRhalphabetBuilder(hpass, hfail, f, odir, options.NR, options.NP)
 
-    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf,mass_hist_lo=MASS_HIST_LO,mass_hist_hi=MASS_HIST_HI)
+    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf,mass_hist_lo=MASS_HIST_LO,mass_hist_hi=MASS_HIST_HI,qcdTFpars=qcdTFpars)
     rhalphabuilder.run()
     if options.addHptShape:
         rhalphabuilder.addHptShape()	
