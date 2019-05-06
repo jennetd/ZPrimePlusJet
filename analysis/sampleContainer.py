@@ -1875,8 +1875,7 @@ class sampleContainer:
             f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"), "read")          
             #f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/n2ddt_map_38percent_GaussianFilter.root"), "read")
         elif year=='2018':
-            #TODO: Add 2018 ddt map
-            f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/Output_smooth_2017MC.root"), "read")          
+            f_h2ddt = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/n2ddtmap_2018bits_GaussianSmoothing1Sigma_CorrectVersion.root"), "read")          
 
         self._trans_h2ddt = f_h2ddt.Get("Rho2D")
         self._trans_h2ddt.SetDirectory(0)
