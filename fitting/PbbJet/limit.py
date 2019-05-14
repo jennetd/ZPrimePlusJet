@@ -42,11 +42,11 @@ def plotgaus(iFName,injet,iLabel,options):
     #lTree.Project('h_bias_2','(r_z-%s)/r_zHiErr'% injet,'r_z<%s&&(r_zHiErr+r_z)<%i&&(r_z-r_zLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
     #lTree.Project('h_bias_1','(r_z-1)/r_zErr')
     lH = lH_1
-    #lH.Add(lH_2)
+    lH.Add(lH_2)
     print 'Tree Entries = %s , pull entries = %s'%(lTree.GetEntriesFast(),lH.GetEntries())
     print lH.GetMean()
     print lH.GetBinCenter(lH.GetMaximumBin())
-    gaus_func = r.TF1("gaus_func","gaus(0)",-4,4)
+    gaus_func = r.TF1("gaus_func","gaus(0)",-3,3)
     #gaus_func = r.TF1("gaus_func","gaus(0)",-2.5,2.5)
     gaus_func.SetParameter(0,20)
     gaus_func.SetParameter(1,0)
@@ -328,9 +328,10 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
         generate_base += " --setParameters %s "%(options.setParameters) 
         generate_base += " --trackParameters  'rgx{.*}'" 
-        exec_me(generate_base,options.dryRun)
+        #exec_me(generate_base,options.dryRun)
 
-        fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
+        fitDiag_base = "combine -M FitDiagnostics %s  -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
+        #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
         #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r_z" %(base,iLabel,options.seed,iLabel)
         fitDiag_base += ' --robustFit 1 --saveNLL  --saveWorkspace --setRobustFitAlgo Minuit2,Migrad'
         fitDiag_base += ' -t %s -s %s '%(ntoys,options.seed)
