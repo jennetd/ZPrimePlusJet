@@ -330,7 +330,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         generate_base += " --trackParameters  'rgx{.*}'" 
         #exec_me(generate_base,options.dryRun)
 
-        fitDiag_base = "combine -M FitDiagnostics %s  -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
+        fitDiag_base = "combine -M FitDiagnostics %s  -n %s  --redefineSignalPOIs r" %(base,iLabel)
         #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
         #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r_z" %(base,iLabel,options.seed,iLabel)
         fitDiag_base += ' --robustFit 1 --saveNLL  --saveWorkspace --setRobustFitAlgo Minuit2,Migrad'
@@ -340,7 +340,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         if options.scaleLumi>0:
             fitDiag_base += " --setParameters r_z=1,lumiscale=%s " %(options.scaleLumi)
         else:
-            fitDiag_base += " --setParameters r_z=1,%s "%(options.setParameters) 
+            fitDiag_base += " --setParameters %s "%(options.setParameters) 
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
