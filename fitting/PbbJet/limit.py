@@ -330,7 +330,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         generate_base += " --trackParameters  'rgx{.*}'" 
         #exec_me(generate_base,options.dryRun)
 
-        fitDiag_base = "combine -M FitDiagnostics %s  -n %s  --redefineSignalPOIs r" %(base,iLabel)
+        fitDiag_base = "combine -M FitDiagnostics %s  -n %s  --redefineSignalPOIs r_z" %(base,iLabel)
         #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
         #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r_z" %(base,iLabel,options.seed,iLabel)
         fitDiag_base += ' --robustFit 1 --saveNLL  --saveWorkspace --setRobustFitAlgo Minuit2,Migrad'
