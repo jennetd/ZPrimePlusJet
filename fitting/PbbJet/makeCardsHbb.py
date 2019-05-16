@@ -100,7 +100,7 @@ def main(options,args):
         for box in boxes:
             for proc in (sigs+bkgs):
                 rate = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
-                if rate>0:
+                if rate>0.1:
                     rateJESUp   = histoDict['%s_%s_JESUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     rateJESDown = histoDict['%s_%s_JESDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     rateJERUp   = histoDict['%s_%s_JERUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
@@ -262,12 +262,15 @@ def main(options,args):
             dctmp.write(newline + "\n")
         for box in boxes:
             for proc in sigs+bkgs:
-                if options.noMcStatShape and proc!='qcd' and (proc, 'cat%i'%i, box) not in procsToRemove:
-                    print 'include %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
-                    firstmassbin = masshistbins[0]
-                    dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,firstmassbin].replace('mcstat%s'%str(firstmassbin),'mcstat') + "\n")
-                    mcStatGroupString += ' %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
-                    continue
+                if options.noMcStatShape and proc!='qcd' :
+                    if (proc, 'cat%i'%i, box) not in procsToRemove:
+                        print 'include %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
+                        firstmassbin = masshistbins[0]
+                        dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,firstmassbin].replace('mcstat%s'%str(firstmassbin),'mcstat') + "\n")
+                        mcStatGroupString += ' %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
+                        continue
+                    else:
+                        continue
                 #for j in range(1,numberOfMassBins+1):                    
                 for j in masshistbins:                    
                     # if stat. unc. is greater than 50% 
