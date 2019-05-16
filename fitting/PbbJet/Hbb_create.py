@@ -195,14 +195,8 @@ def get2018files(isMuonCR):
 
 
     tfiles = {
-<<<<<<< HEAD
-	    #'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1502skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
-        'hqq125'     : { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8'        :[idir_1502+'GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8/*.root']},
-	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1502skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
-=======
 	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1505skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
 	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1505skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
->>>>>>> newTF
         'zhqq125'    : { 
                            'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1505skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
                            'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1505skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -377,9 +371,10 @@ def get2017files(isMuonCR):
     idir_1501skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.01/skim/'
     idir_1504 = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/'
     idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04-vbf/skim/'
+    idir_1505skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05-vbf/skim/'
 
     tfiles = {
-	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1504skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	    'hqq125'     : { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':         [idir_1505skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
 	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1504skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
         'zhqq125'    : { 
                            'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1504skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -572,13 +567,8 @@ def main(options, args):
     print "Signals... "
 
     sigSamples = {}
-<<<<<<< HEAD
-    if year=='2017' or year=='2018' :
-        sigSamples['hqq125']   = normSampleContainer('hqq125',tfiles['hqq125']       , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,treeName="Events", doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-=======
     if year in ['2017','2018','2016legacy'] :
         sigSamples['hqq125']   = normSampleContainer('hqq125',tfiles['hqq125']       , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
->>>>>>> newTF
         sigSamples['tthqq125'] = normSampleContainer('tthqq125', tfiles['tthqq125']  , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots) 
         sigSamples['vbfhqq125']= normSampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots) 
         sigSamples['whqq125']  = normSampleContainer('whqq125', tfiles['whqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots) 
