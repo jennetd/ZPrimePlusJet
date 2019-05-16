@@ -173,8 +173,8 @@ if __name__ == '__main__':
                 print "DONE hadd. Removing subjob files next"
             else:
                 print "Found old hadd file. Replacing a new one"
-                #exec_me("rm  %s/%s "%(outpath,fileName),dryRun)
-                #exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
+                exec_me("rm  %s/%s "%(outpath,fileName),dryRun)
+                exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
                 print "DONE hadd. Removing subjob files next"
             if options.clean:
                 print "Cleaning submission files..." 
