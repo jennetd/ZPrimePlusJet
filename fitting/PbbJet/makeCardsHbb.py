@@ -52,7 +52,7 @@ def main(options,args):
         if( mass>=MASS_HIST_LO and mass<=MASS_HIST_HI):
             masshistbins.append(ibin+1)
     print "Integrating over these mass bins:",masshistbins
-    numberOfPtBins = 4
+    numberOfPtBins = 6
     procsToRemove = []
 
     histoDict = {}
