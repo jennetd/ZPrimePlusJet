@@ -783,7 +783,8 @@ class sampleContainer:
                 ptKF=1.
                 for i in range(0, len(ptscale)):
                     if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
-                vjetsKF = W_SF*iEWKKF*ptKF;
+                #vjetsKF = W_SF*iEWKKF*ptKF;
+                vjetsKF = W_SF*iEWKKF;          # Try applying flat QCD kfactor
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'WJetsToQQ_' in self._name:
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))
