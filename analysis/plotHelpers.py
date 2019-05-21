@@ -857,6 +857,9 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
                 otherInt += integral*qcdkFactor #scale QCD by 0.78
             else:
                 otherInt += integral 
+                otherErr2 += error[0]*error[0]
+        else:
+            otherInt += integral 
             otherErr2 += error[0]*error[0]
 
     ttbarErr = sqrt(ttbarErr2)
@@ -987,8 +990,10 @@ def makeCanvasComparisonStackWData(hd,hs,hb,legname,color,style,outname,pdir="pl
  
     hstack2.Draw('hist')
     hstack2.SetMinimum(1.)
-    hstack2.SetMaximum(10*maxval)
-    hstack2.GetYaxis().SetRangeUser(1.,10*maxval)
+    #hstack2.SetMaximum(10*maxval)
+    #hstack2.GetYaxis().SetRangeUser(1.,10*maxval)
+    hstack2.SetMaximum(2*maxval)
+    hstack2.GetYaxis().SetRangeUser(1.,2*maxval)
     hstack2.GetYaxis().SetTitle('Events')
     hstack2.GetYaxis().SetTitleOffset(1.0)	
     hstack2.GetXaxis().SetTitle(allMC.GetXaxis().GetTitle())

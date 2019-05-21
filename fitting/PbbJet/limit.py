@@ -24,22 +24,30 @@ def plotgaus(iFName,injet,iLabel,options):
     lCan.SetLeftMargin(0.12) 
     lCan.SetBottomMargin(0.15)
     lCan.SetTopMargin(0.12)
-    lFile = r.TFile(iFName)
-    lTree = lFile.Get("tree_fit_sb")    
+    if type(iFName)==type("string"):
+        lFile = r.TFile(iFName)
+        lTree = lFile.Get("tree_fit_sb")    
+    elif type(iFName)==type([]):
+        lTree = r.TChain("tree_fit_sb")
+        for f in iFName: lTree.Add(f)
+ 
     
     lH = r.TH1D('h_bias','h_bias',50,-4,4)
     lH_1 = r.TH1D('h_bias_1','h_bias',50,-4,4)
     lH_2 = r.TH1D('h_bias_2','h_bias',50,-4,4)
     #tree_fit_sb->Draw("mu-muLoErr","(mu-muLoErr)>-50+1")
-    #lTree.Project('h_bias','(mu-%s)/muErr'% injet,'(muHiErr+mu)<%i-1&&(mu-muLoErr)>%i'%(int(options.rMax)-1,int(options.rMin)+1))
-    #lTree.Project('h_bias_1','(mu-%s)/muLoErr'% injet,'mu>%s&&(muHiErr+mu)<%i&&(mu-muLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
-    #lTree.Project('h_bias_2','(mu-%s)/muHiErr'% injet,'mu<%s&&(muHiErr+mu)<%i&&(mu-muLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
     lTree.Project('h_bias_1','(r-%s)/rLoErr'% injet,'r>%s&&(rHiErr+r)<%i&&(r-rLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
     lTree.Project('h_bias_2','(r-%s)/rHiErr'% injet,'r<%s&&(rHiErr+r)<%i&&(r-rLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
+    #lTree.Project('h_bias_1','(r_z-%s)/r_zLoErr'% injet,'r_z>%s&&(r_zHiErr+r_z)<%i&&(r_z-r_zLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
+    #lTree.Project('h_bias_2','(r_z-%s)/r_zHiErr'% injet,'r_z<%s&&(r_zHiErr+r_z)<%i&&(r_z-r_zLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
+    #lTree.Project('h_bias_1','(r_z-1)/r_zErr')
     lH = lH_1
     lH.Add(lH_2)
     print 'Tree Entries = %s , pull entries = %s'%(lTree.GetEntriesFast(),lH.GetEntries())
-    gaus_func = r.TF1("gaus_func","gaus(0)",-4,4)
+    print lH.GetMean()
+    print lH.GetBinCenter(lH.GetMaximumBin())
+    gaus_func = r.TF1("gaus_func","gaus(0)",-3,3)
+    #gaus_func = r.TF1("gaus_func","gaus(0)",-2.5,2.5)
     gaus_func.SetParameter(0,20)
     gaus_func.SetParameter(1,0)
     gaus_func.SetParameter(2,1)
@@ -80,24 +88,9 @@ def plotgaus(iFName,injet,iLabel,options):
     l.SetTextFont(52)
     l.SetTextSize(0.045)
 
-    pdf_dict = {'r5p5':'(n_{#rho}=5,n_{p_{T}}=5)',
-                'r5p1':'(n_{#rho}=5,n_{p_{T}}=1)',
-                'r5p2':'(n_{#rho}=5,n_{p_{T}}=2)',
-                'r6p1':'(n_{#rho}=6,n_{p_{T}}=1)',
-                'r4p1':'(n_{#rho}=4,n_{p_{T}}=1)',
-                'r3p1':'(n_{#rho}=3,n_{p_{T}}=1)',
-                'r2p1':'(n_{#rho}=2,n_{p_{T}}=1)',
-                }
-
-    pdf_key1 = 'r2p1'
-    pdf_key2 = 'r2p1'
-    for key, value in pdf_dict.iteritems():
-        if key+'_vs' in iLabel:
-            pdf_key1 = key
-        elif key+'_m%s_r%s'%(options.mass,options.r) in iLabel:
-            pdf_key2 = key
-    l.DrawLatex(0.15,0.82,'gen. pdf = %s'%pdf_dict[pdf_key2])
-    l.DrawLatex(0.15,0.75,'fit pdf = %s'%pdf_dict[pdf_key1])
+    
+    l.DrawLatex(0.15,0.82,'gen. pdf = (n_{#rho}=%i,n_{p_{T}}=%i)'%(options.NR1,options.NP1))
+    l.DrawLatex(0.15,0.75,'fit pdf = (n_{#rho}=%i,n_{p_{T}}=%i)'%(options.NR2,options.NP2))
     
     lCan.Modified()
     lCan.Update()
@@ -313,21 +306,41 @@ def goodness(base,ntoys,iLabel,options):
 
 def bias(base,alt,ntoys,mu,iLabel,options):
     if not options.justPlot:
-        generate_base ="combine -M GenerateOnly %s --toysFrequentist --saveToys -n %s --redefineSignalPOIs r"%(alt,iLabel)
+        if options.scaleLumi>0:
+            ##### Get snapshots with lumiscale=1 for Toy generations ########
+            snapshot_base ="combine -M MultiDimFit  %s  -n .saved "%(alt)
+            snapshot_base += " -t -1 --expectSignal %i --algo none --saveWorkspace --toysFreq "%(mu) 
+            snapshot_base += " --freezeParameters %s "%(options.freezeNuisances) 
+            snapshot_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
+            snapshot_base += " --setParameters lumiscale=1 "             
+            exec_me(snapshot_base,options.dryRun)
+    
+        if options.scaleLumi>0:
+            ##### Generation toys from snapshots , setting lumiscale to 10x########
+            generate_base ="combine -M GenerateOnly -d higgsCombine.saved.MultiDimFit.mH120.root --snapshotName MultiDimFit " 
+            generate_base +=" --setParameters lumiscale=%s "%(options.scaleLumi)
+        else:
+            generate_base ="combine -M GenerateOnly %s --toysFrequentist "%(alt)
         generate_base += " -t %s --expectSignal %i -s %s "%(ntoys,mu,options.seed) 
+        generate_base += " --saveToys -n %s --redefineSignalPOIs r"%(iLabel) 
+        #generate_base += " --saveToys -n %s --redefineSignalPOIs r_z"%(iLabel) ### for r_z
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
-        generate_base += " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
         generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
-        generate_base += " --setParameters r=1,r_z=1 " 
-        generate_base += " --trackParameters r_z,p0r0,p0r1,p0r2,p1r0,p1r1,p1r2,scale,scalept,smear" 
-        
-        exec_me(generate_base,options.dryRun)
-        fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s --saveNLL --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
-        fitDiag_base+= ' -t %s -s %s '%(ntoys,options.seed)
-        fitDiag_base+= " --rMax %s --rMin %s "%(options.rMax,options.rMin) 
+        generate_base += " --setParameters %s "%(options.setParameters) 
+        generate_base += " --trackParameters  'rgx{.*}'" 
+        #exec_me(generate_base,options.dryRun)
+
+        fitDiag_base = "combine -M FitDiagnostics %s  -n %s  --redefineSignalPOIs r_z" %(base,iLabel)
+        #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
+        #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r_z" %(base,iLabel,options.seed,iLabel)
+        fitDiag_base += ' --robustFit 1 --saveNLL  --saveWorkspace --setRobustFitAlgo Minuit2,Migrad'
+        fitDiag_base += ' -t %s -s %s '%(ntoys,options.seed)
         fitDiag_base += " --freezeParameters %s "%(options.freezeNuisances) 
         fitDiag_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
-        fitDiag_base += " --setParameters r=1,r_z=1 " 
+        if options.scaleLumi>0:
+            fitDiag_base += " --setParameters r_z=1,lumiscale=%s " %(options.scaleLumi)
+        else:
+            fitDiag_base += " --setParameters %s "%(options.setParameters) 
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
@@ -335,6 +348,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
     if options.dryRun: sys.exit()
     #plotgaus("toys.root",mu,"pull"+iLabel)
     plotgaus("%s/biastoys_%s_%s.root"%(options.odir,iLabel,options.seed),mu,"pull"+iLabel+"_"+str(options.seed),options)
+    #plotgaus(glob.glob("%s/biastoys_%s_*.root"%(options.odir,iLabel)),mu,"pull"+iLabel+"_"+str(options.seed),options)
 
 def fit(base,options):
     exec_me('combine -M MaxLikelihoodFit %s -v 2 --freezeParameters tqqeffSF,tqqnormSF --rMin=-20 --rMax=20 --saveNormalizations --plot --saveShapes --saveWithUncertainties --minimizerTolerance 0.001 --minimizerStrategy 2'%base)
@@ -401,12 +415,18 @@ if __name__ == "__main__":
     parser.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     parser.add_option('--data', action='store_true', dest='isData', default=False, help='is data')
     parser.add_option('-l','--lumi'   ,action='store',type='float',dest='lumi'   ,default=36.4, help='lumi')
+    parser.add_option('--scaleLumi'   ,action='store',type='float',dest='scaleLumi'   ,default=-1, help='scale nuisances by scaleLumi')
     parser.add_option('-r','--r',dest='r', default=0 ,type='float',help='default value of r')
     parser.add_option('--rMin',dest='rMin', default=-20 ,type='float',help='minimum of r (signal strength) in profile likelihood plot')
     parser.add_option('--rMax',dest='rMax', default=20,type='float',help='maximum of r (signal strength) in profile likelihood plot')  
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
-    parser.add_option('--dry-run',dest="dryRun",default=False,action='store_true',
-                  help="Just print out commands to run")    
+    parser.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
+    parser.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for gen.pdf bias 1')
+    parser.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for gen. pdf bias 1')
+    parser.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for fit pdf bias ')
+    parser.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for fit pdf bias')
+
+    parser.add_option('--dry-run',dest="dryRun",default=False,action='store_true',help="Just print out commands to run")    
 
 
     (options,args) = parser.parse_args()
@@ -445,7 +465,7 @@ if __name__ == "__main__":
     ## plotftest(nllToys,nllBase[0],float(lPass)/float(len(nllToys)),'ftest_r2p2_v_r3p2')
 
     if options.method=='GoodnessOfFit':
-        iLabel= 'goodness_%s'%(options.datacard.split('/')[-1].replace('.root',''))
+        iLabel= 'goodness_%s_%s'%(options.algo,options.datacard.split('/')[-1].replace('.root',''))
         goodness(options.datacard, options.toys, iLabel, options)
 
     elif options.method=='MaxLikelihoodFit':

@@ -14,7 +14,7 @@ import array
 sys.path.insert(0, '../.')
 from tools import *
 
-from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016
+from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016,MASS_HIST_HI,MASS_HIST_LO
 
 ##-------------------------------------------------------------------------------------
 def main(options,args):
@@ -45,7 +45,13 @@ def main(options,args):
 
     nBkgd = len(bkgs)
     nSig = len(sigs)
-    numberOfMassBins = MASS_BINS 
+    binwidth = 7
+    massbins = range(MASS_LO,MASS_HI,binwidth)
+    masshistbins = []
+    for ibin,mass in enumerate(massbins):
+        if( mass>=MASS_HIST_LO and mass<=MASS_HIST_HI):
+            masshistbins.append(ibin+1)
+    print "Integrating over these mass bins:",masshistbins
     numberOfPtBins = 6
     procsToRemove = []
 
@@ -93,14 +99,14 @@ def main(options,args):
         scaleptErrs = {}
         for box in boxes:
             for proc in (sigs+bkgs):
-                rate = histoDict['%s_%s'%(proc,box)].Integral(1, numberOfMassBins, i, i)
-                if rate>0:
-                    rateJESUp = histoDict['%s_%s_JESUp'%(proc,box)].Integral(1, numberOfMassBins, i, i)
-                    rateJESDown = histoDict['%s_%s_JESDown'%(proc,box)].Integral(1, numberOfMassBins, i, i)
-                    rateJERUp = histoDict['%s_%s_JERUp'%(proc,box)].Integral(1, numberOfMassBins, i, i)
-                    rateJERDown = histoDict['%s_%s_JERDown'%(proc,box)].Integral(1, numberOfMassBins, i, i)
-                    ratePuUp = histoDict['%s_%s_PuUp'%(proc,box)].Integral(1, numberOfMassBins, i, i)
-                    ratePuDown = histoDict['%s_%s_PuDown'%(proc,box)].Integral(1, numberOfMassBins, i, i)
+                rate = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                if rate>0.1:
+                    rateJESUp   = histoDict['%s_%s_JESUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                    rateJESDown = histoDict['%s_%s_JESDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                    rateJERUp   = histoDict['%s_%s_JERUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                    rateJERDown = histoDict['%s_%s_JERDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                    ratePuUp    = histoDict['%s_%s_PuUp'   %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                    ratePuDown  = histoDict['%s_%s_PuDown' %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     jesErrs['%s_%s'%(proc,box)] =  1.0+(abs(rateJESUp-rate)+abs(rateJESDown-rate))/(2.*rate)   
                     jerErrs['%s_%s'%(proc,box)] =  1.0+(abs(rateJERUp-rate)+abs(rateJERDown-rate))/(2.*rate) 
                     puErrs['%s_%s'%(proc,box)] =  1.0+(abs(ratePuUp-rate)+abs(ratePuDown-rate))/(2.*rate)
@@ -133,7 +139,8 @@ def main(options,args):
                         bbErrs['%s_%s'%(proc,box)] = 1.0
                         
                     
-                for j in range(1,numberOfMassBins+1):                    
+                #for j in range(1,numberOfMassBins+1):                    
+                for j in masshistbins:                    
                     if options.noMcStatShape:                 
                         matchString = ''
                         if removeUnmatched and (proc =='wqq' or proc=='zqq'):
@@ -167,7 +174,8 @@ def main(options,args):
         qcdGroupString = 'qcd group = '
         for box in boxes:
             for proc in sigs+bkgs:
-                for j in range(1,numberOfMassBins+1):
+                #for j in range(1,numberOfMassBins+1):
+                for j in masshistbins:
                     if options.noMcStatShape:
                         mcStatStrings['%s_%s'%(proc,box),i,j] = '%s%scat%i%smcstat%i lnN'%(proc,box,i,mcstatsuffix,j)
                     else:
@@ -197,7 +205,8 @@ def main(options,args):
                     vString += ' -'
                 else:
                     vString += ' %.3f'%vErrs['%s_%s'%(proc,box)]
-                for j in range(1,numberOfMassBins+1):
+                #for j in range(1,numberOfMassBins+1):
+                for j in masshistbins:
                     for box1 in boxes:                    
                         for proc1 in sigs+bkgs:                            
                             if proc1==proc and box1==box and proc!='qcd' :
@@ -253,12 +262,17 @@ def main(options,args):
             dctmp.write(newline + "\n")
         for box in boxes:
             for proc in sigs+bkgs:
-                if options.noMcStatShape and proc!='qcd' and (proc, 'cat%i'%i, box) not in procsToRemove:
-                    print 'include %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
-                    dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,1].replace('mcstat1','mcstat') + "\n")
-                    mcStatGroupString += ' %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
-                    continue
-                for j in range(1,numberOfMassBins+1):                    
+                if options.noMcStatShape and proc!='qcd' :
+                    if (proc, 'cat%i'%i, box) not in procsToRemove:
+                        print 'include %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
+                        firstmassbin = masshistbins[0]
+                        dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,firstmassbin].replace('mcstat%s'%str(firstmassbin),'mcstat') + "\n")
+                        mcStatGroupString += ' %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
+                        continue
+                    else:
+                        continue
+                #for j in range(1,numberOfMassBins+1):                    
+                for j in masshistbins:                    
                     # if stat. unc. is greater than 50% 
                     matchString = ''
                     if removeUnmatched and (proc =='wqq' or proc=='zqq'):
@@ -280,9 +294,10 @@ def main(options,args):
                     else:
                         print 'do not include %s%scat%i%smcstat%i'%(proc,box,i,mcstatsuffix,j)
                         
-        for im in range(numberOfMassBins):
-            dctmp.write("qcd_fail_%s_Bin%i%s flatParam \n" % (tag,im+1,options.suffix))
-            qcdGroupString += ' qcd_fail_%s_Bin%i%s'%(tag,im+1,options.suffix)
+        #for im in range(numberOfMassBins):
+        for im in masshistbins:
+            dctmp.write("qcd_fail_%s_Bin%i%s flatParam \n" % (tag,im,options.suffix))
+            qcdGroupString += ' qcd_fail_%s_Bin%i%s'%(tag,im,options.suffix)
             flatPars = ['p0r0','p0r1', 'p0r2', 'p1r0', 'p1r1', 'p1r2']
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))

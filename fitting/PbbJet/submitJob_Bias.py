@@ -83,9 +83,16 @@ if __name__ == '__main__':
     script_group.add_option('-m','--mass'   ,action='store',type='int',dest='mass'   ,default=125, help='mass')
     script_group.add_option('-l','--lumi'   ,action='store',type='float',dest='lumi'   ,default=36.4, help='lumi')
     script_group.add_option('-r','--r',dest='r', default=1 ,type='float',help='default value of r')    
-    script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
+    script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot',metavar='justPlot')
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
+    script_group.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
+    script_group.add_option('--scaleLumi'   ,action='store',type='float',dest='scaleLumi'   ,default=-1, help='scale nuisances by scaleLumi')
+    script_group.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for gen.pdf bias 1')
+    script_group.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for gen. pdf bias 1')
+    script_group.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for fit pdf bias ')
+    script_group.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for fit pdf bias')
+
 
 
     parser.add_option_group(script_group)
@@ -102,7 +109,7 @@ if __name__ == '__main__':
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
     #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
-    gitClone = "git clone -b bias git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
 
     if options.datacardAlt == parser.get_option("--datacard-alt").default:
         options.datacardAlt = options.datacard
@@ -113,7 +120,8 @@ if __name__ == '__main__':
 
     #ouput to ${MAINDIR}/ so that condor transfer the output to submission dir
     command      = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runBias.py -o ${MAINDIR}/ --seed $1 --toys $2 --datacard ${MAINDIR}/$3 --datacard-alt ${MAINDIR}/$4'
-    plot_odir    = "/".join(options.odir.split("/")[:-2])
+    #plot_odir    = "/".join(options.odir.split("/")[:-2])
+    plot_odir    = options.odir
     
     #print out command to use after jobs are done
     plot_command = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runBias.py -o %s --just-plot '%(plot_odir)
@@ -162,13 +170,18 @@ if __name__ == '__main__':
         def cleanAndPlot():
             if not os.path.exists("%s/%s"%(outpath,fileName)):
                 exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
-                print "DONE hadd. Removing subjob files.."
+                print "DONE hadd. Removing subjob files next"
+            else:
+                print "Found old hadd file. Replacing a new one"
+                exec_me("rm  %s/%s "%(outpath,fileName),dryRun)
+                exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
+                print "DONE hadd. Removing subjob files next"
             if options.clean:
                 print "Cleaning submission files..." 
                 #remove all but _0 file
-                for i in range(1,9):
+                for i in range(1,10):
                     exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
-                    exec_me("rm %s/biastoys_bias_self_r%i_%s.root"%(outpath,options.r,i),dryRun)
+                    exec_me("rm %s/biastoys_bias_self_r%i_%s*.root"%(outpath,options.r,i),dryRun)
                 print "Finish cleaning,plotting " 
             print "plot command: ",plot_command
             exec_me(plot_command,dryRun)
@@ -179,3 +192,6 @@ if __name__ == '__main__':
             proceed = raw_input("Proceed anyway?")
             if proceed=="yes":
                 cleanAndPlot()
+            print "plot command: ",plot_command
+            exec_me(plot_command,dryRun)
+

@@ -1,11 +1,12 @@
 import math,ROOT
 
 def deltaPhi(phi1, phi2):
-  PHI = abs(phi1-phi2)
-  if PHI<=math.pi:
-      return PHI
-  else:
-      return 2*math.pi-PHI
+  x = phi1 - phi2
+  while x >=  math.pi:
+      x -= ( 2*math.pi )
+  while x <  -math.pi:
+      x += ( 2*math.pi )
+  return x
 
 def deltaR(eta1, phi1, eta2, phi2):
   deta = eta1-eta2

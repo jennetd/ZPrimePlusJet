@@ -52,7 +52,7 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone=""):
     out += 'ls\n'
     out += 'echo "DELETING..."\n'
     out += 'rm -rf CMSSW_8_1_0\n'
-    out += 'rm -rf *.pdf *.C\n'
+    out += 'rm -rf *.pdf *.C core*\n'
     out += 'ls\n'
     out += 'date\n'
     with open(temp, 'w') as f:
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     script_group.add_option("--lumi", dest="lumi", default = 35.9,type=float,help="luminosity", metavar="lumi")
     script_group.add_option('-s','--isData', action='store_true', dest='isData', default =False,help='signal comparison', metavar='isData')
     script_group.add_option('-m','--muonCR', action='store_true', dest='muonCR', default =False,help='for muon CR', metavar='muonCR')
-    script_group.add_option('-y' ,'--year', type='choice', dest='year', default ='2017',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
+    script_group.add_option('-y' ,'--year', type='choice', dest='year', default ='2017',choices=['2016legacy','2016','2017','2018'],help='switch to use different year ', metavar='year')
     script_group.add_option("--puOpt"  , dest="puOpt", default="2017", help="select pu weight source", metavar="puOpt")
 
 
@@ -129,6 +129,7 @@ if __name__ == '__main__':
                 #remove all but _0 file
                 for i in range(1,10):
                     exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
+                exec_me("rm %s/core*"%(outpath),dryRun)
             print "Plotting...."
             exec_me(plot_command,dryRun) 
         else:

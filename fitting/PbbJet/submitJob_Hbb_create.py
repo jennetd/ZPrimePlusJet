@@ -89,7 +89,6 @@ if __name__ == '__main__':
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
     gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
-    #gitClone = "git clone -b 2ndjet git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
     files = []
@@ -142,3 +141,10 @@ if __name__ == '__main__':
                 exec_me("rm %s/core*"%(outpath),dryRun)
         else:
             print "%s/%s jobs done, not hadd-ing"%(nOutput,maxJobs)
+            nMissJobs = range(0,maxJobs)
+            files = glob.glob("%s/hist_1DZbb_pt_scalesmear_*.root"%outpath)
+            for f in files:
+                jobN = int(f.split("/")[-1].replace(".root","").split("_")[-1])
+                if jobN in nMissJobs:
+                    nMissJobs.remove(int(jobN))
+            print "Missing jobs = ",nMissJobs
