@@ -206,7 +206,8 @@ def main(options,args,outputExists):
 
     else:
         ofile = ROOT.TFile.Open(odir+'/Plots_1000pb_weighted.root','read')
-        sigSamples = ['ggHbb', 'VBFHbb', 'VHbb', 'ttHbb', 'W', 'DY', 'TTbar', 'SingleTop', 'Diboson', 'QCD']    
+        #sigSamples = ['ggHbb', 'VBFHbb', 'VHbb', 'ttHbb', 'W', 'DY', 'TTbar', 'SingleTop', 'Diboson', 'QCD']    
+        sigSamples = ['ggHbb', 'VBFHbb', 'VHbb', 'ttHbb']
         for plot in plots:
             hs = {}
             for process in sigSamples:
