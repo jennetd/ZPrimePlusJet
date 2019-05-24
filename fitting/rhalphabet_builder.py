@@ -1068,6 +1068,10 @@ class RhalphabetBuilder():
                 hmatched_new_central.SetName(import_object.GetName())
                 hmatchedsys_shift[0].SetName(import_object.GetName() + "_scaleUp")
                 hmatchedsys_shift[1].SetName(import_object.GetName() + "_scaleDown")
+                print "Final shift mean central = ",hmatched_new_central.GetMean()
+                print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ',mass * mass_shift_unc
+                print "Final shift mean up max bin center= ",hmatchedsys_shift[0].GetBinCenter(hmatchedsys_shift[0].GetMaximumBin())
+
                 hmatchedsys_smear[0].SetName(import_object.GetName() + "_smearUp")
                 hmatchedsys_smear[1].SetName(import_object.GetName() + "_smearDown")
 
@@ -1170,6 +1174,7 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
             print 'qcd pass integral', qcd_pass.Integral()
             print 'qcd fail integral', qcd_fail.Integral()
         elif (fLoose is not None) and (bkg == 'wqq' or bkg == 'zqq'):
+            print "Trying to get ", bkg + '_pass'
             hpass_tmp = fLoose.Get(bkg + '_pass').Clone()
             hfail_tmp = f.Get(bkg + '_fail').Clone()
             hpass_tmp.Scale(1. / scale)
