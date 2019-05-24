@@ -155,8 +155,12 @@ if __name__ == "__main__":
     else:
         datacardWS1 = buildcards(cardsDir1,options.NR1, options.NP1,options)
         datacardWS2 = buildcards(cardsDir2,options.NR2, options.NP2,options)
-    p1 = int((options.NR1+1)*(options.NP1+1)) + 2 # paramaters including floating Hbb and Zbb signals
-    p2 = int((options.NR2+1)*(options.NP2+1)) + 2 # parameters including floating Hbb and Zbb signals
+
+    p_sig = 2
+    if 'r'  in options.freezeNuisances.split(","):   p_sig -=1
+    if 'r_z'in options.freezeNuisances.split(","):   p_sig -=1 
+    p1 = int((options.NR1+1)*(options.NP1+1)) + p_sig # paramaters including floating Hbb and Zbb signals
+    p2 = int((options.NR2+1)*(options.NP2+1)) + p_sig # parameters including floating Hbb and Zbb signals
     
 
     dataString = ''
