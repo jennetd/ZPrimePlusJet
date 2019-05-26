@@ -803,7 +803,8 @@ class sampleContainer:
                 if ptForNLO < 300.0:
                     vjetsKF = 1.0                      #weight at 300 = 0.97 
                 else:
-                    vjetsKF = self.h_ggh_num.GetBinContent( self.h_ggh_num.FindBin(ptForNLO))/self.h_ggh_den.GetBinContent( self.h_ggh_den.FindBin(ptForNLO))  
+                    #vjetsKF = self.h_ggh_num.GetBinContent( self.h_ggh_num.FindBin(ptForNLO))/self.h_ggh_den.GetBinContent( self.h_ggh_den.FindBin(ptForNLO))  
+                    vjetsKF =  1.0  
                 #print "sameple: %s , pT = %.3f, weight = %.3f"% (self._name, ptForNLO, vjetsKF)
 
 
