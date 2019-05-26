@@ -55,13 +55,16 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False
     out += 'export PATH=${PATH}:/cvmfs/cms.cern.ch/common\n'
     out += 'export CMS_PATH=/cvmfs/cms.cern.ch\n'
     out += 'export SCRAM_ARCH=slc6_amd64_gcc530\n'
-    out += 'scramv1 project CMSSW CMSSW_8_1_0\n'
+    out += 'tar -xf CMSSW_8_1_0.tar.gz\n'
     out += 'cd CMSSW_8_1_0/src\n'
+    out += 'scramv1 b ProjectRename\n'
     out += 'eval `scramv1 runtime -sh` # cmsenv\n'
-    if setUpCombine:
-        out += 'git clone -b v7.0.9 git://github.com/cms-analysis/HiggsAnalysis-CombinedLimit HiggsAnalysis/CombinedLimit\n'
-        #out += 'git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester\n'
-        out += 'scramv1 build \n'
+    #out += 'export CMSSW_BASE=${CWD}/CMSSW_8_1_0/\n'
+    #out += 'echo $CMSSW_BASE\n'
+    #if setUpCombine:
+    #    out += 'git clone -b v7.0.9 git://github.com/cms-analysis/HiggsAnalysis-CombinedLimit HiggsAnalysis/CombinedLimit\n'
+    #    #out += 'git clone https://github.com/cms-analysis/CombineHarvester.git CombineHarvester\n'
+    #    out += 'scramv1 build \n'
     out += gitClone + '\n'
     out += 'cd ZPrimePlusJet\n'
     out += 'source setup.sh\n'
@@ -129,6 +132,7 @@ if __name__ == '__main__':
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
     #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
     gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
+    #gitClone = "git clone -b PerBinEff git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
     files = [options.ifile]
@@ -173,6 +177,7 @@ if __name__ == '__main__':
     subToy2 = "toys2_*.root"
     toy1    = "toys1.root"
     toy2    = "toys2.root"
+    cmssw   = os.path.expandvars("$ZPRIMEPLUSJET_BASE/CMSSW_8_1_0.tar.gz")
 
     if not options.hadd:
         if not os.path.exists(outpath):
@@ -181,6 +186,7 @@ if __name__ == '__main__':
         print "submitting jobs from : ",os.getcwd()
     
         localfiles = [path.split("/")[-1] for path in files]    #Tell script to use the transferred files
+        localfiles.append(cmssw)
         arguments = [ str("$(Process)"),str(nToysPerJob)]
         for f in localfiles:
             arguments.append(str(f))
