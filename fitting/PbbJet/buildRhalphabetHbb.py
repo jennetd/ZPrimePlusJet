@@ -27,12 +27,19 @@ BLIND_HI = 131
 RHO_LO = -6
 RHO_HI = -2.1
 
+SF2018={
+            'm_data'    : 82.657,           'm_data_err': 0.313,
+            'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
+            's_data'    : 8.701,            's_data_err': 0.433,
+            's_mc'      : 8.027,            's_mc_err'  : 0.607,
+            'BB_SF'     : 0.9,              'BB_SF_ERR' : 0.06, #2017 prelim ddb SF
+            'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
+}
 SF2017={
             'm_data'    : 82.657,           'm_data_err': 0.313,
             'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
             's_data'    : 8.701,            's_data_err': 0.433,
             's_mc'      : 8.027,            's_mc_err'  : 0.607,
-            #'BB_SF'     : 0.72,             'BB_SF_ERR' : 0.06, #2017 double-b SF
             'BB_SF'     : 0.9,              'BB_SF_ERR' : 0.06, #2017 prelim ddb SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
 }
@@ -58,10 +65,9 @@ def main(options, args):
     fLoose = None
     if options.ifile_loose is not None:
         fLoose = r.TFile.Open(options.ifile_loose)
-    if options.is2017:
-        sf=SF2017
-    else:
-        sf=SF2016
+    if   options.year =='2018':      sf=SF2018
+    elif options.year =='2017':      sf=SF2017
+    elif options.year =='2016':      sf=SF2016
     #(hpass, hfail) = loadHistograms(f, options.pseudo, options.blind, options.useQCD, options.scale, options.r)
     (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf)
     #f.Close()
@@ -106,7 +112,7 @@ if __name__ == '__main__':
     parser.add_option('--prefit', action='store_true', dest='prefit', default =False,help='do prefit', metavar='prefit')
     parser.add_option('--addHptShape',action='store_true',dest='addHptShape',default =False,help='add H pt shape unc', metavar='addHptShape')
     parser.add_option('--loadfit', dest='loadfit', default=None, help='load qcd polynomial parameters from alternative rhalphabase.root',metavar='loadfit')
-    parser.add_option('--is2017', dest='is2017', action='store_true', default=False, help='specify 2017 SF and rename qcd eff.',metavar='is2017')
+    parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
 
     (options, args) = parser.parse_args()

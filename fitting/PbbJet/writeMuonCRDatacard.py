@@ -8,7 +8,7 @@ import time
 import array
 import os
 
-from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016
+from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016,SF2018
 from rhalphabet_builder import GetSF
 
 def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
@@ -19,18 +19,22 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     nSig = len(sigs)
     rootFileName = txtfileName.replace('.txt','.root')
 
-    if options.is2017:
-        BB_SF = SF2017['BB_SF'] 
+    if options.year=='2018':
+        BB_SF    =SF2018['BB_SF'] 
+        BB_SF_ERR=SF2018['BB_SF_ERR']
+        V_SF     =SF2018['V_SF']
+        V_SF_ERR =SF2018['V_SF_ERR']
+    elif options.year=='2017':
+        BB_SF    =SF2017['BB_SF'] 
         BB_SF_ERR=SF2017['BB_SF_ERR']
-        V_SF = SF2017['V_SF']
-        V_SF_ERR=SF2017['V_SF_ERR']
-        sf_dict = SF2017
-    else:
-        BB_SF = SF2016['BB_SF']
-        BB_SF_ERR=SF2016['BB_SF_ERR']
-        V_SF = SF2016['V_SF']
-        V_SF_ERR=SF2016['V_SF_ERR']
-        sf_dict = SF2016 
+        V_SF     =SF2017['V_SF']
+        V_SF_ERR =SF2017['V_SF_ERR']
+    elif options.year =='2016':
+        BB_SF     =SF2016['BB_SF']
+        BB_SF_ERR =SF2016['BB_SF_ERR']
+        V_SF      =SF2016['V_SF']
+        V_SF_ERR  =SF2016['V_SF_ERR']
+
 
     rates = {}
     lumiErrs = {}
@@ -218,18 +222,25 @@ def main(options, args):
     #bkgs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125','qcd','tqq','wqq','vvqq','stqq','wlnu','zll']
     systs = ['JER','JES','mutrigger','muid','muiso','Pu']
 
-    if options.is2017:
-        BB_SF = SF2017['BB_SF'] 
+    if options.year=='2018':
+        BB_SF    =SF2018['BB_SF'] 
+        BB_SF_ERR=SF2018['BB_SF_ERR']
+        V_SF     =SF2018['V_SF']
+        V_SF_ERR =SF2018['V_SF_ERR']
+        sf_dict = SF2018
+    elif options.year=='2017':
+        BB_SF    =SF2017['BB_SF'] 
         BB_SF_ERR=SF2017['BB_SF_ERR']
-        V_SF = SF2017['V_SF']
-        V_SF_ERR=SF2017['V_SF_ERR']
+        V_SF     =SF2017['V_SF']
+        V_SF_ERR =SF2017['V_SF_ERR']
         sf_dict = SF2017
-    else:
-        BB_SF = SF2016['BB_SF']
-        BB_SF_ERR=SF2016['BB_SF_ERR']
-        V_SF = SF2016['V_SF']
-        V_SF_ERR=SF2016['V_SF_ERR']
-        sf_dict = SF2016 
+    elif options.year =='2016':
+        BB_SF     =SF2016['BB_SF']
+        BB_SF_ERR =SF2016['BB_SF_ERR']
+        V_SF      =SF2016['V_SF']
+        V_SF_ERR  =SF2016['V_SF_ERR']
+        sf_dict = SF2016
+
 
     tfile = rt.TFile.Open(options.ifile,'read')
     
@@ -285,7 +296,7 @@ if __name__ == '__main__':
     parser.add_option('--lumi', dest='lumi', type=float, default = 20,help='lumi in 1/fb ', metavar='lumi')
     parser.add_option('-i','--ifile', dest='ifile', default = './',help='directory with data', metavar='ifile')
     parser.add_option('-o','--odir', dest='odir', default = './',help='directory to write cards', metavar='odir')
-    parser.add_option('--is2017', action='store_true', dest='is2017', default =False,help='use 2017 SF', metavar='is2017')
+    parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     
     (options, args) = parser.parse_args()
 
