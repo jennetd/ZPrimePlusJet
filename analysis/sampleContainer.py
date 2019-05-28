@@ -1045,9 +1045,8 @@ class sampleContainer:
                     dphi = abs(QGLRutil.deltaPhi(genVPhi , jphi_8))
                     dpt = math.fabs(genVPt - jpt_8) / genVPt
                     dmass = math.fabs(genVMass - jmsd_8) / genVMass
-                if jpt_8> PTCUT:
-                    self.h_fBosonPt_fbweight.Fill(self.genVPt[0], fbweight) 
-                    self.h_fBosonPt_weight.Fill(self.genVPt[0], weight) 
+                self.h_fBosonPt_fbweight.Fill(self.genVPt[0], fbweight) 
+                self.h_fBosonPt_weight.Fill(self.genVPt[0], fbweight*vjetsKF) 
             #Find non-matched AK4 jets
             QuarkJets = []
             OppHemAK4_dcsvb=[]
