@@ -34,7 +34,12 @@ def main(options,args):
         BB_SF_ERR =SF2016['BB_SF_ERR']
         V_SF      =SF2016['V_SF']
         V_SF_ERR  =SF2016['V_SF_ERR']
-    
+  
+    print "using BB_SF    ", BB_SF    
+    print "using BB_SF_ERR", BB_SF_ERR
+    print "using V_SF     ", V_SF     
+    print "using V_SF_ERR ", V_SF_ERR  
+     
 
     tfile = r.TFile.Open(options.ifile)
     tfile_loose = None

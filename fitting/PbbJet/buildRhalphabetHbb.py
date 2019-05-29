@@ -32,7 +32,7 @@ SF2018={
             'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
             's_data'    : 8.701,            's_data_err': 0.433,
             's_mc'      : 8.027,            's_mc_err'  : 0.607,
-            'BB_SF'     : 0.9,              'BB_SF_ERR' : 0.06, #2017 prelim ddb SF
+            'BB_SF'     : 0.7,              'BB_SF_ERR' : 0.065, #2018 prelim ddb SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
 }
 SF2017={
@@ -40,7 +40,7 @@ SF2017={
             'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
             's_data'    : 8.701,            's_data_err': 0.433,
             's_mc'      : 8.027,            's_mc_err'  : 0.607,
-            'BB_SF'     : 0.9,              'BB_SF_ERR' : 0.06, #2017 prelim ddb SF
+            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06 , #2017 prelim ddb SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
 }
 SF2016={
@@ -48,10 +48,13 @@ SF2016={
             'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
             's_data'    : 8.701,            's_data_err': 0.433,
             's_mc'      : 8.027,            's_mc_err'  : 0.607,
-            'BB_SF'     : 0.91,             'BB_SF_ERR' : 0.03,
+            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.2,
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
         }
 
+#2016  T2pt350to2000, WPcut=0.92, SF= 0.68  +0.20/-0.10
+#2017  M2pt350to2000, WPcut=0.89, SF= 0.68  +0.05/-0.07
+#2018  M2pt350to2000, WPcut=0.89, SF= 0.70  +0.07/-0.06
 def main(options, args):
     ifile = options.ifile
     odir = options.odir
