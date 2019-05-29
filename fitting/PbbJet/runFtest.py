@@ -37,7 +37,8 @@ def buildcards(odir,nr,np, options):
     blind = options.blind
     iloose= options.ifile_loose
     muonCR= options.ifile_muon
-    is2017= options.is2017
+    #is2017= options.is2017
+    year   = options.year
     dryRun= options.dryRun
     
     ifileName = ifile.split("/")[-1]
@@ -72,11 +73,18 @@ def buildcards(odir,nr,np, options):
     if blind:
         rhalph_base += " --blind "
         makecard_base +=" --blind "
-    if is2017:
-        rhalph_base += " --is2017 "
-        makecard_base +=" --is2017 "
+    #if is2017:
+    #    rhalph_base += " --is2017 "
+    #    makecard_base +=" --is2017 "
+    #    if muonCR:
+    #        makemuonCR_base+=" --is2017 "
+    if year:
+        rhalph_base   +=" --year %s "%year
+        makecard_base +=" --year %s "%year
         if muonCR:
-            makemuonCR_base+=" --is2017 "
+            makemuonCR_base +=" --year %s "%year
+            makemuonCR_cp   +=" --year %s "%year
+
 
     wsRoot = combcard_all.replace(".txt","_floatZ.root")       
     t2ws_rz += " %s -o %s"%(combcard_all, wsRoot)
@@ -117,7 +125,8 @@ if __name__ == "__main__":
     parser.add_option('-n','--n' ,action='store',type='int',dest='n'   ,default=5*20, help='number of bins')
     parser.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='run on asimov dataset')
-    parser.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF')
+    #parser.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF')
+    parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--blind', action='store_true', dest='blind', default=False, help='run on blinded dataset')
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     parser.add_option('--dryRun',dest="dryRun",default=False,action='store_true',
