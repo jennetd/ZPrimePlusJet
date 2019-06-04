@@ -1014,20 +1014,29 @@ class RhalphabetBuilder():
                 # mass_shift_unc = 0.03*2. #(2 sigma shift)
                 # res_shift = 1.094
                 # res_shift_unc = 0.123*2. #(2 sigma shift)
-                m_data     =self._sf_dict['m_data']    # 82.657
-                m_data_err =self._sf_dict['m_data_err']# 0.313
-                m_mc       =self._sf_dict['m_mc']      # 82.548
-                m_mc_err   =self._sf_dict['m_mc_err']  # 0.191
-                s_data     =self._sf_dict['s_data']    # 8.701
-                s_data_err =self._sf_dict['s_data_err']# 0.433
-                s_mc       =self._sf_dict['s_mc']      # 8.027
-                s_mc_err   =self._sf_dict['s_mc_err']  # 0.607
-                mass_shift = m_data / m_mc
-                mass_shift_unc = math.sqrt((m_data_err / m_data) * (m_data_err / m_data) + (m_mc_err / m_mc) * (
-                    m_mc_err / m_mc)) * 10.  # (10 sigma shift)
-                res_shift = s_data / s_mc
-                res_shift_unc = math.sqrt((s_data_err / s_data) * (s_data_err / s_data) + (s_mc_err / s_mc) * (
-                    s_mc_err / s_mc)) * 2.  # (2 sigma shift)
+                if 'shift_SF' in self._sf_dict.keys():
+                    mass_shift     = self._sf_dict['shift_SF']
+                    mass_shift_unc = self._sf_dict['shift_SF_ERR'] * 10  # (10 sigma shift)
+                else:
+                    m_data     =self._sf_dict['m_data']    # 82.657
+                    m_data_err =self._sf_dict['m_data_err']# 0.313
+                    m_mc       =self._sf_dict['m_mc']      # 82.548
+                    m_mc_err   =self._sf_dict['m_mc_err']  # 0.191
+                    mass_shift = m_data / m_mc
+                    mass_shift_unc = math.sqrt((m_data_err / m_data) * (m_data_err / m_data) + (m_mc_err / m_mc) * (
+                        m_mc_err / m_mc)) * 10.  # (10 sigma shift)
+                if 'smear_SF' in self._sf_dict.keys():
+                    res_shift     = self._sf_dict['shift_SF']
+                    res_shift_unc = self._sf_dict['shift_SF_ERR']  *2     # (2 sigma shift)
+                else:
+                    s_data     =self._sf_dict['s_data']    # 8.701
+                    s_data_err =self._sf_dict['s_data_err']# 0.433
+                    s_mc       =self._sf_dict['s_mc']      # 8.027
+                    s_mc_err   =self._sf_dict['s_mc_err']  # 0.607
+                    res_shift = s_data / s_mc
+                    res_shift_unc = math.sqrt((s_data_err / s_data) * (s_data_err / s_data) + (s_mc_err / s_mc) * (
+                        s_mc_err / s_mc)) * 2.  # (2 sigma shift)
+
                 # get new central value
                 shift_val = mass - mass * mass_shift
                 tmp_shifted_h = hist_container.shift(tmph_mass_matched, shift_val)

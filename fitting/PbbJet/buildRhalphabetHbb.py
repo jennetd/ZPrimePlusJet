@@ -30,21 +30,23 @@ RHO_HI = -2.1
 SF2018={
             'shift_SF'  : 0.845,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
             'smear_SF'  : 0.952,            'smear_SF_ERR' : 0.0495  , # prelim SF @26% N2ddt 
-            'V_SF'      : 0.845,            'V_SF_ERR'     : 0.031,   , # prelim SF @26% N2ddt
+            'V_SF'      : 0.845,            'V_SF_ERR'     : 0.031   , # prelim SF @26% N2ddt
             'BB_SF'     : 0.7,              'BB_SF_ERR' : 0.065,      #2018 prelim ddb SF
 }
 SF2017={
             'shift_SF'  : 0.967,            'shift_SF_ERR' : 0.003   , # prelim SF @26% N2ddt 
             'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049    , # prelim SF @26% N2ddt 
-            'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02,   , # prelim SF @26% N2ddt
-            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
+            'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02   , # prelim SF @26% N2ddt
+            #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
+            'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.06        , # prelim ddb SF
 }
 SF2016={
             'm_data'    : 82.657,           'm_data_err': 0.313,
             'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
             's_data'    : 8.701,            's_data_err': 0.433,
             's_mc'      : 8.027,            's_mc_err'  : 0.607,
-            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.15,
+            #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.15,     ## T2 SF
+            'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
         }
 
