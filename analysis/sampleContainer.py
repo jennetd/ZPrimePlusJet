@@ -783,7 +783,8 @@ class sampleContainer:
                 ptKF=1.
                 for i in range(0, len(ptscale)):
                     if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
-                vjetsKF = W_SF*iEWKKF*ptKF;
+                #vjetsKF = W_SF*iEWKKF*ptKF;
+                vjetsKF = W_SF*iEWKKF;          # Try applying flat QCD kfactor
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'WJetsToQQ_' in self._name:
                 ptForNLO = max(250., min(self.genVPt[0], 1200.))
@@ -1044,9 +1045,8 @@ class sampleContainer:
                     dphi = abs(QGLRutil.deltaPhi(genVPhi , jphi_8))
                     dpt = math.fabs(genVPt - jpt_8) / genVPt
                     dmass = math.fabs(genVMass - jmsd_8) / genVMass
-                if jpt_8> PTCUT:
-                    self.h_fBosonPt_fbweight.Fill(self.genVPt[0], fbweight) 
-                    self.h_fBosonPt_weight.Fill(self.genVPt[0], weight) 
+                self.h_fBosonPt_fbweight.Fill(self.genVPt[0], fbweight) 
+                self.h_fBosonPt_weight.Fill(self.genVPt[0], fbweight*vjetsKF) 
             #Find non-matched AK4 jets
             QuarkJets = []
             OppHemAK4_dcsvb=[]

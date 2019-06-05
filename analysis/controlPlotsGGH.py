@@ -221,7 +221,7 @@ def get2016legacyfiles():
                              #'ZZ_13TeV_pythia8':[idir_1503skim+'ZZ_13TeV_pythia8*.root']  #missing
                             },
               'DY':         {
-                            'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1503skim + '/DYJetsToQQ_HT180_13TeV_*.root'],
+                            'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1503skim + '/oldDYJets/DYJetsToQQ_HT180_13TeV_*.root'],
                             },
               'DYll':       {
                              'DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8'  :[idir_1503skim+'/DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8*.root'] , 
@@ -236,7 +236,7 @@ def get2016legacyfiles():
                              'ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1'              :[idir_1503skim+'ST_tW_top_5f_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M2T4*.root'              ],             
                             },
               'W'         : {
-                              'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8': [idir_1503skim + 'WJetsToQQ_HT180_13TeV_*.root'],
+                              'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8': [idir_1503skim + '/oldWJets/WJetsToQQ_HT180_13TeV_*.root'],
                             },
               'Wlnu':       {
                                "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"   :[ idir_1503skim+'WJetsToLNu_HT_100To200_*.root'],
@@ -259,20 +259,20 @@ def get2016legacyfiles():
                              'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503skim+'/QCD_HT2000toInf_*.root' ]
                             },
               'data': [
-                            idir_1503skim + 'JetHTRun2016B_07Aug17_v*_ddb8X*.root',
-                            idir_1503skim + 'JetHTRun2016C_07Aug17_v*_ddb8X*.root',
-                            idir_1503skim + 'JetHTRun2016D_07Aug17_v*_ddb8X*.root',
-                            idir_1503skim + 'JetHTRun2016E_07Aug17_v*_ddb8X*.root',
-                            idir_1503skim + 'JetHTRun2016F_07Aug17_v*_ddb8X*.root',
-                            idir_1503skim + 'JetHTRun2016G_07Aug17_v*_ddb8X*.root',
+                            idir_1503skim + 'JetHTRun2016B_07Aug17_v*_withPF*.root',
+                            idir_1503skim + 'JetHTRun2016C_07Aug17_v*_withPF*.root',
+                            idir_1503skim + 'JetHTRun2016D_07Aug17_v*_withPF*.root',
+                            idir_1503skim + 'JetHTRun2016E_07Aug17_v*_withPF*.root',
+                            idir_1503skim + 'JetHTRun2016F_07Aug17_v*_withPF*.root',
+                            idir_1503skim + 'JetHTRun2016G_07Aug17_v*_withPF*.root',
                       ],
               'muon': [
-                       idir_1503skim+'/SingleMuonRun2016B_07Aug17_v*_ddb8X_*.root',
-                       idir_1503skim+'/SingleMuonRun2016C_07Aug17_v*_ddb8X_*.root',
-                       idir_1503skim+'/SingleMuonRun2016D_07Aug17_v*_ddb8X_*.root',
-                       idir_1503skim+'/SingleMuonRun2016E_07Aug17_v*_ddb8X_*.root',
-                       idir_1503skim+'/SingleMuonRun2016F_07Aug17_v*_ddb8X_*.root',
-                       idir_1503skim+'/SingleMuonRun2016G_07Aug17_v*_ddb8X_*.root',
+                       idir_1503skim+'/SingleMuonRun2016B_07Aug17_v*.root',
+                       idir_1503skim+'/SingleMuonRun2016C_07Aug17_v*.root',
+                       idir_1503skim+'/SingleMuonRun2016D_07Aug17_v*.root',
+                       idir_1503skim+'/SingleMuonRun2016E_07Aug17_v*.root',
+                       idir_1503skim+'/SingleMuonRun2016F_07Aug17_v*.root',
+                       idir_1503skim+'/SingleMuonRun2016G_07Aug17_v*.root',
                     ]
             }
     return tfiles

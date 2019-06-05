@@ -14,21 +14,35 @@ import array
 sys.path.insert(0, '../.')
 from tools import *
 
-from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016,MASS_HIST_HI,MASS_HIST_LO
+from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2018,SF2017,SF2016,MASS_HIST_HI,MASS_HIST_LO
 
 ##-------------------------------------------------------------------------------------
 def main(options,args):
 	
-    if options.is2017:
-        BB_SF = SF2017['BB_SF'] 
+    if options.year=='2018':
+        SF       =SF2018
+        BB_SF    =SF2018['BB_SF'] 
+        BB_SF_ERR=SF2018['BB_SF_ERR']
+        V_SF     =SF2018['V_SF']
+        V_SF_ERR =SF2018['V_SF_ERR']
+    elif options.year=='2017':
+        SF       =SF2017
+        BB_SF    =SF2017['BB_SF'] 
         BB_SF_ERR=SF2017['BB_SF_ERR']
-        V_SF = SF2017['V_SF']
-        V_SF_ERR=SF2017['V_SF_ERR']
-    else:
-        BB_SF = SF2016['BB_SF']
-        BB_SF_ERR=SF2016['BB_SF_ERR']
-        V_SF = SF2016['V_SF']
-        V_SF_ERR=SF2016['V_SF_ERR']
+        V_SF     =SF2017['V_SF']
+        V_SF_ERR =SF2017['V_SF_ERR']
+    elif options.year =='2016':
+        SF       =SF2016
+        BB_SF     =SF2016['BB_SF']
+        BB_SF_ERR =SF2016['BB_SF_ERR']
+        V_SF      =SF2016['V_SF']
+        V_SF_ERR  =SF2016['V_SF_ERR']
+  
+    print "using BB_SF    ", BB_SF    
+    print "using BB_SF_ERR", BB_SF_ERR
+    print "using V_SF     ", V_SF     
+    print "using V_SF_ERR ", V_SF_ERR  
+     
 
     tfile = r.TFile.Open(options.ifile)
     tfile_loose = None
@@ -96,6 +110,7 @@ def main(options,args):
         bbErrs = {}
         vErrs = {}
         mcstatErrs = {}
+        scaleErrs = {}
         scaleptErrs = {}
         for box in boxes:
             for proc in (sigs+bkgs):
@@ -126,6 +141,21 @@ def main(options,args):
                     scaleptErrs['%s_%s'%(proc,box)] =  0.3
                 elif i == 6:
                     scaleptErrs['%s_%s'%(proc,box)] =  0.4
+               
+                if proc == 'wqq':
+                    mass = 80.
+                elif proc == 'zqq':
+                    mass = 91.
+                elif 'hqq' in proc:
+                    mass = float(proc[-3:])  # hqq125 -> 125 
+                
+                # Assume template is shifted by 1 bin, require:
+                # 7 GeV (1binshift) * scaleErr = (scaleSigma); 
+                #          scaleSigma = mass * massShift * massShiftUnc
+                #    ==>   scaleErr   = scaleSigma/7GeV
+                scaleSigma                    = mass * SF['shift_SF'] *  SF['shift_SF_ERR']
+                scaleErrs['%s_%s'%(proc,box)] =  scaleSigma/7.0
+                print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
                 
                 vErrs['%s_%s'%(proc,box)] = 1.0+V_SF_ERR/V_SF
                 if box=='pass':
@@ -168,6 +198,7 @@ def main(options,args):
         bbString = 'bbeff lnN'
         vString = 'veff lnN'
         scaleptString = 'scalept shape'
+        scaleString   = 'scale shape'
         mcStatStrings = {}
         mcStatGroupString = 'mcstat group ='
         mcstatsuffix  = options.suffix.lower().strip("_")
@@ -192,9 +223,11 @@ def main(options,args):
                     jerString += ' %.3f'%jerErrs['%s_%s'%(proc,box)]
                     puString += ' %.3f'%puErrs['%s_%s'%(proc,box)]                        
                 if proc in ['qcd','tqq']:
+                    scaleString += ' -'
                     if i > 1:
                         scaleptString += ' -'
                 else:
+                    scaleString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
                     if i > 1:
                         scaleptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
                 if proc in ['qcd','tqq','wqq']:
@@ -231,6 +264,8 @@ def main(options,args):
                 newline = vString
             elif 'scalept' in l and i>1:
                 newline = scaleptString
+            elif 'scale' in l and not 'scalept' in l:
+                newline = scaleString
             elif 'TQQEFF' in l:
                 tqqeff = histoDict['tqq_pass'].Integral() / (
                 histoDict['tqq_pass'].Integral() + histoDict['tqq_fail'].Integral())
@@ -355,7 +390,7 @@ if __name__ == '__main__':
     parser.add_option('-o','--odir', dest='odir', default = 'cards/',help='directory to write cards', metavar='odir')
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default =False,help='signal comparison', metavar='isData')
     parser.add_option('--blind', action='store_true', dest='blind', default =False,help='blind signal region', metavar='blind')
-    parser.add_option('--is2017', action='store_true', dest='is2017', default =False,help='use 2017 SF', metavar='is2017')
+    parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
