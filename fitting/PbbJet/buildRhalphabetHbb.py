@@ -37,8 +37,8 @@ SF2017={
             'shift_SF'  : 0.967,            'shift_SF_ERR' : 0.003   , # prelim SF @26% N2ddt 
             'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049    , # prelim SF @26% N2ddt 
             'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02   , # prelim SF @26% N2ddt
-            #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
-            'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.06        , # prelim ddb SF
+            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
+            #'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.06        , # prelim ddb SF
 }
 SF2016={
             'm_data'    : 82.657,           'm_data_err': 0.313,
@@ -48,6 +48,8 @@ SF2016={
             #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.15,     ## T2 SF
             'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
+            'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # m_data/m_mc, sqrt((m_data_err/m_data)**2+(m_mc_err/m_mc)**2)
+            'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , # s_data/s_mc, sqrt((s_data_err/s_data)**2+(s_mc_err/s_mc)**2)
         }
 
 #2016  T2pt350to2000, WPcut=0.92, SF= 0.68  +0.20/-0.10

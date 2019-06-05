@@ -1026,8 +1026,8 @@ class RhalphabetBuilder():
                     mass_shift_unc = math.sqrt((m_data_err / m_data) * (m_data_err / m_data) + (m_mc_err / m_mc) * (
                         m_mc_err / m_mc)) * 10.  # (10 sigma shift)
                 if 'smear_SF' in self._sf_dict.keys():
-                    res_shift     = self._sf_dict['shift_SF']
-                    res_shift_unc = self._sf_dict['shift_SF_ERR']  *2     # (2 sigma shift)
+                    res_shift     = self._sf_dict['smear_SF']
+                    res_shift_unc = self._sf_dict['smear_SF_ERR']  *4     # (2 sigma shift)
                 else:
                     s_data     =self._sf_dict['s_data']    # 8.701
                     s_data_err =self._sf_dict['s_data_err']# 0.433
@@ -1035,8 +1035,9 @@ class RhalphabetBuilder():
                     s_mc_err   =self._sf_dict['s_mc_err']  # 0.607
                     res_shift = s_data / s_mc
                     res_shift_unc = math.sqrt((s_data_err / s_data) * (s_data_err / s_data) + (s_mc_err / s_mc) * (
-                        s_mc_err / s_mc)) * 2.  # (2 sigma shift)
+                        s_mc_err / s_mc)) * 4.  # (2 sigma shift)
 
+                    
                 # get new central value
                 shift_val = mass - mass * mass_shift
                 tmp_shifted_h = hist_container.shift(tmph_mass_matched, shift_val)
@@ -1062,8 +1063,9 @@ class RhalphabetBuilder():
                     # sys.exit()
 
                 # get shift up/down
-                shift_unc = mass * mass_shift * mass_shift_unc
-                hmatchedsys_shift = hist_container.shift(hmatched_new_central, mass * mass_shift_unc)
+                # shift by half the bin width, to make a 1 bin-shift template
+                shift_unc = 3.55
+                hmatchedsys_shift = hist_container.shift(hmatched_new_central, shift_unc)
                 # get res up/down
                 hmatchedsys_smear = hist_container.smear(hmatched_new_central, res_shift_unc)
 
@@ -1078,11 +1080,15 @@ class RhalphabetBuilder():
                 hmatchedsys_shift[0].SetName(import_object.GetName() + "_scaleUp")
                 hmatchedsys_shift[1].SetName(import_object.GetName() + "_scaleDown")
                 print "Final shift mean central = ",hmatched_new_central.GetMean()
-                print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ',mass * mass_shift_unc
+                print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ', shift_unc
                 print "Final shift mean up max bin center= ",hmatchedsys_shift[0].GetBinCenter(hmatchedsys_shift[0].GetMaximumBin())
+                print "Final smear mean up= ",hmatchedsys_smear[0].GetMean(),' smeared by ', res_shift_unc
+                print "Final smear mean up max bin center= ",hmatchedsys_smear[0].GetBinCenter(hmatchedsys_smear[0].GetMaximumBin())
 
                 hmatchedsys_smear[0].SetName(import_object.GetName() + "_smearUp")
                 hmatchedsys_smear[1].SetName(import_object.GetName() + "_smearDown")
+
+
 
                 hout = [hmatched_new_central, hmatchedsys_shift[0], hmatchedsys_shift[1], hmatchedsys_smear[0],
                         hmatchedsys_smear[1]]

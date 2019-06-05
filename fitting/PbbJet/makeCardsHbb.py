@@ -20,16 +20,19 @@ from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_L
 def main(options,args):
 	
     if options.year=='2018':
+        SF       =SF2018
         BB_SF    =SF2018['BB_SF'] 
         BB_SF_ERR=SF2018['BB_SF_ERR']
         V_SF     =SF2018['V_SF']
         V_SF_ERR =SF2018['V_SF_ERR']
     elif options.year=='2017':
+        SF       =SF2017
         BB_SF    =SF2017['BB_SF'] 
         BB_SF_ERR=SF2017['BB_SF_ERR']
         V_SF     =SF2017['V_SF']
         V_SF_ERR =SF2017['V_SF_ERR']
     elif options.year =='2016':
+        SF       =SF2016
         BB_SF     =SF2016['BB_SF']
         BB_SF_ERR =SF2016['BB_SF_ERR']
         V_SF      =SF2016['V_SF']
@@ -107,6 +110,7 @@ def main(options,args):
         bbErrs = {}
         vErrs = {}
         mcstatErrs = {}
+        scaleErrs = {}
         scaleptErrs = {}
         for box in boxes:
             for proc in (sigs+bkgs):
@@ -137,6 +141,21 @@ def main(options,args):
                     scaleptErrs['%s_%s'%(proc,box)] =  0.3
                 elif i == 6:
                     scaleptErrs['%s_%s'%(proc,box)] =  0.4
+               
+                if proc == 'wqq':
+                    mass = 80.
+                elif proc == 'zqq':
+                    mass = 91.
+                elif 'hqq' in proc:
+                    mass = float(proc[-3:])  # hqq125 -> 125 
+                
+                # Assume template is shifted by 1 bin, require:
+                # 7 GeV (1binshift) * scaleErr = (scaleSigma); 
+                #          scaleSigma = mass * massShift * massShiftUnc
+                #    ==>   scaleErr   = scaleSigma/7GeV
+                scaleSigma                    = mass * SF['shift_SF'] *  SF['shift_SF_ERR']
+                scaleErrs['%s_%s'%(proc,box)] =  scaleSigma/7.0
+                print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
                 
                 vErrs['%s_%s'%(proc,box)] = 1.0+V_SF_ERR/V_SF
                 if box=='pass':
@@ -179,6 +198,7 @@ def main(options,args):
         bbString = 'bbeff lnN'
         vString = 'veff lnN'
         scaleptString = 'scalept shape'
+        scaleString   = 'scale shape'
         mcStatStrings = {}
         mcStatGroupString = 'mcstat group ='
         mcstatsuffix  = options.suffix.lower().strip("_")
@@ -203,9 +223,11 @@ def main(options,args):
                     jerString += ' %.3f'%jerErrs['%s_%s'%(proc,box)]
                     puString += ' %.3f'%puErrs['%s_%s'%(proc,box)]                        
                 if proc in ['qcd','tqq']:
+                    scaleString += ' -'
                     if i > 1:
                         scaleptString += ' -'
                 else:
+                    scaleString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
                     if i > 1:
                         scaleptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
                 if proc in ['qcd','tqq','wqq']:
@@ -242,6 +264,8 @@ def main(options,args):
                 newline = vString
             elif 'scalept' in l and i>1:
                 newline = scaleptString
+            elif 'scale' in l and not 'scalept' in l:
+                newline = scaleString
             elif 'TQQEFF' in l:
                 tqqeff = histoDict['tqq_pass'].Integral() / (
                 histoDict['tqq_pass'].Integral() + histoDict['tqq_fail'].Integral())

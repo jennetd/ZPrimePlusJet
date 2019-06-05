@@ -29,8 +29,6 @@ znormQ lnN - - - - - 1.1 1.1 - - - - - - - 1.1 1.1 - -
 #wnormQ lnN - - - - - - 1.1 - - - - - - - - 1.1 - -
 znormEW lnN - - - - - 1.15 1.15 - - - - - - - 1.15 1.15 - -
 wznormEW lnN - - - - - - 1.05 - - - - - - - - 1.05 - -
-#CMS_scale_j lnN 1 1 1 1 1 1 1 - 1 1 1 1 1 1 1 1 - 1
-#CMS_res_j lnN 1 1 1 1 1 1 1 - 1 1 1 1 1 1 1 1 - 1
 JER lnN 1 1 1 1 1 1 1 - 1 1 1 1 1 1 1 1 - 1
 JES lnN 1 1 1 1 1 1 1 - 1 1 1 1 1 1 1 1 - 1
 Pu lnN 1 1 1 1 1 1 1 - 1 1 1 1 1 1 1 1 - 1
@@ -40,7 +38,7 @@ muveto lnN 1.005 1.005 1.005 1.005 1.005 1.005 1.005 - 1.005 1.005 1.005 1.005 1
 eleveto lnN 1.005 1.005 1.005 1.005 1.005 1.005 1.005 - 1.005 1.005 1.005 1.005 1.005 1.005 1.005 1.005 - 1.005
 scale shape 0.1 0.1 0.1 0.1 0.1 0.1 0.1 - - 0.1 0.1 0.1 0.1 0.1 0.1 0.1 - -
 #scalept shape 0.1 0.1 0.1 0.1 0.1 0.1 0.1 - - 0.1 0.1 0.1 0.1 0.1 0.1 0.1 - -
-smear shape 0.5 0.5 0.5 0.5 0.5 0.5 0.5 - - 0.5 0.5 0.5 0.5 0.5 0.5 0.5 - -
+smear shape 0.25 0.25 0.25 0.25 0.25 0.25 0.25 - - 0.25 0.25 0.25 0.25 0.25 0.25 0.25 - -
 tqqpassCATXnorm rateParam pass_CATX tqq (@0*@1) tqqnormSF,tqqeffSF
 tqqfailCATXnorm rateParam fail_CATX tqq (@0*(1.0-@1*TQQEFF)/(1.0-TQQEFF)) tqqnormSF,tqqeffSF
 #tqqfailCATXnorm rateParam fail_CATX tqq (@0*(1.0-@1*5.523909e-02)/(1.0-5.523909e-02)) tqqnormSF,tqqeffSF
