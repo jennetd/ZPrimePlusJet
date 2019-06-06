@@ -1039,7 +1039,8 @@ class RhalphabetBuilder():
 
                     
                 # get new central value
-                shift_val = mass - mass * mass_shift
+                shift_val = mass * (mass_shift-1)
+
                 tmp_shifted_h = hist_container.shift(tmph_mass_matched, shift_val)
                 # get new central value and new smeared value
                 smear_val = res_shift - 1
@@ -1049,17 +1050,19 @@ class RhalphabetBuilder():
 
                 if re.match('zqq', tmph_mass_matched.GetName()):
                     print tmph_mass_matched.GetName()
-                    print mass_shift
-                    print mass_shift_unc
-                    print shift_val
-                    print "before shift", tmph_mass_matched.Integral()
-                    print "after shift", tmp_shifted_h[0].Integral()
+                    print "mass_shift", mass_shift
+                    print "mass_shift_unc", mass_shift_unc
+                    print "shift_val", shift_val
+                    print "before shift integral", tmph_mass_matched.Integral()
+                    print "after shift integral", tmp_shifted_h[0].Integral()
+                    print "before shift mean", tmph_mass_matched.GetMean()
+                    print "after shift mean", tmp_shifted_h[0].GetMean()
 
-                    print res_shift
-                    print res_shift_unc
-                    print smear_val
-                    print "before smear", tmph_mass_matched.Integral()
-                    print "after smear", hmatched_new_central.Integral()
+                    print "res_shift", res_shift
+                    print "res_shift_unc", res_shift_unc
+                    print "smear_val", smear_val
+                    print "before smear integral", tmph_mass_matched.Integral()
+                    print "after smear integral", hmatched_new_central.Integral()
                     # sys.exit()
 
                 # get shift up/down
@@ -1079,6 +1082,7 @@ class RhalphabetBuilder():
                 hmatched_new_central.SetName(import_object.GetName())
                 hmatchedsys_shift[0].SetName(import_object.GetName() + "_scaleUp")
                 hmatchedsys_shift[1].SetName(import_object.GetName() + "_scaleDown")
+                print "Inital mean central = ",tmph_mass_matched.GetMean()
                 print "Final shift mean central = ",hmatched_new_central.GetMean()
                 print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ', shift_unc
                 print "Final shift mean up max bin center= ",hmatchedsys_shift[0].GetBinCenter(hmatchedsys_shift[0].GetMaximumBin())
