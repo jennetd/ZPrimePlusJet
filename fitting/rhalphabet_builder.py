@@ -952,10 +952,8 @@ class RhalphabetBuilder():
                         tmph_down = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Down').Clone()
                         tmph_up.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                         tmph_down.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
-                        tmph_mass_up = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo,
-                                                  self._mass_hi)
-                        tmph_mass_down = tools.proj('cat', str(iPt), tmph_down, self._mass_nbins, self._mass_lo,
-                                                    self._mass_hi)
+                        tmph_mass_up = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo,self._mass_hi)
+                        tmph_mass_down = tools.proj('cat', str(iPt), tmph_down, self._mass_nbins, self._mass_lo,self._mass_hi)
                         tmph_mass_up.SetName(import_object.GetName() + '_' + syst + 'Up')
                         tmph_mass_down.SetName(import_object.GetName() + '_' + syst + 'Down')
                         hout.append(tmph_mass_up)
@@ -1003,10 +1001,9 @@ class RhalphabetBuilder():
                     tmph_unmatched = self._inputfile.Get(process + '_' + cat + '_unmatched').Clone()
                     tmph_matched.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                     tmph_unmatched.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
-                tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins, self._mass_lo,
-                                               self._mass_hi)
-                tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins, self._mass_lo,
-                                                 self._mass_hi)
+                ### Proj to 1GeV bin width
+                tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
+                tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
 
                 # smear/shift the matched
                 hist_container = hist([mass], [tmph_mass_matched])
@@ -1067,7 +1064,8 @@ class RhalphabetBuilder():
 
                 # get shift up/down
                 # shift by half the bin width, to make a 1 bin-shift template
-                shift_unc = 3.55
+                #shift_unc = 3.55
+                shift_unc  = mass * mass_shift * mass_shift_unc
                 hmatchedsys_shift = hist_container.shift(hmatched_new_central, shift_unc)
                 # get res up/down
                 hmatchedsys_smear = hist_container.smear(hmatched_new_central, res_shift_unc)
@@ -1083,8 +1081,9 @@ class RhalphabetBuilder():
                 hmatchedsys_shift[0].SetName(import_object.GetName() + "_scaleUp")
                 hmatchedsys_shift[1].SetName(import_object.GetName() + "_scaleDown")
                 print "Inital mean central = ",tmph_mass_matched.GetMean()
-                print "Final shift mean central = ",hmatched_new_central.GetMean()
+                print "Final shift mean central = ",hmatched_new_central.GetMean(),' shifted by ',shift_val
                 print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ', shift_unc
+                print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' mean diff = %.3f '% (hmatchedsys_shift[0].GetMean()-hmatched_new_central.GetMean())
                 print "Final shift mean up max bin center= ",hmatchedsys_shift[0].GetBinCenter(hmatchedsys_shift[0].GetMaximumBin())
                 print "Final smear mean up= ",hmatchedsys_smear[0].GetMean(),' smeared by ', res_shift_unc
                 print "Final smear mean up max bin center= ",hmatchedsys_smear[0].GetBinCenter(hmatchedsys_smear[0].GetMaximumBin())
@@ -1115,6 +1114,8 @@ class RhalphabetBuilder():
                         # getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
                     # validation
                     self._outfile_validation.cd()
+                    ### Rebin to 7 GeV bin width
+                    h.Rebin(7)
                     h.Write()
             else:
                 print "Importing {}".format(import_object.GetName())
