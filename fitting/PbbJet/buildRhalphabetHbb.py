@@ -28,7 +28,7 @@ RHO_LO = -6
 RHO_HI = -2.1
 
 SF2018={
-            'shift_SF'  : 0.845,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
+            'shift_SF'  : 0.952,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
             'smear_SF'  : 0.952,            'smear_SF_ERR' : 0.0495  , # prelim SF @26% N2ddt 
             'V_SF'      : 0.845,            'V_SF_ERR'     : 0.031   , # prelim SF @26% N2ddt
             'BB_SF'     : 0.7,              'BB_SF_ERR' : 0.065,      #2018 prelim ddb SF
@@ -45,8 +45,8 @@ SF2016={
             'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
             's_data'    : 8.701,            's_data_err': 0.433,
             's_mc'      : 8.027,            's_mc_err'  : 0.607,
-            #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.15,     ## T2 SF
-            'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
+            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.15,     ## T2 SF
+            #'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
             'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # m_data/m_mc, sqrt((m_data_err/m_data)**2+(m_mc_err/m_mc)**2)
             'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , # s_data/s_mc, sqrt((s_data_err/s_data)**2+(s_mc_err/s_mc)**2)

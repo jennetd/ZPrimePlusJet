@@ -948,12 +948,20 @@ class RhalphabetBuilder():
                             # hout.append(tmph_mass_down)
                     else:
                         print process, cat, syst
+                        tmph_norm = self._inputfile.Get(process + '_' + cat ).Clone()
                         tmph_up = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Up').Clone()
                         tmph_down = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Down').Clone()
+                        SF = (GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
+                        tmph_norm.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                         tmph_up.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                         tmph_down.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
-                        tmph_mass_up = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo,self._mass_hi)
+                        tmph_mass_norm = tools.proj('cat', str(iPt), tmph_norm, self._mass_nbins, self._mass_lo,self._mass_hi)
+                        tmph_mass_up   = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo,self._mass_hi)
                         tmph_mass_down = tools.proj('cat', str(iPt), tmph_down, self._mass_nbins, self._mass_lo,self._mass_hi)
+                        print "SF = ",SF
+                        print "tmph_mass_norm integral = ",tmph_mass_norm.Integral()
+                        print "tmph_mass_up integral   = ",tmph_mass_up.Integral()
+                        print "tmph_mass_down integral = ",tmph_mass_down.Integral()
                         tmph_mass_up.SetName(import_object.GetName() + '_' + syst + 'Up')
                         tmph_mass_down.SetName(import_object.GetName() + '_' + syst + 'Down')
                         hout.append(tmph_mass_up)
@@ -1004,7 +1012,8 @@ class RhalphabetBuilder():
                 ### Proj to 1GeV bin width
                 tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
                 tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
-
+                print "tmph_mass_matched integral = ",tmph_mass_matched.Integral()
+            
                 # smear/shift the matched
                 hist_container = hist([mass], [tmph_mass_matched])
                 # mass_shift = 0.99
@@ -1264,6 +1273,7 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     fail_hists.update(fail_hists_sig)
 
     for histogram in (pass_hists.values() + fail_hists.values()):
+        histogram.RebinX(7)
         for i in range(1, histogram.GetNbinsX() + 1):
             for j in range(1, histogram.GetNbinsY() + 1):
                 massVal = histogram.GetXaxis().GetBinCenter(i)

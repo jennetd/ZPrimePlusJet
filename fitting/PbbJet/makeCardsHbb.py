@@ -60,7 +60,7 @@ def main(options,args):
     nBkgd = len(bkgs)
     nSig = len(sigs)
     #Change the list of bins to do integral for proc removal
-    binwidth = 1
+    binwidth = 7
     massbins = range(MASS_LO,MASS_HI,binwidth)
     masshistbins = []
     for ibin,mass in enumerate(massbins):
@@ -94,6 +94,9 @@ def main(options,args):
                 print 'getting histogram for process: %s_%s_%sDown'%(proc,box,syst)
                 histoDict['%s_%s_%sDown'%(proc,box,syst)] = tfile.Get('%s_%s_%sDown'%(proc,box,syst))
 
+    for hname,h in histoDict.iteritems():
+        h.RebinX(7)
+        print 'rebinning %s by 7...'
     dctpl = open("datacard.tpl")
     #dctpl = open("datacardZbb.tpl")
     #dctpl = open("datacardZonly.tpl")
