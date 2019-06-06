@@ -14,6 +14,8 @@ import json
 import os
 import  QGLRutil 
 
+from buildRhalphabetHbb import SF2018,SF2017,SF2016
+
 PTCUT = 450.
 PTCUTMUCR = 400.
 #DBTAGCUT = 0.9
@@ -62,6 +64,12 @@ class sampleContainer:
                                                  PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR), self._tt)
         self._isData = isData
         self.SetExternalInputs(self.puOpt['data'])
+        if self.puOpt['data']=='2018':
+            self.shift_SF = SF2018
+        elif self.puOpt['data']=='2017':
+            self.shift_SF = SF2017
+        elif self.puOpt['data'] in ['2016','2016legacy']:
+            self.shift_SF = SF2016
         # print lumi
         # print self._NEv.GetBinContent(1)
         if isData:
@@ -543,10 +551,10 @@ class sampleContainer:
             histos1d = dict(histos1d.items() + histos1d_ext.items())
 
         msd_binBoundaries = []
-        #for i in range(0, 24):
-        #    msd_binBoundaries.append(40. + i * 7)
-        for i in range(0, 162):
-            msd_binBoundaries.append(40. + i )
+        for i in range(0, 24):
+            msd_binBoundaries.append(40. + i * 7)
+        #for i in range(0, 162):
+        #    msd_binBoundaries.append(40. + i )
         print(msd_binBoundaries)
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000]
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000, 1100, 1200, 1300, 1400, 1500]
@@ -1383,7 +1391,7 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_raw_pass.Fill(jmsd_8_raw, jpt_8, weight)
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_topR6_pass_matched.Fill(jmsd_8 * self.shift_SF['shift_SF'], jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                 elif jdb_8 > self.DBTAGCUTMIN:
@@ -1393,7 +1401,7 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_raw_fail.Fill(jmsd_8, jpt_8, weight)
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_topR6_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
 	    if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and isTightVJet and jdb_8 > self.DBTAGCUT and rh_8<-2.1 and rh_8>-6.: 	
@@ -1413,7 +1421,7 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_N2_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_N2_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_topR6_N2_pass_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_N2_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                     if QGquark_pass:  
@@ -1424,7 +1432,7 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_QGquark_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                         # for signal morphing
                         if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                            self.h_msd_v_pt_ak8_QGquark_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                            self.h_msd_v_pt_ak8_QGquark_pass_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                         else:
                             self.h_msd_v_pt_ak8_QGquark_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                     else:
@@ -1434,7 +1442,7 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_QGgluon_pass_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
                         self.h_msd_v_pt_ak8_QGgluon_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                         if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                            self.h_msd_v_pt_ak8_QGgluon_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                            self.h_msd_v_pt_ak8_QGgluon_pass_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                         else:
                             self.h_msd_v_pt_ak8_QGgluon_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                 elif jdb_8 > self.DBTAGCUTMIN:
@@ -1447,7 +1455,7 @@ class sampleContainer:
 
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_N2_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_topR6_N2_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_N2_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
                     if QGquark_pass:  
@@ -1458,7 +1466,7 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_QGquark_fail_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                         # for signal morphing
                         if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                            self.h_msd_v_pt_ak8_QGquark_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                            self.h_msd_v_pt_ak8_QGquark_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                         else:
                             self.h_msd_v_pt_ak8_QGquark_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
                     else:
@@ -1468,7 +1476,7 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_QGgluon_fail_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
                         self.h_msd_v_pt_ak8_QGgluon_fail_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                         if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                            self.h_msd_v_pt_ak8_QGgluon_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                            self.h_msd_v_pt_ak8_QGgluon_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                         else:
                             self.h_msd_v_pt_ak8_QGgluon_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
 
