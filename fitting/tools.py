@@ -79,6 +79,10 @@ def smear(iVar,iDataHist,iScale=0.1):
 
 def proj(iLabel,iBin,iH,iNBins,iXMin,iXMax):
     lH = r.TH1F(iH.GetName()+"_"+iLabel+iBin,iH.GetName()+"_"+iLabel+iBin,iNBins,iXMin,iXMax)
+    if iNBins<iH.GetNbinsX():
+        binRatio = iH.GetNbinsX()/iNBins
+        iH.RebinX(binRatio)
+        print "rebinning %s by %s"%(iH.GetName(),binRatio)
     for iM in range(1,iH.GetNbinsX()+1):
         if iH.GetXaxis().GetBinCenter(iM) < lH.GetXaxis().GetXmin() or iH.GetXaxis().GetBinCenter(iM) > lH.GetXaxis().GetXmax():
             continue
