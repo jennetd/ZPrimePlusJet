@@ -543,8 +543,10 @@ class sampleContainer:
             histos1d = dict(histos1d.items() + histos1d_ext.items())
 
         msd_binBoundaries = []
-        for i in range(0, 24):
-            msd_binBoundaries.append(40. + i * 7)
+        #for i in range(0, 24):
+        #    msd_binBoundaries.append(40. + i * 7)
+        for i in range(0, 162):
+            msd_binBoundaries.append(40. + i )
         print(msd_binBoundaries)
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000]
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000, 1100, 1200, 1300, 1400, 1500]
