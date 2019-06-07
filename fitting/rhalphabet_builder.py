@@ -1080,8 +1080,8 @@ class RhalphabetBuilder():
                     hmatchedsys_smear[0].Add(tmph_mass_unmatched)
                     hmatchedsys_smear[1].Add(tmph_mass_unmatched)
                 hmatched_new_central.SetName(import_object.GetName())
-                hmatchedsys_shift[0].SetName(import_object.GetName() + "_scaleUp")
-                hmatchedsys_shift[1].SetName(import_object.GetName() + "_scaleDown")
+                hmatchedsys_shift[0].SetName(import_object.GetName() + "_scale%sUp"%self._suffix)
+                hmatchedsys_shift[1].SetName(import_object.GetName() + "_scale%sDown"%self._suffix)
                 print "Inital mean central = ",tmph_mass_matched.GetMean()
                 print "Final shift mean central = ",hmatched_new_central.GetMean()
                 print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ', shift_unc
@@ -1089,8 +1089,8 @@ class RhalphabetBuilder():
                 print "Final smear mean up= ",hmatchedsys_smear[0].GetMean(),' smeared by ', res_shift_unc
                 print "Final smear mean up max bin center= ",hmatchedsys_smear[0].GetBinCenter(hmatchedsys_smear[0].GetMaximumBin())
 
-                hmatchedsys_smear[0].SetName(import_object.GetName() + "_smearUp")
-                hmatchedsys_smear[1].SetName(import_object.GetName() + "_smearDown")
+                hmatchedsys_smear[0].SetName(import_object.GetName() + "_smear%sUp"%self._suffix)
+                hmatchedsys_smear[1].SetName(import_object.GetName() + "_smear%sDown"%self._suffix)
 
 
 
