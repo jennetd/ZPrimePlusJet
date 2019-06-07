@@ -387,17 +387,19 @@ def DDB_data_main(options):
     idirs = [
         #'ddb_Apr17/ddb_M2_full/',
         #'ddb2018_Apr17/ddb_M2_full/',
-        #'ddb2018_Jun6_v2/ddb_M2_full/',
         #'ddb2016_May28_v2/ddb_M2_full/',
+        'ddb2018_Jun6_v2/ddb_M2_full/',
         'ddb_Jun6_v2/ddb_M2_full/',
     ]
     odirs = [
-        'TF22_blind_SFJun4/',
-        'TF22_blind_muonCR_SFJun4/'
-        #'TF22_blind_muonCR_suffix_SFJun4/'
+        #'TF22_blind_SFJun4/',
+        #'TF22_blind_muonCR_SFJun4/'
+        'TF22_blind_muonCR_suffix_SFJun4/'
     ]
     options.nr     = 2
     options.np     = 2
+
+    paths = []
     for idir in idirs:
         options.idir = idir
         if   '2018' in idir:    options.year = '2018'
@@ -414,8 +416,11 @@ def DDB_data_main(options):
             if 'blind' in odir:                 options.blind = True
             else:                               options.blind = False
 
-    options.cats = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
-    main(options, mode,dryRun)
+            options.cats = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
+            main(options, mode,dryRun)
+            paths.append( idir+odir)
+    print "==============================="
+    for p in paths: print p
 
 
  
