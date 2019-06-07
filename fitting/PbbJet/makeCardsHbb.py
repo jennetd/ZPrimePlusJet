@@ -148,8 +148,9 @@ def main(options,args):
                 #          scaleSigma = mass * massShift * massShiftUnc
                 #    ==>   scaleErr   = scaleSigma/7GeV
                 scaleSigma                    = mass * SF['shift_SF'] *  SF['shift_SF_ERR']
-                scaleErrs['%s_%s'%(proc,box)] =  1.0 
-                #print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
+                #scaleErrs['%s_%s'%(proc,box)] =  1.0 
+                scaleErrs['%s_%s'%(proc,box)] =  scaleSigma/7.0
+                print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
 
                 if i == 2:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(500-450)/100

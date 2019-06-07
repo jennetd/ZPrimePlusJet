@@ -1076,8 +1076,8 @@ class RhalphabetBuilder():
 
                 # get shift up/down
                 # shift by half the bin width, to make a 1 bin-shift template
-                #shift_unc = 3.55
-                shift_unc  = mass * mass_shift * mass_shift_unc
+                shift_unc = 7.0 
+                #shift_unc  = mass * mass_shift * mass_shift_unc
                 hmatchedsys_shift = hist_container.shift(hmatched_new_central, shift_unc)
                 # get res up/down
                 hmatchedsys_smear = hist_container.smear(hmatched_new_central, res_shift_unc)
