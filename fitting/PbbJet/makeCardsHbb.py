@@ -94,9 +94,9 @@ def main(options,args):
                 print 'getting histogram for process: %s_%s_%sDown'%(proc,box,syst)
                 histoDict['%s_%s_%sDown'%(proc,box,syst)] = tfile.Get('%s_%s_%sDown'%(proc,box,syst))
 
-    for hname,h in histoDict.iteritems():
-        h.RebinX(7)
-        print 'rebinning %s by 7...'
+    #for hname,h in histoDict.iteritems():
+    #    h.RebinX(7)
+    #    print 'rebinning %s by 7...'
     dctpl = open("datacard.tpl")
     #dctpl = open("datacardZbb.tpl")
     #dctpl = open("datacardZonly.tpl")

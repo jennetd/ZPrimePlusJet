@@ -1010,8 +1010,10 @@ class RhalphabetBuilder():
                     tmph_matched.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                     tmph_unmatched.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                 ### Proj to 1GeV bin width
-                tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
-                tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
+                #tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
+                #tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
+                tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins, self._mass_lo,self._mass_hi)
+                tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins, self._mass_lo,self._mass_hi)
                 print "tmph_mass_matched integral = ",tmph_mass_matched.Integral()
             
                 # smear/shift the matched
@@ -1045,7 +1047,8 @@ class RhalphabetBuilder():
 
                     
                 # get new central value
-                shift_val = mass * (mass_shift-1)
+                #shift_val = mass * (mass_shift-1)
+                shift_val = 0 
 
                 tmp_shifted_h = hist_container.shift(tmph_mass_matched, shift_val)
                 # get new central value and new smeared value
@@ -1124,7 +1127,7 @@ class RhalphabetBuilder():
                     # validation
                     self._outfile_validation.cd()
                     ### Rebin to 7 GeV bin width
-                    h.Rebin(7)
+                    #h.Rebin(7)
                     h.Write()
             else:
                 print "Importing {}".format(import_object.GetName())
@@ -1273,7 +1276,7 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     fail_hists.update(fail_hists_sig)
 
     for histogram in (pass_hists.values() + fail_hists.values()):
-        histogram.RebinX(7)
+        #histogram.RebinX(7)
         for i in range(1, histogram.GetNbinsX() + 1):
             for j in range(1, histogram.GetNbinsY() + 1):
                 massVal = histogram.GetXaxis().GetBinCenter(i)
