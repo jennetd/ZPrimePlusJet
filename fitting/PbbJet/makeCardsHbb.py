@@ -67,6 +67,7 @@ def main(options,args):
         if( mass>=MASS_HIST_LO and mass<=MASS_HIST_HI):
             masshistbins.append(ibin+1)
     print "Integrating over these mass bins:",masshistbins
+    print "                 read  mass bins:",massbins
     numberOfPtBins = 6
     procsToRemove = []
 
@@ -118,7 +119,16 @@ def main(options,args):
         scaleptErrs = {}
         for box in boxes:
             for proc in (sigs+bkgs):
-                rate = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                if options.blind:
+                    rate1  = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[9], i, i)
+                    rate2  = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[13], masshistbins[-1], i, i)
+                    rateall= histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                    rate = rate1+rate2
+                    print "ignore bins: mass (%s,%s)"%(massbins[11],massbins[13])
+                    print 'rate1 = %.3f rate2 = %.3f, rateall= %.3f'%(rate1,rate2,rateall)
+                else:
+                    rate = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                print " proc, cat, box, rate =", proc, "cat%i"%i, box, rate
                 if rate>0.1:
                     rateJESUp   = histoDict['%s_%s_JESUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     rateJESDown = histoDict['%s_%s_JESDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
@@ -148,9 +158,9 @@ def main(options,args):
                 #          scaleSigma = mass * massShift * massShiftUnc
                 #    ==>   scaleErr   = scaleSigma/7GeV
                 scaleSigma                    = mass * SF['shift_SF'] *  SF['shift_SF_ERR']
-                #scaleErrs['%s_%s'%(proc,box)] =  1.0 
+                #scaleErrs['%s_%s'%(proc,box)] =  0.1 
                 scaleErrs['%s_%s'%(proc,box)] =  scaleSigma/7.0
-                print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
+                #print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
 
                 if i == 2:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(500-450)/100
