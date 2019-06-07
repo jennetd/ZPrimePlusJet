@@ -28,7 +28,7 @@ RHO_LO = -6
 RHO_HI = -2.1
 
 SF2018={
-            'shift_SF'  : 0.845,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
+            'shift_SF'  : 0.952,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
             'smear_SF'  : 0.952,            'smear_SF_ERR' : 0.0495  , # prelim SF @26% N2ddt 
             'V_SF'      : 0.845,            'V_SF_ERR'     : 0.031   , # prelim SF @26% N2ddt
             'BB_SF'     : 0.7,              'BB_SF_ERR' : 0.065,      #2018 prelim ddb SF

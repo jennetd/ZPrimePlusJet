@@ -25,23 +25,27 @@ def main(options,args):
         BB_SF_ERR=SF2018['BB_SF_ERR']
         V_SF     =SF2018['V_SF']
         V_SF_ERR =SF2018['V_SF_ERR']
+        LUMI_ERR = 1.025
     elif options.year=='2017':
         SF       =SF2017
         BB_SF    =SF2017['BB_SF'] 
         BB_SF_ERR=SF2017['BB_SF_ERR']
         V_SF     =SF2017['V_SF']
         V_SF_ERR =SF2017['V_SF_ERR']
+        LUMI_ERR = 1.023
     elif options.year =='2016':
         SF       =SF2016
         BB_SF     =SF2016['BB_SF']
         BB_SF_ERR =SF2016['BB_SF_ERR']
         V_SF      =SF2016['V_SF']
         V_SF_ERR  =SF2016['V_SF_ERR']
+        LUMI_ERR = 1.025
   
     print "using BB_SF    ", BB_SF    
     print "using BB_SF_ERR", BB_SF_ERR
     print "using V_SF     ", V_SF     
     print "using V_SF_ERR ", V_SF_ERR  
+    print "using LUMI_ERR ", LUMI_ERR
      
 
     tfile = r.TFile.Open(options.ifile)
@@ -59,6 +63,7 @@ def main(options,args):
 
     nBkgd = len(bkgs)
     nSig = len(sigs)
+    #Change the list of bins to do integral for proc removal
     binwidth = 7
     massbins = range(MASS_LO,MASS_HI,binwidth)
     masshistbins = []
@@ -66,6 +71,7 @@ def main(options,args):
         if( mass>=MASS_HIST_LO and mass<=MASS_HIST_HI):
             masshistbins.append(ibin+1)
     print "Integrating over these mass bins:",masshistbins
+    print "                 read  mass bins:",massbins
     numberOfPtBins = 6
     procsToRemove = []
 
@@ -93,6 +99,9 @@ def main(options,args):
                 print 'getting histogram for process: %s_%s_%sDown'%(proc,box,syst)
                 histoDict['%s_%s_%sDown'%(proc,box,syst)] = tfile.Get('%s_%s_%sDown'%(proc,box,syst))
 
+    #for hname,h in histoDict.iteritems():
+    #    h.RebinX(7)
+    #    print 'rebinning %s by 7...'
     dctpl = open("datacard.tpl")
     #dctpl = open("datacardZbb.tpl")
     #dctpl = open("datacardZonly.tpl")
@@ -114,7 +123,16 @@ def main(options,args):
         scaleptErrs = {}
         for box in boxes:
             for proc in (sigs+bkgs):
-                rate = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                if options.blind:
+                    rate1  = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[9], i, i)
+                    rate2  = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[13], masshistbins[-1], i, i)
+                    rateall= histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                    rate = rate1+rate2
+                    print "ignore bins: mass (%s,%s)"%(massbins[11],massbins[13])
+                    print 'rate1 = %.3f rate2 = %.3f, rateall= %.3f'%(rate1,rate2,rateall)
+                else:
+                    rate = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
+                print " proc, cat, box, rate =", proc, "cat%i"%i, box, rate
                 if rate>0.1:
                     rateJESUp   = histoDict['%s_%s_JESUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     rateJESDown = histoDict['%s_%s_JESDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
@@ -144,8 +162,9 @@ def main(options,args):
                 #          scaleSigma = mass * massShift * massShiftUnc
                 #    ==>   scaleErr   = scaleSigma/7GeV
                 scaleSigma                    = mass * SF['shift_SF'] *  SF['shift_SF_ERR']
+                #scaleErrs['%s_%s'%(proc,box)] =  0.1 
                 scaleErrs['%s_%s'%(proc,box)] =  scaleSigma/7.0
-                print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
+                #print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
 
                 if i == 2:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(500-450)/100
@@ -194,14 +213,15 @@ def main(options,args):
                         mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0
                         
 
-        jesString = 'JES lnN'
-        jerString = 'JER lnN'
-        puString = 'Pu lnN'
-        bbString = 'bbeff lnN'
-        vString = 'veff lnN'
-        scaleptString = 'scalept shape'
-        scaleString   = 'scale shape'
+        jesString = 'JES%s lnN'%options.suffix
+        jerString = 'JER%s lnN'%options.suffix
+        puString = 'Pu%s lnN'%options.suffix
+        bbString = 'bbeff%s lnN'%options.suffix
+        vString = 'veff%s lnN'%options.suffix
+        scaleptString = 'scalept%s shape'%options.suffix
+        scaleString   = 'scale%s shape'%options.suffix
         mcStatStrings = {}
+        lumiString = 'lumi%s lnN'%options.suffix
         mcStatGroupString = 'mcstat group ='
         mcstatsuffix  = options.suffix.lower().strip("_")
         qcdGroupString = 'qcd group = '
@@ -220,10 +240,12 @@ def main(options,args):
                     jesString += ' -'
                     jerString += ' -'
                     puString += ' -'
+                    lumiString += ' -'
                 else:
                     jesString += ' %.3f'%jesErrs['%s_%s'%(proc,box)]
                     jerString += ' %.3f'%jerErrs['%s_%s'%(proc,box)]
                     puString += ' %.3f'%puErrs['%s_%s'%(proc,box)]                        
+                    lumiString += ' %.3f'%LUMI_ERR
                 if proc in ['qcd','tqq']:
                     scaleString += ' -'
                     if i > 1:
@@ -254,6 +276,8 @@ def main(options,args):
         for l in linel:
             if 'shapes qcd' in l:
                 newline = l+options.suffix
+            elif 'lumi' in l:
+                newline = lumiString
             elif 'JES' in l:
                 newline = jesString
             elif 'JER' in l:
@@ -266,12 +290,16 @@ def main(options,args):
                 newline = vString
             elif 'scalept' in l and i>1:
                 newline = scaleptString
+            elif 'smear' in l:
+                newline = l.replace('smear','smear'+options.suffix)
             elif 'scale' in l and not 'scalept' in l:
                 newline = scaleString
-            elif 'TQQEFF' in l:
+            elif 'TQQEFF' in l or 'tqqnormSF' in l or 'tqqeffSF' in l:
                 tqqeff = histoDict['tqq_pass'].Integral() / (
                 histoDict['tqq_pass'].Integral() + histoDict['tqq_fail'].Integral())
                 newline = l.replace('TQQEFF','%.4f'%tqqeff)
+                newline = newline.replace('tqqnormSF','tqqnormSF%s'%options.suffix)
+                newline = newline.replace('tqqeffSF','tqqeffSF%s'%options.suffix)
             elif 'wznormEW' in l:
                 if i==4:
                     newline = l.replace('1.05','1.15')
@@ -339,8 +367,8 @@ def main(options,args):
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
 
-        dctmp.write(mcStatGroupString + "\n")
-        dctmp.write(qcdGroupString + "\n")
+        #dctmp.write(mcStatGroupString + "\n")
+        #dctmp.write(qcdGroupString + "\n")
         dctmp.close()
     def removeProc(proc, tag, box):
         dctmp = open(options.odir+"/card_rhalphabet_%s.txt" % tag, 'r')
