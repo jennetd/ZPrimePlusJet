@@ -10,6 +10,7 @@ import datetime
 # including other directories
 sys.path.insert(0, '../.')
 from tools import *
+from buildRhalphabetHbb import SF2018,SF2017,SF2016
 
 ##-------------------------------------------------------------------------------------
 def exec_me(command, outf, dryRun=False):
@@ -28,9 +29,15 @@ def main(options,mode,dryRun):
     iloose= options.iloose
     muonCR= options.muonCR
     is2017= options.is2017
+    year  = options.year
     nr    = options.nr
     np    = options.np
-    
+   
+    if   year=='2018':   SF = SF2018
+    elif year=='2017':   SF = SF2017
+    elif year=='2016':   SF = SF2016
+
+ 
     now = datetime.datetime.now()
     ifileName = ifile.split("/")[-1]
     if odir=="":
@@ -45,12 +52,17 @@ def main(options,mode,dryRun):
         outf.write("===odir  = %s ==========\n"%odir)
         outf.write("===mode  = %s ==========\n"%mode)
         outf.write("===time  = %s ==========\n"%now.strftime("%Y-%m-%d %H:%M"))
+        outf.write("=== Using SF: \n")
+        for key,item in sorted(SF.iteritems()): outf.write("%s       %s\n"%(key,item))
+        
     print "=======buildcard.py=========="
     print "====  ifile   = %s =========="%ifile
     print "====  odir    = %s =========="%odir
     print "====  mode    = %s =========="%mode
     print "====  time    = %s =========="%now.strftime("%Y-%m-%d %H:%M")
     print "====  logfile = %s =========="%logf
+    print " Using SF:"
+    for key,item in sorted(SF.iteritems()): print("%s       %s"%(key,item))
 
     rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit --addHptShape "%(ifile,odir,nr,np)
     makecard_base  = "python makeCardsHbb.py       -i %s -o %s --remove-unmatched --no-mcstat-shape "%(ifile,odir)
@@ -81,11 +93,11 @@ def main(options,mode,dryRun):
     if blind:
         rhalph_base += " --blind "
         makecard_base +=" --blind "
-    if is2017:
-        rhalph_base += " --is2017 "
-        makecard_base +=" --is2017 "
+    if year:
+        rhalph_base += " --year %s "%year
+        makecard_base +=" --year %s "%year
         if muonCR:
-            makemuonCR_base +=" --is2017 "
+            makemuonCR_base +=" --year %s "%year
        
     if mode =="vbf":
         t2ws_vbf += " %s -o %s"%(combcard_all, combcard_all.replace(".txt","_floatVBF.root"))
@@ -112,6 +124,8 @@ def main(options,mode,dryRun):
     if not dryRun:
         print "=========== Summary ============="
         for cmd in cmds:    print cmd
+        print "Using SF:"
+        for key,item in sorted(SF.iteritems()): print("%s       %s"%(key,item))
 
 def buildcats(ifile,odir,muonCR,suffix):
     #get N ptbins
@@ -361,6 +375,54 @@ def DDB_10p_main(options):
     options.cats = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
     main(options, mode,dryRun)
 
+def DDB_data_main(options):
+    dryRun = options.dryRun
+    mode   = 'norm'
+    options.suffix = ""
+    options.iloose = ""
+    options.blind  = True 
+    options.pseudo = False 
+    options.is2017 = True
+    options.scaleLumi = False 
+    idirs = [
+        #'ddb_Apr17/ddb_M2_full/',
+        #'ddb2018_Apr17/ddb_M2_full/',
+        #'ddb2016_May28_v2/ddb_M2_full/',
+        'ddb2018_Jun6_v2/ddb_M2_full/',
+        'ddb_Jun6_v2/ddb_M2_full/',
+    ]
+    odirs = [
+        #'TF22_blind_SFJun4/',
+        #'TF22_blind_muonCR_SFJun4/'
+        'TF22_blind_muonCR_suffix_SFJun4/'
+    ]
+    options.nr     = 2
+    options.np     = 2
+
+    paths = []
+    for idir in idirs:
+        options.idir = idir
+        if   '2018' in idir:    options.year = '2018'
+        elif '2016' in idir:    options.year = '2016'
+        else:                   options.year = '2017'
+        for odir in odirs:
+            options.odir = idir+odir
+            if 'suffix' in odir:
+                options.suffix = options.year
+            if not os.path.exists(options.odir): os.mkdir(options.odir)
+            options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
+            if 'muonCR' in odir:                options.muonCR = options.idir+"muonCR/hist_1DZbb_muonCR.root"
+            else:                               options.muonCR = '' 
+            if 'blind' in odir:                 options.blind = True
+            else:                               options.blind = False
+
+            options.cats = buildcats(options.ifile,options.odir,options.muonCR,options.suffix)
+            main(options, mode,dryRun)
+            paths.append( idir+odir)
+    print "==============================="
+    for p in paths: print p
+
+
  
 ##-------------------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -382,6 +444,7 @@ if __name__ == '__main__':
     #DDB_MC_main(options)
     #DDB_MC_combination(options)
     #DB_MC_main(options)
-    DDB_10p_main(options)
+    #DDB_10p_main(options)
+    DDB_data_main(options)
 
     #VBFddb(options)
