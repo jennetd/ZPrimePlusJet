@@ -146,7 +146,7 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     mcStatErrString = {}
     for proc in sigs+bkgs:
         for box in boxes:
-            mcStatErrString['%s_%s'%(proc,box)] = '%s%smuonCRmcstat\tlnN'%(proc,box)
+            mcStatErrString['%s_%s'%(proc,box)] = '%s%smuonCR%smcstat\tlnN'%(proc,box,options.year)
 
     for box in boxes:
         i = -1
