@@ -70,6 +70,7 @@ class sampleContainer:
             self.shift_SF = SF2017
         elif self.puOpt['data'] in ['2016','2016legacy']:
             self.shift_SF = SF2016
+        print "Using SF", self.shift_SF
         # print lumi
         # print self._NEv.GetBinContent(1)
         if isData:
