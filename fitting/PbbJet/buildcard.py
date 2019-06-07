@@ -387,21 +387,26 @@ def DDB_data_main(options):
     idirs = [
         #'ddb_Apr17/ddb_M2_full/',
         #'ddb2018_Apr17/ddb_M2_full/',
+        #'ddb2018_Jun6_v2/ddb_M2_full/',
         #'ddb2016_May28_v2/ddb_M2_full/',
-        'ddb2018_Jun6_v2/ddb_M2_full/',
+        'ddb_Jun6_v2/ddb_M2_full/',
     ]
     odirs = [
-        'TF22_blind_SFJun4/'
+        'TF22_blind_SFJun4/',
+        'TF22_blind_muonCR_SFJun4/'
+        #'TF22_blind_muonCR_suffix_SFJun4/'
     ]
     options.nr     = 2
     options.np     = 2
     for idir in idirs:
         options.idir = idir
-        if '2018' in idir:      options.year = '2018'
+        if   '2018' in idir:    options.year = '2018'
         elif '2016' in idir:    options.year = '2016'
         else:                   options.year = '2017'
         for odir in odirs:
             options.odir = idir+odir
+            if 'suffix' in odir:
+                options.suffix = options.year
             if not os.path.exists(options.odir): os.mkdir(options.odir)
             options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
             if 'muonCR' in odir:                options.muonCR = options.idir+"muonCR/hist_1DZbb_muonCR.root"
