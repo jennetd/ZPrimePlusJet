@@ -25,23 +25,27 @@ def main(options,args):
         BB_SF_ERR=SF2018['BB_SF_ERR']
         V_SF     =SF2018['V_SF']
         V_SF_ERR =SF2018['V_SF_ERR']
+        LUMI_ERR = 1.025
     elif options.year=='2017':
         SF       =SF2017
         BB_SF    =SF2017['BB_SF'] 
         BB_SF_ERR=SF2017['BB_SF_ERR']
         V_SF     =SF2017['V_SF']
         V_SF_ERR =SF2017['V_SF_ERR']
+        LUMI_ERR = 1.023
     elif options.year =='2016':
         SF       =SF2016
         BB_SF     =SF2016['BB_SF']
         BB_SF_ERR =SF2016['BB_SF_ERR']
         V_SF      =SF2016['V_SF']
         V_SF_ERR  =SF2016['V_SF_ERR']
+        LUMI_ERR = 1.025
   
     print "using BB_SF    ", BB_SF    
     print "using BB_SF_ERR", BB_SF_ERR
     print "using V_SF     ", V_SF     
     print "using V_SF_ERR ", V_SF_ERR  
+    print "using LUMI_ERR ", LUMI_ERR
      
 
     tfile = r.TFile.Open(options.ifile)
@@ -194,14 +198,15 @@ def main(options,args):
                         mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0
                         
 
-        jesString = 'JES lnN'
-        jerString = 'JER lnN'
-        puString = 'Pu lnN'
-        bbString = 'bbeff lnN'
-        vString = 'veff lnN'
-        scaleptString = 'scalept shape'
-        scaleString   = 'scale shape'
+        jesString = 'JES%s lnN'%options.suffix
+        jerString = 'JER%s lnN'%options.suffix
+        puString = 'Pu%s lnN'%options.suffix
+        bbString = 'bbeff%s lnN'%options.suffix
+        vString = 'veff%s lnN'%options.suffix
+        scaleptString = 'scalept%s shape'%options.suffix
+        scaleString   = 'scale%s shape'%options.suffix
         mcStatStrings = {}
+        lumiString = 'lumi%s lnN'%options.suffix
         mcStatGroupString = 'mcstat group ='
         mcstatsuffix  = options.suffix.lower().strip("_")
         qcdGroupString = 'qcd group = '
@@ -220,10 +225,12 @@ def main(options,args):
                     jesString += ' -'
                     jerString += ' -'
                     puString += ' -'
+                    lumiString += ' -'
                 else:
                     jesString += ' %.3f'%jesErrs['%s_%s'%(proc,box)]
                     jerString += ' %.3f'%jerErrs['%s_%s'%(proc,box)]
                     puString += ' %.3f'%puErrs['%s_%s'%(proc,box)]                        
+                    lumiString += ' %.3f'%LUMI_ERR
                 if proc in ['qcd','tqq']:
                     scaleString += ' -'
                     if i > 1:
@@ -254,6 +261,8 @@ def main(options,args):
         for l in linel:
             if 'shapes qcd' in l:
                 newline = l+options.suffix
+            elif 'lumi' in l:
+                newline = lumiString
             elif 'JES' in l:
                 newline = jesString
             elif 'JER' in l:
@@ -266,12 +275,16 @@ def main(options,args):
                 newline = vString
             elif 'scalept' in l and i>1:
                 newline = scaleptString
+            elif 'smear' in l:
+                newline = l.replace('smear','smear'+options.suffix)
             elif 'scale' in l and not 'scalept' in l:
                 newline = scaleString
-            elif 'TQQEFF' in l:
+            elif 'TQQEFF' in l or 'tqqnormSF' in l or 'tqqeffSF' in l:
                 tqqeff = histoDict['tqq_pass'].Integral() / (
                 histoDict['tqq_pass'].Integral() + histoDict['tqq_fail'].Integral())
                 newline = l.replace('TQQEFF','%.4f'%tqqeff)
+                newline = newline.replace('tqqnormSF','tqqnormSF%s'%options.suffix)
+                newline = newline.replace('tqqeffSF','tqqeffSF%s'%options.suffix)
             elif 'wznormEW' in l:
                 if i==4:
                     newline = l.replace('1.05','1.15')
@@ -339,8 +352,8 @@ def main(options,args):
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
 
-        dctmp.write(mcStatGroupString + "\n")
-        dctmp.write(qcdGroupString + "\n")
+        #dctmp.write(mcStatGroupString + "\n")
+        #dctmp.write(qcdGroupString + "\n")
         dctmp.close()
     def removeProc(proc, tag, box):
         dctmp = open(options.odir+"/card_rhalphabet_%s.txt" % tag, 'r')
