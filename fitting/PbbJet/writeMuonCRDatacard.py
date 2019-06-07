@@ -198,10 +198,10 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     tqqeff = histoDict['tqq_pass'].Integral()/(histoDict['tqq_pass'].Integral()+histoDict['tqq_fail'].Integral())
 
     
-    datacard+='tqqpassmuonCRnorm rateParam pass_muonCR tqq (@0*@1) tqqnormSF,tqqeffSF\n' + \
-        'tqqfailmuonCRnorm rateParam fail_muonCR tqq (@0*(1.0-@1*%.4f)/(1.0-%.4f)) tqqnormSF,tqqeffSF\n'%(tqqeff,tqqeff) + \
-        'tqqnormSF extArg 1.0 [0.0,10.0]\n' + \
-        'tqqeffSF extArg 1.0 [0.0,10.0]\n'
+    datacard+='tqqpassmuonCRnorm rateParam pass_muonCR tqq (@0*@1) tqqnormSF_%s,tqqeffSF_%s\n'%(options.year,options.year) + \
+        'tqqfailmuonCRnorm rateParam fail_muonCR tqq (@0*(1.0-@1*%.4f)/(1.0-%.4f)) tqqnormSF_%s,tqqeffSF_%s\n'%(tqqeff,tqqeff,options.year,options.year) + \
+        'tqqnormSF_%s extArg 1.0 [0.0,10.0]\n'%options.year + \
+        'tqqeffSF_%s extArg 1.0 [0.0,10.0]\n'%options.year
 
     txtfile = open(options.odir+'/'+txtfileName,'w')
     txtfile.write(datacard)
