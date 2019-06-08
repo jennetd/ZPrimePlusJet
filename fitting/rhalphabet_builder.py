@@ -28,7 +28,7 @@ from hist import *
 class RhalphabetBuilder():
     def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
-                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201):
+                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201,exp=False):
         self._pass_hists = pass_hists
         self._fail_hists = fail_hists
         self._mass_fit = mass_fit
@@ -67,7 +67,7 @@ class RhalphabetBuilder():
         # polynomial order for fit
         self._poly_degree_rho = nr  # 1 = linear ; 2 is quadratic
         self._poly_degree_pt = np  # 1 = linear ; 2 is quadratic
-
+        self._exp = exp
         self._nptbins = pass_hists["data_obs"].GetYaxis().GetNbins()
         self._pt_lo = pass_hists["data_obs"].GetYaxis().GetBinLowEdge(1)
         self._pt_hi = pass_hists["data_obs"].GetYaxis().GetBinUpEdge(self._nptbins)
@@ -505,8 +505,11 @@ class RhalphabetBuilder():
                 print ("Pt/Rho poly")
                 #roopolyarray = self.buildRooPolyRhoArray(self._lPt.getVal(), self._lRho.getVal(), lUnity, lZero,
                 #                                         polynomial_variables)
-                #roopolyarray = self.buildRooPolyRhoArrayBernstein(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
-                roopolyarray = self.buildRooPolyRhoArrayBernsteinExp(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+                if self._exp:
+                    roopolyarray = self.buildRooPolyRhoArrayBernsteinExp(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+                else:
+                    roopolyarray = self.buildRooPolyRhoArrayBernstein(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+
             print "RooPolyArray:"
             roopolyarray.Print()
             fail_bin_content = 0

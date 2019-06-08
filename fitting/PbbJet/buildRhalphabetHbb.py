@@ -80,7 +80,7 @@ def main(options, args):
     # Build the workspacees
     #dazsleRhalphabetBuilder(hpass, hfail, f, odir, options.NR, options.NP)
 
-    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf,mass_hist_lo=MASS_HIST_LO,mass_hist_hi=MASS_HIST_HI)
+    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf,mass_hist_lo=MASS_HIST_LO,mass_hist_hi=MASS_HIST_HI,exp=options.exp)
     rhalphabuilder.run()
     if options.addHptShape:
         rhalphabuilder.addHptShape()	
@@ -106,6 +106,8 @@ if __name__ == '__main__':
                       metavar='useQCD')
     parser.add_option('--massfit', action='store_true', dest='massfit', default=False, help='mass fit or rho',
                       metavar='massfit')
+    parser.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',
+                      metavar='exp')
     parser.add_option('--freeze', action='store_true', dest='freeze', default=False, help='freeze pol values',
                       metavar='freeze')
     parser.add_option('--scale', dest='scale', default=1, type='float',
