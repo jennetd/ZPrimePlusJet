@@ -276,6 +276,13 @@ def main(options,args):
         for l in linel:
             if 'shapes qcd' in l:
                 newline = l+options.suffix
+                if options.multi:
+                    newline = newline.replace('qcd','qcd_multi')
+            elif 'qcd' in l:
+                if options.multi:
+                    newline = l.replace('qcd','qcd_multi')
+                else:
+                    newline = l
             elif 'lumi' in l:
                 newline = lumiString
             elif 'JES' in l:
@@ -424,6 +431,9 @@ if __name__ == '__main__':
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
+    parser.add_option('--multi', action='store_true', dest='multi', default=False, help='define RooMultiPdf',
+                      metavar='multi')
+
 
     (options, args) = parser.parse_args()
 
