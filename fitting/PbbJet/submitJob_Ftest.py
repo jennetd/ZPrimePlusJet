@@ -112,6 +112,7 @@ if __name__ == '__main__':
     script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     script_group.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='run on asimov dataset', metavar='pseudo')
     script_group.add_option('--blind', action='store_true', dest='blind', default=False, help='run on blinded dataset',metavar='blind')
+    script_group.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',metavar='exp')
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
     script_group.add_option('--suffix', dest='suffix', default=None, help='suffix for conflict variables',metavar='suffix')

@@ -40,6 +40,7 @@ def buildcards(odir,nr,np, options):
     #is2017= options.is2017
     year   = options.year
     dryRun= options.dryRun
+    exp    = options.exp
     
     ifileName = ifile.split("/")[-1]
     if odir=="":
@@ -70,6 +71,8 @@ def buildcards(odir,nr,np, options):
         makecard_base += " --ifile-loose %s "%iloose
     if pseudo:
         rhalph_base += " --pseudo "
+    if exp:
+        rhalph_base += " --exp "
     if blind:
         rhalph_base += " --blind "
         makecard_base +=" --blind "
@@ -128,6 +131,7 @@ if __name__ == "__main__":
     #parser.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--blind', action='store_true', dest='blind', default=False, help='run on blinded dataset')
+    parser.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',metavar='exp')
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     parser.add_option('--dryRun',dest="dryRun",default=False,action='store_true',
                   help="Just print out commands to run")    
