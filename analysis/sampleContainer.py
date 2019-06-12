@@ -773,13 +773,13 @@ class sampleContainer:
             
             ### Apply k-factor for sampleContainer constructed with normSampleContainer
             if 'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' in self._name:  #for 2016legacy
-                ptForNLO = max(200., min(self.genVPt[0], 1000.))  
+                ptForNLO = max(400., min(self.genVPt[0], 1000.))  
                 iEWKKF = self._hEWK_Z.GetBinContent(self._hEWK_Z.FindBin(ptForNLO));
-                iQCDKF = 1.45;
+                iQCDKF = self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))        # New QCD KF for 2017
                 vjetsKF = iQCDKF*iEWKKF;
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'ZJetsToQQ_' in self._name:    
-                ptForNLO = max(250., min(self.genVPt[0], 1200.))  
+                ptForNLO = max(400., min(self.genVPt[0], 1000.))  
                 iEWKKF = self._hEWK_Z.GetBinContent(self._hEWK_Z.FindBin(ptForNLO));  # same EWK as 2016
                 iQCDKF = self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))        # New QCD KF for 2017
                 #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
@@ -788,20 +788,23 @@ class sampleContainer:
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
 
             if 'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' in self._name:  #for 2016legacy
-                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
-                W_SF=1.35
-                iQCDKF = self._hQCD_W.GetBinContent(self._hQCD_W.FindBin(ptForNLO));
-                iEWKKF = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));
-                wscale=[1.0,1.0,1.0,1.20,1.25,1.25,1.0];
-                ptscale=[0, 500, 600, 700, 800, 900, 1000,3000];
-                ptKF=1.
-                for i in range(0, len(ptscale)):
-                    if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
+                #ptForNLO = max(250., min(self.genVPt[0], 1000.))  
+                #W_SF=1.35
+                #iQCDKF = self._hQCD_W.GetBinContent(self._hQCD_W.FindBin(ptForNLO));
+                #iEWKKF = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));
+                #wscale=[1.0,1.0,1.0,1.20,1.25,1.25,1.0];
+                #ptscale=[0, 500, 600, 700, 800, 900, 1000,3000];
+                #ptKF=1.
+                #for i in range(0, len(ptscale)):
+                #    if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
                 #vjetsKF = W_SF*iEWKKF*ptKF;
-                vjetsKF = W_SF*iEWKKF;          # Try applying flat QCD kfactor
+                ptForNLO = max(400., min(self.genVPt[0], 1000.))  
+                iQCDKF = self._wnlo.GetBinContent(self._wnlo.FindBin(ptForNLO))        # New QCD KF for bacon 13+ 
+                iEWKKF  = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));
+                vjetsKF = iQCDKF*iEWKKF;          
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'WJetsToQQ_' in self._name:
-                ptForNLO = max(250., min(self.genVPt[0], 1200.))
+                ptForNLO = max(400., min(self.genVPt[0], 1000.))
                 iEWKKF = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));  # same EWK as 2016
                 iQCDKF = self._wnlo.GetBinContent(self._wnlo.FindBin(ptForNLO))        # New QCD KF for 2017
                 #vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]                  ## do not use branch input
@@ -1846,16 +1849,27 @@ class sampleContainer:
 
         #pre zprimebit 14 NLO W/Z k-factors files
         #f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
-        #Blessed 2017 cristina file
-        f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr_old.root"), "read")
-        self._znlo = f_ZNLO.Get("NLO")
+        # 2017 cristina file
+        #f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr_old.root"), "read")
+        # 2017 new NLO file, rewighted to 2016,2017 bacon 13-15 sample
+        f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJets_QCD_NLO.root"), "read")
+        if self.puOpt['data'] in ['2018','2017']:
+            self._znlo = f_ZNLO.Get("Z_NLO_QCD_2017")
+        elif self.puOpt['data'] in ['2016','2016legacy']:
+            self._znlo = f_ZNLO.Get("Z_NLO_QCD_2016")
         self._znlo.SetDirectory(0)
         f_ZNLO.Close()
         #pre zprimebit 14 NLO W/Z k-factors files
         #f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr.root"), "read")
-        #Blessed 2017 cristina file
-        f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr_old.root"), "read")
-        self._wnlo = f_WNLO.Get("NLO")
+        # 2017 cristina file
+        #f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr_old.root"), "read")
+        # 2017 new NLO file, rewighted to 2016,2017 bacon 13-15 sample
+        f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJets_QCD_NLO.root"), "read")
+        if self.puOpt['data'] in ['2018','2017']:
+            self._wnlo = f_WNLO.Get("W_NLO_QCD_2017")
+        elif self.puOpt['data'] in ['2016','2016legacy']:
+            self._wnlo = f_WNLO.Get("W_NLO_QCD_2016")
+
         self._wnlo.SetDirectory(0)
         f_WNLO.Close()
 
