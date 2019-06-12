@@ -86,7 +86,6 @@ def buildcards(odir,nr,np, options):
         makecard_base +=" --year %s "%year
         if muonCR:
             makemuonCR_base +=" --year %s "%year
-            makemuonCR_cp   +=" --year %s "%year
 
 
     wsRoot = combcard_all.replace(".txt","_floatZ.root")       
