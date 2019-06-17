@@ -28,7 +28,8 @@ from hist import *
 class RhalphabetBuilder():
     def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
-                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201):
+                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201,exp=False,
+                 multi=False):
         self._pass_hists = pass_hists
         self._fail_hists = fail_hists
         self._mass_fit = mass_fit
@@ -67,7 +68,15 @@ class RhalphabetBuilder():
         # polynomial order for fit
         self._poly_degree_rho = nr  # 1 = linear ; 2 is quadratic
         self._poly_degree_pt = np  # 1 = linear ; 2 is quadratic
-
+        self._poly_degree_rho_exp = nr  # 1 = linear ; 2 is quadratic
+        self._poly_degree_pt_exp = np  # 1 = linear ; 2 is quadratic
+        self._exp = exp
+        self._multi = multi
+        if self._multi:
+            # fixed exp orders for RooMultiPdf tests
+            self._poly_degree_rho_exp = 3  # 1 = linear ; 2 is quadratic
+            self._poly_degree_pt_exp = 1  # 1 = linear ; 2 is quadratic
+        self._pdf_index = r.RooCategory("pdf_index","Index of Pdf which is active")
         self._nptbins = pass_hists["data_obs"].GetYaxis().GetNbins()
         self._pt_lo = pass_hists["data_obs"].GetYaxis().GetBinLowEdge(1)
         self._pt_hi = pass_hists["data_obs"].GetYaxis().GetBinUpEdge(self._nptbins)
@@ -256,12 +265,20 @@ class RhalphabetBuilder():
         for cat in self._categories:
             norms_b = r.RooArgList()
             norms_s = r.RooArgList()
-            norms_b.add(wralphabase[cat].function('qcd_%s%s_norm' % (cat, self._suffix)))
-            norms_s.add(wralphabase[cat].function('qcd_%s%s_norm' % (cat, self._suffix)))
+            if self._multi:
+                norms_b.add(wralphabase[cat].function('qcd_multi_%s%s_norm' % (cat, self._suffix)))
+                norms_s.add(wralphabase[cat].function('qcd_multi_%s%s_norm' % (cat, self._suffix)))
+            else:
+                norms_b.add(wralphabase[cat].function('qcd_%s%s_norm' % (cat, self._suffix)))
+                norms_s.add(wralphabase[cat].function('qcd_%s%s_norm' % (cat, self._suffix)))
             pdfs_b = r.RooArgList()
             pdfs_s = r.RooArgList()
-            pdfs_b.add(wralphabase[cat].pdf('qcd_%s%s' % (cat, self._suffix)))
-            pdfs_s.add(wralphabase[cat].pdf('qcd_%s%s' % (cat, self._suffix)))
+            if self._multi:
+                pdfs_b.add(wralphabase[cat].pdf('qcd_multi_%s%s' % (cat, self._suffix)))
+                pdfs_s.add(wralphabase[cat].pdf('qcd_multi_%s%s' % (cat, self._suffix)))
+            else:
+                pdfs_b.add(wralphabase[cat].pdf('qcd_%s%s' % (cat, self._suffix)))
+                pdfs_s.add(wralphabase[cat].pdf('qcd_%s%s' % (cat, self._suffix)))
 
             data[cat] = wbase[cat].data('data_obs_%s' % cat)
             for proc in (bkgs + sigs):
@@ -361,6 +378,20 @@ class RhalphabetBuilder():
         mu.setVal(1)
         mu.setConstant(True)
 
+        if self._multi:
+            pdf_index = w.cat('pdf_index')
+            pdf_index.Print('V')
+            pdf_index.setIndex(0)
+            pdf_index.setConstant(True)
+            for i in range(0,self._poly_degree_rho_exp+1):
+                for j in range(0,self._poly_degree_pt_exp+1):
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).setConstant(True)
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).Print('v')
+            for i in range(0,self._poly_degree_rho+1):
+                for j in range(0,self._poly_degree_pt+1):
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).Print('v')
+
         nll = simPdf_s.createNLL(combData)
         m2 = r.RooMinimizer(nll)
         m2.setStrategy(2)
@@ -379,9 +410,45 @@ class RhalphabetBuilder():
         fr = m2.save()
         fr.Print('v')
 
-        #print "qcd_fail_cat1_Bin1_func", w.function("qcd_fail_cat1_Bin1_func").getVal()
-        #print "qcd_fail_cat1_Bin1_In", w.var("qcd_fail_cat1_Bin1_In").getVal()
-        #print "qcd_fail_cat1_Bin1_Unc", w.var("qcd_fail_cat1_Bin1_Unc").getVal()
+        if self._multi:
+            pdf_index = w.cat('pdf_index')
+            pdf_index.setIndex(1)
+            pdf_index.setConstant(True)
+            for i in range(0,self._poly_degree_rho_exp+1):
+                for j in range(0,self._poly_degree_pt_exp+1):
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).Print('v')
+            for i in range(0,self._poly_degree_rho+1):
+                for j in range(0,self._poly_degree_pt+1):
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).setConstant(True)
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).Print('v')
+                
+                nll = simPdf_s.createNLL(combData)
+                m2 = r.RooMinimizer(nll)
+                m2.setStrategy(2)
+                m2.setMaxFunctionCalls(100000)
+                m2.setMaxIterations(100000)
+                m2.setPrintLevel(-1)
+                m2.setPrintEvalErrors(-1)
+                m2.setEps(1e-5)
+                m2.optimizeConst(2)
+
+            migrad_status = m2.minimize('Minuit2', 'migrad')
+            improve_status = m2.minimize('Minuit2', 'improve')
+            hesse_status = m2.minimize('Minuit2', 'hesse')
+            
+            fr = m2.save()
+            fr.Print('v')
+
+            pdf_index.setConstant(False)
+            for i in range(0,self._poly_degree_rho_exp+1):
+                for j in range(0,self._poly_degree_pt_exp+1):
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).Print('v')
+            for i in range(0,self._poly_degree_rho+1):
+                for j in range(0,self._poly_degree_pt+1):
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).Print('v')
 
         icat = 0
         for cat in self._categories:
@@ -392,7 +459,6 @@ class RhalphabetBuilder():
             else:
                 wralphabase[cat].writeToFile(self._rhalphabet_output_path, False)
             icat += 1
-
     def loadfit(self, fitToLoad):
 
         fralphabase_load = r.TFile.Open(fitToLoad, 'read')
@@ -486,13 +552,19 @@ class RhalphabetBuilder():
         self._lEffQCD.setConstant(True)
 
         polynomial_variables = []
-        #self.buildPolynomialArray(polynomial_variables, self._poly_degree_pt, self._poly_degree_rho, "p", "r", -30, 30)
+        # let it go negative
         self.buildPolynomialArray(polynomial_variables, self._poly_degree_rho, self._poly_degree_pt, "r", "p", -30, 30)
+        if self._multi:
+            exp_polynomial_variables = []
+            self.buildPolynomialArray(exp_polynomial_variables, self._poly_degree_rho_exp, self._poly_degree_pt_exp, "r", "expp", -30, 30)
+        
         print "polynomial_variables=",
         print polynomial_variables
 
         # Now build the function
         pass_bins = r.RooArgList()
+        if self._multi:
+            pass_bins_exp = r.RooArgList()
         fail_bins = r.RooArgList()
 
         for mass_bin in range(1, self._mass_nbins + 1):
@@ -505,7 +577,14 @@ class RhalphabetBuilder():
                 print ("Pt/Rho poly")
                 #roopolyarray = self.buildRooPolyRhoArray(self._lPt.getVal(), self._lRho.getVal(), lUnity, lZero,
                 #                                         polynomial_variables)
-                roopolyarray = self.buildRooPolyRhoArrayBernstein(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+                if self._exp:
+                    roopolyarray = self.buildRooPolyRhoArrayBernsteinExp(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)   
+                elif self._multi:
+                    roopolyarray_exp = self.buildRooPolyRhoArrayBernsteinExp(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,exp_polynomial_variables)
+                    roopolyarray = self.buildRooPolyRhoArrayBernstein(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+                else:
+                    roopolyarray = self.buildRooPolyRhoArrayBernstein(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+
             print "RooPolyArray:"
             roopolyarray.Print()
             fail_bin_content = 0
@@ -548,7 +627,13 @@ class RhalphabetBuilder():
             lArg = r.RooArgList(fail_bin_var, roopolyarray, self._lEffQCD)
             pass_bin_var = r.RooFormulaVar(rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
                                            rhalph_bkgd_name + "_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
-                                           "@0*max(@1,0)*@2", lArg)
+                                           "@0*@1*@2", lArg)
+            if self._multi:
+                lArg_exp = r.RooArgList(fail_bin_var, roopolyarray_exp, self._lEffQCD)
+            
+                pass_bin_var_exp = r.RooFormulaVar(rhalph_bkgd_name + "_exp_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
+                                                   rhalph_bkgd_name + "_exp_pass_" + category + self._suffix + "_Bin" + str(mass_bin),
+                                                   "@0*@1*@2", lArg_exp)
 
             print "Pass=fail*poly*eff RooFormulaVar:"
             print pass_bin_var.Print()
@@ -563,42 +648,86 @@ class RhalphabetBuilder():
                                             rhalph_bkgd_name + "_pass_" + category + "_Bin" + str(mass_bin), 0, 0, 0)
 
                 pass_bin_var.setConstant(True)
+                if self._multi:
+                    pass_bin_var_exp = pass_bin_var.Clone(rhalph_bkgd_name + "_exp_pass_" + category + "_Bin" + str(mass_bin))
 
             # Add bins to the array
             pass_bins.add(pass_bin_var)
+            if self._multi:
+                pass_bins_exp.add(pass_bin_var_exp)
             fail_bins.add(fail_bin_var)
-            self._all_vars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
-            self._all_pars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
-            # print  fail_bin_var.GetName(),"flatParam",lPass#,lPass+"/("+lFail+")*@0"
-
-        # print "Printing pass_bins:"
-        # for i in xrange(pass_bins.getSize()):
-        #    pass_bins[i].Print()
-        pass_rparh = r.RooParametricHist(rhalph_bkgd_name + "_pass_" + category + self._suffix, rhalph_bkgd_name + "_pass_" + category + self._suffix,
+            if self._multi:
+                self._all_vars.extend([pass_bin_var, pass_bin_var_exp, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
+                self._all_pars.extend([pass_bin_var, pass_bin_var_exp, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
+            else:
+                self._all_vars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
+                self._all_pars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
+ 
+        pass_rparh = r.RooParametricHist(rhalph_bkgd_name + "_pass_" + category + self._suffix, 
+                                         rhalph_bkgd_name + "_pass_" + category + self._suffix,
                                          self._lMSD, pass_bins, fail_histograms["data_obs"])
-        fail_rparh = r.RooParametricHist(rhalph_bkgd_name + "_fail_" + category + self._suffix, rhalph_bkgd_name + "_fail_" + category + self._suffix,
-                                         self._lMSD, fail_bins, fail_histograms["data_obs"])
+        if self._multi:
+            pass_rparh_exp = r.RooParametricHist(rhalph_bkgd_name + "_exp_pass_" + category + self._suffix, 
+                                                 rhalph_bkgd_name + "_exp_pass_" + category + self._suffix,
+                                                 self._lMSD, pass_bins_exp, fail_histograms["data_obs"])
+            mypdfs = r.RooArgList()
+            mypdfs.add(pass_rparh)
+            mypdfs.add(pass_rparh_exp)
+            pass_rparh_multi = r.RooMultiPdf(rhalph_bkgd_name + "_multi_pass_" + category + self._suffix, 
+                                             rhalph_bkgd_name + "_multi_pass_" + category + self._suffix,
+                                             self._pdf_index, mypdfs)
+            fail_rparh = r.RooParametricHist(rhalph_bkgd_name + "_multi_fail_" + category + self._suffix, 
+                                             rhalph_bkgd_name + "_multi_fail_" + category + self._suffix,
+                                             self._lMSD, fail_bins, fail_histograms["data_obs"])
+        else:
+            fail_rparh = r.RooParametricHist(rhalph_bkgd_name + "_fail_" + category + self._suffix, 
+                                             rhalph_bkgd_name + "_fail_" + category + self._suffix,
+                                             self._lMSD, fail_bins, fail_histograms["data_obs"])
         print "Print pass and fail RooParametricHists"
         pass_rparh.Print()
         fail_rparh.Print()
         pass_norm = r.RooAddition(rhalph_bkgd_name + "_pass_" + category + self._suffix + "_norm",
                                   rhalph_bkgd_name + "_pass_" + category + self._suffix + "_norm", pass_bins)
-        fail_norm = r.RooAddition(rhalph_bkgd_name + "_fail_" + category + self._suffix + "_norm",
-                                  rhalph_bkgd_name + "_fail_" + category + self._suffix + "_norm", fail_bins)
+        if self._multi:
+            pass_norm_exp = r.RooAddition(rhalph_bkgd_name + "_exp_pass_" + category + self._suffix + "_norm",
+                                          rhalph_bkgd_name + "_exp_pass_" + category + self._suffix + "_norm", pass_bins_exp)
+            
+            multi_arg = r.RooArgList()
+            multi_arg.add(self._pdf_index)
+            multi_arg.add(pass_norm)
+            multi_arg.add(pass_norm_exp)
+            pass_norm_multi = r.RooFormulaVar(rhalph_bkgd_name + "_multi_pass_" + category + self._suffix + "_norm",
+                                              rhalph_bkgd_name + "_multi_pass_" + category + self._suffix + "_norm",
+                                              '(1-@0)*@1 + @0*@2',multi_arg)
+            fail_norm = r.RooAddition(rhalph_bkgd_name + "_multi_fail_" + category + self._suffix + "_norm",
+                                      rhalph_bkgd_name + "_multi_fail_" + category + self._suffix + "_norm", fail_bins)
+        else:
+            fail_norm = r.RooAddition(rhalph_bkgd_name + "_fail_" + category + self._suffix + "_norm",
+                                      rhalph_bkgd_name + "_fail_" + category + self._suffix + "_norm", fail_bins)
         print "Printing NPass and NFail variables:"
         pass_norm.Print()
         fail_norm.Print()
-        self._all_shapes.extend([pass_rparh, fail_rparh, pass_norm, fail_norm])
+        if self._multi:
+            self._all_shapes.extend([pass_rparh, pass_rparh_exp, fail_rparh, pass_norm, pass_norm_exp, fail_norm])
+        else:
+            self._all_shapes.extend([pass_rparh, fail_rparh, pass_norm, fail_norm])
         
         # Now write the workspace with the rooparamhist
         pass_workspace = r.RooWorkspace("w_pass_" + str(category))
         fail_workspace = r.RooWorkspace("w_fail_" + str(category))
-        getattr(pass_workspace, 'import')(pass_rparh, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
-        getattr(pass_workspace, 'import')(pass_norm, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
+
+        if self._multi:
+            getattr(pass_workspace, 'import')(pass_rparh_multi, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x,pdf_index'))
+            getattr(pass_workspace, 'import')(pass_norm_multi, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x,pdf_index'))
+        else:
+            getattr(pass_workspace, 'import')(pass_rparh, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
+            getattr(pass_workspace, 'import')(pass_norm, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
+
+            
         getattr(fail_workspace, 'import')(fail_rparh, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
         getattr(fail_workspace, 'import')(fail_norm, r.RooFit.RecycleConflictNodes(), r.RooFit.RenameAllVariablesExcept(self._suffix.replace('_',''),'x'))
         print "Printing rhalphabet workspace:"
-        pass_workspace.Print()
+        pass_workspace.Print('V')
         if category.find("1") > -1:
             pass_workspace.writeToFile(self._rhalphabet_output_path)
         else:
@@ -714,6 +843,54 @@ class RhalphabetBuilder():
         lRhoArray.add(lRho_rescaled)
         print "lRhoArray: ", lRhoArray.Print()
         lRhoPol = r.RooFormulaVar(lLabel, lLabel, rhoPolyString, lRhoArray)
+        self._all_vars.extend([lPt_rescaled, lRho_rescaled, lRhoPol])
+        return lRhoPol
+
+
+    def buildRooPolyRhoArrayBernsteinExp(self, iPt, iRho, iQCD, iZero, iVars):
+
+        print "---- [buildRooPolyArrayBernsteinExp]"
+
+        lPt = r.RooConstVar("Var_Pt_" + str(iPt) + "_" + str(iRho), "Var_Pt_" + str(iPt) + "_" + str(iRho), (iPt))
+        lPt_rescaled = r.RooConstVar("Var_Pt_rescaled_" + str(iPt) + "_" + str(iRho),
+                                     "Var_Pt_rescaled_" + str(iPt) + "_" + str(iRho),
+                                     ((iPt - self._pt_lo) / (self._pt_hi - self._pt_lo)))
+        lRho = r.RooConstVar("Var_Rho_" + str(iPt) + "_" + str(iRho), "Var_Rho_" + str(iPt) + "_" + str(iRho), (iRho))
+        lRho_rescaled = r.RooConstVar("Var_Rho_rescaled_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)),
+                                      "Var_Rho_rescaled_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)),
+                                      ((iRho - self._rho_lo) / (self._rho_hi - self._rho_lo)))
+
+        ptPolyString = self.generate_bernstein_string(self._poly_degree_pt_exp)
+        rhoPolyString = self.generate_bernstein_string(self._poly_degree_rho_exp)
+
+        lRhoArray = r.RooArgList()
+        lNCount = 0
+        for pRVar in range(0, self._poly_degree_rho_exp + 1):
+            lTmpArray = r.RooArgList()
+            for pVar in range(0, self._poly_degree_pt_exp + 1):
+                #if lNCount == 0:
+                #    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
+                #else:
+                print "lNCount = " + str(lNCount)
+                lTmpArray.add(iVars[lNCount])
+                print "iVars[lNCount]: ", iVars[lNCount]
+                print "iVars[lNCount]"
+                iVars[lNCount].Print()
+                lNCount = lNCount + 1
+            pLabel = "Var_Pol_Bin_exp_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)) + "_" + str(pRVar)
+            lTmpArray.add(lPt_rescaled)
+            print "lTmpArray: ", lTmpArray.Print()
+            pPol = r.RooFormulaVar(pLabel, pLabel, ptPolyString, lTmpArray)
+            print "pPol:"
+            print pPol.Print("V")
+            lRhoArray.add(pPol)
+            self._all_vars.append(pPol)
+
+        lLabel = "Var_RhoPol_Bin_exp_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3))
+        lRhoArray.add(lRho_rescaled)
+        print "lRhoArray: ", lRhoArray.Print()
+        lRhoPol = r.RooFormulaVar(lLabel, lLabel, 'exp('+rhoPolyString+')', lRhoArray)
+        print('exp('+rhoPolyString+')')
         self._all_vars.extend([lPt_rescaled, lRho_rescaled, lRhoPol])
         return lRhoPol
 
@@ -1072,7 +1249,6 @@ class RhalphabetBuilder():
                     print "smear_val", smear_val
                     print "before smear integral", tmph_mass_matched.Integral()
                     print "after smear integral", hmatched_new_central.Integral()
-                    # sys.exit()
 
                 # get shift up/down
                 # shift by half the bin width, to make a 1 bin-shift template
