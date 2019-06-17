@@ -773,20 +773,18 @@ class sampleContainer:
             
             ### Apply k-factor for sampleContainer constructed with normSampleContainer
             if 'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' in self._name:  #for 2016legacy
-                ptForNLO = max(400., min(self.genVPt[0], 1000.))  
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
                 iEWKKF = self._hEWK_Z.GetBinContent(self._hEWK_Z.FindBin(ptForNLO));
                 iQCDKF = self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))        # New QCD KF for 2017
                 vjetsKF = iQCDKF*iEWKKF;
-                if (self.genVPt[0]>1000 or self.genVPt[0]<400): vjetsKF =1                    
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'ZJetsToQQ_' in self._name:    
-                ptForNLO = max(400., min(self.genVPt[0], 1000.))  
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
                 iEWKKF = self._hEWK_Z.GetBinContent(self._hEWK_Z.FindBin(ptForNLO));  # same EWK as 2016
                 iQCDKF = self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))        # New QCD KF for 2017
                 #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
                 #vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]  ## do not use branch input
                 vjetsKF = iQCDKF*iEWKKF;
-                if (self.genVPt[0]>1000 or self.genVPt[0]<400): vjetsKF =1                    
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
 
             if 'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' in self._name:  #for 2016legacy
@@ -800,19 +798,17 @@ class sampleContainer:
                 #for i in range(0, len(ptscale)):
                 #    if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
                 #vjetsKF = W_SF*iEWKKF*ptKF;
-                ptForNLO = max(400., min(self.genVPt[0], 1000.))  
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
                 iQCDKF = self._wnlo.GetBinContent(self._wnlo.FindBin(ptForNLO))        # New QCD KF for bacon 13+ 
                 iEWKKF  = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));
                 vjetsKF = iQCDKF*iEWKKF;          
-                if (self.genVPt[0]>1000 or self.genVPt[0]<400): vjetsKF =1                    
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'WJetsToQQ_' in self._name:
-                ptForNLO = max(400., min(self.genVPt[0], 1000.))
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))
                 iEWKKF = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));  # same EWK as 2016
                 iQCDKF = self._wnlo.GetBinContent(self._wnlo.FindBin(ptForNLO))        # New QCD KF for 2017
                 #vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]                  ## do not use branch input
                 vjetsKF = iQCDKF*iEWKKF;
-                if (self.genVPt[0]>1000 or self.genVPt[0]<400): vjetsKF =1                    
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0],self.kfactorQCD[0])
        
