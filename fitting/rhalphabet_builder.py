@@ -68,8 +68,14 @@ class RhalphabetBuilder():
         # polynomial order for fit
         self._poly_degree_rho = nr  # 1 = linear ; 2 is quadratic
         self._poly_degree_pt = np  # 1 = linear ; 2 is quadratic
+        self._poly_degree_rho_exp = nr  # 1 = linear ; 2 is quadratic
+        self._poly_degree_pt_exp = np  # 1 = linear ; 2 is quadratic
         self._exp = exp
         self._multi = multi
+        if self._multi:
+            # fixed exp orders for RooMultiPdf tests
+            self._poly_degree_rho_exp = 3  # 1 = linear ; 2 is quadratic
+            self._poly_degree_pt_exp = 1  # 1 = linear ; 2 is quadratic
         self._pdf_index = r.RooCategory("pdf_index","Index of Pdf which is active")
         self._nptbins = pass_hists["data_obs"].GetYaxis().GetNbins()
         self._pt_lo = pass_hists["data_obs"].GetYaxis().GetBinLowEdge(1)
@@ -377,8 +383,15 @@ class RhalphabetBuilder():
             pdf_index.Print('V')
             pdf_index.setIndex(0)
             pdf_index.setConstant(True)
-            for p in ['expp0r0','expp0r1','expp0r2','expp1r0','expp1r1','expp1r2','expp2r0','expp2r1','expp2r2']:
-                w.var(p+self._suffix).setConstant(True)
+            for i in range(0,self._poly_degree_rho_exp+1):
+                for j in range(0,self._poly_degree_pt_exp+1):
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).setConstant(True)
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).Print('v')
+            for i in range(0,self._poly_degree_rho+1):
+                for j in range(0,self._poly_degree_pt+1):
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).Print('v')
+
         nll = simPdf_s.createNLL(combData)
         m2 = r.RooMinimizer(nll)
         m2.setStrategy(2)
@@ -401,21 +414,41 @@ class RhalphabetBuilder():
             pdf_index = w.cat('pdf_index')
             pdf_index.setIndex(1)
             pdf_index.setConstant(True)
-            for p in ['expp0r0','expp0r1','expp0r2','expp1r0','expp1r1','expp1r2','expp2r0','expp2r1','expp2r2']:
-                w.var(p+self._suffix).setConstant(False)
-            for p in ['p0r0','p0r1','p0r2','p1r0','p1r1','p1r2','p2r0','p2r1','p2r2']:
-                w.var(p+self._suffix).setConstant(True)
+            for i in range(0,self._poly_degree_rho_exp+1):
+                for j in range(0,self._poly_degree_pt_exp+1):
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).Print('v')
+            for i in range(0,self._poly_degree_rho+1):
+                for j in range(0,self._poly_degree_pt+1):
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).setConstant(True)
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).Print('v')
+                
+                nll = simPdf_s.createNLL(combData)
+                m2 = r.RooMinimizer(nll)
+                m2.setStrategy(2)
+                m2.setMaxFunctionCalls(100000)
+                m2.setMaxIterations(100000)
+                m2.setPrintLevel(-1)
+                m2.setPrintEvalErrors(-1)
+                m2.setEps(1e-5)
+                m2.optimizeConst(2)
+
             migrad_status = m2.minimize('Minuit2', 'migrad')
             improve_status = m2.minimize('Minuit2', 'improve')
             hesse_status = m2.minimize('Minuit2', 'hesse')
             
             fr = m2.save()
             fr.Print('v')
+
             pdf_index.setConstant(False)
-            for p in ['p0r0','p0r1','p0r2','p1r0','p1r1','p1r2','p2r0','p2r1','p2r2']:
-                w.var(p+self._suffix).setConstant(False)
-            for p in ['expp0r0','expp0r1','expp0r2','expp1r0','expp1r1','expp1r2','expp2r0','expp2r1','expp2r2']:
-                w.var(p+self._suffix).setConstant(False)
+            for i in range(0,self._poly_degree_rho_exp+1):
+                for j in range(0,self._poly_degree_pt_exp+1):
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
+                    w.var('expp'+str(j)+'r'+str(i)+self._suffix).Print('v')
+            for i in range(0,self._poly_degree_rho+1):
+                for j in range(0,self._poly_degree_pt+1):
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
+                    w.var('p'+str(j)+'r'+str(i)+self._suffix).Print('v')
 
         icat = 0
         for cat in self._categories:
@@ -426,7 +459,6 @@ class RhalphabetBuilder():
             else:
                 wralphabase[cat].writeToFile(self._rhalphabet_output_path, False)
             icat += 1
-
     def loadfit(self, fitToLoad):
 
         fralphabase_load = r.TFile.Open(fitToLoad, 'read')
@@ -524,7 +556,7 @@ class RhalphabetBuilder():
         self.buildPolynomialArray(polynomial_variables, self._poly_degree_rho, self._poly_degree_pt, "r", "p", -30, 30)
         if self._multi:
             exp_polynomial_variables = []
-            self.buildPolynomialArray(exp_polynomial_variables, self._poly_degree_rho, self._poly_degree_pt, "r", "expp", -30, 30)
+            self.buildPolynomialArray(exp_polynomial_variables, self._poly_degree_rho_exp, self._poly_degree_pt_exp, "r", "expp", -30, 30)
         
         print "polynomial_variables=",
         print polynomial_variables
@@ -828,14 +860,14 @@ class RhalphabetBuilder():
                                       "Var_Rho_rescaled_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)),
                                       ((iRho - self._rho_lo) / (self._rho_hi - self._rho_lo)))
 
-        ptPolyString = self.generate_bernstein_string(self._poly_degree_pt)
-        rhoPolyString = self.generate_bernstein_string(self._poly_degree_rho)
+        ptPolyString = self.generate_bernstein_string(self._poly_degree_pt_exp)
+        rhoPolyString = self.generate_bernstein_string(self._poly_degree_rho_exp)
 
         lRhoArray = r.RooArgList()
         lNCount = 0
-        for pRVar in range(0, self._poly_degree_rho + 1):
+        for pRVar in range(0, self._poly_degree_rho_exp + 1):
             lTmpArray = r.RooArgList()
-            for pVar in range(0, self._poly_degree_pt + 1):
+            for pVar in range(0, self._poly_degree_pt_exp + 1):
                 #if lNCount == 0:
                 #    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
                 #else:
