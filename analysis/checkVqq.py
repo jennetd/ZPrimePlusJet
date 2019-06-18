@@ -46,7 +46,7 @@ def GetChain(h, f,xsec,lumi,branch,selection='',treeName='Events'):
             h.Scale(lumi*xsec/chain.GetEntries())
 
     print h.GetName(), h.Integral() 
-    return h,chain
+    return h
 
 def SetColor(h,color):
     h.SetLineColor(color)
@@ -186,7 +186,7 @@ def drawFromhist(hlist,texList,pname,options,drawOpt='',yr=(-1,-1),xr=(-1,-1),ou
     c1.SaveAs(options.odir+pname+".pdf")
     #c1.SaveAs(options.odir+pname+".root")
 
-def applyEWK(h_NLO,h_EWK):
+def applyCorr(h_NLO,h_EWK):
     for i in range(0,h_NLO.GetNbinsX()+1):
         x     = h_NLO.GetBinCenter(i)
         y,ey  = h_NLO.GetBinContent(i), h_NLO.GetBinError(i)
@@ -340,23 +340,23 @@ if __name__ == '__main__':
     h_zraw_800_2017= TH1D('h_zraw_800_2017','h_zraw_800_2017',100,0,1000)
     
     ##### Phil's NLO files
-    h_w_nlo_qcd ,chain_tmp = GetChain(h_w_nlo_qcd,'ggH/Comb_w12j.root',56.3582,lumi*1000,'fVPt','(v_m>40)' )
-    h_z_nlo_qcd ,chain_tmp = GetChain(h_z_nlo_qcd,'ggH/z12j_v2.root'  ,22.2833,lumi*1000,'fVPt','(v_m>40)' )
+    h_w_nlo_qcd  = GetChain(h_w_nlo_qcd,'ggH/Comb_w12j.root',56.3582,lumi*1000,'fVPt','(v_m>40)' )
+    h_z_nlo_qcd  = GetChain(h_z_nlo_qcd,'ggH/z12j_v2.root'  ,22.2833,lumi*1000,'fVPt','(v_m>40)' )
     h_w_nlo_ewk = h_w_nlo_qcd.Clone('h_w_nlo_ewk') 
     h_z_nlo_ewk = h_z_nlo_qcd.Clone('h_z_nlo_ewk')
     hEWK_W             = getEWK('W')
     hEWK_Z             = getEWK('Z')
-    applyEWK(h_w_nlo_ewk,hEWK_W)
-    applyEWK(h_z_nlo_ewk,hEWK_Z)
+    applyCorr(h_w_nlo_ewk,hEWK_W)
+    applyCorr(h_z_nlo_ewk,hEWK_Z)
    
     #### Phil's LO files 
-    h_w_lo_400 ,chain_tmp = GetChain(h_w_lo_400,'ggH/wqq_ht400.root',315.6,lumi*1000,'fVPt','(v_m>40)')
-    h_w_lo_600 ,chain_tmp = GetChain(h_w_lo_600,'ggH/wqq_ht600.root',68.57,lumi*1000,'fVPt','(v_m>40)')
-    h_w_lo_800 ,chain_tmp = GetChain(h_w_lo_800,'ggH/wqq_ht800.root',34.9,lumi*1000,'fVPt' ,'(v_m>40)')
-    
-    h_z_lo_400 ,chain_tmp = GetChain(h_z_lo_400,'ggH/zqq_ht400.root',145.4,lumi*1000,'fVPt','(v_m>40)')
-    h_z_lo_600 ,chain_tmp = GetChain(h_z_lo_600,'ggH/zqq_ht600.root',34.0 ,lumi*1000,'fVPt','(v_m>40)')
-    h_z_lo_800 ,chain_tmp = GetChain(h_z_lo_800,'ggH/zqq_ht800.root',18.67,lumi*1000,'fVPt','(v_m>40)')
+    #h_w_lo_400  = GetChain(h_w_lo_400,'ggH/wqq_ht400.root',315.6,lumi*1000,'fVPt','(v_m>40)')
+    #h_w_lo_600  = GetChain(h_w_lo_600,'ggH/wqq_ht600.root',68.57,lumi*1000,'fVPt','(v_m>40)')
+    #h_w_lo_800  = GetChain(h_w_lo_800,'ggH/wqq_ht800.root',34.9,lumi*1000,'fVPt' ,'(v_m>40)')
+    #
+    #h_z_lo_400  = GetChain(h_z_lo_400,'ggH/zqq_ht400.root',145.4,lumi*1000,'fVPt','(v_m>40)')
+    #h_z_lo_600  = GetChain(h_z_lo_600,'ggH/zqq_ht600.root',34.0 ,lumi*1000,'fVPt','(v_m>40)')
+    #h_z_lo_800  = GetChain(h_z_lo_800,'ggH/zqq_ht800.root',18.67,lumi*1000,'fVPt','(v_m>40)')
 
     h_w_lo_400.Add(h_w_lo_600)
     h_w_lo_400.Add(h_w_lo_800)
@@ -376,28 +376,28 @@ if __name__ == '__main__':
     #tf2017zqq_400_600 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV_*.root'
     #tf2017zqq_800     ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV_0.root'
 
-    tf2016zqq         ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/DYJetsToQQ_HT180_13TeV/Output_job1*.root'
-    tf2016wqq         ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/WJetsToQQ_HT180_13TeV/Output_job1*.root'
-    tf2017wqq_400_600 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV//Output_job1*.root'
-    tf2017wqq_600_800 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV//Output_job1*.root'
-    tf2017wqq_800     ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV//Output_job1*.root'
-    tf2017zqq_600_800 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV//Output_job1*.root'
-    tf2017zqq_400_600 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV//Output_job1*.root'
-    tf2017zqq_800     ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV/Output_job1*.root'
+    tf2016zqq         ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/DYJetsToQQ_HT180_13TeV/Output_job*.root'
+    tf2016wqq         ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/WJetsToQQ_HT180_13TeV/Output_job*.root'
+    tf2017wqq_400_600 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/WJetsToQQ_HT400to600_qc19_3j_TuneCP5_13TeV/Output_job*.root'
+    tf2017wqq_600_800 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/WJetsToQQ_HT600to800_qc19_3j_TuneCP5_13TeV/Output_job*.root'
+    tf2017wqq_800     ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/WJetsToQQ_HT-800toInf_qc19_3j_TuneCP5_13TeV/Output_job*.root'
+    tf2017zqq_600_800 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV/Output_job*.root'
+    tf2017zqq_400_600 ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV/Output_job*.root'
+    tf2017zqq_800     ='/eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV/Output_job*.root'
 
 
-    Reweight = False
+    Reweight = True 
     if Reweight:
-        h_wraw_2016 ,chain_tmp = GetChain(h_wraw_2016,tf2016wqq        ,2778 ,lumi*1000,'genVPt','(genVMass>40)','Events')
-        h_zraw_2016 ,chain_tmp = GetChain(h_zraw_2016,tf2016zqq        ,1187 ,lumi*1000,'genVPt','(genVMass>40)','Events')
+        h_wraw_2016     = GetChain(h_wraw_2016,tf2016wqq        ,2778 ,lumi*1000.0,'genVPt','(genVMass>40)','Events')
+        h_zraw_2016     = GetChain(h_zraw_2016,tf2016zqq        ,1187 ,lumi*1000.0,'genVPt','(genVMass>40)','Events')
 
-        h_wraw_400_2017 ,chain_tmp = GetChain(h_wraw_400_2017,tf2017wqq_400_600,315.6,lumi*1000,'genVPt','(genVMass>40)','Events')
-        h_wraw_600_2017 ,chain_tmp = GetChain(h_wraw_600_2017,tf2017wqq_600_800,68.57,lumi*1000,'genVPt','(genVMass>40)','Events')
-        h_wraw_800_2017 ,chain_tmp = GetChain(h_wraw_800_2017,tf2017wqq_800    ,34.9 ,lumi*1000,'genVPt','(genVMass>40)','Events')
-                                              
-        h_zraw_400_2017 ,chain_tmp = GetChain(h_zraw_400_2017,tf2017zqq_400_600,145.4,lumi*1000,'genVPt','(genVMass>40)','Events')
-        h_zraw_600_2017 ,chain_tmp = GetChain(h_zraw_600_2017,tf2017zqq_600_800,34.0 ,lumi*1000,'genVPt','(genVMass>40)','Events')
-        h_zraw_800_2017 ,chain_tmp = GetChain(h_zraw_800_2017,tf2017zqq_800    ,18.67,lumi*1000,'genVPt','(genVMass>40)','Events')
+        h_wraw_400_2017  = GetChain(h_wraw_400_2017,tf2017wqq_400_600,315.6,lumi*1000.0,'genVPt','(genVMass>40)','Events')
+        h_wraw_600_2017  = GetChain(h_wraw_600_2017,tf2017wqq_600_800,68.57,lumi*1000.0,'genVPt','(genVMass>40)','Events')
+        h_wraw_800_2017  = GetChain(h_wraw_800_2017,tf2017wqq_800    ,34.9 ,lumi*1000.0,'genVPt','(genVMass>40)','Events')
+                                    
+        h_zraw_400_2017  = GetChain(h_zraw_400_2017,tf2017zqq_400_600,145.4,lumi*1000.0,'genVPt','(genVMass>40)','Events')
+        h_zraw_600_2017  = GetChain(h_zraw_600_2017,tf2017zqq_600_800,34.0 ,lumi*1000.0,'genVPt','(genVMass>40)','Events')
+        h_zraw_800_2017  = GetChain(h_zraw_800_2017,tf2017zqq_800    ,18.67,lumi*1000.0,'genVPt','(genVMass>40)','Events')
 
         print h_zraw_400_2017.GetName() ,   h_zraw_400_2017.Integral(40,50)
         print h_zraw_600_2017.GetName() ,   h_zraw_600_2017.Integral(40,50) 
@@ -407,6 +407,29 @@ if __name__ == '__main__':
         h_wraw_400_2017.Add(h_wraw_800_2017)
         h_zraw_400_2017.Add(h_zraw_600_2017)
         h_zraw_400_2017.Add(h_zraw_800_2017)
+
+        f_z_nlo = TFile("./ggH/ZJets_QCD_NLO.root")
+        f_w_nlo = TFile("./ggH/WJets_QCD_NLO.root")
+        h_wraw_2016_ewk = h_wraw_2016.Clone('h_wraw_2016_ewk')
+        h_zraw_2016_ewk = h_zraw_2016.Clone('h_zraw_2016_ewk')
+        h_wraw_2016_qcd = h_wraw_2016.Clone('h_wraw_2016_qcd')
+        h_zraw_2016_qcd = h_zraw_2016.Clone('h_zraw_2016_qcd')
+        applyCorr(h_wraw_2016_ewk,hEWK_W)
+        applyCorr(h_zraw_2016_ewk,hEWK_Z)
+        applyCorr(h_wraw_2016_qcd,f_w_nlo.Get("W_NLO_QCD_2016"))
+        applyCorr(h_zraw_2016_qcd,f_z_nlo.Get("Z_NLO_QCD_2016"))
+
+        h_wraw_400_2017_ewk = h_wraw_400_2017.Clone('h_wraw_400_2017_ewk')
+        h_zraw_400_2017_ewk = h_zraw_400_2017.Clone('h_zraw_400_2017_ewk')
+        h_wraw_400_2017_qcd = h_wraw_400_2017.Clone('h_wraw_400_2017_qcd')
+        h_zraw_400_2017_qcd = h_zraw_400_2017.Clone('h_zraw_400_2017_qcd')
+        #
+        applyCorr(h_wraw_400_2017_ewk,hEWK_W)
+        applyCorr(h_zraw_400_2017_ewk,hEWK_Z)
+        applyCorr(h_wraw_400_2017_qcd,f_w_nlo.Get("W_NLO_QCD_2017"))
+        applyCorr(h_zraw_400_2017_qcd,f_z_nlo.Get("Z_NLO_QCD_2017"))
+        #f_z_nlo.Close()
+        #f_w_nlo.Close()
 
     #tf2017 = TFile("ddb_Jun10/MC/Plots_1000pb_weighted.root")
     #tf2016 = TFile("ddb2016_May21_v2/MC/Plots_1000pb_weighted.root")
@@ -419,35 +442,74 @@ if __name__ == '__main__':
     h_Z_2017 = tf2017.Get("h_DY_fBosonPt_weight")
     h_W_2016 = tf2016.Get("h_W_fBosonPt_weight")
     h_Z_2016 = tf2016.Get("h_DY_fBosonPt_weight")
+   
+    h_W_2017.SetDirectory(0)  
+    h_Z_2017.SetDirectory(0)
+    h_W_2016.SetDirectory(0)
+    h_Z_2016.SetDirectory(0)
+
+ 
     h_W_2017.Scale(lumi/41.5)
     h_Z_2017.Scale(lumi/41.5)
     h_W_2016.Scale(lumi/35.9)
     h_Z_2016.Scale(lumi/35.9)
 
-    hlist = [
-         #{"hist":h_wraw_400_2017,'colors':kGreen,'style':3, 'ytitle':"",  'label':'W 2017(no kfactor)','denom':True},
-         #{"hist":h_wraw_2016,'colors':kRed  ,'style':3, 'ytitle':"",  'label':'W 2016(no kfactor)','denom':False},
-         {"hist":h_W_2017       ,'colors':kGreen,'style':1, 'ytitle':"",  'label':'W 2017'            ,'denom':False},
-         {"hist":h_W_2016       ,'colors':kRed  ,'style':1, 'ytitle':"",  'label':'W 2016'            ,'denom':False},
-         #{"hist":h_w_nlo_qcd    ,'colors':kBlue ,'style':2, 'ytitle':"",  'label':'W NLO(qcd)  '      ,'denom':False},
-         {"hist":h_w_nlo_ewk    ,'colors':kBlue ,'style':1, 'ytitle':"",  'label':'W NLO(qcd+ewk)'    ,'denom':True},
-         #{"hist":h_w_lo_400 ,'colors':kBlue ,'style':3, 'ytitle':"",  'label':'W LO'              ,'denom':False},
-    ]
-    xmin = 350.0
-    ymax = h_W_2016.GetBinContent(h_W_2016.FindBin(xmin))*1.5
-    drawFromhist(hlist,[],"Validate_W",options,"hist",(0,ymax),(xmin,1000))
+    #hlist = [
+    #     {"hist":h_W_2017       ,'colors':kGreen,'style':1, 'ytitle':"",  'label':'W 2017'            ,'denom':False},
+    #     {"hist":h_W_2016       ,'colors':kRed  ,'style':1, 'ytitle':"",  'label':'W 2016'            ,'denom':False},
+    #     {"hist":h_w_nlo_ewk    ,'colors':kBlue ,'style':1, 'ytitle':"",  'label':'W NLO(qcd+ewk)'    ,'denom':True},
+    #]
+    #xmin = 350.0
+    #ymax = h_W_2016.GetBinContent(h_W_2016.FindBin(xmin))*1.5
+    #drawFromhist(hlist,[],"Validate_W",options,"hist",(0,ymax),(xmin,1000))
 
+    #hlist = [
+    #     {"hist":h_Z_2017       ,'colors':kGreen,'style':1, 'ytitle':"",  'label':'Z 2017'            ,'denom':False},
+    #     {"hist":h_Z_2016       ,'colors':kRed  ,'style':1, 'ytitle':"",  'label':'Z 2016'            ,'denom':False},
+    #     {"hist":h_z_nlo_ewk    ,'colors':kBlue ,'style':1, 'ytitle':"",  'label':'Z NLO(qcd+ewk)'    ,'denom':True},
+    #]
+    #ymax = h_Z_2016.GetBinContent(h_Z_2016.FindBin(xmin))*1.5
+    #drawFromhist(hlist,[],"Validate_Z",options,"hist",(0,ymax),(xmin,1000))
+
+
+    ##########  WHY I CANNOT CHANGE STYLE?????#########
+    xmin = 450.0
     hlist = [
-         #{"hist":h_zraw_400_2017,'colors':kGreen,'style':3, 'ytitle':"",  'label':'Z 2017(no kfactor)','denom':True},
-         #{"hist":h_zraw_2016,'colors':kRed  ,'style':3, 'ytitle':"",  'label':'Z 2016(no kfactor)','denom':False},
-         {"hist":h_Z_2017       ,'colors':kGreen,'style':1, 'ytitle':"",  'label':'Z 2017'            ,'denom':False},
-         {"hist":h_Z_2016       ,'colors':kRed  ,'style':1, 'ytitle':"",  'label':'Z 2016'            ,'denom':False},
-         #{"hist":h_z_nlo_qcd    ,'colors':kBlue ,'style':2, 'ytitle':"",  'label':'Z NLO(qcd)'        ,'denom':False},
+         {"hist":h_W_2016       ,'colors':kRed    ,'style':1, 'ytitle':"",  'label':'W 2016(qcd+ewk)'   ,'denom':False},
+         {"hist":h_wraw_2016_ewk,'colors':kBlack  ,'style':2, 'ytitle':"",  'label':'W 2016(ewk)'       ,'denom':False},
+         {"hist":h_wraw_2016_qcd,'colors':kBlack  ,'style':3, 'ytitle':"",  'label':'W 2016(qcd)'       ,'denom':False},
+         {"hist":h_wraw_2016    ,'colors':kBlack  ,'style':1, 'ytitle':"",  'label':'W 2016(no kfactor)','denom':False},
+         {"hist":h_w_nlo_ewk    ,'colors':kBlue   ,'style':1, 'ytitle':"",  'label':'W NLO(qcd+ewk)'    ,'denom':True},
+    ]
+    ymax = h_w_nlo_ewk.GetBinContent(h_w_nlo_ewk.FindBin(xmin))*1.5
+    drawFromhist(hlist,[],"W_2016",options,"hist",(0,ymax),(xmin,1000))
+    hlist = [
+         {"hist":h_Z_2016       ,'colors':kRed    ,'style':1, 'ytitle':"",  'label':'Z 2016(qcd+ewk)'   ,'denom':False},
+         {"hist":h_zraw_2016_ewk,'colors':kBlack  ,'style':2, 'ytitle':"",  'label':'Z 2016(ewk)'       ,'denom':False},
+         {"hist":h_zraw_2016_qcd,'colors':kBlack  ,'style':3, 'ytitle':"",  'label':'Z 2016(qcd)'       ,'denom':False},
+         {"hist":h_zraw_2016    ,'colors':kBlack  ,'style':1, 'ytitle':"",  'label':'Z 2016(no kfactor)','denom':False},
          {"hist":h_z_nlo_ewk    ,'colors':kBlue ,'style':1, 'ytitle':"",  'label':'Z NLO(qcd+ewk)'    ,'denom':True},
-         #{"hist":h_z_lo_400 ,'colors':kBlue ,'style':3, 'ytitle':"",  'label':'Z LO'              ,'denom':False},
     ]
     ymax = h_Z_2016.GetBinContent(h_Z_2016.FindBin(xmin))*1.5
-    drawFromhist(hlist,[],"Validate_Z",options,"hist",(0,ymax),(xmin,1000))
+    drawFromhist(hlist,[],"Z_2016",options,"hist",(0,ymax),(xmin,1000))
+    hlist = [
+         {"hist":h_W_2017           ,'colors':kGreen  ,'style':1, 'ytitle':"",  'label':'W 2017(qcd+ewk)'   ,'denom':False},
+         {"hist":h_wraw_400_2017_ewk,'colors':kBlack  ,'style':2, 'ytitle':"",  'label':'W 2017(ewk)'       ,'denom':False},
+         {"hist":h_wraw_400_2017_qcd,'colors':kBlack  ,'style':3, 'ytitle':"",  'label':'W 2017(qcd)'       ,'denom':False},
+         {"hist":h_wraw_400_2017    ,'colors':kBlack  ,'style':1, 'ytitle':"",  'label':'W 2017(no kfactor)','denom':False},
+         {"hist":h_w_nlo_ewk        ,'colors':kBlue   ,'style':1, 'ytitle':"",  'label':'W NLO(qcd+ewk)'    ,'denom':True},
+    ]
+    ymax = h_W_2017.GetBinContent(h_W_2017.FindBin(xmin))*1.5
+    drawFromhist(hlist,[],"W_2017",options,"hist",(0,ymax),(xmin,1000))
+    hlist = [
+         {"hist":h_Z_2017           ,'colors':kGreen  ,'style':1, 'ytitle':"",  'label':'Z 2017(qcd+ewk)'   ,'denom':False},
+         {"hist":h_zraw_400_2017    ,'colors':kBlack  ,'style':1, 'ytitle':"",  'label':'Z 2017(no kfactor)','denom':False},
+         {"hist":h_zraw_400_2017_ewk,'colors':kBlack  ,'style':2, 'ytitle':"",  'label':'Z 2017(ewk)'       ,'denom':False},
+         {"hist":h_zraw_400_2017_qcd,'colors':kBlack  ,'style':3, 'ytitle':"",  'label':'Z 2017(qcd)'       ,'denom':False},
+         {"hist":h_z_nlo_ewk        ,'colors':kBlue   ,'style':1, 'ytitle':"",  'label':'Z NLO(qcd+ewk)'    ,'denom':True},
+    ]
+    ymax = h_Z_2017.GetBinContent(h_Z_2017.FindBin(xmin))*1.5
+    drawFromhist(hlist,[],"Z_2017",options,"hist",(0,ymax),(xmin,1000))
     #LOcomparison()
     #reweight()
 
