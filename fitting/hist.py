@@ -39,7 +39,7 @@ class hist:
         return lOut
 
     def shift(self,iH,iScale):
-        lDM     = r.RooRealVar("dm","dm", 0.,-10,10)
+        lDM     = r.RooRealVar("dm","dm", 0.,-50,50)
         lShift  = r.RooFormulaVar("shift","x-dm",r.RooArgList(self._mass,lDM))  
         lHPdf = self.histpdf(iH,lShift)
         lDM.setVal(iScale)

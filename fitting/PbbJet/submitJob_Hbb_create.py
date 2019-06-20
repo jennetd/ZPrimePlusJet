@@ -14,9 +14,9 @@ Executable = {exe}.sh
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT_OR_EVICT
 Transfer_Input_Files = {exe}.sh,{files}
-Output = {exe}.$(Process).stdout
-Error  = {exe}.$(Process).stderr
-Log    = {exe}.$(Process).log
+Output = {exe}.$(Process).$(Cluster).stdout
+Error  = {exe}.$(Process).$(Cluster).stdout
+Log    = {exe}.$(Process).$(Cluster).log
 Arguments = $(Process) {njobs}
 Queue {njobs}
     """.format(exe=exe, files=','.join(files), njobs=njobs)
@@ -50,7 +50,7 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone=""):
     out += 'ls\n'
     out += 'echo "DELETING..."\n'
     out += 'rm -rf CMSSW_8_1_0\n'
-    out += 'rm -rf *.pdf *.C\n'
+    out += 'rm -rf *.pdf *.C core*\n'
     out += 'ls\n'
     out += 'date\n'
     with open(temp, 'w') as f:
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     script_group.add_option('--skip-qcd', action='store_true', dest='skipQCD', default=False, help='skip QCD', metavar='skip-qcd')
     script_group.add_option('--skip-data', action='store_true', dest='skipData', default=False, help='skip Data', metavar='skip-data')
     script_group.add_option("--lumi", dest="lumi", default=41.3, type="float", help="luminosity", metavar="lumi")
-    script_group.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
+    script_group.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016legacy','2016','2017','2018'],help='switch to use different year ', metavar='year')
     script_group.add_option("--sfData" , dest="sfData", default=1, type="int", help="process 1/sf of data", metavar="sfData")
     script_group.add_option("--region" , dest="region", default='topR6_N2',choices=['topR6_N2','QGquark','QGgluon'], help="region for pass/fail doubleB tag", metavar="region")
     script_group.add_option("--doublebName"  , dest="doublebName", default="AK8Puppijet0_deepdoubleb", help="double-b name", metavar="doublebName")
@@ -89,6 +89,7 @@ if __name__ == '__main__':
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
     gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
+    #gitClone = "git clone -b VBF6cats git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
     files = []
@@ -137,12 +138,15 @@ if __name__ == '__main__':
                 print "Cleaning submission files..." 
                 #remove all but _0 file
                 for i in range(1,10):
-                    exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
+                    exec_me("rm %s/runjob.%s*.*"%(outpath,i),dryRun)
                 exec_me("rm %s/core*"%(outpath),dryRun)
         else:
             print "%s/%s jobs done, not hadd-ing"%(nOutput,maxJobs)
             nMissJobs = range(0,maxJobs)
-            files = glob.glob("%s/hist_1DZbb_pt_scalesmear_*.root"%outpath)
+            if options.muonCR:
+                files = glob.glob("%s/hist_1DZbb_muonCR_*.root"%outpath)
+            else:
+                files = glob.glob("%s/hist_1DZbb_pt_scalesmear_*.root"%outpath)
             for f in files:
                 jobN = int(f.split("/")[-1].replace(".root","").split("_")[-1])
                 if jobN in nMissJobs:

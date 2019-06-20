@@ -22,12 +22,15 @@ def main(options,args):
     if not os.path.isdir(options.odir+"plots/hinputs"): os.mkdir(options.odir+ "plots/hinputs" );
 
     # plot input histos
-    do2DHistInputs(options.idir+"../data/hist_1DZbb_pt_scalesmear.root");
+    #do2DHistInputs(options.idir+"../data/hist_1DZbb_pt_scalesmear.root");
 
     # Load the input histograms
     fhist = r.TFile(options.idir+"../data/hist_1DZbb_pt_scalesmear.root")
 
-    fcard = r.TFile(options.idir+"card_rhalphabet_all_floatZ.root");
+    if options.suffix:
+        fcard = r.TFile(options.idir+"card_rhalphabet_all_%s_floatZ.root"%options.suffix);
+    else:
+        fcard = r.TFile(options.idir+"card_rhalphabet_all_floatZ.root");
     fml   = r.TFile(options.idir+"mlfit.root");
     f     = r.TFile(options.idir+"base.root");
     fr    = r.TFile(options.idir+"rhalphabase.root");
@@ -45,8 +48,8 @@ def main(options,args):
     #ReplaceQCDpass(f,fr,"fakeQCD",False)
 
     for i in range(6): 
-        drawCategory(f,fr,fhist,fml,"cat"+str(i+1));
-        #drawProcess(f,fml,['hqq125','qcd','zqq','wqq'],'cat'+str(i+1))
+        #drawCategory(f,fr,fhist,fml,"cat"+str(i+1));
+        drawProcess(f,fml,['qcd','zqq','wqq'],'cat'+str(i+1))
         pass
 
 ###############################################################
@@ -64,16 +67,23 @@ def drawProcess(f,fml,procs,catname):
         dh_d_p.plotOn(frame, r.RooFit.DrawOption("pe"), r.RooFit.MarkerColor(r.kBlack));
         frame.Draw()
         
+        suffix = options.suffix
         for i,proc in enumerate(procs):
             for fit in ['prefit','fit_b','fit_s']:
                 #print "shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc)
-                shape       = fml.Get("shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc))
                 rags        = fml.Get("norm_" + fit)
-                if rags.find("%s_%s_%s/%s" % (catname,pf,catname, proc)) != None:
-                  rrv = r.RooRealVar(rags.find("%s_%s_%s/%s" % (catname,pf,catname, proc)))
+                if options.suffix:
+                    shape       = fml.Get("shapes_%s/%s_%s_%s_%s/%s"%(fit,catname,suffix,pf,catname,proc))
+                    rrvName     = "%s_%s_%s_%s/%s" % (catname,suffix,pf,catname, proc)
+                else:
+                    shape       = fml.Get("shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc))
+                    rrvName     = "%s_%s_%s/%s" % (catname,pf,catname, proc)
+                if rags.find(rrvName) != None:
+                  rrv = r.RooRealVar(rags.find(rrvName))
                   norm = rrv.getVal()
                 else:
-                    raise ValueError("Cannot find rrv with %s/%s"%("_".join([catname,pf,catname]),proc))
+                    raise ValueError("Cannot find rrv %s in  %s/%s"%(rrvName,"_".join([catname,pf,catname]),proc))
+                print rrvName, norm, shape.Integral()
                 if norm>0 and shape.Integral()>0: 
                     shape.Scale(norm/shape.Integral())
                 else:
@@ -262,6 +272,7 @@ if __name__ == '__main__':
     parser.add_option("--lumi", dest="lumi", type=float, default = 30,help="luminosity", metavar="lumi")
     parser.add_option('-i','--idir', dest='idir', default = 'data/',help='directory with data', metavar='idir')
     parser.add_option('-o','--odir', dest='odir', default = 'plots/',help='directory to write plots', metavar='odir')
+    parser.add_option('-s','--suffix', dest='suffix', default = '',help='directory to write plots', metavar='suffix')
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default =False,help='signal comparison', metavar='isData')
 
     (options, args) = parser.parse_args()

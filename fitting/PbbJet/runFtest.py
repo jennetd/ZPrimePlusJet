@@ -37,8 +37,10 @@ def buildcards(odir,nr,np, options):
     blind = options.blind
     iloose= options.ifile_loose
     muonCR= options.ifile_muon
-    is2017= options.is2017
+    #is2017= options.is2017
+    year   = options.year
     dryRun= options.dryRun
+    exp    = options.exp
     
     ifileName = ifile.split("/")[-1]
     if odir=="":
@@ -69,14 +71,22 @@ def buildcards(odir,nr,np, options):
         makecard_base += " --ifile-loose %s "%iloose
     if pseudo:
         rhalph_base += " --pseudo "
+    if exp:
+        rhalph_base += " --exp "
     if blind:
         rhalph_base += " --blind "
         makecard_base +=" --blind "
-    if is2017:
-        rhalph_base += " --is2017 "
-        makecard_base +=" --is2017 "
+    #if is2017:
+    #    rhalph_base += " --is2017 "
+    #    makecard_base +=" --is2017 "
+    #    if muonCR:
+    #        makemuonCR_base+=" --is2017 "
+    if year:
+        rhalph_base   +=" --year %s "%year
+        makecard_base +=" --year %s "%year
         if muonCR:
-            makemuonCR_base+=" --is2017 "
+            makemuonCR_base +=" --year %s "%year
+
 
     wsRoot = combcard_all.replace(".txt","_floatZ.root")       
     t2ws_rz += " %s -o %s"%(combcard_all, wsRoot)
@@ -117,8 +127,10 @@ if __name__ == "__main__":
     parser.add_option('-n','--n' ,action='store',type='int',dest='n'   ,default=5*20, help='number of bins')
     parser.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='run on asimov dataset')
-    parser.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF')
+    #parser.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF')
+    parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--blind', action='store_true', dest='blind', default=False, help='run on blinded dataset')
+    parser.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',metavar='exp')
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     parser.add_option('--dryRun',dest="dryRun",default=False,action='store_true',
                   help="Just print out commands to run")    
@@ -155,8 +167,12 @@ if __name__ == "__main__":
     else:
         datacardWS1 = buildcards(cardsDir1,options.NR1, options.NP1,options)
         datacardWS2 = buildcards(cardsDir2,options.NR2, options.NP2,options)
-    p1 = int((options.NR1+1)*(options.NP1+1)) + 2 # paramaters including floating Hbb and Zbb signals
-    p2 = int((options.NR2+1)*(options.NP2+1)) + 2 # parameters including floating Hbb and Zbb signals
+
+    p_sig = 2
+    if 'r'  in options.freezeNuisances.split(","):   p_sig -=1
+    if 'r_z'in options.freezeNuisances.split(","):   p_sig -=1 
+    p1 = int((options.NR1+1)*(options.NP1+1)) + p_sig # paramaters including floating Hbb and Zbb signals
+    p2 = int((options.NR2+1)*(options.NP2+1)) + p_sig # parameters including floating Hbb and Zbb signals
     
 
     dataString = ''
