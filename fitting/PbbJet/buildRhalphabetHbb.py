@@ -28,21 +28,23 @@ RHO_LO = -6
 RHO_HI = -2.1
 
 SF2018={
-            'shift_SF'  : 0.952,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
+            'shift_SF'  : 1.00,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
+            #'shift_SF'  : 0.952,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
             'smear_SF'  : 0.952,            'smear_SF_ERR' : 0.0495  , # prelim SF @26% N2ddt 
             'V_SF'      : 0.845,            'V_SF_ERR'     : 0.031   , # prelim SF @26% N2ddt
             'BB_SF'     : 0.7,              'BB_SF_ERR' : 0.065,      #2018 prelim ddb SF
 }
 SF2017={
             #'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # 2016 shift SF 
-            #'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , #  2016 smear SF 
-            #'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,       # 2016 VSF
+            'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , #  2016 smear SF 
+            'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,       # 2016 VSF
             #'shift_SF'  : 0.967,            'shift_SF_ERR' : 0.003   , # prelim SF @26% N2ddt 
             'shift_SF'  : 1.00,             'shift_SF_ERR' : 0.03   , # prelim SF @26% N2ddt 
-            'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049    , # prelim SF @26% N2ddt 
-            'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02   , # prelim SF @26% N2ddt
+            #'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049   , # prelim SF @26% N2ddt 
+            #'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02   , # prelim SF @26% N2ddt
             #'BB_SF'     : 0.7,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
-            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
+            #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
+            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.2       , # prelim ddb SF
             #'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.06        , # prelim ddb SF
 }
 SF2016={
