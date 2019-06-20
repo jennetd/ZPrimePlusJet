@@ -46,30 +46,98 @@ def main(options,args):
     #wfr.Print();
     #ReplaceQCDpass(f,fr,"poissonQCD",True)
     #ReplaceQCDpass(f,fr,"fakeQCD",False)
+    #RescaleVqq('rescaledVqq','ddb_Apr17/ddb_M2_full/data/')
 
     for i in range(6): 
         #drawCategory(f,fr,fhist,fml,"cat"+str(i+1));
-        drawProcess(f,fml,['qcd','zqq','wqq'],'cat'+str(i+1))
+        #drawProcess(f,fml,['qcd','zqq','wqq'],'cat'+str(i+1))
+        drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=True)
+        drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=False)
         pass
+    MergeDrawProcess(nostack=True)
+    MergeDrawProcess(nostack=False)
+
+def MergeDrawProcess(nostack=True):
+    for pf in ['pass','fail']:
+        cmd = ' montage -density 500 -tile 3x0 -geometry 1600x1600 -border 5 '
+        if nostack:
+            plotName = options.odir+"plots/"+"_".join(["shapes",pf,'nostack',"cat*"])
+            plotpdf = options.odir+"plots/"+"_".join(["shapes",pf,'nostack'])
+        else:
+            plotName = options.odir+"plots/"+"_".join(["shapes",pf,'stack',"cat*"])
+            plotpdf = options.odir+"plots/"+"_".join(["shapes",pf,'stack'])
+
+        cmd += plotName+".png"
+        cmd += ' ' 
+        cmd += plotpdf+".pdf"
+        print cmd
+        os.system(cmd)
+        print 'rm '+plotName+".png"
+        os.system('rm '+plotName+'.png')
+
 
 ###############################################################
+def getShape(fml,pf,catname,proc,fit):
+    rags        = fml.Get("norm_" + fit)
+    if options.suffix:
+        suffix = options.suffix
+        shape       = fml.Get("shapes_%s/%s_%s_%s_%s/%s"%(fit,catname,suffix,pf,catname,proc))
+        rrvName     = "%s_%s_%s_%s/%s" % (catname,suffix,pf,catname, proc)
+    else:
+        shape       = fml.Get("shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc))
+        rrvName     = "%s_%s_%s/%s" % (catname,pf,catname, proc)
+    if rags.find(rrvName) != None:
+      rrv = r.RooRealVar(rags.find(rrvName))
+      norm = rrv.getVal()
+    else:
+        raise ValueError("Cannot find rrv %s in  %s/%s"%(rrvName,"_".join([catname,pf,catname]),proc))
+    print rrvName, norm, shape.Integral()
+    if norm>0 and shape.Integral()>0: 
+        shape.Scale(norm/shape.Integral())
+    else:
+        if not ('125' in proc and fit =='fit_b'):
+            raise ValueError("Norm or integral of %s <=0, norm = %s, integral = %s"%("_".join([proc,catname,pf]),norm,shape.Integral()))
+    if fit =='prefit': kColor = r.kBlack
+    if fit =='fit_b' : kColor = r.kBlue
+    if fit =='fit_s' : kColor = r.kRed
+    shape.SetLineColor(kColor)
+    shape.SetMarkerColor(kColor)
+    shape.SetLineWidth(2)
+    return shape
 
-def drawProcess(f,fml,procs,catname): 
+def drawProcess(f,fml,procs,catname,nostack=True): 
     for pf in ['pass','fail']:
         cp = r.TCanvas("cp","cp",1000,800);
         leg = r.TLegend(0.7,0.7,0.9,0.9)
         maxs = []
-        stack = r.THStack('stack_%s'%(pf),"")
+        stacks = []
         wp      = f.Get("w_%s_%s"%(pf,catname))
         dh_d_p  = wp.data("data_obs_%s_%s"%(pf,catname))
         x   = wp.var("x"); 
         frame = x.frame()
-        dh_d_p.plotOn(frame, r.RooFit.DrawOption("pe"), r.RooFit.MarkerColor(r.kBlack));
-        frame.Draw()
-        
+
+        subtractQCD = True
+        if subtractQCD:  
+            data_shapes = [] 
+            #for fit in ['prefit','fit_b','fit_s']:
+            for fit in ['fit_b']:
+                qcdshape  = getShape(fml,pf,catname,'qcd',fit)
+                tqqshape  = getShape(fml,pf,catname,'tqq',fit)
+                dataShape = dh_d_p.createHistogram("h_dataMinusBkg_"+catname,x)
+                dataShape.Add(qcdshape,-1)
+                dataShape.Add(tqqshape,-1)
+                dataShape.SetMarkerColor(r.kBlack)
+                dataShape.Draw("pe same")
+                leg.AddEntry(dataShape,'data-QCD-tqq(fit_b)','p')
+        else:
+            dh_d_p.plotOn(frame, r.RooFit.DrawOption("pe same"), r.RooFit.MarkerColor(r.kBlack));
+            frame.Draw()
+
         suffix = options.suffix
-        for i,proc in enumerate(procs):
-            for fit in ['prefit','fit_b','fit_s']:
+        for fit in ['prefit','fit_b','fit_s']:
+        #for fit in ['prefit','fit_b']:
+            stack = r.THStack('stack_%s_%s'%(pf,fit),"")
+            for i,proc in enumerate(procs):
                 #print "shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc)
                 rags        = fml.Get("norm_" + fit)
                 if options.suffix:
@@ -87,8 +155,9 @@ def drawProcess(f,fml,procs,catname):
                 if norm>0 and shape.Integral()>0: 
                     shape.Scale(norm/shape.Integral())
                 else:
-                    if not ('125' in proc and fit =='fit_b'):
-                        raise ValueError("Norm or integral of %s <=0, norm = %s, integral = %s"%("_".join([proc,catname,pf]),norm,shape.Integral()))
+                    #if not ('125' in proc and fit =='fit_b'):
+                    #    raise ValueError("Norm or integral of %s <=0, norm = %s, integral = %s"%("_".join([proc,catname,pf]),norm,shape.Integral()))
+                    pass
                 if fit =='prefit': kColor = r.kBlack
                 if fit =='fit_b' : kColor = r.kBlue
                 if fit =='fit_s' : kColor = r.kRed
@@ -98,9 +167,45 @@ def drawProcess(f,fml,procs,catname):
                 shape.SetLineWidth(2)
                 stack.Add(shape)
                 leg.AddEntry(shape," ".join([proc,pf,fit]),'l')
-        stack.Draw("same nostack hist")
+            stacks.append(stack)
+        for stack in stacks:
+            if nostack:
+                stack.Draw("same nostack hist")
+            else:
+                stack.Draw("same hist")
+
         leg.Draw("same")
-        cp.SaveAs(options.odir+"plots/"+"_".join(["shapes",pf,catname])+".pdf")
+        if nostack:
+            plotName =options.odir+"plots/"+"_".join(["shapes",pf,'nostack',catname])
+        else:
+            plotName =options.odir+"plots/"+"_".join(["shapes",pf,'stack',catname])
+        cp.SaveAs(plotName+".pdf")
+        cp.SaveAs(plotName+".png")
+        
+
+def RescaleVqq(fhist_outdir,ref_dir):
+    vqqIn = options.idir+"../data/hist_1DZbb_pt_scalesmear.root"
+    vqqRef= ref_dir+"../data/hist_1DZbb_pt_scalesmear.root"
+    vqqOut= vqqIn.replace("data",fhist_outdir)
+
+    if not os.path.isdir(options.idir+"../%s"%fhist_outdir):
+       os.mkdir(options.idir+"../%s"%fhist_outdir )
+
+    os.system("cp %s %s"%(vqqIn,vqqOut))
+    fhist_Out       = r.TFile(vqqOut,"UPDATE")
+    fhist_ref       = r.TFile(vqqRef,"READ")
+    for proc in ['zqq','wqq']:
+        for pf in ['pass','fail']:
+            hname = '_'.join([proc,pf,'matched'])
+            href  = fhist_ref.Get(hname)
+            hout  = fhist_Out.Get(hname)
+            hout.SetDirectory(0)
+            ratio =  href.Integral()/hout.Integral()
+            print hname, " Ref integral: %.3f"% href.Integral(), ' out integral: %.3f '% hout.Integral(), ' ratio = %.3f'%ratio
+            hout.Scale(ratio)
+            print "After scale: %.3f"% hout.Integral()
+            fhist_Out.cd()
+            hout.Write()
 
 def ReplaceQCDpass(f,fr,fhist_outdir,doPoisson=False):
     qcdIn = options.idir+"../data/hist_1DZbb_pt_scalesmear.root"

@@ -151,7 +151,7 @@ def main(options,args):
                     procsToRemove.append((proc, "cat%i"%i, box))
                
                 if proc == 'wqq':
-                    mass = 80.
+                    mass = 80.4
                 elif proc == 'zqq':
                     mass = 91.
                 elif 'hqq' in proc:
@@ -162,10 +162,21 @@ def main(options,args):
                 #          scaleSigma = mass * massShift * massShiftUnc
                 #    ==>   scaleErr   = scaleSigma/7GeV
                 scaleSigma                    = mass * SF['shift_SF'] *  SF['shift_SF_ERR']
-                #scaleErrs['%s_%s'%(proc,box)] =  0.1 
                 scaleErrs['%s_%s'%(proc,box)] =  scaleSigma/7.0
                 #print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
 
+                ##### old scheme
+                #scaleErrs['%s_%s'%(proc,box)] =  0.1 
+                #if i == 2:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.05
+                #elif i == 3:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.1
+                #elif i == 4:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.2
+                #elif i == 5:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.3
+                #elif i == 6:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.4
                 if i == 2:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(500-450)/100
                 elif i == 3:
@@ -176,7 +187,7 @@ def main(options,args):
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(675-450)/100
                 elif i == 6:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(800-450)/100
-
+                
                 
                 vErrs['%s_%s'%(proc,box)] = 1.0+V_SF_ERR/V_SF
                 if box=='pass':

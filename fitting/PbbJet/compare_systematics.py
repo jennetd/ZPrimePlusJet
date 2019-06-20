@@ -149,12 +149,22 @@ def main(options,args):
     allsys      = ['scale']
     colors      = [kRed, kBlue,kGreen,kYellow,kMagenta,kOrange]
    
-    idir1 = 'ddb_Apr17/ddb_M2/TF22_SFJun4/'
-    idir2 = 'ddb_Jun6_v2/ddb_M2/TF22_SFJun4/'
+    #idir1 = 'ddb_Apr17/ddb_M2/TF22_SFJun4/'
+    idirs = [
+       # {'path':'ddb2016_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2016','scale':41.1/35.9},
+       # {'path':'ddb_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/'    , 'suffix':'2017','scale':1.0},
+       # {'path':'ddb2018_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2018','scale':41.1/59.2},
+        {'path':'ddb2016_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2016','scale':41.5/35.9},
+        {'path':'ddb_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/'    , 'suffix':'2017','scale':1.0},
+        {'path':'ddb2018_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2018','scale':41.5/59.2},
+
+    ]
     options.norm = False
     options.ratio = True
-    tf1 = r.TFile(idir1+"validation.root")
-    tf2 = r.TFile(idir2+"validation.root")
+    tfs = []
+    for idir in idirs:
+        idir['tf'] =  r.TFile(idir['path']+"validation.root")
+    #    tf2 = r.TFile(idir2+"validation.root")
     c1 = TCanvas("c1","c1",800,600)
     c2 = TCanvas("c2","c2",800,600)
     for proc in procs:
@@ -164,23 +174,48 @@ def main(options,args):
                 tlist = []
                 norm = "_".join([proc,pf,cat])
                 print "getting histogram with name", norm
-                h_norm = tf1.Get(norm)
-                d = {'hist':h_norm,'colors':kBlack,'ytitle':'','label':h_norm.GetName(),'denom':True}
-                hlist.append(d)
-                tlist.append( {'text':"mean        =%.3f, integral= %.1f"%(h_norm.GetMean(),h_norm.Integral()),'x':0.5,'y':0.6,'size':0.04})
-                h_norm2 = tf2.Get(norm)
-                d = {'hist':h_norm2,'colors':kRed,'ytitle':'','label':h_norm.GetName()+"_shifted",'denom':True}
-                tlist.append( {'text':"shifted mean=%.3f, integral= %.1f"%(h_norm2.GetMean(),h_norm2.Integral()),'x':0.5,'y':0.6-0.05,'size':0.04})
-                hlist.append(d)
+                for i,idir in enumerate(idirs):
+                    h_norm = idir['tf'].Get(norm)
+                    h_norm.SetDirectory(0)
+                    if 'scale' in idir.keys():  
+                        h_norm.Scale(idir['scale'])
+                    if i ==0: denom = True
+                    else    : denom = False
+                    d = {'hist':h_norm,'colors':colors[i],'ytitle':'','label':h_norm.GetName()+"_"+idir['suffix'],'denom':denom}
+                    hlist.append(d)
+                    tlist.append( {'text':"mean =%.3f, integral= %.1f"%(h_norm.GetMean(),h_norm.Integral()),'x':0.5,'y':0.6-i*0.04,'size':0.04})
+                #h_norm2 = tf2.Get(norm)
+                ##d = {'hist':h_norm2,'colors':kRed,'ytitle':'','label':h_norm.GetName()+"_shifted",'denom':True}
+                #d = {'hist':h_norm2,'colors':kRed,'ytitle':'','label':h_norm.GetName()+"_2017",'denom':True}
+                #tlist.append( {'text':"shifted mean=%.3f, integral= %.1f"%(h_norm2.GetMean(),h_norm2.Integral()),'x':0.5,'y':0.6-0.05,'size':0.04})
+                #hlist.append(d)
                 drawFromhist(hlist,tlist,h_norm.GetName(),options,"hist",(-1,-1),(-1,-1))
+            hsum = []
+            tlist = []
+            for i,idir in enumerate(idirs):
+                norm = "_".join([proc,'pass',cat])
+                h_pass = idir['tf'].Get(norm).Clone(norm.replace("pass",'sum'))
+                h_fail = idir['tf'].Get(norm.replace("pass","fail"))
+                print h_pass.GetName(),h_fail.GetName()
+                h_pass.Add(h_fail)
+                if 'scale' in idir.keys():  
+                    h_pass.Scale(idir['scale'])
+                d = {'hist':h_pass,'colors':colors[i],'ytitle':'','label':h_pass.GetName()+"_"+idir['suffix'],'denom':denom}
+                hsum.append(d)
+                tlist.append( {'text':"mean =%.3f, integral= %.1f"%(h_pass.GetMean(),h_pass.Integral()),'x':0.5,'y':0.6-i*0.04,'size':0.04})
+                drawFromhist(hsum,tlist,h_pass.GetName().replace("pass","sum"),options,"hist",(-1,-1),(-1,-1))
 
     for proc in procs:
-        for pf in passfail:
+        for pf in passfail+['sum']:
             cmd = ' montage -density 500 -tile 3x0 -geometry 800x800 -border 10'
             cmd += " %s%s*.png"%(options.odir, proc+"_"+pf)
             cmd += " %s%s.pdf"%(options.odir, proc+"_"+pf)
             print cmd
             os.system(cmd)
+            cmd = "rm %s%s*.png"%(options.odir, proc+"_"+pf)
+            print cmd
+            os.system(cmd)
+
 
 
 

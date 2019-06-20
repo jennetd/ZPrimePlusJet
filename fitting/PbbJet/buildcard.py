@@ -84,8 +84,7 @@ def main(options,mode,dryRun):
 
     rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit --addHptShape "%(ifile,odir,nr,np)
     makecard_base  = "python makeCardsHbb.py       -i %s -o %s --remove-unmatched --no-mcstat-shape "%(ifile,odir)
-    if muonCR:
-        makemuonCR_base = "python writeMuonCRDatacard.py       -i %s -o %s "%(muonCR,odir)
+    makemuonCR_base = "python writeMuonCRDatacard.py       -i %s -o %s "%(muonCR,odir)
     combcards_base = "combineCards.py "
     if mode =="vbf":
         t2ws_vbf ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/hqq125:r[1,0,20]' --PO 'map=.*/vbfhqq125:r_vbf[1,0,20]'"
@@ -446,29 +445,40 @@ def DDB_data_main(options):
         #'ddb2018_Apr17/ddb_M2_full/',
         #'ddb2016_May28_v2/ddb_M2_full/',
         #'ddb2018_Jun6_v2/ddb_M2_full/',
-        'ddb_Jun6_v2/ddb_M2_full/',     #v1 = 1 GeV bin, v2 = nominal shifted
+        #'ddb_Jun6_v2/ddb_M2_full/',     #v1 = 1 GeV bin, v2 = nominal shifted
         #'ddb2018_Jun10/ddb_M2_full/',
         #'ddb_Jun10/ddb_M2_full/',     #Jun10 = Zprime2017 reweighting
-        #'ddb_Jun12/ddb_M2_full/',     #Jun12 = Phil NLO reweighting
+        #'ddb_Jun12/ddb_M2_full/',     #Jun12 = Phil NLOv2 reweighting,shifted
+        #'ddb_Jun16/ddb_M_full/',          #Jun16 = Phil NLO v2 reweighting,no shift
+        #'ddb_Jun16/ddb_T3_full/',         #Jun16 = Phil NLO v2 reweighting,no shift
+        #'ddb2016_Jun16/ddb_M_full/',      #Jun16 = Phil NLO v2 reweighting,no shift
+        #'ddb2016_Jun16/ddb_T3_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
+        'ddb_Jun20/ddb_M2_full/',          #Jun16 = Phil NLO v2 reweighting,no shift
+        'ddb2016_Jun20/ddb_M2_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
+        'ddb2018_Jun20/ddb_M2_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
     ]
     odirs = [
         #'TF22_blind_muonCR_SFJun4/',
         #'TF22_blind_SFJun4/',
-        #'TF22_blind_muonCR_SFJun4/',   
-        'TF22_blind_muonCR_config1_rescaledVqq/',   
+        #'TF22_blind_config6/',   
+        #'TF22_blind_muonCR_config6/',   
+        'TF22_blind_muonCR_SF2016/',   
+        #'TF22_blind_muonCR_config1_rescaledVqq/',   
         #'TF22_blind_muonCR_SFJun4_Jun8/',   # Jun8 = fix duplicate JER/JES
         #'expTF44_blind_muonCR_SFJun4_Jun8/',   # Jun8 = fix duplicate JER/JES
         #'expTF22_blind_muonCR_SFJun4_Jun8/',   # Jun8 = fix duplicate JER/JES
     ]
 
-    #config1  = SFJun4-0.7 GeV scale                                       ddb_Jun6_v2/ddb_M2_full/TF22_blind_muonCR_config1/   #Best fit r_z: 1.51297  -0.293166/+0.375001  (68% CL) 
-    #config2  = SFJun4-0.7 GeV scale-scaleSF                                 ddb_Jun6_v2/ddb_M2_full/TF22_blind_muonCR_config2/   #Best fit r_z: 1.51297  -0.293166/+0.375001  (68% CL)
-    #config3  = SFJun4-0.7 GeV scale-scaleSF-scaleNorm                       ddb_Apr17/ddb_M2_full/TF22_blind_muonCR_config3/     #Best fit r_z: 1.17925  -0.245345/+0.39457   (68% CL)
-    #config4  = SFJun4-0.7 GeV scale-scaleSF-scaleNorm - smear               ddb_Apr17/ddb_M2_full/TF22_blind_muonCR_config4/     #Best fit r_z: 1.18065  -0.243768/+0.414102  (68% CL)
-    #config5  = SFJun4-0.7 GeV scale-scaleSF-scaleNorm - smear - veff        ddb_Apr17/ddb_M2_full/TF22_blind_muonCR_config5/     #Best fit r_z: 1.1395   -0.241985/+0.383181  (68% CL)w/0.68 bbeff
+    #config1  = SFJun4-0.7 GeV scale                                 ddb_Jun6_v2/ddb_M2_full/TF22_blind_muonCR_config1/   #Best fit r_z: 1.51297  -0.293166/+0.375001  (68% CL) 
+    #config2  = SFJun4-0.7 GeV scale                                 ddb_Jun6_v2/ddb_M2_full/TF22_blind_muonCR_config2/   #Best fit r_z: 1.51297  -0.293166/+0.375001  (68% CL)
+    #config3  = SFJun4-0.7 GeV scale-scaleNorm                       ddb_Apr17/ddb_M2_full/TF22_blind_muonCR_config3/     #Best fit r_z: 1.17925  -0.245345/+0.39457   (68% CL)
+    #config4  = SFJun4-0.7 GeV scale-scaleNorm - smear               ddb_Apr17/ddb_M2_full/TF22_blind_muonCR_config4/     #Best fit r_z: 1.18065  -0.243768/+0.414102  (68% CL)
+    #config5  = SFJun4-0.7 GeV scale-scaleNorm - smear - veff        ddb_Apr17/ddb_M2_full/TF22_blind_muonCR_config5/     #Best fit r_z: 1.1395   -0.241985/+0.383181  (68% CL)w/0.68 bbeff
+    #config6  = SFJun4-3% scale-scaleNorm - smear - veff        ddb_Jun16/ddb_M2_full/TF22_blind_muonCR_config6/   #Best fit r_z: 1.51297  -0.293166/+0.375001  (68% CL) 
+    #config6  = SFJun4+3% scale+ -scaleNorm - smear - veff        ddb_Jun16/ddb_M2_full/TF22_blind_muonCR_config6/   #Best fit r_z: 1.51297  -0.293166/+0.375001  (68% CL) 
                                                                                                                                 #Best fit r_z: 1.09698  -0.233341/+0.364163  (68% CL) w/0.7 bbeff
-    #Pre App                                                               ddb_Apr17/ddb_M2_full/msd47_TF22_muonCR_beffp7_blind/    #Best fit r_z: 1.07164  -0.253762/+0.332153  (68% CL)
-    #config5  = SFJun4+ x2 scaleErr                                       ddb_Jun12/ddb_M2_full/TF22_blind_muonCR_config6/   #Best fit r_z: 1.51297  -0.293166/+0.375001  (68% CL) 
+    #Pre App                                                         ddb_Apr17/ddb_M2_full/msd47_TF22_muonCR_beffp7_blind/    #Best fit r_z: 1.07164  -0.253762/+0.332153  (68% CL)
+    #config7  = SFJun4+ x2 scaleErr                                  ddb_Jun12/ddb_M2_full/TF22_blind_muonCR_config6/   #Best fit r_z: 1.51297  -0.293166/+0.375001  (68% CL) 
 
 
     paths = []
@@ -481,8 +491,8 @@ def DDB_data_main(options):
         for odir in odirs:
             options.odir = idir+odir
             if not os.path.exists(options.odir): os.mkdir(options.odir)
-            #options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
-            options.ifile  = options.idir+"rescaledVqq/hist_1DZbb_pt_scalesmear.root"
+            options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
+            #options.ifile  = options.idir+"rescaledVqq/hist_1DZbb_pt_scalesmear.root"
             if 'muonCR' in odir:                options.muonCR = options.idir+"muonCR/hist_1DZbb_muonCR.root"
             else:                               options.muonCR = '' 
             if 'blind' in odir:                 options.blind = True

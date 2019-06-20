@@ -47,6 +47,7 @@ if __name__ == "__main__":
             exec_me('mkdir -p %s'%(toysDir),options.dryRun)
 
     if not options.justPlot:    
+        toysDir = options.odir
         limit_cmd = 'python limit.py -M Bias --datacard %s --datacard-alt %s -o %s '%(options.datacard,options.datacardAlt,toysDir)
         limit_cmd +=' -t %i --lumi %f -r %f --seed %s --freezeNuisances %s --setParameters %s' %(options.toys, options.lumi,  options.r, options.seed, options.freezeNuisances,options.setParameters)
         limit_cmd +=' --scaleLumi %f ' %options.scaleLumi

@@ -148,7 +148,7 @@ def main(options,args):
     passfail = ['pass','fail']
     upDown   = ['Up','Down']
     #allsys      = ['JER','JES','Pu']
-    allsys      = ['scale','smear','JES']
+    allsys      = ['scale','smear']
     colors      = [kRed, kBlue,kGreen,kYellow,kMagenta,kOrange]
     
     options.norm = False
@@ -193,7 +193,7 @@ def main(options,args):
 
     for proc in procs:
         for pf in passfail:
-            cmd = ' montage -density 300 -tile 3x0 -geometry 800x800 -border 10'
+            cmd = ' montage -density 600 -tile 3x0 -geometry 800x800 -border 10'
             cmd += " %s%s*.png"%(options.odir, proc+"_"+pf)
             cmd += " %s%s.pdf"%(options.odir, proc+"_"+pf)
             print cmd
