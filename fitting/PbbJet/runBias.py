@@ -29,11 +29,13 @@ if __name__ == "__main__":
     parser.add_option('--dryRun',dest="dryRun",default=False,action='store_true',
                   help="Just print out commands to run")    
     parser.add_option('-o', '--odir', dest='odir', default='./', help='directory to write plots', metavar='odir')
-    parser.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for gen.pdf bias 1')
-    parser.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for gen. pdf bias 1')
-    parser.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for fit pdf bias ')
-    parser.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for fit pdf bias')
-
+    parser.add_option('--pdf1'   ,action='store',type='string',dest='pdf1'   ,default='poly', help='pdf1')
+    parser.add_option('--pdf2'   ,action='store',type='string',dest='pdf2'   ,default='poly', help='pdf2')
+    parser.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for fit pdf')
+    parser.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for fit pdf')
+    parser.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for gen pdf')
+    parser.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for gen pdf')
+    parser.add_option('--poi'   ,action='store',type='string',dest='poi'   ,default='r', help='poi')
 
     (options,args) = parser.parse_args()
 
@@ -43,17 +45,26 @@ if __name__ == "__main__":
             if options.datacardAlt == parser.get_option("--datacard-alt").default:
                 options.datacardAlt = options.datacard
                 print "Using same datacard as alternative by default: ", options.datacardAlt
-            toysDir= '%s/bias_self_r%i'%(options.odir,options.r)
-            exec_me('mkdir -p %s'%(toysDir),options.dryRun)
+        toysDir= '%s/bias_%s%i%i_vs_%s%i%i_%s%i'%(options.odir,
+                                                  options.pdf1, options.NR1, options.NP1,
+                                                  options.pdf2, options.NR2, options.NP2,
+                                                  options.poi, options.r)
+        exec_me('mkdir -p %s'%(toysDir),options.dryRun)
+
 
     if not options.justPlot:    
         limit_cmd = 'python limit.py -M Bias --datacard %s --datacard-alt %s -o %s '%(options.datacard,options.datacardAlt,toysDir)
         limit_cmd +=' -t %i --lumi %f -r %f --seed %s --freezeNuisances %s --setParameters %s' %(options.toys, options.lumi,  options.r, options.seed, options.freezeNuisances,options.setParameters)
         limit_cmd +=' --scaleLumi %f ' %options.scaleLumi
+        limit_cmd +=' --pdf1 %s --pdf2 %s'%(options.pdf1, options.pdf2)
+        limit_cmd +=' --nr1 %s --np1 %s --nr2 %s --np2 %s' %(options.NR1, options.NP1, options.NR2, options.NP2)
+        limit_cmd +=' --poi %s '%options.poi
         exec_me(limit_cmd,options.dryRun)
     else:
         # use toys from hadd-ed directory, follow user input
         limit_cmd = 'python limit.py -M Bias --datacard %s --datacard-alt %s -o %s '%(options.datacard,options.datacardAlt,options.odir)
         limit_cmd +=' -t %i --lumi %f -r %f --seed %s ' %(options.toys, options.lumi,  options.r, options.seed )
+        limit_cmd +=' --pdf1 %s --pdf2 %s'%(options.pdf1, options.pdf2)
         limit_cmd +=' --nr1 %s --np1 %s --nr2 %s --np2 %s' %(options.NR1, options.NP1, options.NR2,options.NP2)
+        limit_cmd +=' --poi %s '%options.poi
         exec_me(limit_cmd+" --just-plot ",options.dryRun)

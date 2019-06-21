@@ -35,12 +35,14 @@ def plotgaus(iFName,injet,iLabel,options):
     lH = r.TH1D('h_bias','h_bias',50,-4,4)
     lH_1 = r.TH1D('h_bias_1','h_bias',50,-4,4)
     lH_2 = r.TH1D('h_bias_2','h_bias',50,-4,4)
-    #tree_fit_sb->Draw("mu-muLoErr","(mu-muLoErr)>-50+1")
-    lTree.Project('h_bias_1','(r-%s)/rLoErr'% injet,'r>%s&&(rHiErr+r)<%i&&(r-rLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
-    lTree.Project('h_bias_2','(r-%s)/rHiErr'% injet,'r<%s&&(rHiErr+r)<%i&&(r-rLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
-    #lTree.Project('h_bias_1','(r_z-%s)/r_zLoErr'% injet,'r_z>%s&&(r_zHiErr+r_z)<%i&&(r_z-r_zLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
-    #lTree.Project('h_bias_2','(r_z-%s)/r_zHiErr'% injet,'r_z<%s&&(r_zHiErr+r_z)<%i&&(r_z-r_zLoErr)>%i'%(float(options.r),float(options.rMax)-1,float(options.rMin)+1))
-    #lTree.Project('h_bias_1','(r_z-1)/r_zErr')
+    lTree.Project('h_bias_1','(%s-%s)/%sLoErr'% (options.poi,injet,options.poi),
+                  '%s>%s&&(%sHiErr+%s)<%i&&(%s-%sLoErr)>%i'%(options.poi,injet,
+                                                             options.poi,options.poi,float(options.rMax)-1,
+                                                             options.poi,options.poi,float(options.rMin)+1))
+    lTree.Project('h_bias_2','(%s-%s)/%sHiErr'% (options.poi,injet,options.poi),
+                  '%s<%s&&(%sHiErr+%s)<%i&&(%s-%sLoErr)>%i'%(options.poi,injet,
+                                                             options.poi,options.poi,float(options.rMax)-1,
+                                                             options.poi,options.poi,float(options.rMin)+1))
     lH = lH_1
     lH.Add(lH_2)
     print 'Tree Entries = %s , pull entries = %s'%(lTree.GetEntriesFast(),lH.GetEntries())
@@ -53,7 +55,8 @@ def plotgaus(iFName,injet,iLabel,options):
     gaus_func.SetParameter(2,1)
     lH.Fit(gaus_func,"mler")
     gaus_func.Draw("same")
-    lH.GetXaxis().SetTitle("Bias (#hat{#mu} - #mu)/#sigma_{#mu}")
+    muLabel = {'r': '#mu', 'r_z': '#mu_{Z}'}
+    lH.GetXaxis().SetTitle("Bias (#hat{%s} - %s)/#sigma_{%s}"%(muLabel[options.poi], muLabel[options.poi], muLabel[options.poi]))
     lH.GetYaxis().SetTitle("Pseudoexperiments")
     lH.GetYaxis().SetTitleOffset(0.8)
     gaus_func.SetLineColor(r.kRed)
@@ -89,8 +92,8 @@ def plotgaus(iFName,injet,iLabel,options):
     l.SetTextSize(0.045)
 
     
-    l.DrawLatex(0.15,0.82,'gen. pdf = (n_{#rho}=%i,n_{p_{T}}=%i)'%(options.NR1,options.NP1))
-    l.DrawLatex(0.15,0.75,'fit pdf = (n_{#rho}=%i,n_{p_{T}}=%i)'%(options.NR2,options.NP2))
+    l.DrawLatex(0.15,0.82,'gen. pdf = %s(n_{#rho}=%i,n_{p_{T}}=%i)'%(options.pdf1, options.NR1,options.NP1))
+    l.DrawLatex(0.15,0.75,'fit pdf = %s(n_{#rho}=%i,n_{p_{T}}=%i)'%(options.pdf2, options.NR2,options.NP2))
     
     lCan.Modified()
     lCan.Update()
@@ -309,10 +312,10 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         if options.scaleLumi>0:
             ##### Get snapshots with lumiscale=1 for Toy generations ########
             snapshot_base ="combine -M MultiDimFit  %s  -n .saved "%(alt)
-            snapshot_base += " -t -1 --expectSignal %i --algo none --saveWorkspace --toysFreq "%(mu) 
+            snapshot_base += " -t -1 --algo none --saveWorkspace --toysNoSystematics "
             snapshot_base += " --freezeParameters %s "%(options.freezeNuisances) 
             snapshot_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
-            snapshot_base += " --setParameters lumiscale=1 "             
+            snapshot_base += " --setParameters lumiscale=1,%s"%options.setParameters             
             exec_me(snapshot_base,options.dryRun)
     
         if options.scaleLumi>0:
@@ -320,25 +323,25 @@ def bias(base,alt,ntoys,mu,iLabel,options):
             generate_base ="combine -M GenerateOnly -d higgsCombine.saved.MultiDimFit.mH120.root --snapshotName MultiDimFit " 
             generate_base +=" --setParameters lumiscale=%s "%(options.scaleLumi)
         else:
-            generate_base ="combine -M GenerateOnly %s --toysFrequentist "%(alt)
-        generate_base += " -t %s --expectSignal %i -s %s "%(ntoys,mu,options.seed) 
-        generate_base += " --saveToys -n %s --redefineSignalPOIs r"%(iLabel) 
-        #generate_base += " --saveToys -n %s --redefineSignalPOIs r_z"%(iLabel) ### for r_z
+            generate_base ="combine -M GenerateOnly %s --toysNoSystematics "%(alt)
+        generate_base += " -t %s -s %s "%(ntoys,options.seed) 
+        generate_base += " --saveToys -n %s --redefineSignalPOIs %s"%(iLabel,options.poi) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
         generate_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
         generate_base += " --setParameters %s "%(options.setParameters) 
         generate_base += " --trackParameters  'rgx{.*}'" 
-        #exec_me(generate_base,options.dryRun)
+        exec_me(generate_base,options.dryRun)
 
-        fitDiag_base = "combine -M FitDiagnostics %s  -n %s  --redefineSignalPOIs r_z" %(base,iLabel)
-        #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r" %(base,iLabel,options.seed,iLabel)
-        #fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs r_z" %(base,iLabel,options.seed,iLabel)
+        # generate and fit in one step:
+        #fitDiag_base = "combine -M FitDiagnostics %s  -n %s  --redefineSignalPOIs %s" %(base,iLabel,options.poi)
+        # generate and fit separately:
+        fitDiag_base = "combine -M FitDiagnostics %s --toysFile higgsCombine%s.GenerateOnly.mH120.%s.root -n %s  --redefineSignalPOIs %s" %(base,iLabel,options.seed,iLabel,options.poi)
         fitDiag_base += ' --robustFit 1 --saveNLL  --saveWorkspace --setRobustFitAlgo Minuit2,Migrad'
         fitDiag_base += ' -t %s -s %s '%(ntoys,options.seed)
         fitDiag_base += " --freezeParameters %s "%(options.freezeNuisances) 
         fitDiag_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
         if options.scaleLumi>0:
-            fitDiag_base += " --setParameters r_z=1,lumiscale=%s " %(options.scaleLumi)
+            fitDiag_base += " --setParameters %s,lumiscale=%s " %(options.setParamters,options.scaleLumi)
         else:
             fitDiag_base += " --setParameters %s "%(options.setParameters) 
 
@@ -407,6 +410,7 @@ if __name__ == "__main__":
     parser.add_option('--sig'    ,action='store',type='int',dest='sig'    ,default=1 ,help='sig')
     parser.add_option('-d','--datacard'   ,action='store',type='string',dest='datacard'   ,default='card_rhalphabet.txt', help='datacard name')
     parser.add_option('--datacard-alt'   ,action='store',type='string',dest='datacardAlt'   ,default='card_rhalphabet_alt.txt', help='alternative datacard name')
+    parser.add_option('--poi'   ,action='store',type='string',dest='poi'   ,default='r', help='poi')
     parser.add_option('-M','--method'   ,dest='method'   ,default='GoodnessOfFit', 
                       choices=['GoodnessOfFit','FTest','Asymptotic','Bias','MaxLikelihoodFit'],help='combine method to use')
     parser.add_option('-a','--algo'   ,dest='algo'   ,default='saturated', 
@@ -421,10 +425,12 @@ if __name__ == "__main__":
     parser.add_option('--rMax',dest='rMax', default=20,type='float',help='maximum of r (signal strength) in profile likelihood plot')  
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     parser.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
-    parser.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for gen.pdf bias 1')
-    parser.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for gen. pdf bias 1')
-    parser.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for fit pdf bias ')
-    parser.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for fit pdf bias')
+    parser.add_option('--pdf1'   ,action='store',type='string',dest='pdf1'   ,default='poly', help='pdf1')
+    parser.add_option('--pdf2'   ,action='store',type='string',dest='pdf2'   ,default='poly', help='pdf2')
+    parser.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for fit pdf')
+    parser.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for fit pdf')
+    parser.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for gen pdf')
+    parser.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for gen pdf')
 
     parser.add_option('--dry-run',dest="dryRun",default=False,action='store_true',help="Just print out commands to run")    
 
@@ -475,6 +481,6 @@ if __name__ == "__main__":
         iLabel= 'ftest_%s_vs_%s'%(options.datacard.split('/')[-1].replace('.root',''),options.datacardAlt.split('/')[-1].replace('.root',''))
         ftest(options.datacard, options.datacardAlt, options.toys, iLabel, options)
     elif options.method=='Bias':
-        #iLabel= 'bias_%s_vs_%s_r%s'%(options.datacard.split('/')[-1].replace('.root',''),options.datacardAlt.split('/')[-1].replace('.root',''),options.r)
-        iLabel= 'bias_self_r%i'%(options.r)
+        iLabel= 'bias_%s%i%i_vs_%s%i%i_%s%i'%(options.pdf1, options.NR1, options.NP1, options.pdf2, options.NR2, options.NP2, 
+                                              options.poi, options.r)
         bias(options.datacard, options.datacardAlt, options.toys, options.r, iLabel, options)
