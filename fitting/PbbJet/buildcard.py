@@ -43,6 +43,7 @@ def main(options,mode,dryRun):
     is2017= options.is2017
     year  = options.year
     exp  = options.exp
+    pseudoPass  = options.pseudoPass
     nr    = options.nr
     np    = options.np
    
@@ -109,6 +110,8 @@ def main(options,mode,dryRun):
         rhalph_base += " --pseudo "
     if exp:
         rhalph_base += " --exp "
+    if pseudoPass:
+        rhalph_base += " --createPassFromFail "
         
     if blind:
         rhalph_base += " --blind "
@@ -437,6 +440,7 @@ def DDB_data_main(options):
     options.iloose = ""
     options.blind  = True 
     options.exp    = False
+    options.pseudoPass = False
     options.pseudo = False 
     options.is2017 = True
     options.scaleLumi = False 
@@ -445,7 +449,7 @@ def DDB_data_main(options):
         #'ddb2018_Apr17/ddb_M2_full/',
         #'ddb2016_May28_v2/ddb_M2_full/',
         #'ddb2018_Jun6_v2/ddb_M2_full/',
-        #'ddb_Jun6_v2/ddb_M2_full/',     #v1 = 1 GeV bin, v2 = nominal shifted
+        'ddb_Jun6_v2/ddb_M2_full/',     #v1 = 1 GeV bin, v2 = nominal shifted
         #'ddb2018_Jun10/ddb_M2_full/',
         #'ddb_Jun10/ddb_M2_full/',     #Jun10 = Zprime2017 reweighting
         #'ddb_Jun12/ddb_M2_full/',     #Jun12 = Phil NLOv2 reweighting,shifted
@@ -453,16 +457,18 @@ def DDB_data_main(options):
         #'ddb_Jun16/ddb_T3_full/',         #Jun16 = Phil NLO v2 reweighting,no shift
         #'ddb2016_Jun16/ddb_M_full/',      #Jun16 = Phil NLO v2 reweighting,no shift
         #'ddb2016_Jun16/ddb_T3_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
-        'ddb_Jun20/ddb_M2_full/',          #Jun16 = Phil NLO v2 reweighting,no shift
-        'ddb2016_Jun20/ddb_M2_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
-        'ddb2018_Jun20/ddb_M2_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
+        #'ddb_Jun20/ddb_M2_full/',          #Jun16 = Phil NLO v2 reweighting,no shift
+        #'ddb2016_Jun20/ddb_M2_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
+        #'ddb2018_Jun20/ddb_M2_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
     ]
     odirs = [
-        #'TF22_blind_muonCR_SFJun4/',
+        'TF22_muonCR_SFJun4_pseudoPass/',
+        'expTF22_muonCR_SFJun4_pseudoPass/',
+        'expTF31_muonCR_SFJun4_pseudoPass/',
         #'TF22_blind_SFJun4/',
         #'TF22_blind_config6/',   
         #'TF22_blind_muonCR_config6/',   
-        'TF22_blind_muonCR_SF2016/',   
+        #'TF22_blind_SF2016/',   
         #'TF22_blind_muonCR_config1_rescaledVqq/',   
         #'TF22_blind_muonCR_SFJun4_Jun8/',   # Jun8 = fix duplicate JER/JES
         #'expTF44_blind_muonCR_SFJun4_Jun8/',   # Jun8 = fix duplicate JER/JES
@@ -499,6 +505,8 @@ def DDB_data_main(options):
             else:                               options.blind = False
             if 'exp'   in odir:                 options.exp = True
             else:                               options.exp = False
+            if 'pseudoPass'   in odir:          options.pseudoPass = True
+            else:                               options.pseudoPass = False
             nrho, npT  = getPolyOrder(odir)
             options.nr     = nrho
             options.np     = npT

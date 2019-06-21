@@ -1217,7 +1217,7 @@ def ZeroHistogram1D(h,pt_val,blind,mass_range,blind_range,rho_range):
 
     
 ##-------------------------------------------------------------------------------------
-def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={}):
+def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={},createPassFromFail=False):
     pass_hists = {}
     fail_hists = {}
     f.ls()
@@ -1318,6 +1318,22 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
         for i, signal in enumerate(signal_names):
             pass_hists["data_obs"].Add(pass_hists_sig[signal], r_signal)
             fail_hists["data_obs"].Add(fail_hists_sig[signal], r_signal)
+    elif createPassFromFail:
+        print "Creating data_obs pass from data_obs fail:   data_obs_pass = data_obs_fail * eff(pass)/eff(fail)"
+        data_pass_real = f.Get('data_obs_pass').Clone('data_obs_pass_real')
+        data_obs_fail  = f.Get('data_obs_fail')
+        data_pass_real.Scale(1. / scale)
+        data_pass = data_obs_fail.Clone('data_obs_pass')
+        data_pass_real_integral = 0
+        data_fail_integral = 0
+        for i in range(1, data_pass_real.GetNbinsX() + 1):
+            for j in range(1, data_pass_real.GetNbinsY() + 1):
+                if data_pass_real.GetXaxis().GetBinCenter(i) > mass_range[0] and data_pass_real.GetXaxis().GetBinCenter(i) < mass_range[1]:
+                    data_pass_real_integral += data_pass_real.GetBinContent(i, j)
+                    data_fail_integral += data_obs_fail.GetBinContent(i, j)
+        data_pass.Scale(data_pass_real_integral / data_fail_integral)  # qcd_pass = qcd_fail * eff(pass)/eff(fail)
+        pass_hists["data_obs"] = data_pass 
+        fail_hists["data_obs"] = data_obs_fail 
     else:
         pass_hists["data_obs"] = f.Get('data_obs_pass')
         fail_hists["data_obs"] = f.Get('data_obs_fail')

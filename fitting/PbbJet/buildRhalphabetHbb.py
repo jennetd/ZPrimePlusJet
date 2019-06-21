@@ -39,17 +39,16 @@ SF2018={
 }
 SF2017={
             #'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # 2016 shift SF 
-            'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , #  2016 smear SF 
-            'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,       # 2016 VSF
-            #'shift_SF'  : 0.967,            'shift_SF_ERR' : 0.003   , # prelim SF @26% N2ddt 
-            'shift_SF'  : 1.00,             'shift_SF_ERR' : 0.03   , # prelim SF @26% N2ddt 
-            #'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049   , # prelim SF @26% N2ddt 
-            #'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02   , # prelim SF @26% N2ddt
+            #'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , #  2016 smear SF 
+            #'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,       # 2016 VSF
+            'shift_SF'  : 0.967,            'shift_SF_ERR' : 0.003   , # prelim SF @26% N2ddt 
+            #'shift_SF'  : 1.00,             'shift_SF_ERR' : 0.03   , # prelim SF @26% N2ddt 
+            'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049   , # prelim SF @26% N2ddt 
+            'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02   , # prelim SF @26% N2ddt
             #'BB_SF'     : 0.7,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
-            #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
-            #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.2       , # prelim ddb SF
+            'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
             #'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.06        , # prelim ddb SF
-            'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
+            #'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
 }
 SF2016={
             'm_data'    : 82.657,           'm_data_err': 0.313,
@@ -86,7 +85,7 @@ def main(options, args):
     elif options.year =='2017':      sf=SF2017
     elif options.year =='2016':      sf=SF2016
     #(hpass, hfail) = loadHistograms(f, options.pseudo, options.blind, options.useQCD, options.scale, options.r)
-    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf)
+    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf,createPassFromFail=options.createPassFromFail)
     #f.Close()
 
     # Build the workspacees
@@ -133,6 +132,7 @@ if __name__ == '__main__':
     parser.add_option('--loadfit', dest='loadfit', default=None, help='load qcd polynomial parameters from alternative rhalphabase.root',metavar='loadfit')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
+    parser.add_option('--createPassFromFail', action='store_true', dest='createPassFromFail', default=False, help='Creating data_obs pass from data_obs fail', metavar='createPassFromFail')
 
     (options, args) = parser.parse_args()
 
