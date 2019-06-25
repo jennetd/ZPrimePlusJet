@@ -387,6 +387,7 @@ def get2017files():
     idir_1504 = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/'
     idir_1504skim_vbf = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04-vbf/skim/'
     idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
+    idir_1604skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.04/skim/'
     idirData = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v12.07/sklim/'
 
     tfiles = {
@@ -454,10 +455,11 @@ def get2017files():
                              'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1504skim_vbf+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
                             },
               'data': [
-        	        	     idir_1504skim + 'JetHTRun2017B_17Nov2017_v1_*.root',
-                             idir_1504skim + 'JetHTRun2017C_17Nov2017_v1_*.root',
-                             idir_1504skim + 'JetHTRun2017D_17Nov2017_v1_*.root',
-                             idir_1504skim + 'JetHTRun2017E_17Nov2017_v1_*.root',
+        	        	     idir_1604skim + 'JetHTRun2017B_17Nov2017_v1_*.root',
+                             idir_1604skim + 'JetHTRun2017C_17Nov2017_v1_*.root',
+                             idir_1604skim + 'JetHTRun2017D_17Nov2017_v1_*.root',
+                             idir_1604skim + 'JetHTRun2017E_17Nov2017_v1_*.root',
+                             idir_1604skim + 'JetHTRun2017F_17Nov2017_v1_*.root',
                              #idir_1504skim_vbf + 'JetHTRun2017F_17Nov2017_v1_*.root'
                              #idir_1501skim + 'JetHTRun2017F_17Nov2017_v1_*.rootnodupl.root',
                       ],
