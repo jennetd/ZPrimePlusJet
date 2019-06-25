@@ -312,7 +312,8 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         if options.scaleLumi>0:
             ##### Get snapshots with lumiscale=1 for Toy generations ########
             snapshot_base ="combine -M MultiDimFit  %s  -n .saved "%(alt)
-            snapshot_base += " -t -1 --algo none --saveWorkspace --toysNoSystematics "
+            #snapshot_base += " -t -1 --algo none --saveWorkspace --toysNoSystematics "
+            snapshot_base += " -t -1 --algo none --saveWorkspace --toysFreq "
             snapshot_base += " --freezeParameters %s "%(options.freezeNuisances) 
             snapshot_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
             snapshot_base += " --setParameters lumiscale=1,%s"%options.setParameters             
@@ -323,7 +324,8 @@ def bias(base,alt,ntoys,mu,iLabel,options):
             generate_base ="combine -M GenerateOnly -d higgsCombine.saved.MultiDimFit.mH120.root --snapshotName MultiDimFit " 
             generate_base +=" --setParameters lumiscale=%s "%(options.scaleLumi)
         else:
-            generate_base ="combine -M GenerateOnly %s --toysNoSystematics "%(alt)
+            #generate_base ="combine -M GenerateOnly %s --toysNoSystematics "%(alt)
+            generate_base ="combine -M GenerateOnly %s --toysFreq "%(alt)
         generate_base += " -t %s -s %s "%(ntoys,options.seed) 
         generate_base += " --saveToys -n %s --redefineSignalPOIs %s"%(iLabel,options.poi) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
