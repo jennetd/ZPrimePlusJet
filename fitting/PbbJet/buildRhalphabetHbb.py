@@ -38,29 +38,35 @@ SF2018={
             'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
 }
 SF2017={
-            'shift_SF'  : 1.001,           'shift_SF_ERR' : 0.1   , # 2016 shift SF 
-            'smear_SF'  : 1.00,            'smear_SF_ERR' : 0.1  , #  2016 smear SF 
-            'V_SF'      : 1.00,            'V_SF_ERR'  : 0.05,       # 2016 VSF
-            'BB_SF'     : 1.00,            'BB_SF_ERR' : 0.5,     ## M2 SF
+            #'shift_SF'  : 1.001,           'shift_SF_ERR' : 0.1,
+            #'smear_SF'  : 1.00,            'smear_SF_ERR' : 0.1,
+            #'V_SF'      : 1.00,            'V_SF_ERR'  : 0.05,  
+            #'BB_SF'     : 1.00,            'BB_SF_ERR' : 0.5,  
+
+            #cristina Jun25
+            'shift_SF'  : 0.979,           'shift_SF_ERR' : 0.002,
+            'smear_SF'  : 0.911,           'smear_SF_ERR' : 0.0476,
+            'V_SF'      : 0.92,            'V_SF_ERR'  : 0.018,  
 
             #'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # 2016 shift SF 
             #'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , #  2016 smear SF 
             #'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,       # 2016 VSF
-            #'shift_SF'  : 0.967,            'shift_SF_ERR' : 0.003   , # prelim SF @26% N2ddt 
+            #'shift_SF'  : 1.00,            'shift_SF_ERR' : 0.01   , # prelim SF @26% N2ddt 
             #'shift_SF'  : 1.00,             'shift_SF_ERR' : 0.03   , # prelim SF @26% N2ddt 
             #'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049   , # prelim SF @26% N2ddt 
             #'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02   , # prelim SF @26% N2ddt
             #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
-            #'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.06        , # prelim ddb SF
+            'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.1        , # prelim ddb SF
             #'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
 }
 SF2016={
-            'm_data'    : 82.657,           'm_data_err': 0.313,
-            'm_mc'      : 82.548,           'm_mc_err'  : 0.191,
-            's_data'    : 8.701,            's_data_err': 0.433,
-            's_mc'      : 8.027,            's_mc_err'  : 0.607,
+            #'m_data'    : 82.657,           'm_data_err': 0.313,
+            #'m_mc'      : 82.548,           'm_mc_err'  : 0.191,
+            #'s_data'    : 8.701,            's_data_err': 0.433,
+            #'s_mc'      : 8.027,            's_mc_err'  : 0.607,
             #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.15,     ## T2 SF
-            'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
+            #'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
+            'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.3,     ## M2 SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
             #'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # m_data/m_mc, sqrt((m_data_err/m_data)**2+(m_mc_err/m_mc)**2)
             'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.044   , # m_data/m_mc, sqrt((m_data_err/m_data)**2+(m_mc_err/m_mc)**2)
@@ -89,7 +95,7 @@ def main(options, args):
     elif options.year =='2017':      sf=SF2017
     elif options.year =='2016':      sf=SF2016
     #(hpass, hfail) = loadHistograms(f, options.pseudo, options.blind, options.useQCD, options.scale, options.r)
-    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf,createPassFromFail=options.createPassFromFail)
+    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf,createPassFromFail=options.createPassFromFail,skipQCD=options.skipQCD)
     #f.Close()
 
     # Build the workspacees
@@ -137,6 +143,7 @@ if __name__ == '__main__':
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
     parser.add_option('--createPassFromFail', action='store_true', dest='createPassFromFail', default=False, help='Creating data_obs pass from data_obs fail', metavar='createPassFromFail')
+    parser.add_option('--skipQCD', action='store_true', dest='skipQCD', default=False, help='skipQCD MC template', metavar='skipQCD')
 
     (options, args) = parser.parse_args()
 

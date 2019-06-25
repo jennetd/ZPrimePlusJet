@@ -95,14 +95,19 @@ class RhalphabetBuilder():
         self._lEffQCD = r.RooRealVar("qcdeff", "qcdeff", 0.01, 0., 10.)
         qcd_pass_integral = 0
         qcd_fail_integral = 0
-        for i in range(1, fail_hists["qcd"].GetNbinsX() + 1):
-            for j in range(1, fail_hists["qcd"].GetNbinsY() + 1):
-                if fail_hists["qcd"].GetXaxis().GetBinCenter(i) > self._mass_lo and fail_hists[
-                    "qcd"].GetXaxis().GetBinCenter(i) < self._mass_hi:
-                    qcd_fail_integral += fail_hists["qcd"].GetBinContent(i, j)
-                    qcd_pass_integral += pass_hists["qcd"].GetBinContent(i, j)
-        if qcd_fail_integral > 0:
-            qcdeff = qcd_pass_integral / qcd_fail_integral
+        if 'qcd' in fail_hists.keys():
+            for i in range(1, fail_hists["qcd"].GetNbinsX() + 1):
+                for j in range(1, fail_hists["qcd"].GetNbinsY() + 1):
+                    if fail_hists["qcd"].GetXaxis().GetBinCenter(i) > self._mass_lo and fail_hists[
+                        "qcd"].GetXaxis().GetBinCenter(i) < self._mass_hi:
+                        qcd_fail_integral += fail_hists["qcd"].GetBinContent(i, j)
+                        qcd_pass_integral += pass_hists["qcd"].GetBinContent(i, j)
+            if qcd_fail_integral > 0:
+                qcdeff = qcd_pass_integral / qcd_fail_integral
+                self._lEffQCD.setVal(qcdeff)
+        else:
+            print "WARNING: cannot find qcd MC in input histograms, using default qcd eff = 0.015"
+            qcdeff = 0.015
             self._lEffQCD.setVal(qcdeff)
         print "qcdeff = %f" % qcdeff
         self._lDM = r.RooRealVar("dm", "dm", 0., -10, 10)
@@ -1217,7 +1222,7 @@ def ZeroHistogram1D(h,pt_val,blind,mass_range,blind_range,rho_range):
 
     
 ##-------------------------------------------------------------------------------------
-def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={},createPassFromFail=False):
+def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={},createPassFromFail=False,skipQCD=False):
     pass_hists = {}
     fail_hists = {}
     f.ls()
@@ -1227,9 +1232,12 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     # backgrounds
     pass_hists_bkg = {}
     fail_hists_bkg = {}
-    background_names = ["wqq", "zqq", "qcd", "tqq"]
+    if skipQCD:
+        background_names = ["wqq", "zqq", "tqq"]
+    else:
+        background_names = ["wqq", "zqq", "qcd", "tqq"]
     for i, bkg in enumerate(background_names):
-        if bkg == 'qcd':
+        if bkg == 'qcd' :
             qcd_fail = f.Get('qcd_fail')
             qcd_fail.Scale(qcdkfactor)
             qcd_fail.Scale(1. / scale)
