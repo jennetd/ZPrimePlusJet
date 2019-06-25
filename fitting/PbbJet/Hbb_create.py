@@ -283,17 +283,19 @@ def get2016legacyfiles():
     idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
     idir_1503     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/'
     idir_1503skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/skim/'
+    idir_1603     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/'
+    idir_1603skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/'
     tfiles = {
-	          'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1503skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
-	          'vbfhqq125'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1503skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
+	          'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603+'/GluGluHToBB_M125_13TeV_powheg_pythia8/*.root']},
+	          'vbfhqq125'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':            [idir_1603+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix/*.root']},
 	          'zhqq125'      :          { 
-                                    'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1503skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                                    'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1503skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                                    'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1503skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
+                                    'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1603+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                                    'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1603+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                                    'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1603+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
                                     },
                'whqq125':          {
-                                    'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1503skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                                    'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1503skim+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root']
+                                    'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1603+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                                    'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1603+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root']
                                     },
 	          'tthqq125'    :        { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1503skim+'/ttHTobb_M125_13TeV_powheg_pythia8*.root']},
               'vvqq':    {
@@ -303,7 +305,7 @@ def get2016legacyfiles():
                             },
               'zqq':         {
                             #'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1503skim + '/DYJetsToQQ_HT180_13TeV_*.root'],
-                            'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1503 + '/DYJetsToQQ_HT180_13TeV/*.root'],
+                            'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1603 + '/DYJetsToQQ_HT180_13TeV/*.root'],
                             },
               'zll':       {
                              'DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8'  :[idir_1503skim+'/DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8*.root'] , 
@@ -319,7 +321,7 @@ def get2016legacyfiles():
                             },
               'wqq'         : {
                               #'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8': [idir_1503skim + 'WJetsToQQ_HT180_13TeV_*.root'],
-                              'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8': [idir_1503 + 'WJetsToQQ_HT180_13TeV/*.root'],
+                              'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8': [idir_1603 + 'WJetsToQQ_HT180_13TeV/*.root'],
                             },
               'wlnu':       {
                              "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"     :[ idir_1503skim+'WJetsToLNu_HT_100To200_*.root'],
@@ -331,7 +333,7 @@ def get2016legacyfiles():
                              "WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"    :[ idir_1503skim+'WJetsToLNu_HT_2500ToInf_*.root'],
                             },
               'tqq':      {
-                             'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8'    :[idir_1503skim+'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8*.root'],
+                             'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8'    :[idir_1603+'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8/*.root'],
                             },
               'qcd':        {
                              'QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503skim+'/QCD_HT300to500_*.root'  ],
@@ -594,7 +596,7 @@ def main(options, args):
     print "Backgrounds..."
     bkgSamples = {}
 
-    if year in ['2017','2018','2016legacy'] :
+    if year in ['2017','2018'] :
         bkgSamples['wqq']  = normSampleContainer('wqq',tfiles['wqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
@@ -616,6 +618,16 @@ def main(options, args):
         if not options.skipQCD:
             bkgSamples['qcd'] = sampleContainer('qcd', tfiles['qcd'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         bkgSamples['zll'] = sampleContainer('zll', tfiles['zll'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
+    elif year=='2016legacy':
+        #### reduced set of 2016 bkg samples
+        bkgSamples['wqq']  = normSampleContainer('wqq',tfiles['wqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #bkgSamples['stqq'] = normSampleContainer('stqq', tfiles['stqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #bkgSamples['zll']  = normSampleContainer('zll', tfiles['zll']  , 1, dbtagmin,lumi,False,False,'1',False ,iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+
+
     print "Data..."
     if not options.skipData:
         if 'skim' in tfiles['data_obs'][0]: dataTree = 'otree'
