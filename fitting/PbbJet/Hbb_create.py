@@ -384,6 +384,7 @@ def get2017files(isMuonCR):
     idir_1504 = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/'
     idir_1504skim_vbf = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04-vbf/skim/'
     idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
+    idir_1604skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.04/skim/'
 
     tfiles = {
 	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1504skim_vbf+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
@@ -450,10 +451,11 @@ def get2017files(isMuonCR):
                        'QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8' :[idir_1504skim_vbf+'/QCD_HT2000toInf_TuneCP5_13TeV-madgraphMLM-pythia8_*.root' ]
                       },
         'data_obs_jet': [
-        	        	     idir_1504skim + 'JetHTRun2017B_17Nov2017_v1_*.root',
-                             idir_1504skim + 'JetHTRun2017C_17Nov2017_v1_*.root',
-                             idir_1504skim + 'JetHTRun2017D_17Nov2017_v1_*.root',
-                             idir_1504skim + 'JetHTRun2017E_17Nov2017_v1_*.root',
+        	        	     idir_1604skim + 'JetHTRun2017B_17Nov2017_v1_*.root',
+                             idir_1604skim + 'JetHTRun2017C_17Nov2017_v1_*.root',
+                             idir_1604skim + 'JetHTRun2017D_17Nov2017_v1_*.root',
+                             idir_1604skim + 'JetHTRun2017E_17Nov2017_v1_*.root',
+                             idir_1604skim + 'JetHTRun2017F_17Nov2017_v1_*.root',
                              #idir_1504skim_vbf + 'JetHTRun2017F_17Nov2017_v1_*.root',
                              #idir_1501 + 'JetHTRun2017F_17Nov2017_v1/*.rootnodupl.root'
                       ],
