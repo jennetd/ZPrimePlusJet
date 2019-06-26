@@ -153,7 +153,7 @@ def main(options,mode,dryRun):
 def buildcats(ifile,odir,muonCR,suffix):
     #get N ptbins
     tf = r.TFile(ifile)
-    ncats=tf.Get("qcd_pass").GetYaxis().GetNbins()
+    ncats=tf.Get("data_obs_pass").GetYaxis().GetNbins()
     cats=[]
     for icat in range(1,ncats+1):
         cats.append( {"name":"cat%s"%icat,"card":odir+"card_rhalphabet_cat%s.txt"%icat})
@@ -449,25 +449,41 @@ def DDB_data_main(options):
         #'ddb2018_Apr17/ddb_M2_full/',
         #'ddb2016_May28_v2/ddb_M2_full/',
         #'ddb2018_Jun6_v2/ddb_M2_full/',
-        'ddb_Jun6_v2/ddb_M2_full/',     #v1 = 1 GeV bin, v2 = nominal shifted
+        #'ddb_Jun6_v2/ddb_M2_full/',     #v1 = 1 GeV bin, v2 = nominal shifted
         #'ddb2018_Jun10/ddb_M2_full/',
         #'ddb_Jun10/ddb_M2_full/',     #Jun10 = Zprime2017 reweighting
         #'ddb_Jun12/ddb_M2_full/',     #Jun12 = Phil NLOv2 reweighting,shifted
-        #'ddb_Jun16/ddb_M_full/',          #Jun16 = Phil NLO v2 reweighting,no shift
+        #'ddb_Jun16/ddb_M2_full/',          #Jun16 = Phil NLO v2 reweighting,no shift
         #'ddb_Jun16/ddb_T3_full/',         #Jun16 = Phil NLO v2 reweighting,no shift
         #'ddb2016_Jun16/ddb_M_full/',      #Jun16 = Phil NLO v2 reweighting,no shift
         #'ddb2016_Jun16/ddb_T3_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
-        #'ddb_Jun20/ddb_M2_full/',          #Jun16 = Phil NLO v2 reweighting,no shift
-        #'ddb2016_Jun20/ddb_M2_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
-        #'ddb2018_Jun20/ddb_M2_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
+        #'ddb_Jun21/ddb_M2_full/',      #Jun16   += 2017 BtoE only
+        #'ddb_Jun24/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16
+        'ddb2016_Jun24/ddb_M2_full/',   # 2016 fixed MC template,prod16, no QCD MC
+        ###### special prod###########
+        #'ddb_Jun20/ddb_M2_full/',         #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cuti
+        #'ddb2016_Jun20/ddb_M2_full/',     #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cut
+        #'ddb2018_Jun20/ddb_M2_full/',     #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cut
+        #'ddb_Jun20_v2/ddb_M2_full/',       #Jun20_v2 = Phil NLO v2 reweighting,no shift, no N2ddt cut,trigW = 1
+        #'ddb2016_Jun20_v2/ddb_M2_full/',   #Jun20_v2 = Phil NLO v2 reweighting,no shift, no N2ddt cut,trigW = 1
+        #'ddb2018_Jun20_v2/ddb_M2_full/',   #Jun20_v2 = Phil NLO v2 reweighting,no shift, no N2ddt cut,trigW = 1
+        ###### special prod###########
     ]
     odirs = [
-        'TF22_muonCR_SFJun4_pseudoPass/',
-        'expTF22_muonCR_SFJun4_pseudoPass/',
-        'expTF31_muonCR_SFJun4_pseudoPass/',
+        #'TF22_muonCR_bbSF1/',
+        #'TF22_muonCR_bbSF1_pseudoPass/',
+        #'expTF22_muonCR_SFJun4_pseudoPass/',
+        #'expTF31_muonCR_SFJun4_pseudoPass/',
         #'TF22_blind_SFJun4/',
         #'TF22_blind_config6/',   
-        #'TF22_blind_muonCR_config6/',   
+        'TF22_blind_muonCR_bbSF1_v2/',   
+        #'TF22_blind_muonCR_bbSF1_v4_ewk/',   
+        #'TF22_blind_muonCR_bbSF1_v6_ewk/',   
+        #'TF22_blind_muonCR_bbSF1_pseudoPass/',   
+        #'expTF22_muonCR_bbSF1/',   
+        #'expTF22_muonCR_bbSF1_pseudoPass/',   
+        #'expTF31_muonCR_bbSF1/',   
+        #'expTF31_muonCR_bbSF1_pseudoPass/',   
         #'TF22_blind_SF2016/',   
         #'TF22_blind_muonCR_config1_rescaledVqq/',   
         #'TF22_blind_muonCR_SFJun4_Jun8/',   # Jun8 = fix duplicate JER/JES
