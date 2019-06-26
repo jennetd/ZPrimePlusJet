@@ -207,14 +207,14 @@ def get2016legacyfiles():
     idir_1603     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/'
     idir_1603skim     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/'
     tfiles = {
-	          'ggHbb'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603+'/GluGluHToBB_M125_13TeV_powheg_pythia8/*.root']},
-	          'VBFHbb'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1603+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix/*.root']},
+	          'ggHbb'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	          'VBFHbb'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1603skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
 	          'VHbb'      :          { 
-                                    'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1603+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                                    'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1603+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                                    'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1603+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                                    'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1603+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
-                                    'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1603+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
+                                    'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1603skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1603skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1603skim+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1603skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                                    'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1603skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
                                     },
 	          'ttHbb'    :          { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1503skim+'/ttHTobb_M125_13TeV_powheg_pythia8*.root']},
               'Diboson':    {
@@ -223,7 +223,7 @@ def get2016legacyfiles():
                              #'ZZ_13TeV_pythia8':[idir_1503skim+'ZZ_13TeV_pythia8*.root']  #missing
                             },
               'DY':         {
-                            'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1503skim + '/oldDYJets/DYJetsToQQ_HT180_13TeV_*.root'],
+                            'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1603skim + '/DYJetsToQQ_HT180_13TeV_*.root'],
                             },
               'DYll':       {
                              'DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8'  :[idir_1503skim+'/DYJetsToLL_Pt_250To400_13TeV_amcatnloFXFX_pythia8*.root'] , 
@@ -238,7 +238,7 @@ def get2016legacyfiles():
                              'ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1'              :[idir_1503skim+'ST_tW_top_5f_inclusiveDecays_13TeV_powheg_pythia8_TuneCUETP8M2T4*.root'              ],             
                             },
               'W'         : {
-                              'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8': [idir_1603 + '/WJetsToQQ_HT180_13TeV/*.root'],
+                              'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8': [idir_1603skim + '/WJetsToQQ_HT180_13TeV_*.root'],
                             },
               'Wlnu':       {
                                "WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"   :[ idir_1503skim+'WJetsToLNu_HT_100To200_*.root'],
@@ -250,7 +250,7 @@ def get2016legacyfiles():
                                "WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8"  :[ idir_1503skim+'WJetsToLNu_HT_2500ToInf_*.root'],
                             },
               'TTbar':      {
-                             'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8'    :[idir_1603+'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8/*.root'],
+                             'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8'    :[idir_1603skim+'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8_*.root'],
                             },
               'QCD':        {
                              'QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503skim+'/QCD_HT300to500_*.root'  ],
