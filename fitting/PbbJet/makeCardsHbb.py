@@ -311,26 +311,47 @@ def main(options,args):
                 newline = l.replace('TQQEFF','%.4f'%tqqeff)
                 newline = newline.replace('tqqnormSF','tqqnormSF%s'%options.suffix)
                 newline = newline.replace('tqqeffSF','tqqeffSF%s'%options.suffix)
+            #elif 'wznormEW' in l:
+            #    if i==4:
+            #        newline = l.replace('1.05','1.15')
+            #    elif i==5:
+            #        newline = l.replace('1.05','1.15')
+            #    elif i==6:
+            #        newline = l.replace('1.05','1.15')
+            #    else:
+            #        newline = l
+            #elif 'znormEW' in l:
+            #    if i==3:
+            #        newline = l.replace('1.15','1.25')
+            #    elif i==4:
+            #        newline = l.replace('1.15','1.35')
+            #    elif i==5:
+            #        newline = l.replace('1.15','1.35')
+            #    elif i==6:
+            #        newline = l.replace('1.15','1.35')      
+            #    else:
+            #        newline = l              
             elif 'wznormEW' in l:
                 if i==4:
-                    newline = l.replace('1.05','1.15')
+                    newline = l.replace('1.02','1.06')
                 elif i==5:
-                    newline = l.replace('1.05','1.15')
+                    newline = l.replace('1.02','1.06')
                 elif i==6:
-                    newline = l.replace('1.05','1.15')
+                    newline = l.replace('1.02','1.06')
                 else:
                     newline = l
             elif 'znormEW' in l:
                 if i==3:
-                    newline = l.replace('1.15','1.25')
+                    newline = l.replace('1.05','1.07')
                 elif i==4:
-                    newline = l.replace('1.15','1.35')
+                    newline = l.replace('1.05','1.07')
                 elif i==5:
-                    newline = l.replace('1.15','1.35')
+                    newline = l.replace('1.05','1.07')
                 elif i==6:
-                    newline = l.replace('1.15','1.35')      
+                    newline = l.replace('1.05','1.07')      
                 else:
                     newline = l              
+
             else:
                 newline = l
             if "CATX" in l:
