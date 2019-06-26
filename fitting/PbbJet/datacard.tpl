@@ -26,8 +26,10 @@ bbeff lnN 1.1 1.1 1.1 1.1 1.1 - - - - 1.1 1.1 1.1 1.1 1.1 - - - -
 znormQ lnN - - - - - 1.1 1.1 - - - - - - - 1.1 1.1 - -
 #znormQ lnN - - - - - 1.1 - - - - - - - - 1.1 - - -
 #wnormQ lnN - - - - - - 1.1 - - - - - - - - 1.1 - -
-znormEW lnN - - - - - 1.15 1.15 - - - - - - - 1.15 1.15 - -
-wznormEW lnN - - - - - - 1.05 - - - - - - - - 1.05 - -
+#znormEW lnN - - - - - 1.15 1.15 - - - - - - - 1.15 1.15 - -
+#wznormEW lnN - - - - - - 1.05 - - - - - - - - 1.05 - -
+znormEW lnN - - - - - 1.05 1.05 - - - - - - - 1.05 1.05 - -
+wznormEW lnN - - - - - - 1.02 - - - - - - - - 1.02 - -
 JER lnN 1 1 1 1 1 1 1 - 1 1 1 1 1 1 1 1 - 1
 JES lnN 1 1 1 1 1 1 1 - 1 1 1 1 1 1 1 1 - 1
 Pu lnN 1 1 1 1 1 1 1 - 1 1 1 1 1 1 1 1 - 1
@@ -38,6 +40,7 @@ eleveto lnN 1.005 1.005 1.005 1.005 1.005 1.005 1.005 - 1.005 1.005 1.005 1.005 
 scale shape 0.1 0.1 0.1 0.1 0.1 0.1 0.1 - - 0.1 0.1 0.1 0.1 0.1 0.1 0.1 - -
 #scalept shape 0.1 0.1 0.1 0.1 0.1 0.1 0.1 - - 0.1 0.1 0.1 0.1 0.1 0.1 0.1 - -
 smear shape 0.25 0.25 0.25 0.25 0.25 0.25 0.25 - - 0.25 0.25 0.25 0.25 0.25 0.25 0.25 - -
+#smear shape 0.5 0.5 0.5 0.5 0.5 0.5 0.5 - - 0.5 0.5 0.5 0.5 0.5 0.5 0.5 - -
 tqqpassCATXnorm rateParam pass_CATX tqq (@0*@1) tqqnormSF,tqqeffSF
 tqqfailCATXnorm rateParam fail_CATX tqq (@0*(1.0-@1*TQQEFF)/(1.0-TQQEFF)) tqqnormSF,tqqeffSF
 #tqqfailCATXnorm rateParam fail_CATX tqq (@0*(1.0-@1*5.523909e-02)/(1.0-5.523909e-02)) tqqnormSF,tqqeffSF
