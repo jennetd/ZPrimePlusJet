@@ -291,6 +291,8 @@ def get2018files():
     idir_1504     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/'
     idir_1505     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/'
     idir_1505skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/skim/'
+    idir_1605     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.05/'
+    idir_1605skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.05/skim/'
     tfiles = {
 	          'ggHbb_amc' :          { 'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8':                [idir_1505skim+'GluGluHToBB_M125_13TeV_amcatnloFXFX_pythia8_*.root']},
 	          'ggHbb_amcHpT250' :    { 'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8' :[idir_1505skim+'GluGluHToBB_M125_LHEHpT_250_Inf_13TeV_amcatnloFXFX_pythia8_*.root']},
@@ -359,8 +361,8 @@ def get2018files():
                             idir_1505skim + 'JetHTRun2018A_17Sep2018_v1*.root',
                             idir_1505skim + 'JetHTRun2018B_17Sep2018_v1*.root',
                             idir_1505skim + 'JetHTRun2018C_PromptReco_v*.root',
-                            idir_1505skim + 'JetHTRun2018D_PromptReco_v*.root',
-
+                            #idir_1505skim + 'JetHTRun2018D_PromptReco_v*.root',   # ~1/5"polluted" with wrong training
+                            idir_1605skim + 'JetHTRun2018D_PromptReco_v*.root',  
                       ],
               'muon': [
                        #idir_1505+'/SingleMuonRun2018A_17Sep2018_v2/*.root',

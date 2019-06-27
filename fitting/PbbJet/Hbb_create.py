@@ -192,6 +192,8 @@ def get2018files(isMuonCR):
     idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
     idir_1505     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/'
     idir_1505skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/skim/'
+    idir_1605     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.05/'
+    idir_1605skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.05/skim/'
 
 
     tfiles = {
@@ -262,7 +264,8 @@ def get2018files(isMuonCR):
                             idir_1505skim + 'JetHTRun2018A_17Sep2018_v1*.root',
                             idir_1505skim + 'JetHTRun2018B_17Sep2018_v1*.root',
                             idir_1505skim + 'JetHTRun2018C_PromptReco_v*.root',
-                            idir_1505skim + 'JetHTRun2018D_PromptReco_v*.root',
+                            #idir_1505skim + 'JetHTRun2018D_PromptReco_v*.root',  ## ~1/5 'polluted' with wrong training
+                            idir_1605skim + 'JetHTRun2018D_PromptReco_v*.root',  
                       ],
         'data_obs_mu': [
                        #idir_1505+'/SingleMuonRun2018A_17Sep2018_v2/*.root',
