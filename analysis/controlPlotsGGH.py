@@ -466,11 +466,11 @@ def get2017files():
                              #idir_1501skim + 'JetHTRun2017F_17Nov2017_v1_*.rootnodupl.root',
                       ],
               'muon': [
-                       idir_1504skim_vbf+'/SingleMuonRun2017B_17Nov2017_v1_*.root',
-                       idir_1504skim_vbf+'/SingleMuonRun2017C_17Nov2017_v1_*.root',
-                       idir_1504skim_vbf+'/SingleMuonRun2017D_17Nov2017_v1_*.root',
-                       idir_1504skim_vbf+'/SingleMuonRun2017E_17Nov2017_v1_*.root',
-                       idir_1504skim_vbf+'/SingleMuonRun2017F_17Nov2017_v1_*.root'
+                       idir_1604skim+'/SingleMuonRun2017B_17Nov2017_v1_*.root',
+                       idir_1604skim+'/SingleMuonRun2017C_17Nov2017_v1_*.root',
+                       idir_1604skim+'/SingleMuonRun2017D_17Nov2017_v1_*.root',
+                       idir_1604skim+'/SingleMuonRun2017E_17Nov2017_v1_*.root',
+                       idir_1604skim+'/SingleMuonRun2017F_17Nov2017_v1_*.root'
                     ]
             }
     return tfiles
