@@ -253,12 +253,12 @@ def get2016legacyfiles():
                              'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8'    :[idir_1603skim+'TT_TuneCUETP8M2T4_13TeV_powheg_pythia8_*.root'],
                             },
               'QCD':        {
-                             'QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503skim+'/QCD_HT300to500_*.root'  ],
-                             'QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1503+'/QCD_HT500to700_13TeV/*.root'  ],
-                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503+'/QCD_HT700to1000_13TeV/*.root' ],
-                             'QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1503skim+'/QCD_HT1000to1500_*.root'],
-                             'QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1503skim+'/QCD_HT1500to2000_*.root'],
-                             'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1503skim+'/QCD_HT2000toInf_*.root' ]
+                             #'QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1603skim+'/QCD_HT300to500_*.root'  ],
+                             'QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1603skim+'/QCD_HT500to700_*.root'  ],
+                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1603skim+'/QCD_HT700to1000_*.root' ],
+                             'QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1603skim+'/QCD_HT1000to1500_*.root'],
+                             'QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_1603skim+'/QCD_HT1500to2000_*.root'],
+                             'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_1603skim+'/QCD_HT2000toInf_*.root' ]
                             },
               'data': [
                             idir_1503skim + 'JetHTRun2016B_07Aug17_v*_withPF*.root',
@@ -604,7 +604,8 @@ def main(options,args,outputExists):
             try:
                 if 'h_' in attr and getattr(testSample,attr).InheritsFrom('TH1') and not getattr(testSample,attr).InheritsFrom('TH2'):
                     if  attr in ['h_ggh_den','h_ggh_num','h_vbf_den','h_vbf_num']: continue
-                    plots.append(attr)
+                    if 'muCR' in attr:
+                        plots.append(attr)
             except:
                 pass
     elif isData:
