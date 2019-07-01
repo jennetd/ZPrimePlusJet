@@ -756,15 +756,16 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     p22.RedrawAxis()
     htot.SetMinimum(0)
     c.SaveAs(odir + "/mlfit_" + tag + ".pdf")
+    c.SaveAs(odir + "/mlfit_" + tag + ".png")
     c.SaveAs(odir + "/mlfit_" + tag + ".C")
 
-    p12.SetLogy()
-    htot.SetMinimum(0.5)
-    htot.SetMaximum(htot.GetMaximum() * 2)
-    p12.RedrawAxis()
-    p22.RedrawAxis()
-    c.SaveAs(odir + "/mlfit_" + tag + "-log.pdf")
-    c.SaveAs(odir + "/mlfit_" + tag + "-log.C")
+    #p12.SetLogy()
+    #htot.SetMinimum(0.5)
+    #htot.SetMaximum(htot.GetMaximum() * 2)
+    #p12.RedrawAxis()
+    #p22.RedrawAxis()
+    #c.SaveAs(odir + "/mlfit_" + tag + "-log.pdf")
+    #c.SaveAs(odir + "/mlfit_" + tag + "-log.C")
 
     #raw_input("test")
 
@@ -1101,7 +1102,6 @@ def makeTF(pars, ratio,n_rho,n_pT,Include_qcdeff):
         c.SaveAs(options.odir + "/tf_rhocolz_noeff.pdf")
         c.SaveAs(options.odir + "/tf_rhocolz_noeff.C")
     
-
 
 ##-------------------------------------------------------------------------------------
 if __name__ == '__main__':
