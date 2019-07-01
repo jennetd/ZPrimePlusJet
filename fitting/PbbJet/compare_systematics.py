@@ -134,7 +134,7 @@ def drawFromhist(hlist,texList,pname,options,drawOpt='',yr=(-1,-1),xr=(-1,-1),ou
 
 
     c1.Update()
-    #c1.SaveAs(options.odir+pname+".pdf")
+    c1.SaveAs(options.odir+pname+".pdf")
     c1.SaveAs(options.odir+pname+".png")
     #c1.SaveAs(options.odir+pname+".root")
 
@@ -142,7 +142,7 @@ def drawFromhist(hlist,texList,pname,options,drawOpt='',yr=(-1,-1),xr=(-1,-1),ou
 ##-------------------------------------------------------------------------------------
 def main(options,args):
     #procs    = ['tthqq125','hqq125','whqq125','zhqq125','vbfhqq125']
-    procs    = ['zqq','wqq']
+    procs    = ['wqq','zqq']
     cats     = [ "cat"+str(i+1) for i in range(6)]
     passfail = ['pass','fail']
     upDown   = ['Up']
@@ -151,14 +151,22 @@ def main(options,args):
    
     #idir1 = 'ddb_Apr17/ddb_M2/TF22_SFJun4/'
     idirs = [
-       # {'path':'ddb2016_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2016','scale':41.1/35.9},
-       # {'path':'ddb_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/'    , 'suffix':'2017','scale':1.0},
-       # {'path':'ddb2018_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2018','scale':41.1/59.2},
-        {'path':'ddb2016_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2016','scale':41.5/35.9},
-        {'path':'ddb_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/'    , 'suffix':'2017','scale':1.0},
-        {'path':'ddb2018_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2018','scale':41.5/59.2},
+        #{'path':'ddb2016_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2016','scale':41.1/35.9},
+        #{'path':'ddb_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/'    , 'suffix':'2017','scale':1.0},
+        #{'path':'ddb2018_Jun16/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2018','scale':41.1/59.2},
+       # {'path':'ddb2016_Jun16/ddb_T3_full/TF22_blind_muonCR_config7/', 'suffix':'2016','scale':41.5/35.9},
+       # {'path':'ddb_Jun16/ddb_T3_full/TF22_blind_muonCR_config7/'    , 'suffix':'2017','scale':1.0},
+        #{'path':'ddb2016_Jun20_v2/ddb_M2_full/TF22_blind_SF2016/', 'suffix':'2016','scale':41.1/35.9},
+        #{'path':'ddb_Jun20_v2/ddb_M2_full/TF22_blind_SF2016/'    , 'suffix':'2017','scale':1.0},
+        #{'path':'ddb2018_Jun20_v2/ddb_M2_full/TF22_blind_SF2016/', 'suffix':'2018','scale':41.1/59.2},
+       # {'path':'ddb2016_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2016','scale':41.1/35.9},
+       # {'path':'ddb_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/'    , 'suffix':'2017','scale':1.0},
+       # {'path':'ddb2018_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2018','scale':41.1/59.2},
+        {'path':'ddb_Jun21/ddb_M2_full/TF22_blind_muonCR_bbSF1/'    , 'suffix':'2017_BtoF','scale':1.0},
+        {'path':'ddb_Jun24/ddb_M2_full/TF22_blind_muonCR_bbSF1/'    , 'suffix':'2017','scale':1.0},
 
     ]
+    tag = 'reg'
     options.norm = False
     options.ratio = True
     tfs = []
@@ -189,7 +197,8 @@ def main(options,args):
                 #d = {'hist':h_norm2,'colors':kRed,'ytitle':'','label':h_norm.GetName()+"_2017",'denom':True}
                 #tlist.append( {'text':"shifted mean=%.3f, integral= %.1f"%(h_norm2.GetMean(),h_norm2.Integral()),'x':0.5,'y':0.6-0.05,'size':0.04})
                 #hlist.append(d)
-                drawFromhist(hlist,tlist,h_norm.GetName(),options,"hist",(-1,-1),(-1,-1))
+                name = "_".join(filter(None,[h_norm.GetName(),tag]))
+                drawFromhist(hlist,tlist,name,options,"hist",(-1,-1),(-1,-1))
             hsum = []
             tlist = []
             for i,idir in enumerate(idirs):
@@ -202,22 +211,24 @@ def main(options,args):
                     h_pass.Scale(idir['scale'])
                 d = {'hist':h_pass,'colors':colors[i],'ytitle':'','label':h_pass.GetName()+"_"+idir['suffix'],'denom':denom}
                 hsum.append(d)
+                name = "_".join(filter(None,[h_pass.GetName(),tag]))
                 tlist.append( {'text':"mean =%.3f, integral= %.1f"%(h_pass.GetMean(),h_pass.Integral()),'x':0.5,'y':0.6-i*0.04,'size':0.04})
-                drawFromhist(hsum,tlist,h_pass.GetName().replace("pass","sum"),options,"hist",(-1,-1),(-1,-1))
+                drawFromhist(hsum,tlist,name,options,"hist",(-1,-1),(-1,-1))
 
     for proc in procs:
         for pf in passfail+['sum']:
-            cmd = ' montage -density 500 -tile 3x0 -geometry 800x800 -border 10'
-            cmd += " %s%s*.png"%(options.odir, proc+"_"+pf)
-            cmd += " %s%s.pdf"%(options.odir, proc+"_"+pf)
-            print cmd
-            os.system(cmd)
-            cmd = "rm %s%s*.png"%(options.odir, proc+"_"+pf)
-            print cmd
-            os.system(cmd)
+            name = "_".join(filter(None,[proc,pf,'*',tag]))
+            merge(name)
 
-
-
+def merge(tag):
+    cmd = ' montage -density 500 -tile 3x0 -geometry 800x800 -border 10'
+    cmd += " %s%s.png"%(options.odir, tag)
+    cmd += " %s%s.pdf"%(options.odir, tag.replace('_*',''))
+    print cmd
+    os.system(cmd)
+    cmd = "rm %s%s*.png"%(options.odir, tag)
+    print cmd
+    os.system(cmd)
 
 ##-------------------------------------------------------------------------------------
 if __name__ == '__main__':
