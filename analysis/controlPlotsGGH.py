@@ -362,14 +362,14 @@ def get2018files():
                             idir_1505skim + 'JetHTRun2018B_17Sep2018_v1*.root',
                             idir_1505skim + 'JetHTRun2018C_PromptReco_v*.root',
                             #idir_1505skim + 'JetHTRun2018D_PromptReco_v*.root',   # ~1/5"polluted" with wrong training
-                            idir_1605skim + 'JetHTRun2018D_PromptReco_v*.root',  
+                            idir_1605skim + 'JetHTRun2018D_PromptReco_v*.root',    # 4/5 of full 2018D, to be topped up later
                       ],
               'muon': [
                        #idir_1505+'/SingleMuonRun2018A_17Sep2018_v2/*.root',
                        #idir_1505+'/SingleMuonRun2018B_17Sep2018_v1/*.root',
                        #idir_1505+'/SingleMuonRun2018C_17Sep2018_v1/*.root',
                        #idir_1505+'/SingleMuonRun2018D_PromptReco_v2*/*.root',
-                       idir_1505skim+'/SingleMuonRun2018A_17Sep2018_v2_v2*.root',
+                       idir_1605skim+'/SingleMuonRun2018A_17Sep2018_v2_v2*.root',   # Fixed singleMuon
                        idir_1505skim+'/SingleMuonRun2018B_17Sep2018_v1*.root',
                        idir_1505skim+'/SingleMuonRun2018C_17Sep2018_v1*.root',
                        idir_1505skim+'/SingleMuonRun2018D_PromptReco_v2*.root',
