@@ -223,6 +223,8 @@ class sampleContainer:
         histos1d = {            
             'h_fBosonPt_fbweight': ["h_" + self._name + "_fBosonPt_fbweight", "; fBoson pT;;", 100, 0, 1000],
             'h_fBosonPt_weight':   ["h_" + self._name + "_fBosonPt_weight", "; fBoson pT;;", 100, 0, 1000],
+            'h_fBosonPt_PUweight': ["h_" + self._name + "_fBosonPt_PUweight", "; fBoson pT;;", 100, 0, 1000],
+            'h_fBosonPt_trigWeight': ["h_" + self._name + "_fBosonPt_trigWeight", "; fBoson pT;;", 100, 0, 1000],
             'h_npv': ["h_" + self._name + "_npv", "; number of PV;;", 100, 0, 100],
             'h_msd_ak8_topR6_N2_pass': ["h_" + self._name + "_msd_ak8_topR6_N2_pass", "; AK8 m_{SD}^{PUPPI} (GeV);", 23,
                                         40, 201],
@@ -1068,6 +1070,8 @@ class sampleContainer:
                     dmass = math.fabs(genVMass - jmsd_8) / genVMass
                 self.h_fBosonPt_fbweight.Fill(self.genVPt[0], fbweight) 
                 self.h_fBosonPt_weight.Fill(self.genVPt[0], fbweight*vjetsKF) 
+                self.h_fBosonPt_PUweight.Fill(self.genVPt[0], fbweight*vjetsKF*puweight) 
+                self.h_fBosonPt_trigWeight.Fill(self.genVPt[0], fbweight*vjetsKF*trigweight) 
             #Find non-matched AK4 jets
             QuarkJets = []
             OppHemAK4_dcsvb=[]
