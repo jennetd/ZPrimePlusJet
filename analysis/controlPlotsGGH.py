@@ -270,12 +270,12 @@ def get2016legacyfiles():
                             idir_1503skim + 'JetHTRun2016H_07Aug17_v*_withPF*.root',
                       ],
               'muon': [
-                       idir_1503skim+'/SingleMuonRun2016B_07Aug17_v*.root',
-                       idir_1503skim+'/SingleMuonRun2016C_07Aug17_v*.root',
-                       idir_1503skim+'/SingleMuonRun2016D_07Aug17_v*.root',
-                       idir_1503skim+'/SingleMuonRun2016E_07Aug17_v*.root',
-                       idir_1503skim+'/SingleMuonRun2016F_07Aug17_v*.root',
-                       idir_1503skim+'/SingleMuonRun2016G_07Aug17_v*.root',
+                       idir_1603skim+'/SingleMuonRun2016B_07Aug17_v*.root',
+                       idir_1603skim+'/SingleMuonRun2016C_07Aug17_v*.root',
+                       idir_1603skim+'/SingleMuonRun2016D_07Aug17_v*.root',
+                       idir_1603skim+'/SingleMuonRun2016E_07Aug17_v*.root',
+                       idir_1603skim+'/SingleMuonRun2016F_07Aug17_v*.root',
+                       idir_1603skim+'/SingleMuonRun2016G_07Aug17_v*.root',
                     ]
             }
     return tfiles
