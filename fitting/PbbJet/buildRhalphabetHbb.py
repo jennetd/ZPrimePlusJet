@@ -28,35 +28,35 @@ RHO_LO = -6
 RHO_HI = -2.1
 
 SF2018={
-            'shift_SF'  : 1.00,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
-            'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , #  2016 smear SF 
-            'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,       # 2016 VSF
-            #'shift_SF'  : 0.952,            'shift_SF_ERR' : 0.002   , # prelim SF @26% N2ddt 
+            #cristina July8
+            'shift_SF'  : 0.970,           'shift_SF_ERR' : 0.012,
+            'smear_SF'  : 0.9076,          'smear_SF_ERR' : 0.0146,
+            'V_SF'      : 0.953,           'V_SF_ERR'     : 0.016,  
             #'smear_SF'  : 0.952,            'smear_SF_ERR' : 0.0495  , # prelim SF @26% N2ddt 
             #'V_SF'      : 0.845,            'V_SF_ERR'     : 0.031   , # prelim SF @26% N2ddt
             #'BB_SF'     : 0.7,              'BB_SF_ERR' : 0.065,      #2018 prelim ddb SF
-            'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
+            #'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
+            'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.3,     ## M2 SF
 }
 SF2017={
-            #'shift_SF'  : 1.001,           'shift_SF_ERR' : 0.1,
-            #'smear_SF'  : 1.00,            'smear_SF_ERR' : 0.1,
-            #'V_SF'      : 1.00,            'V_SF_ERR'  : 0.05,  
-            #'BB_SF'     : 1.00,            'BB_SF_ERR' : 0.5,  
-
+            #cristina July8
+            'shift_SF'  : 0.978,           'shift_SF_ERR' : 0.012,
+            'smear_SF'  : 0.9045,          'smear_SF_ERR' : 0.048,
+            'V_SF'      : 0.924,           'V_SF_ERR'  : 0.018,  
             #cristina Jun25
-            'shift_SF'  : 0.979,           'shift_SF_ERR' : 0.002,
-            'smear_SF'  : 0.911,           'smear_SF_ERR' : 0.0476,
-            'V_SF'      : 0.92,            'V_SF_ERR'  : 0.018,  
+            #'shift_SF'  : 0.979,           'shift_SF_ERR' : 0.012,
+            #'smear_SF'  : 0.911,           'smear_SF_ERR' : 0.0476,
+            #'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049   , # prelim SF @26% N2ddt 
+            #'V_SF'      : 0.92,            'V_SF_ERR'     : 0.018,  
 
             #'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # 2016 shift SF 
             #'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , #  2016 smear SF 
             #'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,       # 2016 VSF
             #'shift_SF'  : 1.00,            'shift_SF_ERR' : 0.01   , # prelim SF @26% N2ddt 
             #'shift_SF'  : 1.00,             'shift_SF_ERR' : 0.03   , # prelim SF @26% N2ddt 
-            #'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049   , # prelim SF @26% N2ddt 
             #'V_SF'      : 0.95 ,            'V_SF_ERR'     : 0.02   , # prelim SF @26% N2ddt
             #'BB_SF'     : 0.68,             'BB_SF_ERR' : 0.06       , # prelim ddb SF
-            'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.1        , # prelim ddb SF
+            'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.3        , # prelim ddb SF
             #'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
 }
 SF2016={
@@ -68,8 +68,8 @@ SF2016={
             #'BB_SF'     : 0.77,             'BB_SF_ERR' : 0.07,     ## M2 SF
             'BB_SF'     : 1.0,             'BB_SF_ERR' : 0.3,     ## M2 SF
             'V_SF'      : 0.993,            'V_SF_ERR'  : 0.043,
-            #'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # m_data/m_mc, sqrt((m_data_err/m_data)**2+(m_mc_err/m_mc)**2)
-            'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.044   , # m_data/m_mc, sqrt((m_data_err/m_data)**2+(m_mc_err/m_mc)**2)
+            'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.012   , # m_data/m_mc, sqrt((m_data_err/m_data)**2+(m_mc_err/m_mc)**2)
+            #'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.044   , # m_data/m_mc, sqrt((m_data_err/m_data)**2+(m_mc_err/m_mc)**2)
             'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , # s_data/s_mc, sqrt((s_data_err/s_data)**2+(s_mc_err/s_mc)**2)
         }
 
