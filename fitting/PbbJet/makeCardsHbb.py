@@ -117,6 +117,7 @@ def main(options,args):
         jerErrs = {}
         puErrs = {}
         bbErrs = {}
+        weffErrs = {}
         vErrs = {}
         mcstatErrs = {}
         scaleErrs = {}
@@ -177,6 +178,7 @@ def main(options,args):
                 #    scaleptErrs['%s_%s'%(proc,box)] =  0.3
                 #elif i == 6:
                 #    scaleptErrs['%s_%s'%(proc,box)] =  0.4
+                
                 if i == 2:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(500-450)/100
                 elif i == 3:
@@ -199,6 +201,19 @@ def main(options,args):
                         bbErrs['%s_%s'%(proc,box)] = 1.0-BB_SF_ERR*(ratePass/rateFail)
                     else:
                         bbErrs['%s_%s'%(proc,box)] = 1.0
+
+                WEFF_SF_ERR = 0.3
+                WEFF_SF     = 1.0   # if differ from 1, need to update rhalphabet builder
+                if box=='pass':
+                    weffErrs['%s_%s'%(proc,box)] = 1.0+WEFF_SF_ERR/WEFF_SF
+                else:
+                    ratePass = histoDict['%s_%s'%(proc,'pass')].Integral()
+                    rateFail = histoDict['%s_%s'%(proc,'fail')].Integral()
+                    if rateFail>0:
+                        weffErrs['%s_%s'%(proc,box)] = 1.0-WEFF_SF_ERR*(ratePass/rateFail)
+                    else:
+                        weffErrs['%s_%s'%(proc,box)] = 1.0
+
                         
                     
                 #for j in range(1,numberOfMassBins+1):                    
@@ -228,9 +243,23 @@ def main(options,args):
         jerString = 'JER%s lnN'%options.suffix
         puString = 'Pu%s lnN'%options.suffix
         bbString = 'bbeff%s lnN'%options.suffix
+        weffString = 'weff%s lnN'%options.suffix
         vString = 'veff%s lnN'%options.suffix
+        ### Normal scale/scale pt
         scaleptString = 'scalept%s shape'%options.suffix
         scaleString   = 'scale%s shape'%options.suffix
+        ### scale(pt) pass/fail 
+        #scalepassptString = 'scalepasspt%s shape'%options.suffix
+        #scalefailptString = 'scalefailpt%s shape'%options.suffix
+        #scalepassString   = 'scalepass%s shape'%options.suffix
+        #scalefailString   = 'scalefail%s shape'%options.suffix
+        #scalepassString   = 'scalepass_cat%i%s shape'%(i,options.suffix)
+        #scalefailString   = 'scalefail_cat%i%s shape'%(i,options.suffix)
+        ### scale cat i 
+        #if i >=2:
+        #    scaleString   = 'scale_cat%i%s shape'%(i,options.suffix)
+        #else:
+        #    scaleString   = 'scale%s shape'%(options.suffix)
         mcStatStrings = {}
         lumiString = 'lumi%s lnN'%options.suffix
         mcStatGroupString = 'mcstat group ='
@@ -259,16 +288,38 @@ def main(options,args):
                     lumiString += ' %.3f'%LUMI_ERR
                 if proc in ['qcd','tqq']:
                     scaleString += ' -'
+                    #scalepassString += ' -'
+                    #scalefailString += ' -'
                     if i > 1:
                         scaleptString += ' -'
+                        #scalepassptString += ' -'
+                        #scalefailptString += ' -'
                 else:
                     scaleString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
                     if i > 1:
                         scaleptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
+                    #if box =='pass':
+                    #    scalepassString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
+                    #    scalefailString += ' -'
+                    #    if i > 1:
+                    #        scalepassptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
+                    #        scalefailptString += ' -'
+                    #else:
+                    #    scalepassString += ' -'
+                    #    scalefailString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
+                    #    if i > 1:
+                    #        scalepassptString += ' -'
+                    #        scalefailptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
+
                 if proc in ['qcd','tqq','wqq']:
                     bbString += ' -'
                 else:
                     bbString += ' %.3f'%bbErrs['%s_%s'%(proc,box)]
+                if proc in ['wqq']:
+                    weffString += ' %.3f'%weffErrs['%s_%s'%(proc,box)]
+                else:
+                    weffString += ' -'
+
                 if proc in ['qcd','tqq']:
                     vString += ' -'
                 else:
@@ -297,14 +348,27 @@ def main(options,args):
                 newline = puString
             elif 'bbeff' in l:
                 newline = bbString
+            elif 'weff' in l:
+                #newline = weffString
+                pass
             elif 'veff' in l:
                 newline = vString
-            elif 'scalept' in l and i>1:
+            elif 'scale' in l  and 'pt' in l and i>1:
+                #newline = scaleptString.replace("scalept","scalept_cat%i"%i)
                 newline = scaleptString
+                #if 'pass' in l:
+                #    newline = scalepassptString
+                #elif 'fail' in l:
+                #    newline = scalefailptString
+                pass
             elif 'smear' in l:
                 newline = l.replace('smear','smear'+options.suffix)
-            elif 'scale' in l and not 'scalept' in l:
+            elif 'scale' in l and not 'pt' in l:
                 newline = scaleString
+                #if 'pass' in l:
+                #    newline = scalepassString
+                #elif 'fail' in l:
+                #    newline = scalefailString
             elif 'TQQEFF' in l or 'tqqnormSF' in l or 'tqqeffSF' in l:
                 tqqeff = histoDict['tqq_pass'].Integral() / (
                 histoDict['tqq_pass'].Integral() + histoDict['tqq_fail'].Integral())

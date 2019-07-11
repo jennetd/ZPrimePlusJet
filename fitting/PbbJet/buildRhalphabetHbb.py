@@ -40,14 +40,14 @@ SF2018={
 }
 SF2017={
             #cristina July8
-            'shift_SF'  : 0.978,           'shift_SF_ERR' : 0.012,
-            'smear_SF'  : 0.9045,          'smear_SF_ERR' : 0.048,
-            'V_SF'      : 0.924,           'V_SF_ERR'  : 0.018,  
+            #'shift_SF'  : 0.978,           'shift_SF_ERR' : 0.012,
+            #'smear_SF'  : 0.9045,          'smear_SF_ERR' : 0.048,
+            #'V_SF'      : 0.924,           'V_SF_ERR'  : 0.018,  
             #cristina Jun25
-            #'shift_SF'  : 0.979,           'shift_SF_ERR' : 0.012,
+            'shift_SF'  : 0.979,           'shift_SF_ERR' : 0.012,
             #'smear_SF'  : 0.911,           'smear_SF_ERR' : 0.0476,
-            #'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049   , # prelim SF @26% N2ddt 
-            #'V_SF'      : 0.92,            'V_SF_ERR'     : 0.018,  
+            'smear_SF'  : 1.037,            'smear_SF_ERR' : 0.049   , # prelim SF @26% N2ddt 
+            'V_SF'      : 0.92,            'V_SF_ERR'     : 0.018,  
 
             #'shift_SF'  : 1.001,            'shift_SF_ERR' : 0.0044   , # 2016 shift SF 
             #'smear_SF'  : 1.084,            'smear_SF_ERR' : 0.0905  , #  2016 smear SF 

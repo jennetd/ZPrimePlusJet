@@ -848,26 +848,26 @@ class RhalphabetBuilder():
                                       r.RooFit.Import("fail", data_rdh_fail))
 
         roofit_shapes = {}
-        for sample in ["wqq", "zqq", "qcd", "tqq"]:
+        for sample in ["wqq", "zqq", "tqq"]:
             roofit_shapes[sample] = self.GetRoofitHistObjects(pass_histograms[sample], fail_histograms[sample], sample,
                                                               iBin)
 
-        total_pdf_pass = r.RooAddPdf("tot_pass" + iBin, "tot_pass" + iBin,
-                                     r.RooArgList(roofit_shapes["qcd"]["pass_epdf"]))
-        total_pdf_fail = r.RooAddPdf("tot_fail" + iBin, "tot_fail" + iBin,
-                                     r.RooArgList(roofit_shapes["qcd"]["fail_epdf"]))
-        ewk_pdf_pass = r.RooAddPdf("ewk_pass" + iBin, "ewk_pass" + iBin,
-                                   r.RooArgList(roofit_shapes["wqq"]["pass_epdf"], roofit_shapes["zqq"]["pass_epdf"],
-                                                roofit_shapes["tqq"]["pass_epdf"]))
-        ewk_pdf_fail = r.RooAddPdf("ewk_fail" + iBin, "ewk_fail" + iBin,
-                                   r.RooArgList(roofit_shapes["wqq"]["fail_epdf"], roofit_shapes["zqq"]["fail_epdf"],
-                                                roofit_shapes["tqq"]["fail_epdf"]))
+        #total_pdf_pass = r.RooAddPdf("tot_pass" + iBin, "tot_pass" + iBin,
+        #                             r.RooArgList(roofit_shapes["qcd"]["pass_epdf"]))
+        #total_pdf_fail = r.RooAddPdf("tot_fail" + iBin, "tot_fail" + iBin,
+        #                             r.RooArgList(roofit_shapes["qcd"]["fail_epdf"]))
+        #ewk_pdf_pass = r.RooAddPdf("ewk_pass" + iBin, "ewk_pass" + iBin,
+        #                           r.RooArgList(roofit_shapes["wqq"]["pass_epdf"], roofit_shapes["zqq"]["pass_epdf"],
+        #                                        roofit_shapes["tqq"]["pass_epdf"]))
+        #ewk_pdf_fail = r.RooAddPdf("ewk_fail" + iBin, "ewk_fail" + iBin,
+        #                           r.RooArgList(roofit_shapes["wqq"]["fail_epdf"], roofit_shapes["zqq"]["fail_epdf"],
+        #                                        roofit_shapes["tqq"]["fail_epdf"]))
 
-        total_simulpdf = r.RooSimultaneous("tot", "tot", roocategories)
-        total_simulpdf.addPdf(total_pdf_pass, "pass")
-        total_simulpdf.addPdf(total_pdf_fail, "fail")
+        #total_simulpdf = r.RooSimultaneous("tot", "tot", roocategories)
+        #total_simulpdf.addPdf(total_pdf_pass, "pass")
+        #total_simulpdf.addPdf(total_pdf_fail, "fail")
         self._all_data.extend([data_rdh_pass, data_rdh_fail])
-        self._all_shapes.extend([total_pdf_pass, total_pdf_fail, ewk_pdf_pass, ewk_pdf_fail])
+        #self._all_shapes.extend([total_pdf_pass, total_pdf_fail, ewk_pdf_pass, ewk_pdf_fail])
 
         ## find out which to make global
         ## RooDataHist (data), then RooHistPdf of each electroweak
@@ -1149,6 +1149,9 @@ class RhalphabetBuilder():
                 hmatched_new_central.SetName(import_object.GetName())
                 hmatchedsys_shift[0].SetName(import_object.GetName() + "_scale%sUp"%self._suffix)
                 hmatchedsys_shift[1].SetName(import_object.GetName() + "_scale%sDown"%self._suffix)
+                #print "scale name = ", import_object.GetName() + "_scale%s%sUp"%(cat,self._suffix)
+                #hmatchedsys_shift[0].SetName(import_object.GetName() + "_scale%s%sUp"%(cat,self._suffix))
+                #hmatchedsys_shift[1].SetName(import_object.GetName() + "_scale%s%sDown"%(cat,self._suffix))
                 print "Inital mean central = ",tmph_mass_matched.GetMean()
                 print "Final shift mean central = ",hmatched_new_central.GetMean(),' shifted by ',shift_val
                 print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ', shift_unc
@@ -1175,6 +1178,13 @@ class RhalphabetBuilder():
                     tmprdh = r.RooDataHist(h.GetName(), h.GetName(), r.RooArgList(self._lMSD), h)
                     getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
                     if h.GetName().find("scale") > -1:
+                        #if 'pass' in cat.lower():
+                        #    pName = h.GetName().replace("scalepass", "scalepass_cat%s"%iPt)
+                        #elif 'fail' in cat.lower():
+                        #    pName = h.GetName().replace("scalefail", "scalefail_cat%s"%iPt)
+                        #else:
+                        #    pName = h.GetName().replace("scale", "scalept")
+                        #pName = h.GetName().replace("scale", "scale_cat%s"%iPt)   ## scalept -> scale_cat
                         pName = h.GetName().replace("scale", "scalept")
                         tmprdh = r.RooDataHist(pName, pName, r.RooArgList(self._lMSD), h)
                         getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
