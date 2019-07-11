@@ -49,15 +49,23 @@ def main(options,args):
     #ReplaceQCDpass(f,fr,"fakeQCD",False)
     #RescaleVqq('rescaledVqq','ddb_Apr17/ddb_M2_full/data/')
 
-    drawScale(f,logf,fml,['zqq','wqq'])
-    for i in range(6): 
-        #drawCategory(f,fr,fhist,fml,"cat"+str(i+1));
-        #drawProcess(f,fml,['qcd','zqq','wqq'],'cat'+str(i+1))
-        drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=True)
-        drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=False)
-        pass
-    MergeDrawProcess(nostack=True)
-    MergeDrawProcess(nostack=False)
+    fmls =[
+        {'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/mlfit.root'   , 'suffix':'2017'  ,'tag':'2017'              ,'color':r.kBlue},
+        {'f':'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_muonCR_SFJul8/mlfit.root'     , 'suffix':'2018'  ,'tag':'2018 full'            ,'color':r.kRed},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scaleFailpt/mlfit.root'     , 'suffix':'2017'   ,'tag':'scale Fail pt'     ,'color':r.kOrange},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scaleCat/mlfit.root'         , 'suffix':'2017'  ,'tag':'scale cat'         ,'color':r.kGreen},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scalePassFailCat/mlfit.root' , 'suffix':'2017'  ,'tag':'scale PassFailcat' ,'color':r.kMagenta},
+    ]
+
+    drawScale(f,logf,fmls,['zqq','wqq'])
+    #for i in range(6): 
+    #    #drawCategory(f,fr,fhist,fml,"cat"+str(i+1));
+    #    #drawProcess(f,fml,['qcd','zqq','wqq'],'cat'+str(i+1))
+    #    drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=True)
+    #    drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=False)
+    #    pass
+    #MergeDrawProcess(nostack=True)
+    #MergeDrawProcess(nostack=False)
 
 def MergeDrawProcess(nostack=True):
     for pf in ['pass','fail']:
@@ -79,10 +87,9 @@ def MergeDrawProcess(nostack=True):
 
 
 ###############################################################
-def getShape(fml,pf,catname,proc,fit):
+def getShape(fml,pf,catname,proc,fit,suffix):
     rags        = fml.Get("norm_" + fit)
-    if options.suffix:
-        suffix = options.suffix
+    if suffix:
         shape       = fml.Get("shapes_%s/%s_%s_%s_%s/%s"%(fit,catname,suffix,pf,catname,proc))
         rrvName     = "%s_%s_%s_%s/%s" % (catname,suffix,pf,catname, proc)
     else:
@@ -130,7 +137,7 @@ def getScaleErr(logf):
     return float(shift_SF),float(shift_SF_ERR)
 
 ## Return graphs with scale and scalept unc.
-def getProcScaleGraphs(fml,pf,proc,shift_SF,shift_SF_ERR):
+def getProcScaleGraphs(fml,pf,proc,shift_SF,shift_SF_ERR,suffix):
     g_Vqq = r.TGraphErrors()
     g_Vqq.SetName('%s scaleUnc'%proc)
     g_Vqq_pt = r.TGraphErrors()
@@ -143,7 +150,7 @@ def getProcScaleGraphs(fml,pf,proc,shift_SF,shift_SF_ERR):
     if 'hqq' in proc:       mass  = 125.0
     for catname in ['cat'+str(i) for i in range(1,7)]:
         pT = getpT(catname)
-        shape = getShape(fml,pf,catname,proc,'prefit')
+        shape = getShape(fml,pf,catname,proc,'prefit',suffix)
         if catname =='cat1': scalePt = 0.0 
         if catname =='cat2': scalePt = (500-450)/100.
         if catname =='cat3': scalePt = (550-450)/100. 
@@ -175,51 +182,63 @@ def getProcScaleGraphs(fml,pf,proc,shift_SF,shift_SF_ERR):
     return g_Vqq,g_Vqq_pt,g_Vqq_Tot
 
 
-def drawScale(f,logf,fml,procs):
+def drawScale(f,logf,fmls,procs):
     shift_SF,shift_SF_ERR = getScaleErr(logf) 
+    prefit_fml = r.TFile(fmls[0]['f'])
     for pf in ['pass','fail']:
         cp = r.TCanvas("cp","cp",1000,800);
         leg = r.TLegend(0.7,0.7,0.9,0.9)
         maxs = []
         stacks = []
 
-        suffix = options.suffix
+        suffix = fmls[0]['suffix']
         tex = r.TLatex()
         iPlot = 0
         mg = r.TMultiGraph()
         mg.SetName('mg_%s'%(pf))
         if 'wqq' in procs:
-            g_wqq,g_wqq_pt,g_wqq_Tot = getProcScaleGraphs(fml,pf,'wqq',shift_SF,shift_SF_ERR)
+            g_wqq,g_wqq_pt,g_wqq_Tot = getProcScaleGraphs(prefit_fml,pf,'wqq',shift_SF,shift_SF_ERR,suffix)
             #mg.Add(g_wqq_Tot,'l3')
             mg.Add(g_wqq_pt,'l3')
             mg.Add(g_wqq,'l3')
         if 'zqq' in procs:
-            g_zqq,g_zqq_pt,g_zqq_Tot = getProcScaleGraphs(fml,pf,'zqq',shift_SF,shift_SF_ERR)
+            g_zqq,g_zqq_pt,g_zqq_Tot = getProcScaleGraphs(prefit_fml,pf,'zqq',shift_SF,shift_SF_ERR,suffix)
             mg.Add(g_zqq_pt,'l3')
             mg.Add(g_zqq,'l3')
+        listOfLegs = []
         for j,fit in enumerate(['prefit','fit_b']):
             for i,proc in enumerate(procs):
-                g = r.TGraphErrors()
-                g.SetName('%s_%s'%(proc,fit))
-                for catname in ['cat'+str(i) for i in range(1,7)]:
-                    pT = getpT(catname)
-                    shape = getShape(fml,pf,catname,proc,fit)
-                    if fit =='prefit': kColor = r.kBlack
-                    if fit =='fit_b' : kColor = r.kBlue
-                    if fit =='fit_s' : kColor = r.kRed
-                    g.SetPoint(g.GetN(), pT + j*10 , shape.GetMean()) 
-                    g.SetPointError(g.GetN()-1, 0 , shape.GetMeanError()) 
-                    #g.SetPoint(g.GetN(), pT + j*10 , shape.Integral()) 
-                    #err=r.Double(1.0)
-                    #shape.IntegralAndError(1,shape.GetNbinsX(),err) 
-                    #g.SetPointError(g.GetN()-1, 0 ,err ) 
-                    g.SetLineColor(kColor)
-                    g.SetMarkerColor(kColor)
-                    g.SetLineStyle(i+1)
-                    g.SetLineWidth(2)
+                for l,d_fml in enumerate(fmls):
+                    #if fit=='prefit' and (l>0): continue             #skip multiple prefit
+                    fml = r.TFile(d_fml['f'])
+                    tag = d_fml['tag']
+                    g = r.TGraphErrors()
+                    g.SetName('%s_%s'%(proc,fit))
+                    for catname in ['cat'+str(i) for i in range(1,7)]:
+                        pT = getpT(catname)
+                        shape = getShape(fml,pf,catname,proc,fit,d_fml['suffix'])
+                        if fit =='prefit': kColor = r.kBlack
+                        if fit =='fit_b' : kColor = r.kBlue
+                        if fit =='fit_s' : kColor = r.kRed
+                        if fit=='fit_b' and 'color' in d_fml.keys():
+                            kColor = d_fml['color']
+                        g.SetPoint(g.GetN(), pT + (j+l)*10 , shape.GetMean()) 
+                        g.SetPointError(g.GetN()-1, 0 , shape.GetMeanError()) 
+                        #g.SetPoint(g.GetN(), pT + j*10 , shape.Integral()) 
+                        #err=r.Double(1.0)
+                        #shape.IntegralAndError(1,shape.GetNbinsX(),err) 
+                        #g.SetPointError(g.GetN()-1, 0 ,err ) 
+                        g.SetLineColor(kColor)
+                        g.SetMarkerColor(kColor)
+                        g.SetLineStyle(i+1)
+                        g.SetLineWidth(2)
                     iPlot+=1
-                leg.AddEntry(g," ".join([proc,pf,fit]),'lep')
-                mg.Add(g)
+                    #leg.AddEntry(g," ".join([pf,fit,tag]),'lep')
+                    legEntry = " ".join([pf,fit,tag])
+                    if not legEntry in listOfLegs:
+                        leg.AddEntry(g," ".join([pf,tag]),'lep')
+                        listOfLegs.append(legEntry)
+                    mg.Add(g)
         mg.Draw('AEP')
         if 'wqq' in procs:
             leg.AddEntry(g_wqq,"W scaleUnc",'lf')
@@ -252,8 +271,8 @@ def drawProcess(f,fml,procs,catname,nostack=True):
         if subtractQCD:  
             data_shapes = [] 
             for fit in ['fit_b']:
-                qcdshape  = getShape(fml,pf,catname,'qcd',fit)
-                tqqshape  = getShape(fml,pf,catname,'tqq',fit)
+                qcdshape  = getShape(fml,pf,catname,'qcd',fit,options.suffix)
+                tqqshape  = getShape(fml,pf,catname,'tqq',fit,options.suffix)
                 dataShape = dh_d_p.createHistogram("h_dataMinusBkg_"+catname,x)
                 dataShape.Add(qcdshape,-1)
                 dataShape.Add(tqqshape,-1)

@@ -162,9 +162,11 @@ def main(options,args):
        # {'path':'ddb2016_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2016','scale':41.1/35.9},
        # {'path':'ddb_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/'    , 'suffix':'2017','scale':1.0},
        # {'path':'ddb2018_Jun20/ddb_M2_full/TF22_blind_muonCR_SF2016/', 'suffix':'2018','scale':41.1/59.2},
-        {'path':'ddb_Jun21/ddb_M2_full/TF22_blind_muonCR_bbSF1/'    , 'suffix':'2017_BtoF','scale':1.0},
-        {'path':'ddb_Jun24/ddb_M2_full/TF22_blind_muonCR_bbSF1/'    , 'suffix':'2017','scale':1.0},
-
+       # {'path':'ddb_Jun21/ddb_M2_full/TF22_blind_muonCR_bbSF1/'    , 'suffix':'2017_BtoF','scale':1.0},
+       # {'path':'ddb_Jun24/ddb_M2_full/TF22_blind_muonCR_bbSF1/'    , 'suffix':'2017','scale':1.0},
+        {'path':'ddb2016_Jun24_v2/ddb_M2_full/TF22_MC_bbSF1_v6_ewk/'       , 'suffix':'2016 p89','scale':1.0},
+        {'path':'ddb2016_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_looserWZ_p80/', 'suffix':'2016 p80','scale':1.0},
+        {'path':'ddb_Jun24_v2/ddb_M2_full/TF22_muonCR_bbSF1_v6_ewk/'       , 'suffix':'2017 ','scale':35.9/41.0},
     ]
     tag = 'reg'
     options.norm = False
