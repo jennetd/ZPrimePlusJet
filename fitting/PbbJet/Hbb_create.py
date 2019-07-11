@@ -197,7 +197,8 @@ def get2018files(isMuonCR):
 
 
     tfiles = {
-	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1505skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	    #'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1505skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	    'hqq125'     : { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':                      [idir_1505skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
 	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1505skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
         'zhqq125'    : { 
                            'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1505skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -286,10 +287,12 @@ def get2016legacyfiles():
     idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
     idir_1503     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/'
     idir_1503skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/skim/'
+    idir_1505skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/skim/'
     idir_1603     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/'
     idir_1603skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/'
     tfiles = {
-	          'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	          #'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	          'hqq125'     : { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':                      [idir_1505skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
 	          'vbfhqq125'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':            [idir_1603skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
 	          'zhqq125'      :          { 
                                     'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1603skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -387,10 +390,12 @@ def get2017files(isMuonCR):
     idir_1504 = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/'
     idir_1504skim_vbf = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04-vbf/skim/'
     idir_1504skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.04/skim/'
+    idir_1505skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.05/skim/'
     idir_1604skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.04/skim/'
 
     tfiles = {
-	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1504skim_vbf+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	    #'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1504skim_vbf+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	    'hqq125'     : { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':         [idir_1505skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
 	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1504skim_vbf+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
         'zhqq125'    : { 
                            'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1504skim_vbf+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
