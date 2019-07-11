@@ -14,6 +14,8 @@ import json
 import os
 import  QGLRutil 
 
+from buildRhalphabetHbb import SF2018,SF2017,SF2016
+
 PTCUT = 450.
 PTCUTMUCR = 400.
 #DBTAGCUT = 0.9
@@ -62,6 +64,13 @@ class sampleContainer:
                                                  PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR), self._tt)
         self._isData = isData
         self.SetExternalInputs(self.puOpt['data'])
+        if self.puOpt['data']=='2018':
+            self.shift_SF = SF2018
+        elif self.puOpt['data']=='2017':
+            self.shift_SF = SF2017
+        elif self.puOpt['data'] in ['2016','2016legacy']:
+            self.shift_SF = SF2016
+        print "Using SF", self.shift_SF
         # print lumi
         # print self._NEv.GetBinContent(1)
         if isData:
@@ -214,6 +223,8 @@ class sampleContainer:
         histos1d = {            
             'h_fBosonPt_fbweight': ["h_" + self._name + "_fBosonPt_fbweight", "; fBoson pT;;", 100, 0, 1000],
             'h_fBosonPt_weight':   ["h_" + self._name + "_fBosonPt_weight", "; fBoson pT;;", 100, 0, 1000],
+            'h_fBosonPt_PUweight': ["h_" + self._name + "_fBosonPt_PUweight", "; fBoson pT;;", 100, 0, 1000],
+            'h_fBosonPt_trigWeight': ["h_" + self._name + "_fBosonPt_trigWeight", "; fBoson pT;;", 100, 0, 1000],
             'h_npv': ["h_" + self._name + "_npv", "; number of PV;;", 100, 0, 100],
             'h_msd_ak8_topR6_N2_pass': ["h_" + self._name + "_msd_ak8_topR6_N2_pass", "; AK8 m_{SD}^{PUPPI} (GeV);", 23,
                                         40, 201],
@@ -545,6 +556,8 @@ class sampleContainer:
         msd_binBoundaries = []
         for i in range(0, 24):
             msd_binBoundaries.append(40. + i * 7)
+        #for i in range(0, 162):
+        #    msd_binBoundaries.append(40. + i )
         print(msd_binBoundaries)
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000]
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000, 1100, 1200, 1300, 1400, 1500]
@@ -762,33 +775,43 @@ class sampleContainer:
             
             ### Apply k-factor for sampleContainer constructed with normSampleContainer
             if 'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' in self._name:  #for 2016legacy
-                ptForNLO = max(200., min(self.genVPt[0], 1000.))  
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
                 iEWKKF = self._hEWK_Z.GetBinContent(self._hEWK_Z.FindBin(ptForNLO));
-                iQCDKF = 1.45;
+                iQCDKF = self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))        # New QCD KF for 2017
                 vjetsKF = iQCDKF*iEWKKF;
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'ZJetsToQQ_' in self._name:    
-                ptForNLO = max(250., min(self.genVPt[0], 1200.))  
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
+                iEWKKF = self._hEWK_Z.GetBinContent(self._hEWK_Z.FindBin(ptForNLO));  # same EWK as 2016
+                iQCDKF = self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))        # New QCD KF for 2017
                 #vjetsKF   = self.kfactor[0]  * self._znlo.GetBinContent(self._znlo.FindBin(ptForNLO))
-                vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]
-                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0], self.kfactorQCD[0])
+                #vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]  ## do not use branch input
+                vjetsKF = iQCDKF*iEWKKF;
+                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
 
             if 'WJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' in self._name:  #for 2016legacy
-                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
-                W_SF=1.35
-                iQCDKF = self._hQCD_W.GetBinContent(self._hQCD_W.FindBin(ptForNLO));
-                iEWKKF = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));
-                wscale=[1.0,1.0,1.0,1.20,1.25,1.25,1.0];
-                ptscale=[0, 500, 600, 700, 800, 900, 1000,3000];
-                ptKF=1.
-                for i in range(0, len(ptscale)):
-                    if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
+                #ptForNLO = max(250., min(self.genVPt[0], 1000.))  
+                #W_SF=1.35
+                #iQCDKF = self._hQCD_W.GetBinContent(self._hQCD_W.FindBin(ptForNLO));
+                #iEWKKF = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));
+                #wscale=[1.0,1.0,1.0,1.20,1.25,1.25,1.0];
+                #ptscale=[0, 500, 600, 700, 800, 900, 1000,3000];
+                #ptKF=1.
+                #for i in range(0, len(ptscale)):
+                #    if ptForNLO> ptscale[i] and ptForNLO<ptscale[i+1]:  ptKF=wscale[i]
                 #vjetsKF = W_SF*iEWKKF*ptKF;
-                vjetsKF = W_SF*iEWKKF;          # Try applying flat QCD kfactor
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))  
+                iQCDKF = self._wnlo.GetBinContent(self._wnlo.FindBin(ptForNLO))        # New QCD KF for bacon 13+ 
+                iEWKKF  = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));
+                vjetsKF = iQCDKF*iEWKKF;          
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
             elif 'WJetsToQQ_' in self._name:
-                ptForNLO = max(250., min(self.genVPt[0], 1200.))
-                vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0] 
+                ptForNLO = max(250., min(self.genVPt[0], 1000.))
+                iEWKKF = self._hEWK_W.GetBinContent(self._hEWK_W.FindBin(ptForNLO));  # same EWK as 2016
+                iQCDKF = self._wnlo.GetBinContent(self._wnlo.FindBin(ptForNLO))        # New QCD KF for 2017
+                #vjetsKF   = self.kfactorEWK[0]  * self.kfactorQCD[0]                  ## do not use branch input
+                vjetsKF = iQCDKF*iEWKKF;
+                #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, iEWKKF, iQCDKF)
                 #print "sample: %s , pT = %.3f,  k-factor: %.3f  self k-factorEWK= %.3f , kfactorQCD=%.3f"%(self._name, ptForNLO, vjetsKF, self.kfactorEWK[0],self.kfactorQCD[0])
        
 
@@ -1045,9 +1068,10 @@ class sampleContainer:
                     dphi = abs(QGLRutil.deltaPhi(genVPhi , jphi_8))
                     dpt = math.fabs(genVPt - jpt_8) / genVPt
                     dmass = math.fabs(genVMass - jmsd_8) / genVMass
-                if jpt_8> PTCUT:
-                    self.h_fBosonPt_fbweight.Fill(self.genVPt[0], fbweight) 
-                    self.h_fBosonPt_weight.Fill(self.genVPt[0], weight) 
+                self.h_fBosonPt_fbweight.Fill(self.genVPt[0], fbweight) 
+                self.h_fBosonPt_weight.Fill(self.genVPt[0], fbweight*vjetsKF) 
+                self.h_fBosonPt_PUweight.Fill(self.genVPt[0], fbweight*vjetsKF*puweight) 
+                self.h_fBosonPt_trigWeight.Fill(self.genVPt[0], fbweight*vjetsKF*trigweight) 
             #Find non-matched AK4 jets
             QuarkJets = []
             OppHemAK4_dcsvb=[]
@@ -1382,7 +1406,7 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_raw_pass.Fill(jmsd_8_raw, jpt_8, weight)
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_topR6_pass_matched.Fill(jmsd_8 * self.shift_SF['shift_SF'], jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                 elif jdb_8 > self.DBTAGCUTMIN:
@@ -1392,7 +1416,7 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_raw_fail.Fill(jmsd_8, jpt_8, weight)
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_topR6_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
 	    if jpt_8 > PTCUT and jmsd_8 > MASSCUT and met < METCUT and n_dR0p8_4 < NJETCUT and isTightVJet and jdb_8 > self.DBTAGCUT and rh_8<-2.1 and rh_8>-6.: 	
@@ -1412,7 +1436,7 @@ class sampleContainer:
                     self.h_msd_v_pt_ak8_topR6_N2_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_N2_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_topR6_N2_pass_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_N2_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                     if QGquark_pass:  
@@ -1423,7 +1447,7 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_QGquark_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                         # for signal morphing
                         if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                            self.h_msd_v_pt_ak8_QGquark_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                            self.h_msd_v_pt_ak8_QGquark_pass_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                         else:
                             self.h_msd_v_pt_ak8_QGquark_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                     else:
@@ -1433,7 +1457,7 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_QGgluon_pass_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
                         self.h_msd_v_pt_ak8_QGgluon_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                         if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                            self.h_msd_v_pt_ak8_QGgluon_pass_matched.Fill(jmsd_8, jpt_8, weight)
+                            self.h_msd_v_pt_ak8_QGgluon_pass_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                         else:
                             self.h_msd_v_pt_ak8_QGgluon_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                 elif jdb_8 > self.DBTAGCUTMIN:
@@ -1446,7 +1470,7 @@ class sampleContainer:
 
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_N2_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_pt_ak8_topR6_N2_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                     else:
                         self.h_msd_v_pt_ak8_topR6_N2_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
                     if QGquark_pass:  
@@ -1457,7 +1481,7 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_QGquark_fail_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                         # for signal morphing
                         if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                            self.h_msd_v_pt_ak8_QGquark_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                            self.h_msd_v_pt_ak8_QGquark_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                         else:
                             self.h_msd_v_pt_ak8_QGquark_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
                     else:
@@ -1467,7 +1491,7 @@ class sampleContainer:
                         self.h_msd_v_pt_ak8_QGgluon_fail_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
                         self.h_msd_v_pt_ak8_QGgluon_fail_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
                         if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                            self.h_msd_v_pt_ak8_QGgluon_fail_matched.Fill(jmsd_8, jpt_8, weight)
+                            self.h_msd_v_pt_ak8_QGgluon_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
                         else:
                             self.h_msd_v_pt_ak8_QGgluon_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
 
@@ -1828,12 +1852,28 @@ class sampleContainer:
     
 
         #pre zprimebit 14 NLO W/Z k-factors files
-        f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
-        self._znlo = f_ZNLO.Get("NLO")
+        #f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr.root"), "read")
+        # 2017 cristina file
+        #f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJetsCorr_old.root"), "read")
+        # 2017 new NLO file, rewighted to 2016,2017 bacon 13-15 sample
+        f_ZNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/ZJets_QCD_NLO.root"), "read")
+        if self.puOpt['data'] in ['2018','2017']:
+            self._znlo = f_ZNLO.Get("Z_NLO_QCD_2017")
+        elif self.puOpt['data'] in ['2016','2016legacy']:
+            self._znlo = f_ZNLO.Get("Z_NLO_QCD_2016")
         self._znlo.SetDirectory(0)
         f_ZNLO.Close()
-        f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr.root"), "read")
-        self._wnlo = f_WNLO.Get("NLO")
+        #pre zprimebit 14 NLO W/Z k-factors files
+        #f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr.root"), "read")
+        # 2017 cristina file
+        #f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJetsCorr_old.root"), "read")
+        # 2017 new NLO file, rewighted to 2016,2017 bacon 13-15 sample
+        f_WNLO = ROOT.TFile.Open(os.path.expandvars("$ZPRIMEPLUSJET_BASE/analysis/ggH/WJets_QCD_NLO.root"), "read")
+        if self.puOpt['data'] in ['2018','2017']:
+            self._wnlo = f_WNLO.Get("W_NLO_QCD_2017")
+        elif self.puOpt['data'] in ['2016','2016legacy']:
+            self._wnlo = f_WNLO.Get("W_NLO_QCD_2016")
+
         self._wnlo.SetDirectory(0)
         f_WNLO.Close()
 

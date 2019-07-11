@@ -28,7 +28,7 @@ from hist import *
 class RhalphabetBuilder():
     def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
-                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201):
+                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201,exp=False):
         self._pass_hists = pass_hists
         self._fail_hists = fail_hists
         self._mass_fit = mass_fit
@@ -67,7 +67,7 @@ class RhalphabetBuilder():
         # polynomial order for fit
         self._poly_degree_rho = nr  # 1 = linear ; 2 is quadratic
         self._poly_degree_pt = np  # 1 = linear ; 2 is quadratic
-
+        self._exp = exp
         self._nptbins = pass_hists["data_obs"].GetYaxis().GetNbins()
         self._pt_lo = pass_hists["data_obs"].GetYaxis().GetBinLowEdge(1)
         self._pt_hi = pass_hists["data_obs"].GetYaxis().GetBinUpEdge(self._nptbins)
@@ -95,14 +95,19 @@ class RhalphabetBuilder():
         self._lEffQCD = r.RooRealVar("qcdeff", "qcdeff", 0.01, 0., 10.)
         qcd_pass_integral = 0
         qcd_fail_integral = 0
-        for i in range(1, fail_hists["qcd"].GetNbinsX() + 1):
-            for j in range(1, fail_hists["qcd"].GetNbinsY() + 1):
-                if fail_hists["qcd"].GetXaxis().GetBinCenter(i) > self._mass_lo and fail_hists[
-                    "qcd"].GetXaxis().GetBinCenter(i) < self._mass_hi:
-                    qcd_fail_integral += fail_hists["qcd"].GetBinContent(i, j)
-                    qcd_pass_integral += pass_hists["qcd"].GetBinContent(i, j)
-        if qcd_fail_integral > 0:
-            qcdeff = qcd_pass_integral / qcd_fail_integral
+        if 'qcd' in fail_hists.keys():
+            for i in range(1, fail_hists["qcd"].GetNbinsX() + 1):
+                for j in range(1, fail_hists["qcd"].GetNbinsY() + 1):
+                    if fail_hists["qcd"].GetXaxis().GetBinCenter(i) > self._mass_lo and fail_hists[
+                        "qcd"].GetXaxis().GetBinCenter(i) < self._mass_hi:
+                        qcd_fail_integral += fail_hists["qcd"].GetBinContent(i, j)
+                        qcd_pass_integral += pass_hists["qcd"].GetBinContent(i, j)
+            if qcd_fail_integral > 0:
+                qcdeff = qcd_pass_integral / qcd_fail_integral
+                self._lEffQCD.setVal(qcdeff)
+        else:
+            print "WARNING: cannot find qcd MC in input histograms, using default qcd eff = 0.015"
+            qcdeff = 0.015
             self._lEffQCD.setVal(qcdeff)
         print "qcdeff = %f" % qcdeff
         self._lDM = r.RooRealVar("dm", "dm", 0., -10, 10)
@@ -505,7 +510,11 @@ class RhalphabetBuilder():
                 print ("Pt/Rho poly")
                 #roopolyarray = self.buildRooPolyRhoArray(self._lPt.getVal(), self._lRho.getVal(), lUnity, lZero,
                 #                                         polynomial_variables)
-                roopolyarray = self.buildRooPolyRhoArrayBernstein(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+                if self._exp:
+                    roopolyarray = self.buildRooPolyRhoArrayBernsteinExp(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+                else:
+                    roopolyarray = self.buildRooPolyRhoArrayBernstein(self._lPt.getVal(),self._lRho.getVal(),lUnity,lZero,polynomial_variables)
+
             print "RooPolyArray:"
             roopolyarray.Print()
             fail_bin_content = 0
@@ -714,6 +723,54 @@ class RhalphabetBuilder():
         lRhoArray.add(lRho_rescaled)
         print "lRhoArray: ", lRhoArray.Print()
         lRhoPol = r.RooFormulaVar(lLabel, lLabel, rhoPolyString, lRhoArray)
+        self._all_vars.extend([lPt_rescaled, lRho_rescaled, lRhoPol])
+        return lRhoPol
+
+
+    def buildRooPolyRhoArrayBernsteinExp(self, iPt, iRho, iQCD, iZero, iVars):
+
+        print "---- [buildRooPolyArrayBernsteinExp]"
+
+        lPt = r.RooConstVar("Var_Pt_" + str(iPt) + "_" + str(iRho), "Var_Pt_" + str(iPt) + "_" + str(iRho), (iPt))
+        lPt_rescaled = r.RooConstVar("Var_Pt_rescaled_" + str(iPt) + "_" + str(iRho),
+                                     "Var_Pt_rescaled_" + str(iPt) + "_" + str(iRho),
+                                     ((iPt - self._pt_lo) / (self._pt_hi - self._pt_lo)))
+        lRho = r.RooConstVar("Var_Rho_" + str(iPt) + "_" + str(iRho), "Var_Rho_" + str(iPt) + "_" + str(iRho), (iRho))
+        lRho_rescaled = r.RooConstVar("Var_Rho_rescaled_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)),
+                                      "Var_Rho_rescaled_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)),
+                                      ((iRho - self._rho_lo) / (self._rho_hi - self._rho_lo)))
+
+        ptPolyString = self.generate_bernstein_string(self._poly_degree_pt)
+        rhoPolyString = self.generate_bernstein_string(self._poly_degree_rho)
+
+        lRhoArray = r.RooArgList()
+        lNCount = 0
+        for pRVar in range(0, self._poly_degree_rho + 1):
+            lTmpArray = r.RooArgList()
+            for pVar in range(0, self._poly_degree_pt + 1):
+                #if lNCount == 0:
+                #    lTmpArray.add(iQCD)  # for the very first constant (e.g. p0r0), just set that to 1
+                #else:
+                print "lNCount = " + str(lNCount)
+                lTmpArray.add(iVars[lNCount])
+                print "iVars[lNCount]: ", iVars[lNCount]
+                print "iVars[lNCount]"
+                iVars[lNCount].Print()
+                lNCount = lNCount + 1
+            pLabel = "Var_Pol_Bin_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3)) + "_" + str(pRVar)
+            lTmpArray.add(lPt_rescaled)
+            print "lTmpArray: ", lTmpArray.Print()
+            pPol = r.RooFormulaVar(pLabel, pLabel, ptPolyString, lTmpArray)
+            print "pPol:"
+            print pPol.Print("V")
+            lRhoArray.add(pPol)
+            self._all_vars.append(pPol)
+
+        lLabel = "Var_RhoPol_Bin_" + str(round(iPt, 2)) + "_" + str(round(iRho, 3))
+        lRhoArray.add(lRho_rescaled)
+        print "lRhoArray: ", lRhoArray.Print()
+        lRhoPol = r.RooFormulaVar(lLabel, lLabel, 'exp('+rhoPolyString+')', lRhoArray)
+        print('exp('+rhoPolyString+')')
         self._all_vars.extend([lPt_rescaled, lRho_rescaled, lRhoPol])
         return lRhoPol
 
@@ -948,16 +1005,22 @@ class RhalphabetBuilder():
                             # hout.append(tmph_mass_down)
                     else:
                         print process, cat, syst
+                        tmph_norm = self._inputfile.Get(process + '_' + cat ).Clone()
                         tmph_up = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Up').Clone()
                         tmph_down = self._inputfile.Get(process + '_' + cat + '_' + syst + 'Down').Clone()
+                        SF = (GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
+                        tmph_norm.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                         tmph_up.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                         tmph_down.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
-                        tmph_mass_up = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo,
-                                                  self._mass_hi)
-                        tmph_mass_down = tools.proj('cat', str(iPt), tmph_down, self._mass_nbins, self._mass_lo,
-                                                    self._mass_hi)
-                        tmph_mass_up.SetName(import_object.GetName() + '_' + syst + 'Up')
-                        tmph_mass_down.SetName(import_object.GetName() + '_' + syst + 'Down')
+                        tmph_mass_norm = tools.proj('cat', str(iPt), tmph_norm, self._mass_nbins, self._mass_lo,self._mass_hi)
+                        tmph_mass_up   = tools.proj('cat', str(iPt), tmph_up, self._mass_nbins, self._mass_lo,self._mass_hi)
+                        tmph_mass_down = tools.proj('cat', str(iPt), tmph_down, self._mass_nbins, self._mass_lo,self._mass_hi)
+                        print "SF = ",SF
+                        print "tmph_mass_norm integral = ",tmph_mass_norm.Integral()
+                        print "tmph_mass_up integral   = ",tmph_mass_up.Integral()
+                        print "tmph_mass_down integral = ",tmph_mass_down.Integral()
+                        tmph_mass_up.SetName(import_object.GetName() + '_' + syst + self._suffix + 'Up')
+                        tmph_mass_down.SetName(import_object.GetName() + '_' + syst +self._suffix + 'Down')
                         hout.append(tmph_mass_up)
                         hout.append(tmph_mass_down)
                 uncorrelate(histDict, 'mcstat')
@@ -1003,33 +1066,47 @@ class RhalphabetBuilder():
                     tmph_unmatched = self._inputfile.Get(process + '_' + cat + '_unmatched').Clone()
                     tmph_matched.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
                     tmph_unmatched.Scale(GetSF(process, cat, self._inputfile,sf_dict=self._sf_dict))
-                tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins, self._mass_lo,
-                                               self._mass_hi)
-                tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins, self._mass_lo,
-                                                 self._mass_hi)
-
+                ### Proj to 1GeV bin width
+                #tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
+                #tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins*7, self._mass_lo,self._mass_hi)
+                tmph_mass_matched = tools.proj('cat', str(iPt), tmph_matched, self._mass_nbins, self._mass_lo,self._mass_hi)
+                tmph_mass_unmatched = tools.proj('cat', str(iPt), tmph_unmatched, self._mass_nbins, self._mass_lo,self._mass_hi)
+                print "tmph_mass_matched integral = ",tmph_mass_matched.Integral()
+            
                 # smear/shift the matched
                 hist_container = hist([mass], [tmph_mass_matched])
                 # mass_shift = 0.99
                 # mass_shift_unc = 0.03*2. #(2 sigma shift)
                 # res_shift = 1.094
                 # res_shift_unc = 0.123*2. #(2 sigma shift)
-                m_data     =self._sf_dict['m_data']    # 82.657
-                m_data_err =self._sf_dict['m_data_err']# 0.313
-                m_mc       =self._sf_dict['m_mc']      # 82.548
-                m_mc_err   =self._sf_dict['m_mc_err']  # 0.191
-                s_data     =self._sf_dict['s_data']    # 8.701
-                s_data_err =self._sf_dict['s_data_err']# 0.433
-                s_mc       =self._sf_dict['s_mc']      # 8.027
-                s_mc_err   =self._sf_dict['s_mc_err']  # 0.607
-                mass_shift = m_data / m_mc
-                mass_shift_unc = math.sqrt((m_data_err / m_data) * (m_data_err / m_data) + (m_mc_err / m_mc) * (
-                    m_mc_err / m_mc)) * 10.  # (10 sigma shift)
-                res_shift = s_data / s_mc
-                res_shift_unc = math.sqrt((s_data_err / s_data) * (s_data_err / s_data) + (s_mc_err / s_mc) * (
-                    s_mc_err / s_mc)) * 2.  # (2 sigma shift)
+                if 'shift_SF' in self._sf_dict.keys():
+                    mass_shift     = self._sf_dict['shift_SF']
+                    mass_shift_unc = self._sf_dict['shift_SF_ERR'] * 10  # (10 sigma shift)
+                else:
+                    m_data     =self._sf_dict['m_data']    # 82.657
+                    m_data_err =self._sf_dict['m_data_err']# 0.313
+                    m_mc       =self._sf_dict['m_mc']      # 82.548
+                    m_mc_err   =self._sf_dict['m_mc_err']  # 0.191
+                    mass_shift = m_data / m_mc
+                    mass_shift_unc = math.sqrt((m_data_err / m_data) * (m_data_err / m_data) + (m_mc_err / m_mc) * (
+                        m_mc_err / m_mc)) * 10.  # (10 sigma shift)
+                if 'smear_SF' in self._sf_dict.keys():
+                    res_shift     = self._sf_dict['smear_SF']
+                    res_shift_unc = self._sf_dict['smear_SF_ERR']  *4     # (2 sigma shift)
+                else:
+                    s_data     =self._sf_dict['s_data']    # 8.701
+                    s_data_err =self._sf_dict['s_data_err']# 0.433
+                    s_mc       =self._sf_dict['s_mc']      # 8.027
+                    s_mc_err   =self._sf_dict['s_mc_err']  # 0.607
+                    res_shift = s_data / s_mc
+                    res_shift_unc = math.sqrt((s_data_err / s_data) * (s_data_err / s_data) + (s_mc_err / s_mc) * (
+                        s_mc_err / s_mc)) * 4.  # (2 sigma shift)
+
+                    
                 # get new central value
-                shift_val = mass - mass * mass_shift
+                #shift_val = mass * (mass_shift-1)
+                shift_val = 0 
+
                 tmp_shifted_h = hist_container.shift(tmph_mass_matched, shift_val)
                 # get new central value and new smeared value
                 smear_val = res_shift - 1
@@ -1039,22 +1116,26 @@ class RhalphabetBuilder():
 
                 if re.match('zqq', tmph_mass_matched.GetName()):
                     print tmph_mass_matched.GetName()
-                    print mass_shift
-                    print mass_shift_unc
-                    print shift_val
-                    print "before shift", tmph_mass_matched.Integral()
-                    print "after shift", tmp_shifted_h[0].Integral()
+                    print "mass_shift", mass_shift
+                    print "mass_shift_unc", mass_shift_unc
+                    print "shift_val", shift_val
+                    print "before shift integral", tmph_mass_matched.Integral()
+                    print "after shift integral", tmp_shifted_h[0].Integral()
+                    print "before shift mean", tmph_mass_matched.GetMean()
+                    print "after shift mean", tmp_shifted_h[0].GetMean()
 
-                    print res_shift
-                    print res_shift_unc
-                    print smear_val
-                    print "before smear", tmph_mass_matched.Integral()
-                    print "after smear", hmatched_new_central.Integral()
+                    print "res_shift", res_shift
+                    print "res_shift_unc", res_shift_unc
+                    print "smear_val", smear_val
+                    print "before smear integral", tmph_mass_matched.Integral()
+                    print "after smear integral", hmatched_new_central.Integral()
                     # sys.exit()
 
                 # get shift up/down
-                shift_unc = mass * mass_shift * mass_shift_unc
-                hmatchedsys_shift = hist_container.shift(hmatched_new_central, mass * mass_shift_unc)
+                # shift by half the bin width, to make a 1 bin-shift template
+                shift_unc = 7.0 
+                #shift_unc  = mass * mass_shift * mass_shift_unc
+                hmatchedsys_shift = hist_container.shift(hmatched_new_central, shift_unc)
                 # get res up/down
                 hmatchedsys_smear = hist_container.smear(hmatched_new_central, res_shift_unc)
 
@@ -1066,14 +1147,20 @@ class RhalphabetBuilder():
                     hmatchedsys_smear[0].Add(tmph_mass_unmatched)
                     hmatchedsys_smear[1].Add(tmph_mass_unmatched)
                 hmatched_new_central.SetName(import_object.GetName())
-                hmatchedsys_shift[0].SetName(import_object.GetName() + "_scaleUp")
-                hmatchedsys_shift[1].SetName(import_object.GetName() + "_scaleDown")
-                print "Final shift mean central = ",hmatched_new_central.GetMean()
-                print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ',mass * mass_shift_unc
+                hmatchedsys_shift[0].SetName(import_object.GetName() + "_scale%sUp"%self._suffix)
+                hmatchedsys_shift[1].SetName(import_object.GetName() + "_scale%sDown"%self._suffix)
+                print "Inital mean central = ",tmph_mass_matched.GetMean()
+                print "Final shift mean central = ",hmatched_new_central.GetMean(),' shifted by ',shift_val
+                print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' shifted by ', shift_unc
+                print "Final shift mean up= ",hmatchedsys_shift[0].GetMean(),' mean diff = %.3f '% (hmatchedsys_shift[0].GetMean()-hmatched_new_central.GetMean())
                 print "Final shift mean up max bin center= ",hmatchedsys_shift[0].GetBinCenter(hmatchedsys_shift[0].GetMaximumBin())
+                print "Final smear mean up= ",hmatchedsys_smear[0].GetMean(),' smeared by ', res_shift_unc
+                print "Final smear mean up max bin center= ",hmatchedsys_smear[0].GetBinCenter(hmatchedsys_smear[0].GetMaximumBin())
 
-                hmatchedsys_smear[0].SetName(import_object.GetName() + "_smearUp")
-                hmatchedsys_smear[1].SetName(import_object.GetName() + "_smearDown")
+                hmatchedsys_smear[0].SetName(import_object.GetName() + "_smear%sUp"%self._suffix)
+                hmatchedsys_smear[1].SetName(import_object.GetName() + "_smear%sDown"%self._suffix)
+
+
 
                 hout = [hmatched_new_central, hmatchedsys_shift[0], hmatchedsys_shift[1], hmatchedsys_smear[0],
                         hmatchedsys_smear[1]]
@@ -1096,6 +1183,8 @@ class RhalphabetBuilder():
                         # getattr(workspace, 'import')(tmprdh, r.RooFit.RecycleConflictNodes())
                     # validation
                     self._outfile_validation.cd()
+                    ### Rebin to 7 GeV bin width
+                    #h.Rebin(7)
                     h.Write()
             else:
                 print "Importing {}".format(import_object.GetName())
@@ -1133,7 +1222,7 @@ def ZeroHistogram1D(h,pt_val,blind,mass_range,blind_range,rho_range):
 
     
 ##-------------------------------------------------------------------------------------
-def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={}):
+def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={},createPassFromFail=False,skipQCD=False):
     pass_hists = {}
     fail_hists = {}
     f.ls()
@@ -1143,9 +1232,12 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     # backgrounds
     pass_hists_bkg = {}
     fail_hists_bkg = {}
-    background_names = ["wqq", "zqq", "qcd", "tqq"]
+    if skipQCD:
+        background_names = ["wqq", "zqq", "tqq"]
+    else:
+        background_names = ["wqq", "zqq", "qcd", "tqq"]
     for i, bkg in enumerate(background_names):
-        if bkg == 'qcd':
+        if bkg == 'qcd' :
             qcd_fail = f.Get('qcd_fail')
             qcd_fail.Scale(qcdkfactor)
             qcd_fail.Scale(1. / scale)
@@ -1234,6 +1326,22 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
         for i, signal in enumerate(signal_names):
             pass_hists["data_obs"].Add(pass_hists_sig[signal], r_signal)
             fail_hists["data_obs"].Add(fail_hists_sig[signal], r_signal)
+    elif createPassFromFail:
+        print "Creating data_obs pass from data_obs fail:   data_obs_pass = data_obs_fail * eff(pass)/eff(fail)"
+        data_pass_real = f.Get('data_obs_pass').Clone('data_obs_pass_real')
+        data_obs_fail  = f.Get('data_obs_fail')
+        data_pass_real.Scale(1. / scale)
+        data_pass = data_obs_fail.Clone('data_obs_pass')
+        data_pass_real_integral = 0
+        data_fail_integral = 0
+        for i in range(1, data_pass_real.GetNbinsX() + 1):
+            for j in range(1, data_pass_real.GetNbinsY() + 1):
+                if data_pass_real.GetXaxis().GetBinCenter(i) > mass_range[0] and data_pass_real.GetXaxis().GetBinCenter(i) < mass_range[1]:
+                    data_pass_real_integral += data_pass_real.GetBinContent(i, j)
+                    data_fail_integral += data_obs_fail.GetBinContent(i, j)
+        data_pass.Scale(data_pass_real_integral / data_fail_integral)  # qcd_pass = qcd_fail * eff(pass)/eff(fail)
+        pass_hists["data_obs"] = data_pass 
+        fail_hists["data_obs"] = data_obs_fail 
     else:
         pass_hists["data_obs"] = f.Get('data_obs_pass')
         fail_hists["data_obs"] = f.Get('data_obs_fail')
@@ -1244,6 +1352,7 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     fail_hists.update(fail_hists_sig)
 
     for histogram in (pass_hists.values() + fail_hists.values()):
+        #histogram.RebinX(7)
         for i in range(1, histogram.GetNbinsX() + 1):
             for j in range(1, histogram.GetNbinsY() + 1):
                 massVal = histogram.GetXaxis().GetBinCenter(i)

@@ -24,16 +24,19 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         BB_SF_ERR=SF2018['BB_SF_ERR']
         V_SF     =SF2018['V_SF']
         V_SF_ERR =SF2018['V_SF_ERR']
+        LUMI_ERR = 1.025
     elif options.year=='2017':
         BB_SF    =SF2017['BB_SF'] 
         BB_SF_ERR=SF2017['BB_SF_ERR']
         V_SF     =SF2017['V_SF']
         V_SF_ERR =SF2017['V_SF_ERR']
+        LUMI_ERR = 1.023
     elif options.year =='2016':
         BB_SF     =SF2016['BB_SF']
         BB_SF_ERR =SF2016['BB_SF_ERR']
         V_SF      =SF2016['V_SF']
         V_SF_ERR  =SF2016['V_SF_ERR']
+        LUMI_ERR = 1.025
 
 
     rates = {}
@@ -57,7 +60,8 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
             error = array.array('d',[0.0])
             rate = histoDict['%s_%s'%(proc,box)].IntegralAndError(1,histoDict['%s_%s'%(proc,box)].GetNbinsX(),error)
             rates['%s_%s'%(proc,box)]  = rate
-            lumiErrs['%s_%s'%(proc,box)] = 1.025
+            lumiErrs['%s_%s'%(proc,box)] = LUMI_ERR 
+            #lumiErrs['%s_%s'%(proc,box)] = 1.025
             if proc=='hqq125':
                 hqq125ptErrs['%s_%s'%(proc,box)] = 1.3                
             else:
@@ -128,10 +132,10 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     processString = 'process'
     processNumberString = 'process'
     rateString = 'rate'
-    lumiString = 'lumi\tlnN'
+    lumiString = 'lumi%s\tlnN'%options.suffix
     hqq125ptString = 'hqq125pt\tlnN'
-    veffString = 'veff\tlnN'
-    bbeffString = 'bbeff\tlnN'
+    veffString = 'veff%s\tlnN'%options.suffix
+    bbeffString = 'bbeff%s\tlnN'%options.suffix
     znormEWString = 'znormEW\tlnN'
     znormQString = 'znormQ\tlnN'    
     wznormEWString = 'wznormEW\tlnN'
@@ -140,13 +144,13 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     mutriggerString = 'mutrigger\tshape'  
     #jesString = 'JES\tshape'    
     #jerString = 'JER\tshape'
-    jesString = 'JES\tlnN'
-    jerString = 'JER\tlnN'
-    puString = 'Pu\tlnN'
+    jesString = 'JES%s\tlnN'%options.suffix
+    jerString = 'JER%s\tlnN'%options.suffix
+    puString = 'Pu%s\tlnN'%options.suffix
     mcStatErrString = {}
     for proc in sigs+bkgs:
         for box in boxes:
-            mcStatErrString['%s_%s'%(proc,box)] = '%s%smuonCRmcstat\tlnN'%(proc,box)
+            mcStatErrString['%s_%s'%(proc,box)] = '%s%smuonCR%smcstat\tlnN'%(proc,box,options.year)
 
     for box in boxes:
         i = -1
@@ -198,10 +202,10 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     tqqeff = histoDict['tqq_pass'].Integral()/(histoDict['tqq_pass'].Integral()+histoDict['tqq_fail'].Integral())
 
     
-    datacard+='tqqpassmuonCRnorm rateParam pass_muonCR tqq (@0*@1) tqqnormSF,tqqeffSF\n' + \
-        'tqqfailmuonCRnorm rateParam fail_muonCR tqq (@0*(1.0-@1*%.4f)/(1.0-%.4f)) tqqnormSF,tqqeffSF\n'%(tqqeff,tqqeff) + \
-        'tqqnormSF extArg 1.0 [0.0,10.0]\n' + \
-        'tqqeffSF extArg 1.0 [0.0,10.0]\n'
+    datacard+='tqqpassmuonCRnorm rateParam pass_muonCR tqq (@0*@1) tqqnormSF_%s,tqqeffSF_%s\n'%(options.year,options.year) + \
+        'tqqfailmuonCRnorm rateParam fail_muonCR tqq (@0*(1.0-@1*%.4f)/(1.0-%.4f)) tqqnormSF_%s,tqqeffSF_%s\n'%(tqqeff,tqqeff,options.year,options.year) + \
+        'tqqnormSF_%s extArg 1.0 [0.0,10.0]\n'%options.year + \
+        'tqqeffSF_%s extArg 1.0 [0.0,10.0]\n'%options.year
 
     txtfile = open(options.odir+'/'+txtfileName,'w')
     txtfile.write(datacard)
@@ -297,7 +301,10 @@ if __name__ == '__main__':
     parser.add_option('-i','--ifile', dest='ifile', default = './',help='directory with data', metavar='ifile')
     parser.add_option('-o','--odir', dest='odir', default = './',help='directory to write cards', metavar='odir')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
+    parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
     
     (options, args) = parser.parse_args()
 
+    if options.suffix!='':
+        options.suffix='_'+options.suffix
     main(options, args)
