@@ -72,7 +72,10 @@ def plotgaus(iFName,injet,iLabel,options):
     tLeg.SetLineWidth(0)
     tLeg.SetFillStyle(0)
     tLeg.SetTextFont(42)
-    tLeg.AddEntry(lH,"#splitline{Pseudodata}{Hbb(%s GeV) #mu=%s}"%(options.mass, options.r),"lep")
+    if options.poi=='r':
+        tLeg.AddEntry(lH,"#splitline{Pseudodata}{Hbb(%s GeV) #mu=%s}"%(options.mass, options.r),"lep")
+    elif options.poi=='r_z':
+        tLeg.AddEntry(lH,"#splitline{Pseudodata}{Zbb(%s GeV) #mu_{Z}=%s}"%('90', options.r),"lep")
     tLeg.AddEntry(gaus_func,"#splitline{Gaussian fit}{mean = %+1.2f, s.d. = %1.2f}"%(gaus_func.GetParameter(1),gaus_func.GetParameter(2)),"l")
     tLeg.Draw("same")
 
@@ -87,13 +90,13 @@ def plotgaus(iFName,injet,iLabel,options):
     l.SetTextFont(52)
     l.DrawLatex(0.23,0.91,"Preliminary")
     l.SetTextFont(42)
-    l.DrawLatex(0.77,0.91,"%.1f (13 TeV)"%options.lumi)
+    l.DrawLatex(0.70,0.91,"%.1f fb^{-1} (13 TeV)"%options.lumi)
     l.SetTextFont(52)
     l.SetTextSize(0.045)
 
     
-    l.DrawLatex(0.15,0.82,'gen. pdf = %s(n_{#rho}=%i,n_{p_{T}}=%i)'%(options.pdf1, options.NR1,options.NP1))
-    l.DrawLatex(0.15,0.75,'fit pdf = %s(n_{#rho}=%i,n_{p_{T}}=%i)'%(options.pdf2, options.NR2,options.NP2))
+    l.DrawLatex(0.15,0.82,'gen. pdf = %s(n_{#rho}=%i,n_{p_{T}}=%i)'%(options.pdf2, options.NR2,options.NP2))
+    l.DrawLatex(0.15,0.75,'fit pdf = %s(n_{#rho}=%i,n_{p_{T}}=%i)'%(options.pdf1, options.NR1,options.NP1))
     
     lCan.Modified()
     lCan.Update()
@@ -192,7 +195,7 @@ def plotftest(iToys,iCentral,prob,iLabel,options):
     else:
         l.DrawLatex(0.23,0.91,"Simulation")
     l.SetTextFont(42)
-    l.DrawLatex(0.76,0.91,"%.1f fb^{-1}"%options.lumi)
+    l.DrawLatex(0.70,0.91,"%.1f fb^{-1} (13 TeV)"%options.lumi)
     l.SetTextFont(52)
     l.SetTextSize(0.045)
     
@@ -312,8 +315,8 @@ def bias(base,alt,ntoys,mu,iLabel,options):
         if options.scaleLumi>0:
             ##### Get snapshots with lumiscale=1 for Toy generations ########
             snapshot_base ="combine -M MultiDimFit  %s  -n .saved "%(alt)
-            #snapshot_base += " -t -1 --algo none --saveWorkspace --toysNoSystematics "
-            snapshot_base += " -t -1 --algo none --saveWorkspace --toysFreq "
+            snapshot_base += " -t -1 --algo none --saveWorkspace --toysNoSystematics "
+            #snapshot_base += " -t -1 --algo none --saveWorkspace --toysFreq "
             snapshot_base += " --freezeParameters %s "%(options.freezeNuisances) 
             snapshot_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
             snapshot_base += " --setParameters lumiscale=1,%s"%options.setParameters             
@@ -324,8 +327,8 @@ def bias(base,alt,ntoys,mu,iLabel,options):
             generate_base ="combine -M GenerateOnly -d higgsCombine.saved.MultiDimFit.mH120.root --snapshotName MultiDimFit " 
             generate_base +=" --setParameters lumiscale=%s "%(options.scaleLumi)
         else:
-            #generate_base ="combine -M GenerateOnly %s --toysNoSystematics "%(alt)
-            generate_base ="combine -M GenerateOnly %s --toysFreq "%(alt)
+            generate_base ="combine -M GenerateOnly %s --toysNoSystematics "%(alt)
+            #generate_base ="combine -M GenerateOnly %s --toysFreq "%(alt)
         generate_base += " -t %s -s %s "%(ntoys,options.seed) 
         generate_base += " --saveToys -n %s --redefineSignalPOIs %s"%(iLabel,options.poi) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
@@ -427,8 +430,8 @@ if __name__ == "__main__":
     parser.add_option('--rMax',dest='rMax', default=20,type='float',help='maximum of r (signal strength) in profile likelihood plot')  
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     parser.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
-    parser.add_option('--pdf1'   ,action='store',type='string',dest='pdf1'   ,default='poly', help='pdf1')
-    parser.add_option('--pdf2'   ,action='store',type='string',dest='pdf2'   ,default='poly', help='pdf2')
+    parser.add_option('--pdf1'   ,action='store',type='string',dest='pdf1'   ,default='poly', help='fit pdf1')
+    parser.add_option('--pdf2'   ,action='store',type='string',dest='pdf2'   ,default='poly', help='gen pdf2')
     parser.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for fit pdf')
     parser.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for fit pdf')
     parser.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for gen pdf')
