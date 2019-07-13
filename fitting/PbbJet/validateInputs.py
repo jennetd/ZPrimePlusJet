@@ -50,8 +50,9 @@ def main(options,args):
     #RescaleVqq('rescaledVqq','ddb_Apr17/ddb_M2_full/data/')
 
     fmls =[
+        {'f':'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_looserWZ_p80/mlfit.root','suffix':'2016'  ,'tag':'2016'              ,'color':r.kGreen},
         {'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/mlfit.root'   , 'suffix':'2017'  ,'tag':'2017'              ,'color':r.kBlue},
-        {'f':'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_muonCR_SFJul8/mlfit.root'     , 'suffix':'2018'  ,'tag':'2018 full'            ,'color':r.kRed},
+        #{'f':'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_muonCR_SFJul8/mlfit.root'     , 'suffix':'2018'  ,'tag':'2018 full'         ,'color':r.kRed},
         #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scaleFailpt/mlfit.root'     , 'suffix':'2017'   ,'tag':'scale Fail pt'     ,'color':r.kOrange},
         #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scaleCat/mlfit.root'         , 'suffix':'2017'  ,'tag':'scale cat'         ,'color':r.kGreen},
         #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scalePassFailCat/mlfit.root' , 'suffix':'2017'  ,'tag':'scale PassFailcat' ,'color':r.kMagenta},
@@ -209,7 +210,7 @@ def drawScale(f,logf,fmls,procs):
         for j,fit in enumerate(['prefit','fit_b']):
             for i,proc in enumerate(procs):
                 for l,d_fml in enumerate(fmls):
-                    #if fit=='prefit' and (l>0): continue             #skip multiple prefit
+                    if fit=='prefit' and (l>0): continue             #skip multiple prefit
                     fml = r.TFile(d_fml['f'])
                     tag = d_fml['tag']
                     g = r.TGraphErrors()
