@@ -243,6 +243,7 @@ def main(options,args):
         jerString = 'JER%s lnN'%options.suffix
         puString = 'Pu%s lnN'%options.suffix
         bbString = 'bbeff%s lnN'%options.suffix
+        hqq125ptString = 'hqq125pt%s lnN'%options.suffix
         weffString = 'weff%s lnN'%options.suffix
         vString = 'veff%s lnN'%options.suffix
         ### Normal scale/scale pt
@@ -315,6 +316,14 @@ def main(options,args):
                     bbString += ' -'
                 else:
                     bbString += ' %.3f'%bbErrs['%s_%s'%(proc,box)]
+                if proc in ['hqq125']:
+                    if not options.addHptShape:
+                        hqq125ptString += ' 1.20'
+                    else:
+                        hqq125ptString += ' 1.30'
+                else:
+                    hqq125ptString += ' -'
+
                 if proc in ['wqq']:
                     weffString += ' %.3f'%weffErrs['%s_%s'%(proc,box)]
                 else:
@@ -351,6 +360,13 @@ def main(options,args):
             elif 'weff' in l:
                 #newline = weffString
                 pass
+            elif 'hqq125pt' in l and not 'hqq125ptShape' in l:
+                newline = hqq125ptString
+            elif 'hqq125ptShape' in l:
+                if options.addHptShape:
+                    newline = l
+                else:
+                    newline = l.replace("hqq125ptShape","#hqq125ptShape")
             elif 'veff' in l:
                 newline = vString
             elif 'scale' in l  and 'pt' in l and i>1:
@@ -519,6 +535,7 @@ if __name__ == '__main__':
     parser.add_option('--blind', action='store_true', dest='blind', default =False,help='blind signal region', metavar='blind')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
+    parser.add_option('--addHptShape', action='store_true', dest='addHptShape', default =False,help='add higgspt shape', metavar='addHptShape')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
 

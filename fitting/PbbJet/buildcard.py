@@ -59,6 +59,8 @@ def main(options,mode,dryRun):
     else:                         np    = 2
     if hasattr(options,'suffix'): skipQCD = options.skipQCD
     else:                         skipQCD = False
+    if hasattr(options,'MiNLO'): MiNLO = options.MiNLO
+    else:                        MiNLO = False
     if   year=='2018':   SF = SF2018
     elif year=='2017':   SF = SF2017
     elif year=='2016':   SF = SF2016
@@ -95,7 +97,8 @@ def main(options,mode,dryRun):
     for key,item in sorted(SF.iteritems()): print("%s       %s"%(key,item))
     exec_me('git log -n 1 ',outf,dryRun)
 
-    rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit --addHptShape "%(ifile,odir,nr,np)
+    #rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit --addHptShape "%(ifile,odir,nr,np)
+    rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit "%(ifile,odir,nr,np)
     makecard_base  = "python makeCardsHbb.py       -i %s -o %s --remove-unmatched --no-mcstat-shape "%(ifile,odir)
     makemuonCR_base = "python writeMuonCRDatacard.py       -i %s -o %s "%(muonCR,odir)
     combcards_base = "combineCards.py "
@@ -104,7 +107,11 @@ def main(options,mode,dryRun):
     t2ws_rz      ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/*hqq125:r[1,0,20]' --PO 'map=.*/zqq:r_z[1,0,20]'"
     for cat in cats:
         combcards_base += " %s=%s "%(cat['name'],cat['card'])
-    
+   
+    if not MiNLO:
+        rhalph_base += " --addHptShape"
+        makecard_base += " --addHptShape"
+        
     if suffix:
         rhalph_base += " --suffix %s"%suffix
         makecard_base += " --suffix %s"%suffix
@@ -324,10 +331,13 @@ def DB_MC_main(options):
 def DDB_combination(options):
     mode = 'comb'
     idirs = [
-       'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/',
-       'ddb2018_Jun24/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/',
+       #'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/',
+       #'ddb2018_Jun24/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/',
+        'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_muonCR_SFJul8/',
+        'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_muonCR_SFJul8/'
     ]
-    odir = 'ddb_comb_Jun24/comb1718/data/'
+    odir = 'ddb_comb_Jun24/comb1718/MiNLO_blind_SFJul8/'
+    if not os.path.exists(odir): os.mkdir(odir)
     allcards = []
     for idir in idirs:
         if   '2018' in idir:    suffix = '2018'
@@ -514,8 +524,8 @@ def DDB_data_main(options):
         #'ddb2018_Jun24_v3/ddb_M2_full/',      # prod16 Full 2018D , shifted central template SF Jul8
         #'ddb2016_Jun24/ddb_M2_full/',   # 2016 fixed MC template,prod16, no QCD MC
         #'ddb2016_Jun24_v2/ddb_M2_full/',   # 2016 fixed MC template,prod16, w/ QCD MC
-        'ddb_Jun24_MiNLO/ddb_M2_full/',          #Jun24_v2   += MiNLO Jul7 shifted central template 
-        'ddb2018_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v3   += MiNLO Jul7 shifted central template 
+        #'ddb_Jun24_MiNLO/ddb_M2_full/',          #Jun24_v2   += MiNLO Jul7 shifted central template 
+        #'ddb2018_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v3   += MiNLO Jul7 shifted central template 
         'ddb2016_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v2   += MiNLO Jul7 shifted central template 
         ###### special prod###########
         #'ddb_Jun20/ddb_M2_full/',         #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cuti
@@ -534,8 +544,9 @@ def DDB_data_main(options):
         #'TF22_blind_SFJun4/',
         #'TF22_blind_config6/',   
         #'TF22_blind_muonCR_bbSF1_v2/',   
-        'TF22_blind_muonCR_SFJul8/',   
-        'TF22_muonCR_SFJul8/',   
+        'TF22_muonCR_MiNLO_SFJul8_looserWZ_p80/',   
+        #'TF22_blind_muonCR_SFJul8_looserWZ_p80/',   
+        #'TF22_muonCR_SFJul8_looserWZ_p80/',   
         #'TF22_blind_bbSF1_v6_ewk/',   
         #'TF22_MC_muonCR_bbSF1_v6_ewk/',  
         #'TF22_blind_muonCR_looserWZ_p80/', 
@@ -547,7 +558,7 @@ def DDB_data_main(options):
         #'TF22_blind_muonCR_bbSF1_pseudoPass/',   
         #'expTF22_muonCR_bbSF1/',   
         #'expTF22_muonCR_bbSF1_pseudoPass/',   
-        #'expTF31_muonCR_bbSF1/',   
+        #'expTF31_blind_muonCR_bbSF1/',   
         #'expTF31_muonCR_bbSF1_pseudoPass/',   
         #'TF22_blind_SF2016/',   
         #'TF22_blind_muonCR_config1_rescaledVqq/',   
@@ -592,6 +603,8 @@ def DDB_data_main(options):
             else:                               options.pseudoPass = False
             if 'MC'      in odir:               options.pseudo     = True
             else:                               options.pseudo     = False
+            if 'MiNLO'  in odir:            options.MiNLO     = True
+            else:                               options.MiNLO     = False
             if idir =='ddb2016_Jun24/ddb_M2_full/': options.skipQCD = True
             else:                                   options.skipQCD = False
             nrho, npT  = getPolyOrder(odir)
