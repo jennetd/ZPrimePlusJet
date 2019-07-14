@@ -88,6 +88,11 @@ if __name__ == '__main__':
     script_group.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
     script_group.add_option('--scaleLumi'   ,action='store',type='float',dest='scaleLumi'   ,default=-1, help='scale nuisances by scaleLumi')
+    script_group.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for gen.pdf bias 1')
+    script_group.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for gen. pdf bias 1')
+    script_group.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for fit pdf bias ')
+    script_group.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for fit pdf bias')
+
 
 
     parser.add_option_group(script_group)
@@ -168,8 +173,8 @@ if __name__ == '__main__':
                 print "DONE hadd. Removing subjob files next"
             else:
                 print "Found old hadd file. Replacing a new one"
-                #exec_me("rm  %s/%s "%(outpath,fileName),dryRun)
-                #exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
+                exec_me("rm  %s/%s "%(outpath,fileName),dryRun)
+                exec_me("hadd -f %s/%s %s/%s"%(outpath,fileName,outpath,product),dryRun)
                 print "DONE hadd. Removing subjob files next"
             if options.clean:
                 print "Cleaning submission files..." 
