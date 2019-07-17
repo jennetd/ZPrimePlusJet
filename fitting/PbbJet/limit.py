@@ -311,12 +311,17 @@ def goodness(base,ntoys,iLabel,options):
     return float(lPass)/float(len(nllToys))
 
 def bias(base,alt,ntoys,mu,iLabel,options):
+    toysOptString = ''
+    if options.toysFrequentist: 
+        toysOptString='--toysFrequentist'
+    elif options.toysNoSystematics:
+        toysOptString='--toysNoSystematics' 
+
     if not options.justPlot:
         if options.scaleLumi>0:
             ##### Get snapshots with lumiscale=1 for Toy generations ########
             snapshot_base ="combine -M MultiDimFit  %s  -n .saved "%(alt)
-            snapshot_base += " -t -1 --algo none --saveWorkspace --toysNoSystematics "
-            #snapshot_base += " -t -1 --algo none --saveWorkspace --toysFreq "
+            snapshot_base += " -t -1 --algo none --saveWorkspace %s "%(toysOptString)
             snapshot_base += " --freezeParameters %s "%(options.freezeNuisances) 
             snapshot_base += " --setParameterRange r=%s,%s:r_z=%s,%s "%(options.rMin,options.rMax,options.rMin,options.rMax) 
             snapshot_base += " --setParameters lumiscale=1,%s"%options.setParameters             
@@ -327,8 +332,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
             generate_base ="combine -M GenerateOnly -d higgsCombine.saved.MultiDimFit.mH120.root --snapshotName MultiDimFit " 
             generate_base +=" --setParameters lumiscale=%s "%(options.scaleLumi)
         else:
-            generate_base ="combine -M GenerateOnly %s --toysNoSystematics "%(alt)
-            #generate_base ="combine -M GenerateOnly %s --toysFreq "%(alt)
+            generate_base ="combine -M GenerateOnly %s %s "%(alt, toysOptString)
         generate_base += " -t %s -s %s "%(ntoys,options.seed) 
         generate_base += " --saveToys -n %s --redefineSignalPOIs %s"%(iLabel,options.poi) 
         generate_base += " --freezeParameters %s "%(options.freezeNuisances) 
@@ -349,6 +353,7 @@ def bias(base,alt,ntoys,mu,iLabel,options):
             fitDiag_base += " --setParameters %s,lumiscale=%s " %(options.setParamters,options.scaleLumi)
         else:
             fitDiag_base += " --setParameters %s "%(options.setParameters) 
+        fitDiag_base += " %s "%(toysOptString)
 
         exec_me(fitDiag_base ,options.dryRun)
         #exec_me('rm  higgsCombineTest.MaxLikelihoodFit.mH120.123456.root')
@@ -438,7 +443,8 @@ if __name__ == "__main__":
     parser.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for gen pdf')
 
     parser.add_option('--dry-run',dest="dryRun",default=False,action='store_true',help="Just print out commands to run")    
-
+    parser.add_option('--toysFrequentist'       ,action='store_true',default = False,dest='toysFreq', metavar='toysFreq', help='generate frequentist toys')
+    parser.add_option('--toysNoSystematics'       ,action='store_true',default = False,dest='toysNoSyst', metavar='toysNoSyst', help='generate toys with nominal systematics')
 
     (options,args) = parser.parse_args()
 
