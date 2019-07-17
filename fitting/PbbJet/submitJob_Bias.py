@@ -200,10 +200,9 @@ if __name__ == '__main__':
             cleanAndPlot()
         else:
             print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
-            #proceed = raw_input("Proceed anyway?")
-            #if proceed=="yes":
-            #    cleanAndPlot()
-            cleanAndPlot()
+            proceed = raw_input("Proceed anyway?")
+            if proceed.lower()=="yes" or proceed.lower()=='y':
+                cleanAndPlot()
             print "plot command: ",plot_command
             exec_me(plot_command,dryRun)
 
