@@ -42,9 +42,9 @@ if __name__ == "__main__":
     (options,args) = parser.parse_args()
 
     toysOptString = ''
-    if options.toysFrequentist: 
+    if options.toysFreq: 
         toysOptString='--toysFrequentist'
-    elif options.toysNoSystematics:
+    elif options.toysNoSyst:
         toysOptString='--toysNoSystematics' 
 
     if not options.justPlot:    
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
 
     if not options.justPlot:    
-        limit_cmd = 'python limit.py -M Bias --datacard %s --datacard-alt %s -o %s '%(options.datacard,options.datacardAlt,toysDir)
+        limit_cmd = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/limit.py -M Bias --datacard %s --datacard-alt %s -o %s '%(options.datacard,options.datacardAlt,toysDir)
         limit_cmd +=' -t %i --lumi %f -r %f --seed %s --freezeNuisances %s --setParameters %s' %(options.toys, options.lumi,  options.r, options.seed, options.freezeNuisances,options.setParameters)
         limit_cmd +=' --scaleLumi %f ' %options.scaleLumi
         limit_cmd +=' --pdf1 %s --pdf2 %s'%(options.pdf1, options.pdf2)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         exec_me(limit_cmd,options.dryRun)
     else:
         # use toys from hadd-ed directory, follow user input
-        limit_cmd = 'python limit.py -M Bias --datacard %s --datacard-alt %s -o %s '%(options.datacard,options.datacardAlt,options.odir)
+        limit_cmd = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/limit.py -M Bias --datacard %s --datacard-alt %s -o %s '%(options.datacard,options.datacardAlt,options.odir)
         limit_cmd +=' -t %i --lumi %f -r %f --seed %s ' %(options.toys, options.lumi,  options.r, options.seed )
         limit_cmd +=' --pdf1 %s --pdf2 %s'%(options.pdf1, options.pdf2)
         limit_cmd +=' --nr1 %s --np1 %s --nr2 %s --np2 %s' %(options.NR1, options.NP1, options.NR2,options.NP2)
