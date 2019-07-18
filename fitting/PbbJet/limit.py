@@ -312,9 +312,9 @@ def goodness(base,ntoys,iLabel,options):
 
 def bias(base,alt,ntoys,mu,iLabel,options):
     toysOptString = ''
-    if options.toysFrequentist: 
+    if options.toysFreq: 
         toysOptString='--toysFrequentist'
-    elif options.toysNoSystematics:
+    elif options.toysNoSyst:
         toysOptString='--toysNoSystematics' 
 
     if not options.justPlot:
