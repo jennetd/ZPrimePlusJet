@@ -31,7 +31,7 @@ if __name__ == '__main__':
         wbase[cat] = fbase.Get('w_%s' % cat)
         wralphabase[cat] = fralphabase.Get('w_%s' % cat)
 
-    nToys = 100
+    nToys = 1000
     fr = wralphabase['pass_cat1'].obj("nll_simPdf_s_data_obs")
     for cat in categories:
         w =  wralphabase[cat]
