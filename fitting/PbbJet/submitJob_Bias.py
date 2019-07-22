@@ -88,10 +88,15 @@ if __name__ == '__main__':
     script_group.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
     script_group.add_option('--scaleLumi'   ,action='store',type='float',dest='scaleLumi'   ,default=-1, help='scale nuisances by scaleLumi')
-    script_group.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for gen.pdf bias 1')
-    script_group.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for gen. pdf bias 1')
-    script_group.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for fit pdf bias ')
-    script_group.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for fit pdf bias')
+    script_group.add_option('--poi'   ,action='store',type='string',dest='poi'   ,default='r', help='poi')
+    script_group.add_option('--pdf1'   ,action='store',type='string',dest='pdf1'   ,default='poly', help='pdf1')
+    script_group.add_option('--pdf2'   ,action='store',type='string',dest='pdf2'   ,default='poly', help='pdf2')
+    script_group.add_option('--nr1','--NR1' ,action='store',type='int',dest='NR1'   ,default=2, help='order of rho polynomial for fit pdf')
+    script_group.add_option('--np1','--NP1' ,action='store',type='int',dest='NP1'   ,default=1, help='order of pt polynomial for fit pdf')
+    script_group.add_option('--nr2','--NR2' ,action='store',type='int',dest='NR2'   ,default=2, help='order of rho polynomial for gen pdf')
+    script_group.add_option('--np2','--NP2' ,action='store',type='int',dest='NP2'   ,default=1, help='order of pt polynomial for gen pdf')
+    script_group.add_option('--toysFrequentist'       ,action='store_true',default = False,dest='toysFreq', metavar='toysFreq', help='generate frequentist toys')
+    script_group.add_option('--toysNoSystematics'       ,action='store_true',default = False,dest='toysNoSyst', metavar='toysNoSyst', help='generate toys with nominal systematics')
 
 
 
@@ -107,9 +112,7 @@ if __name__ == '__main__':
     maxJobs         = nToys/nToysPerJob
 
     outpath= options.odir
-    #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
-    #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
-    gitClone = "git clone -b newTF git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
 
     if options.datacardAlt == parser.get_option("--datacard-alt").default:
         options.datacardAlt = options.datacard
@@ -125,7 +128,7 @@ if __name__ == '__main__':
     
     #print out command to use after jobs are done
     plot_command = 'python ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/runBias.py -o %s --just-plot '%(plot_odir)
-    
+
     #Add script options to job command
     for opts in script_group.option_list:
         if not getattr(options, opts.dest)==opts.default:
@@ -146,10 +149,16 @@ if __name__ == '__main__':
     else:
         print "plot command: ",plot_command
 
-    fileName = 'biastoys_bias_self_r%i_-1.root'%options.r
-    product = 'biastoys_bias_self_r%i_*.root'%options.r
+
+    fileName = 'biastoys_bias_%s%i%i_vs_%s%i%i_%s%i_-1.root'%(options.pdf1, options.NR1, options.NP1, 
+                                                              options.pdf2, options.NR2, options.NP2,
+                                                              options.poi, options.r)
+    product = 'biastoys_bias_%s%i%i_vs_%s%i%i_%s%i_*.root'%(options.pdf1, options.NR1, options.NP1,
+                                                            options.pdf2, options.NR2, options.NP2,
+                                                            options.poi, options.r)
     cmssw   = os.path.expandvars("$ZPRIMEPLUSJET_BASE/CMSSW_8_1_0.tar.gz")
     print cmssw
+
     if not options.hadd:
         if not os.path.exists(outpath):
             exec_me("mkdir -p %s"%(outpath), False)
@@ -181,7 +190,9 @@ if __name__ == '__main__':
                 #remove all but _0 file
                 for i in range(1,10):
                     exec_me("rm %s/runjob.%s*"%(outpath,i),dryRun)
-                    exec_me("rm %s/biastoys_bias_self_r%i_%s*.root"%(outpath,options.r,i),dryRun)
+                    exec_me("rm %s/biastoys_bias_%s%i%i_vs_%s%i%i_%s%i_%s*.root"%(outpath, options.pdf1, options.NR1, options.NP1,
+                                                                                  options.pdf2, options.NR2, options.NP2,
+                                                                                  options.poi, options.r, i),dryRun)
                 print "Finish cleaning,plotting " 
             print "plot command: ",plot_command
             exec_me(plot_command,dryRun)
@@ -190,7 +201,7 @@ if __name__ == '__main__':
         else:
             print "%s/%s jobs done, not hadd/clean-ing"%(nOutput,maxJobs)
             proceed = raw_input("Proceed anyway?")
-            if proceed=="yes":
+            if proceed.lower()=="yes" or proceed.lower()=='y':
                 cleanAndPlot()
             print "plot command: ",plot_command
             exec_me(plot_command,dryRun)
