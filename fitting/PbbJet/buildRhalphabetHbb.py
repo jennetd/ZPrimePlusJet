@@ -106,14 +106,19 @@ SF2016={
 #p2r2_2016 =  0.1019  +/- 0.2752 
 
 
-qcdTFpars={
-            #'n_rho':2, 'n_pT':1,
-            #'pars':[  0.0153,-0.7085 ,2.2649  ,0.7067  ,1.1266  ,1.7097  ,-0.8651     ]
-            #'n_rho':2, 'n_pT':2,
-            #'pars':[  0.0151 ,-1.0404,2.3977 ,0.7081 ,1.1165 ,1.6787 ,-0.1655,0.1460 ,1.5137 ,-0.0976]
-            'n_rho':2, 'n_pT':2,
-            'pars':[  0.0145 ,-1.0210,2.3459 ,0.6978 ,0.9232 ,2.3925 ,-0.7023,0.5732 ,1.2283 ,0.1019 ]
-        }
+#qcdTFpars={
+#            #'n_rho':2, 'n_pT':1,
+#            #'pars':[  0.0153,-0.7085 ,2.2649  ,0.7067  ,1.1266  ,1.7097  ,-0.8651     ]
+#            'n_rho':2, 'n_pT':2,
+#            'pars':[  0.0151 ,-1.0404,2.3977 ,0.7081 ,1.1165 ,1.6787 ,-0.1655,0.1460 ,1.5137 ,-0.0976]
+#            #'n_rho':2, 'n_pT':2,
+#            #'pars':[  0.0145 ,-1.0210,2.3459 ,0.6978 ,0.9232 ,2.3925 ,-0.7023,0.5732 ,1.2283 ,0.1019 ]
+#        }
+qcdTFpars_2017={'n_rho':2, 'n_pT':2,
+            'pars':[  0.0151 ,-1.0404,2.3977 ,0.7081 ,1.1165 ,1.6787 ,-0.1655,0.1460 ,1.5137 ,-0.0976]}
+qcdTFpars_2016={'n_rho':2, 'n_pT':2,
+            'pars':[  0.0145 ,-1.0210,2.3459 ,0.6978 ,0.9232 ,2.3925 ,-0.7023,0.5732 ,1.2283 ,0.1019 ]}
+
 
 #2016  T2pt350to2000, WPcut=0.92, SF= 0.68  +0.20/-0.10
 #2016  M2pt350to2000, WPcut=0.89, SF= 0.77  +0.11/-0.04
@@ -133,9 +138,15 @@ def main(options, args):
     fLoose = None
     if options.ifile_loose is not None:
         fLoose = r.TFile.Open(options.ifile_loose)
-    if   options.year =='2018':      sf=SF2018
-    elif options.year =='2017':      sf=SF2017
-    elif options.year =='2016':      sf=SF2016
+    if   options.year =='2018':
+          sf=SF2018
+          qcdTFpars = qcdTFpars_2017
+    elif options.year =='2017':
+          sf=SF2017
+          qcdTFpars = qcdTFpars_2017
+    elif options.year =='2016':
+          sf=SF2016
+          qcdTFpars = qcdTFpars_2016
     #(hpass, hfail) = loadHistograms(f, options.pseudo, options.blind, options.useQCD, options.scale, options.r)
     (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf,createPassFromFail=options.createPassFromFail,skipQCD=options.skipQCD)
     #f.Close()

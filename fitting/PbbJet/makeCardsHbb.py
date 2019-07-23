@@ -486,6 +486,11 @@ def main(options,args):
             flatPars = ['p0r0','p0r1', 'p0r2', 'p1r0', 'p1r1', 'p1r2']
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
+        if options.addqcdCovMat:
+            if options.year in ['2017','2018']:
+                with open('ddb_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/qcdTF_MC_cov_cat%i.txt'%i) as qcdtxt:
+                    for qcdline in qcdtxt:
+                        dctmp.write(qcdline)
 
         #dctmp.write(mcStatGroupString + "\n")
         #dctmp.write(qcdGroupString + "\n")
@@ -543,6 +548,7 @@ if __name__ == '__main__':
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
     parser.add_option('--addHptShape', action='store_true', dest='addHptShape', default =False,help='add higgspt shape', metavar='addHptShape')
+    parser.add_option('--addqcdCovMat', action='store_true', dest='addqcdCovMat', default =False,help='add qcdCovMat', metavar='addqcdCovMat')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
     parser.add_option('--multi', action='store_true', dest='multi', default=False, help='define RooMultiPdf',
