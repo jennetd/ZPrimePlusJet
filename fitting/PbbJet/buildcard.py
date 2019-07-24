@@ -177,7 +177,7 @@ def main(options,mode,dryRun):
         ]
     for cmd in cmds:
         exec_me(cmd,outf, dryRun)
-    if dryRun:
+    if not dryRun:
         print "=========== Summary ============="
         for cmd in cmds:
             if 'combineCards.py' in cmd:
