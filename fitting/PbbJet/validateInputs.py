@@ -58,15 +58,39 @@ def main(options,args):
         #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scalePassFailCat/mlfit.root' , 'suffix':'2017'  ,'tag':'scale PassFailcat' ,'color':r.kMagenta},
     ]
 
-    drawScale(f,logf,fmls,['zqq','wqq'])
-    #for i in range(6): 
-    #    #drawCategory(f,fr,fhist,fml,"cat"+str(i+1));
-    #    #drawProcess(f,fml,['qcd','zqq','wqq'],'cat'+str(i+1))
-    #    drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=True)
-    #    drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=False)
-    #    pass
+    #drawScale(f,logf,fmls,['zqq','wqq'])
+    fmls =[
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/expTF31_blind_muonCR_bbSF1/mlfit.root'         , 'suffix':'2017'  ,'tag':'expTF(3,1)'   ,'color':r.kBlue},
+        {'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/mlfit.root'           , 'suffix':'2017'  ,'tag':'TF(2,2)xqcdTF22'        ,'color':r.kRed},
+        {'f':'ddb_Jun24_v2/ddb_M2_full/expTF22_blind_qcdTF22_muonCR_SFJul8/mlfit.root'        , 'suffix':'2017'  ,'tag':'expTF(2,2)xqcdTF22'      ,'color':r.kBlue},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/expTF21_blind_qcdTF22_muonCR_SFJul8/mlfit.root' , 'suffix':'2017'  ,'tag':'expTF(2,1):qcdTF22' ,'color':r.kBlue},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/TF21_blind_qcdTF22_muonCR_SFJul8/mlfit.root'    , 'suffix':'2017'  ,'tag':'TF(2,1):qcdTF22'    ,'color':r.kRed},
+    ]
+    for i in range(6): 
+        drawQCDratio(f,fmls,fhist,'cat'+str(i+1))
+    MergeQCD('Ratio_cat*','Ratio_all_qcdTF22')
+    for i in range(6): 
+        #drawCategory(f,fr,fhist,fml,"cat"+str(i+1));
+        #drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=True)
+        #drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=False)
+        pass
     #MergeDrawProcess(nostack=True)
     #MergeDrawProcess(nostack=False)
+
+def MergeQCD(sub_plotNames, plotname):
+    cmd = ' montage -density 750 -tile 3x0 -geometry 1600x1600 -border 5 '
+    #plotName = options.odir+"plots/"+"_".join(["shapes",pf,'nostack',"cat*"])
+    #plotpdf  = options.odir+"plots/"+"_".join(["shapes",pf,'all','nostack'])
+    plotName = options.odir+"plots/"+sub_plotNames
+    plotpdf  = options.odir+"plots/"+plotname
+
+    cmd += plotName+".png"
+    cmd += ' ' 
+    cmd += plotpdf+".pdf"
+    print cmd
+    os.system(cmd)
+    print 'rm '+plotName+".png"
+    os.system('rm '+plotName+'.png')
 
 def MergeDrawProcess(nostack=True):
     for pf in ['pass','fail']:
@@ -88,6 +112,161 @@ def MergeDrawProcess(nostack=True):
 
 
 ###############################################################
+def drawRatio(h_numer,h_denom,texList,pname,options,drawOpt='',yr=(-1,-1),xr=(-1,-1),outf=''):
+   
+    #colors = [kBlack,kBlue,kRed,kGreen,kMagenta,kViolet,kPink,kOrange] 
+
+    iPos = 0
+    iPeriod = 4
+
+    hlist = h_numer+ h_denom
+    c1 = r.TCanvas("c1","c1",800,800)
+    pad1 = r.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+    pad2 = r.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+    pad1.SetTopMargin(0.1)
+    pad1.SetBottomMargin(0)
+    pad2.SetTopMargin(0)
+    pad2.SetBottomMargin(0.25)
+    pad1.Draw()
+    pad2.Draw()
+    leg= r.TLegend(0.6,0.7,0.9,0.9)
+
+    r.gStyle.SetPaintTextFormat("1.2f")
+    r.gStyle.SetOptStat(0)
+    r.gStyle.SetPalette(55)
+
+    pad1.cd()
+    pad1.SetGrid()
+
+
+    ymaxs = []
+    for h in hlist:
+        ymaxs.append(h['hist'].GetMaximum())
+    for h in h_numer:
+        leg.AddEntry(h['hist'],h['label'],"lp")
+   
+    if not hlist[0]['ytitle']=="":    
+        hlist[0]['hist'].GetYaxis().SetTitle(hlist[0]['ytitle'])
+        print hlist[0]['ytitle']
+    hlist[0]['hist'].GetYaxis().SetTitleOffset(0.9)
+    hlist[0]['hist'].GetYaxis().SetTitleSize(0.04)
+    hlist[0]['hist'].GetXaxis().SetTitleOffset(1.1)
+    hlist[0]['hist'].GetXaxis().SetTitleSize(0.1)
+
+    if not yr==(-1,-1):
+        ymin,ymax = yr
+        hlist[0]['hist'].GetYaxis().SetRangeUser(ymin,ymax)
+    else:
+        hlist[0]['hist'].GetYaxis().SetRangeUser(1E-1,1.2*max(ymaxs))
+        #pad1.SetLogy()
+    if not xr==(-1,-1):
+        xmin,xmax = xr
+        hlist[0]['hist'].GetXaxis().SetRangeUser(xmin,xmax)
+
+    for i,h in enumerate(hlist):
+        h['hist'].SetLineColor(h['colors'])
+        #h['hist'].SetLineStyle(h['style'])
+        h['hist'].SetLineWidth(2)
+        h['hist'].SetMarkerColor(h['colors'])
+
+    options.norm = True
+    if options.norm:
+        for i,h in enumerate(hlist): h['hist'].Scale(1./h['hist'].Integral())
+        
+
+    if drawOpt=="":
+        for h in hlist:
+            h['hist'].Draw("same")
+    else:
+        hlist[0]['hist'].Draw('ep')
+        for h in hlist[1:]:
+            h['hist'].Draw(drawOpt+"same")
+    leg.Draw("same") 
+    if texList:
+        tex=r.TLatex()
+        for t in texList:
+            tex.SetTextSize(  t['size'])
+            tex.DrawLatexNDC( t['x'],t['y'],t['text'])
+        tex.Draw()
+
+    lumi = 41.1
+    tag1 = r.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%lumi)
+    tag1.SetNDC(); tag1.SetTextFont(42)
+    tag1.SetTextSize(0.045)
+    tag2 = r.TLatex(0.15,0.92,"CMS")
+    tag2.SetNDC()
+    tag2.SetTextFont(62)
+    tag3 = r.TLatex(0.25,0.92,"Simulation Preliminary")
+    tag3.SetNDC()
+    tag3.SetTextFont(52)
+    tag2.SetTextSize(0.055)
+    tag3.SetTextSize(0.045)
+    tag1.Draw()
+    tag2.Draw()
+    tag3.Draw()
+    pad1.Update()
+
+    options.ratio = False
+    options.ratioFromLists = True
+    if options.ratio:
+        pad2.cd()
+        ymaxsPad2 = 0
+        denomPos = 0
+        for i,h in enumerate(hlist):
+            h['clone'] = h['hist'].Clone(h['hist'].GetName()+"_ratio")
+            if h['denom']:  denomPos =i 
+        for i,h in enumerate(hlist):
+            h['clone'].Divide(hlist[denomPos]['hist'])
+            h['clone'].SetLineColor(h['colors'])
+            h['clone'].SetMarkerColor(h['colors'])
+        if not hlist[denomPos]['hist'].GetMaximum()==0:
+            ymaxsPad2 =  max(ymaxs)/hlist[denomPos]['hist'].GetMaximum()
+        hlist[0]['clone'].GetYaxis().SetRangeUser(0,2)
+        hlist[0]['clone'].GetYaxis().SetTitle("Ratio")
+        hlist[0]['clone'].GetYaxis().SetTitleSize(0.08)
+        hlist[0]['clone'].GetYaxis().SetTitleOffset(0.5)
+        hlist[0]['clone'].GetYaxis().SetLabelSize(0.07)
+        hlist[0]['clone'].GetXaxis().SetLabelOffset(0.03)
+        hlist[0]['clone'].GetXaxis().SetLabelSize(0.09)
+        for i,h in enumerate(hlist):
+            if drawOpt:
+                h['clone'].Draw(drawOpt+"same")
+            else:
+                h['clone'].Draw("same")
+            if outf and i != denomPos:
+                outf.cd()
+                h['clone'].Write(pname)
+    elif options.ratioFromLists:
+        pad2.cd()
+        ymaxsPad2 = []
+        for i,h in enumerate(h_numer+h_denom):
+            h['clone'] = h['hist'].Clone(h['hist'].GetName()+"_ratio")
+        for i,h in enumerate(h_numer):
+            h['clone'].Divide(h_denom[i]['hist'])
+            h['clone'].SetLineColor(h['colors'])
+            h['clone'].SetMarkerColor(h['colors'])
+            ymaxsPad2.append(h['clone'].GetMaximum())
+        h_numer[0]['clone'].GetYaxis().SetRangeUser(0.5,1.2*max(ymaxsPad2))
+        h_numer[0]['clone'].GetYaxis().SetTitle("Ratio")
+        h_numer[0]['clone'].GetYaxis().SetTitleSize(0.08)
+        h_numer[0]['clone'].GetYaxis().SetTitleOffset(0.5)
+        h_numer[0]['clone'].GetYaxis().SetLabelSize(0.07)
+        h_numer[0]['clone'].GetXaxis().SetLabelOffset(0.03)
+        h_numer[0]['clone'].GetXaxis().SetLabelSize(0.09)
+        for i,h in enumerate(h_numer):
+            if drawOpt:
+                h['clone'].Draw(drawOpt+"same")
+            else:
+                h['clone'].Draw("same")
+            if outf and i != denomPos:
+                outf.cd()
+                h['clone'].Write(pname)
+
+    c1.Update()
+    c1.SaveAs(options.odir+pname+".pdf")
+    c1.SaveAs(options.odir+pname+".png")
+    #c1.SaveAs(options.odir+pname+".root")
+
 def getShape(fml,pf,catname,proc,fit,suffix):
     rags        = fml.Get("norm_" + fit)
     if suffix:
@@ -256,6 +435,78 @@ def drawScale(f,logf,fmls,procs):
         #plotName =options.odir+"plots/"+"_".join(["Integral",pf])
         cp.SaveAs(plotName+".pdf")
 
+
+def drawQCDratio(f,fmls,fhist,catname): 
+    cp = r.TCanvas("cp","cp",1000,800);
+    leg = r.TLegend(0.7,0.7,0.9,0.9)
+    maxs = []
+    h_numer = []
+    h_denom = []
+    wp      = f.Get("w_%s_%s"%('pass',catname))
+    wf      = f.Get("w_%s_%s"%('fail',catname))
+    dh_d_p  = wp.data("data_obs_%s_%s"%('pass',catname))
+    dh_d_f  = wf.data("data_obs_%s_%s"%('fail',catname))
+    ipt = int(catname[-1])-1
+    qcdMCpass_2d  = fhist.Get("qcd_pass")
+    qcdMCfail_2d  = fhist.Get("qcd_fail")
+    qcdMCpass      = qcdMCpass_2d.ProjectionX( "px_" + qcdMCpass_2d.GetName() + str(ipt), ipt+1, ipt+1 );
+    qcdMCfail      = qcdMCfail_2d.ProjectionX( "px_" + qcdMCfail_2d.GetName() + str(ipt), ipt+1, ipt+1 );
+    d_qcdpass = {'hist':qcdMCpass,'colors':r.kBlue,'ytitle':'','label':'qcdMC pass ','denom':False}
+    d_qcdfail = {'hist':qcdMCfail,'colors':r.kRed,'ytitle':'','label':'qcdMC fail','denom':False}
+    #h_numer.append(d_qcdpass)
+    #h_denom.append(d_qcdfail)
+
+    x   = wp.var("x"); 
+    frame = x.frame()
+
+    #data - tqq - W - Z:
+    #for pf in ['pass','fail']:
+    #    fit='fit_b'
+    #    tqqshape  = getShape(fml,pf,catname,'tqq',fit,options.suffix)
+    #    wqqshape  = getShape(fml,pf,catname,'wqq',fit,options.suffix)
+    #    zqqshape  = getShape(fml,pf,catname,'zqq',fit,options.suffix)
+    #    if pf =='pass':
+    #        dataShape = dh_d_p.createHistogram('h_dataPass'+catname,x)
+    #    else:
+    #        dataShape = dh_d_f.createHistogram('h_dataFail'+catname,x)
+    #    dataShape.Add(tqqshape,-1)
+    #    dataShape.Add(wqqshape,-1)
+    #    dataShape.Add(zqqshape,-1)
+    #    dataShape.Scale(1.0/dataShape.Integral())  
+    #    if pf =='pass':
+    #        d_pass = {'hist':dataShape,'colors':r.kBlue,'ytitle':'','label':"(data-V-tt) pass",'denom':False}
+    #    else:
+    #        d_fail = {'hist':dataShape,'colors':r.kRed,'ytitle':'' ,'label':"(data-V-tt) fail",'denom':True}
+    #h_numer.append(d_pass)
+    #h_denom.append(d_fail)
+    #leg.AddEntry(dataPass,'data pass','p')
+    #leg.AddEntry(dataPass,'data fail','lp')
+
+    tex = r.TLatex()
+    iPlot = 0
+    for i,d_fml in enumerate(fmls):
+        fml = r.TFile(d_fml['f'])
+        fit = 'fit_b'
+        suffix = d_fml['suffix']
+        tag = d_fml['tag']
+        for pf in ['pass','fail']:
+            i_qcdshape = getShape(fml,pf,catname,'qcd',fit,suffix)
+            i_qcdshape.SetDirectory(0)
+            i_qcdshape.Scale(1.0/i_qcdshape.Integral())
+            leg.AddEntry(i_qcdshape,'qcd %s %s'%(pf,fit),'l')
+            kColor = d_fml['color']
+            if pf=='pass':
+                i_qcdshape.SetLineStyle(1)
+                d_qcdshape = {'hist':i_qcdshape,'colors':kColor,'ytitle':'Normalized unit.','label':'qcd shape %s'%(tag),'denom':False}
+                h_numer.append(d_qcdshape)
+            else:
+                i_qcdshape.SetLineStyle(2)
+                d_qcdshape = {'hist':i_qcdshape,'colors':kColor,'ytitle':'Normalized unit','label':'qcd %s %s'%(pf,tag),'denom':False}
+                h_denom.append(d_qcdshape)
+
+    plotName ="/plots/"+"_".join(["Ratio",catname])
+    drawRatio(h_numer,h_denom,[],plotName,options)
+
 def drawProcess(f,fml,procs,catname,nostack=True): 
     for pf in ['pass','fail']:
         cp = r.TCanvas("cp","cp",1000,800);
@@ -292,25 +543,7 @@ def drawProcess(f,fml,procs,catname,nostack=True):
             stack = r.THStack('stack_%s_%s'%(pf,fit),"")
             for i,proc in enumerate(procs):
                 #print "shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc)
-                rags        = fml.Get("norm_" + fit)
-                if options.suffix:
-                    shape       = fml.Get("shapes_%s/%s_%s_%s_%s/%s"%(fit,catname,suffix,pf,catname,proc))
-                    rrvName     = "%s_%s_%s_%s/%s" % (catname,suffix,pf,catname, proc)
-                else:
-                    shape       = fml.Get("shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc))
-                    rrvName     = "%s_%s_%s/%s" % (catname,pf,catname, proc)
-                if rags.find(rrvName) != None:
-                  rrv = r.RooRealVar(rags.find(rrvName))
-                  norm = rrv.getVal()
-                else:
-                    raise ValueError("Cannot find rrv %s in  %s/%s"%(rrvName,"_".join([catname,pf,catname]),proc))
-                print rrvName, norm, shape.Integral()
-                if norm>0 and shape.Integral()>0: 
-                    shape.Scale(norm/shape.Integral())
-                else:
-                    #if not ('125' in proc and fit =='fit_b'):
-                    #    raise ValueError("Norm or integral of %s <=0, norm = %s, integral = %s"%("_".join([proc,catname,pf]),norm,shape.Integral()))
-                    pass
+                shape     = getShape(fml,pf,catname,proc,fit,suffix)
                 if drawMean:
                     tex.SetTextSize(0.03)
                     tex.DrawLatexNDC( 0.5 , 0.85 - (iPlot)*0.03, 'mean = %.3f'%shape.GetMean())        
