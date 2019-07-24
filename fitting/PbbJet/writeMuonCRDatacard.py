@@ -154,6 +154,12 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
 
     for box in boxes:
         i = -1
+        def format_string(number):
+            if number==1:
+                mystring = '\t-'
+            else:
+                mystring = '\t%.3f'%number
+            return mystring         
         for proc in sigs+bkgs:
             i+=1
             if rates['%s_%s'%(proc,box)] <= 0.0: continue
@@ -161,19 +167,19 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
             processString += '\t%s'%(proc)
             processNumberString += '\t%i'%(i-nSig+1)
             rateString += '\t%.3f' %rates['%s_%s'%(proc,box)]
-            lumiString += '\t%.3f'%lumiErrs['%s_%s'%(proc,box)]
-            hqq125ptString += '\t%.3f'%hqq125ptErrs['%s_%s'%(proc,box)]
-            veffString += '\t%.3f'%veffErrs['%s_%s'%(proc,box)]
-            bbeffString += '\t%.3f'%bbeffErrs['%s_%s'%(proc,box)]
-            znormEWString += '\t%.3f'%znormEWErrs['%s_%s'%(proc,box)]
-            znormQString += '\t%.3f'%znormQErrs['%s_%s'%(proc,box)]
-            wznormEWString += '\t%.3f'%wznormEWErrs['%s_%s'%(proc,box)]
-            mutriggerString += '\t%.3f'%mutriggerErrs['%s_%s'%(proc,box)]
-            muidString += '\t%.3f'%muidErrs['%s_%s'%(proc,box)]
-            muisoString += '\t%.3f'%muisoErrs['%s_%s'%(proc,box)]
-            jesString += '\t%.3f'%jesErrs['%s_%s'%(proc,box)]
-            jerString += '\t%.3f'%jerErrs['%s_%s'%(proc,box)]
-            puString += '\t%.3f'%puErrs['%s_%s'%(proc,box)]
+            lumiString += format_string(lumiErrs['%s_%s'%(proc,box)])
+            hqq125ptString += format_string(hqq125ptErrs['%s_%s'%(proc,box)])
+            veffString += format_string(veffErrs['%s_%s'%(proc,box)])
+            bbeffString += format_string(bbeffErrs['%s_%s'%(proc,box)])
+            znormEWString += format_string(znormEWErrs['%s_%s'%(proc,box)])
+            znormQString += format_string(znormQErrs['%s_%s'%(proc,box)])
+            wznormEWString += format_string(wznormEWErrs['%s_%s'%(proc,box)])
+            mutriggerString += format_string(mutriggerErrs['%s_%s'%(proc,box)])
+            muidString += format_string(muidErrs['%s_%s'%(proc,box)])
+            muisoString += format_string(muisoErrs['%s_%s'%(proc,box)])
+            jesString += format_string(jesErrs['%s_%s'%(proc,box)])
+            jerString += format_string(jerErrs['%s_%s'%(proc,box)])
+            puString += format_string(puErrs['%s_%s'%(proc,box)])
             for proc1 in sigs+bkgs:
                 for box1 in boxes:
                     if proc1==proc and box1==box:

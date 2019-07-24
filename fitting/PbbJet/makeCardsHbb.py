@@ -243,7 +243,7 @@ def main(options,args):
         jerString = 'JER%s lnN'%options.suffix
         puString = 'Pu%s lnN'%options.suffix
         bbString = 'bbeff%s lnN'%options.suffix
-        hqq125ptString = 'hqq125pt%s lnN'%options.suffix
+        hqq125ptString = 'hqq125pt lnN'
         weffString = 'weff%s lnN'%options.suffix
         vString = 'veff%s lnN'%options.suffix
         ### Normal scale/scale pt
