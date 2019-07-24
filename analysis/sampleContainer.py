@@ -1902,9 +1902,9 @@ class sampleContainer:
         fggh = ROOT.TFile.Open(os.path.expandvars("${ZPRIMEPLUSJET_BASE}/analysis/ggH/ggh_minlo.root"),'read')
         #"NNNLO" from /eos/uscms/store/user/lpchbb/zprimebits-v12.05/GluGluHToBB_M125_13TeV_powheg_pythia8_CKKW_1000pb_weighted.root
         #self.h_ggh_num = fggh.Get('h_nnnlo_ptH')
-        self.h_ggh_num = fggh.Get('powheg_genVPt')
+        self.h_ggh_num = fggh.Get('NNLOPS_genVPt')
         #"LO"     From /eos/uscms/store/user/lpchbb/zprimebits-v12.04/cvernier/GluGluHToBB_M125_13TeV_powheg_pythia8_all_1000pb_weighted.root
-        self.h_ggh_den = fggh.Get('NNLOPS_genVPt')
+        self.h_ggh_den = fggh.Get('powheg_genVPt')
         self.h_ggh_num.SetDirectory(0)
         self.h_ggh_den.SetDirectory(0)
         fggh.Close() 
