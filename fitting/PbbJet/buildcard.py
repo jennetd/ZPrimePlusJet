@@ -61,6 +61,8 @@ def main(options,mode,dryRun):
     else:                         skipQCD = False
     if hasattr(options,'MiNLO'): MiNLO = options.MiNLO
     else:                        MiNLO = False
+    if hasattr(options,'qcdTF'): qcdTF = options.qcdTF
+    else:                        qcdTF = False
     if   year=='2018':   SF = SF2018
     elif year=='2017':   SF = SF2017
     elif year=='2016':   SF = SF2016
@@ -102,6 +104,7 @@ def main(options,mode,dryRun):
     makecard_base  = "python makeCardsHbb.py       -i %s -o %s --remove-unmatched --no-mcstat-shape "%(ifile,odir)
     makemuonCR_base = "python writeMuonCRDatacard.py       -i %s -o %s "%(muonCR,odir)
     combcards_base = "combineCards.py "
+
     if mode =="vbf":
         t2ws_vbf ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/hqq125:r[1,0,20]' --PO 'map=.*/vbfhqq125:r_vbf[1,0,20]'"
     t2ws_rz      ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/*hqq125:r[1,0,20]' --PO 'map=.*/zqq:r_z[1,0,20]'"
@@ -143,7 +146,8 @@ def main(options,mode,dryRun):
         if muonCR:
             makemuonCR_base +=" --year %s "%year
             makemuonCR_cp   = makemuonCR_base.replace(odir,options.idir+"muonCR/")
-       
+    if qcdTF: 
+        makecard_base +=" --addqcdCovMat "
     if mode =="vbf":
         t2ws_vbf += " %s -o %s"%(combcard_all, combcard_all.replace(".txt","_floatVBF.root"))
     t2ws_rz += " %s -o %s"%(combcard_all, combcard_all.replace(".txt","_floatZ.root"))
@@ -173,7 +177,7 @@ def main(options,mode,dryRun):
         ]
     for cmd in cmds:
         exec_me(cmd,outf, dryRun)
-    if  not dryRun:
+    if dryRun:
         print "=========== Summary ============="
         for cmd in cmds:
             if 'combineCards.py' in cmd:
@@ -187,7 +191,7 @@ def main(options,mode,dryRun):
 def buildcats(ifile,odir,muonCR,suffix):
     #get N ptbins
     tf = r.TFile(ifile)
-    print ifile
+    #print ifile
     ncats=tf.Get("data_obs_pass").GetYaxis().GetNbins()
     cats=[]
     for icat in range(1,ncats+1):
@@ -201,6 +205,7 @@ def buildcats(ifile,odir,muonCR,suffix):
 
 def loadcats(idir,odir,muonCR,suffix):
     if not os.path.exists(idir+'../data/hist_1DZbb_pt_scalesmear.root'):
+        print idir+'../data/hist_1DZbb_pt_scalesmear.root'+' does not exists'
         sys.exit()
     else:
         return buildcats(idir+'../data/hist_1DZbb_pt_scalesmear.root',idir,muonCR,suffix)
@@ -330,25 +335,93 @@ def DB_MC_main(options):
 
 def DDB_combination(options):
     mode = 'comb'
-    idirs = [
+    dirs = [
        #'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/',
        #'ddb2018_Jun24/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/',
-        'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_muonCR_SFJul8/',
-        'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_muonCR_SFJul8/'
+
+        ####  Pow_blind_SFJul8##
+        #{'idirs':[
+        #    'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_SFJul8/',
+        #    'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_muonCR_SFJul8/',
+        #    'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_SFJul8_looserWZ_p80/',
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/Pow_blind_SFJul8/'
+        #},
+        #{'idirs':[
+        #    'ddb_Jun24_v2/ddb_M2_full/TF22_muonCR_SFJul8/',
+        #    'ddb2018_Jun24_v3/ddb_M2_full/TF22_muonCR_SFJul8/',
+        #    'ddb2016_Jun24_v2/ddb_M2_full/TF22_muonCR_SFJul8_looserWZ_p80/',
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/Pow_SFJul8/'
+        #},
+        #################################
+        ###  Pow_qcdTF22_blind_SFJul8##
+        {'idirs':[
+            'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/',
+            'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/',
+            'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
+         ],
+        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22_blind_SFJul8/'
+        },
+        {'idirs':[
+            'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/',
+            'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/',
+            'ddb2016_Jun24_v2/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
+         ],
+        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22_SFJul8/'
+        },
+        #################################
+       ###  MiNLO_blind_SFJul8##
+        #{'idirs':[
+        #            'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_blind_muonCR_SFJul8_looserWZ_p80/',
+        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_muonCR_SFJul8/',
+        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_muonCR_SFJul8/'
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_blind_SFJul8/'
+        #},
+       ####  MiNLO MuonCR_SFJul8##
+        #{'idirs':[
+        #            'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_muonCR_SFJul8_looserWZ_p80/',
+        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_muonCR_SFJul8/',
+        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF22_muonCR_SFJul8/'
+        #        ],
+        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_SFJul8/'
+        #}
+        #################################
+       ###  MiNLO_qcdTF22_blind_SFJul8##
+         {'idirs':[
+                    'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
+                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/',
+                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/'
+         ],
+        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22_blind_SFJul8/'
+        },
+       ###  MiNLO_qcdTF22_MuonCR_SFJul8##
+        {'idirs':[
+                    'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
+                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/',
+                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/'
+                ],
+        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22_SFJul8/'
+        }
+
     ]
-    odir = 'ddb_comb_Jun24/comb1718/MiNLO_blind_SFJul8/'
-    if not os.path.exists(odir): os.mkdir(odir)
-    allcards = []
-    for idir in idirs:
-        if   '2018' in idir:    suffix = '2018'
-        elif '2016' in idir:    suffix = '2016'
-        else:                   suffix = '2017'
-        if 'muonCR' in idir:    muonCR=True
-        else               :    muonCR=False
-        allcards += loadcats(idir,odir, muonCR,suffix)
-    options.cats  = allcards 
-    options.odir  = odir
-    main(options, mode,options.dryRun)
+    #odir = 'ddb_comb_Jun24/comb161718/MiNLO_blind_SFJul8/'
+    for d in dirs:
+        odir = d['odir']
+        idirs = d['idirs']
+        allcards = []
+        for idir in idirs:
+            if not os.path.exists(odir): os.mkdir(odir)
+            if   '2018' in idir:    suffix = '2018'
+            elif '2016' in idir:    suffix = '2016'
+            else:                   suffix = '2017'
+            if 'muonCR' in idir:    muonCR=True
+            else               :    muonCR=False
+            allcards += loadcats(idir,odir, muonCR,suffix)
+        options.cats  = allcards 
+        options.odir  = odir
+        main(options, mode,options.dryRun)
 
 def DDB_MC_combination(options):
     dryRun = options.dryRun
@@ -521,12 +594,12 @@ def DDB_data_main(options):
         #'ddb_Jun24_v2/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16, shifted central template
         #'ddb2018_Jun24/ddb_M2_full/',      # prod16 reduced 2018D 
         #'ddb2018_Jun24_v2/ddb_M2_full/',      # prod16 reduced 2018D , shifted central template
-        #'ddb2018_Jun24_v3/ddb_M2_full/',      # prod16 Full 2018D , shifted central template SF Jul8
+        'ddb2018_Jun24_v3/ddb_M2_full/',      # prod16 Full 2018D , shifted central template SF Jul8
         #'ddb2016_Jun24/ddb_M2_full/',   # 2016 fixed MC template,prod16, no QCD MC
         #'ddb2016_Jun24_v2/ddb_M2_full/',   # 2016 fixed MC template,prod16, w/ QCD MC
         #'ddb_Jun24_MiNLO/ddb_M2_full/',          #Jun24_v2   += MiNLO Jul7 shifted central template 
         #'ddb2018_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v3   += MiNLO Jul7 shifted central template 
-        'ddb2016_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v2   += MiNLO Jul7 shifted central template 
+        #'ddb2016_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v2   += MiNLO Jul7 shifted central template 
         ###### special prod###########
         #'ddb_Jun20/ddb_M2_full/',         #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cuti
         #'ddb2016_Jun20/ddb_M2_full/',     #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cut
@@ -544,11 +617,21 @@ def DDB_data_main(options):
         #'TF22_blind_SFJun4/',
         #'TF22_blind_config6/',   
         #'TF22_blind_muonCR_bbSF1_v2/',   
-        'TF22_muonCR_MiNLO_SFJul8_looserWZ_p80/',   
+        #'TF22_muonCR_MiNLO_SFJul8_looserWZ_p80/',   
         #'TF22_blind_muonCR_SFJul8_looserWZ_p80/',   
         #'TF22_muonCR_SFJul8_looserWZ_p80/',   
         #'TF22_blind_bbSF1_v6_ewk/',   
-        #'TF22_MC_muonCR_bbSF1_v6_ewk/',  
+        #'TF22_MC_muonCR_SFJul8/',  
+        #'TF21_qcdTF22_muonCR_SFJul8/',  
+        #'TF22_blind_qcdTF22unc_muonCR_SFJul8/',  
+        'TF22_qcdTF22unc_muonCR_SFJul8/',  
+        #'expTF21_qcdTF22_muonCR_SFJul8/',  
+        #'TF22_qcdTF22_muonCR_SFJul8_looserWZ_p80/',  
+        #'TF22_blind_qcdTF22_muonCR_SFJul8_looserWZ_p80/',  
+        #'expTF22_qcdTF22_muonCR_SFJul8/',  
+        #'expTF22_blind_muonCR_SFJul8/',  
+        #'expTF22_muonCR_SFJul8/',  
+        #'expTF22_blind_qcdTF22_muonCR_SFJul8/',  
         #'TF22_blind_muonCR_looserWZ_p80/', 
         #'TF22_blind_muonCR_looserWZ_p85/',
         #'TF22_blind_muonCR_looserWZ_p87/', 
@@ -558,7 +641,7 @@ def DDB_data_main(options):
         #'TF22_blind_muonCR_bbSF1_pseudoPass/',   
         #'expTF22_muonCR_bbSF1/',   
         #'expTF22_muonCR_bbSF1_pseudoPass/',   
-        #'expTF31_blind_muonCR_bbSF1/',   
+        #'expTF22_blind_muonCR_bbSF1/',   
         #'expTF31_muonCR_bbSF1_pseudoPass/',   
         #'TF22_blind_SF2016/',   
         #'TF22_blind_muonCR_config1_rescaledVqq/',   
@@ -605,6 +688,10 @@ def DDB_data_main(options):
             else:                               options.pseudo     = False
             if 'MiNLO'  in odir:            options.MiNLO     = True
             else:                               options.MiNLO     = False
+            if 'qcdTF'  in odir:                
+                if options.year in ['2017','2018'] :    options.qcdTF     = 'ddb_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/'
+                else:                                   options.qcdTF     = 'ddb2016_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/'
+            else:                               options.qcdTF     = ''
             if idir =='ddb2016_Jun24/ddb_M2_full/': options.skipQCD = True
             else:                                   options.skipQCD = False
             nrho, npT  = getPolyOrder(odir)

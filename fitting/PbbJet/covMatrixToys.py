@@ -62,6 +62,10 @@ def main(options, args):
                     
 
     os.system('mkdir -p %s/covMatrixToyHists'%options.idir)
+    for i in range(1,7):
+        cat = str(i)
+        os.system('rm  %s/qcdTF_MC_cov_%s.txt'%(options.idir,cat))
+
     for name, np_list in np_lists.iteritems():
         if options.plot:
            if name not in bf_values: continue
@@ -82,7 +86,7 @@ def main(options, args):
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('-i','--idir', dest='idir', default='./', help='file qcd MC rhalphabet',metavar='idir')
-    parser.add_option('-p','--plot', dest='plot', default='./', help='make pdf plots',metavar='plot')
+    parser.add_option('-p','--plot', dest='plot', default=True, action='store_true', help='make pdf plots',metavar='plot')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
 
     (options, args) = parser.parse_args()
