@@ -357,18 +357,18 @@ def DDB_combination(options):
         #################################
         ###  Pow_qcdTF22_blind_SFJul8##
         {'idirs':[
-            'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/',
-            'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/',
-            'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
+            'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8/',
+            'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8/',
+            'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',
          ],
-        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22_blind_SFJul8/'
+        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22unc_blind_SFJul8/'
         },
         {'idirs':[
-            'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/',
-            'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/',
-            'ddb2016_Jun24_v2/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
+            'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8/',
+            'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8/',
+            'ddb2016_Jun24_v2/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',
          ],
-        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22_SFJul8/'
+        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22unc_SFJul8/'
         },
         #################################
        ###  MiNLO_blind_SFJul8##
@@ -389,21 +389,21 @@ def DDB_combination(options):
         #}
         #################################
        ###  MiNLO_qcdTF22_blind_SFJul8##
-         {'idirs':[
-                    'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
-                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/',
-                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/'
-         ],
-        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22_blind_SFJul8/'
-        },
-       ###  MiNLO_qcdTF22_MuonCR_SFJul8##
-        {'idirs':[
-                    'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
-                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/',
-                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/'
-                ],
-        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22_SFJul8/'
-        }
+        # {'idirs':[
+        #            'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
+        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/',
+        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/'
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22_blind_SFJul8/'
+        #},
+       ####  MiNLO_qcdTF22_MuonCR_SFJul8##
+        #{'idirs':[
+        #            'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
+        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/',
+        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/'
+        #        ],
+        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22_SFJul8/'
+        #}
 
     ]
     #odir = 'ddb_comb_Jun24/comb161718/MiNLO_blind_SFJul8/'
@@ -594,9 +594,9 @@ def DDB_data_main(options):
         #'ddb_Jun24_v2/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16, shifted central template
         #'ddb2018_Jun24/ddb_M2_full/',      # prod16 reduced 2018D 
         #'ddb2018_Jun24_v2/ddb_M2_full/',      # prod16 reduced 2018D , shifted central template
-        'ddb2018_Jun24_v3/ddb_M2_full/',      # prod16 Full 2018D , shifted central template SF Jul8
+        #'ddb2018_Jun24_v3/ddb_M2_full/',      # prod16 Full 2018D , shifted central template SF Jul8
         #'ddb2016_Jun24/ddb_M2_full/',   # 2016 fixed MC template,prod16, no QCD MC
-        #'ddb2016_Jun24_v2/ddb_M2_full/',   # 2016 fixed MC template,prod16, w/ QCD MC
+        'ddb2016_Jun24_v2/ddb_M2_full/',   # 2016 fixed MC template,prod16, w/ QCD MC
         #'ddb_Jun24_MiNLO/ddb_M2_full/',          #Jun24_v2   += MiNLO Jul7 shifted central template 
         #'ddb2018_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v3   += MiNLO Jul7 shifted central template 
         #'ddb2016_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v2   += MiNLO Jul7 shifted central template 
@@ -624,10 +624,10 @@ def DDB_data_main(options):
         #'TF22_MC_muonCR_SFJul8/',  
         #'TF21_qcdTF22_muonCR_SFJul8/',  
         #'TF22_blind_qcdTF22unc_muonCR_SFJul8/',  
-        'TF22_qcdTF22unc_muonCR_SFJul8/',  
+        #'TF22_qcdTF22unc_muonCR_SFJul8/',  
         #'expTF21_qcdTF22_muonCR_SFJul8/',  
-        #'TF22_qcdTF22_muonCR_SFJul8_looserWZ_p80/',  
-        #'TF22_blind_qcdTF22_muonCR_SFJul8_looserWZ_p80/',  
+        'TF22_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',  
+        'TF22_blind_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',  
         #'expTF22_qcdTF22_muonCR_SFJul8/',  
         #'expTF22_blind_muonCR_SFJul8/',  
         #'expTF22_muonCR_SFJul8/',  
@@ -724,10 +724,10 @@ if __name__ == '__main__':
     #secJetMain(options)
     ############# DDB jet ###########
     #DDB_MC_main(options)
-    #DDB_combination(options)
+    DDB_combination(options)
     #DDB_MC_combination(options)
     #DB_MC_main(options)
     #DDB_10p_main(options)
-    DDB_data_main(options)
+    #DDB_data_main(options)
 
     #VBFddb(options)
