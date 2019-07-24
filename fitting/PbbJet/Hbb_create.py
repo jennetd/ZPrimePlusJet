@@ -291,8 +291,8 @@ def get2016legacyfiles():
     idir_1603     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/'
     idir_1603skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/'
     tfiles = {
-	          #'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
-	          'hqq125'     : { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':                      [idir_1505skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
+	          'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	          #'hqq125'     : { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':                      [idir_1505skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
 	          'vbfhqq125'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':            [idir_1603skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
 	          'zhqq125'      :          { 
                                     'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1603skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],

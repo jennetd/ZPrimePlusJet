@@ -1897,11 +1897,14 @@ class sampleContainer:
         fvbf.Close() 
 
         # for zprimebit 15.03+, ggH pT reweighting
-        fggh = ROOT.TFile.Open(os.path.expandvars("${ZPRIMEPLUSJET_BASE}/analysis/ggH/ggh_ptH_n3lo.root"),'read')
+        #fggh = ROOT.TFile.Open(os.path.expandvars("${ZPRIMEPLUSJET_BASE}/analysis/ggH/ggh_ptH_n3lo.root"),'read')
+        ## reweight Powheg to MiNLO 
+        fggh = ROOT.TFile.Open(os.path.expandvars("${ZPRIMEPLUSJET_BASE}/analysis/ggH/ggh_minlo.root"),'read')
         #"NNNLO" from /eos/uscms/store/user/lpchbb/zprimebits-v12.05/GluGluHToBB_M125_13TeV_powheg_pythia8_CKKW_1000pb_weighted.root
-        self.h_ggh_num = fggh.Get('h_nnnlo_ptH')
+        #self.h_ggh_num = fggh.Get('h_nnnlo_ptH')
+        self.h_ggh_num = fggh.Get('powheg_genVPt')
         #"LO"     From /eos/uscms/store/user/lpchbb/zprimebits-v12.04/cvernier/GluGluHToBB_M125_13TeV_powheg_pythia8_all_1000pb_weighted.root
-        self.h_ggh_den = fggh.Get('h_lo_ptH')
+        self.h_ggh_den = fggh.Get('NNLOPS_genVPt')
         self.h_ggh_num.SetDirectory(0)
         self.h_ggh_den.SetDirectory(0)
         fggh.Close() 
