@@ -6738,11 +6738,19 @@
             "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/SingleMuonRun2016G_07Aug17_v1_9.root"
         ], 
         "Diboson": {
+            "ZZ_TuneCUETP8M1_13TeV-pythia8": [
+                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/ZZ_13TeV_pythia8_0.root", 
+                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/ZZ_13TeV_pythia8_1.root", 
+                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/ZZ_13TeV_pythia8_2.root"
+            ], 
             "WW_TuneCUETP8M1_13TeV-pythia8": [
-                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/skim/WW_13TeV_pythia8_0.root"
+                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/WW_13TeV_pythia8_0.root", 
+                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/WW_13TeV_pythia8_1.root"
             ], 
             "WZ_TuneCUETP8M1_13TeV-pythia8": [
-                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/skim/WZ_13TeV_pythia8_0.root"
+                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/WZ_13TeV_pythia8_0.root", 
+                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/WZ_13TeV_pythia8_1.root", 
+                "root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/WZ_13TeV_pythia8_2.root"
             ]
         }, 
         "ttHbb": {

@@ -218,9 +218,9 @@ def get2016legacyfiles():
                                     },
 	          'ttHbb'    :          { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1503skim+'/ttHTobb_M125_13TeV_powheg_pythia8*.root']},
               'Diboson':    {
-                             'WW_TuneCUETP8M1_13TeV-pythia8':[idir_1503skim+'WW_13TeV_pythia8*.root'],
-                             'WZ_TuneCUETP8M1_13TeV-pythia8':[idir_1503skim+'WZ_13TeV_pythia8*.root'],
-                             #'ZZ_13TeV_pythia8':[idir_1503skim+'ZZ_13TeV_pythia8*.root']  #missing
+                             'WW_TuneCUETP8M1_13TeV-pythia8':[idir_1603skim+'WW_13TeV_pythia8*.root'],
+                             'WZ_TuneCUETP8M1_13TeV-pythia8':[idir_1603skim+'WZ_13TeV_pythia8*.root'],
+                             'ZZ_TuneCUETP8M1_13TeV-pythia8':[idir_1603skim+'ZZ_13TeV_pythia8*.root'] 
                             },
               'DY':         {
                             'DYJetsToQQ_HT180_13TeV-madgraphMLM-pythia8' : [idir_1603skim + '/DYJetsToQQ_HT180_13TeV_*.root'],
