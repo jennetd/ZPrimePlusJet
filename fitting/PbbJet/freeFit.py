@@ -1,13 +1,34 @@
 import ROOT as rt
+from optparse import OptionParser
 from RootIterator import RootIterator
 import os
 import sys
 
 
 class FreeFit():
-    def __init__(self):
-        self._output_path = 'freeFitTest/base.root'
-        self._rhalphabet_output_path = 'freeFitTest/rhalphabase.root'
+    def __init__(self,nm):
+        self._poly_degree_mass = {}
+        if nm < 0:
+            self._poly_degree_mass['pass_cat1'] = 4
+            self._poly_degree_mass['pass_cat2'] = 3
+            self._poly_degree_mass['pass_cat3'] = 3
+            self._poly_degree_mass['pass_cat4'] = 3
+            self._poly_degree_mass['pass_cat5'] = 2
+            self._poly_degree_mass['pass_cat6'] = 2
+        else:
+            self._poly_degree_mass['pass_cat1'] = nm
+            self._poly_degree_mass['pass_cat2'] = nm
+            self._poly_degree_mass['pass_cat3'] = nm
+            self._poly_degree_mass['pass_cat4'] = nm
+            self._poly_degree_mass['pass_cat5'] = nm
+            self._poly_degree_mass['pass_cat6'] = nm
+        self._outdir = 'freeFitTest_%s'%nm
+        os.system('mkdir -p %s'%(self._outdir))
+        os.system('cp freeFitTest/card_rhalphabet_cat*.txt %s/'%(self._outdir))
+        os.system('cp freeFitTest/base.root %s/'%(self._outdir))
+        os.system('cp freeFitTest/rhalphabase.root %s/'%(self._outdir))
+        self._output_path = '%s/base.root'%self._outdir
+        self._rhalphabet_output_path = '%s/rhalphabase.root'%(self._outdir)
         self._nptbins = 6
         self._categories=[]
         for ipt in range(1,self._nptbins+1):
@@ -87,7 +108,7 @@ class FreeFit():
             empty_hists.append(empty_hist)
 
             roolist = rt.RooArgList()
-            for i in range(0, 10):
+            for i in range(0, self._poly_degree_mass[cat]+1):
                 b = rt.RooRealVar('b%i_%s%s'%(i,cat,self._suffix),'b%i_%s%s'%(i,cat,self._suffix),0.1,0,1)
                 roolist.add(b)
                 blist.append(b)
@@ -245,27 +266,56 @@ class FreeFit():
 
         c = rt.TCanvas('c','c',500,400)
         w.writeToFile(self._rhalphabet_output_path.replace('.root','_newupdate.root'), True)
+
+        pvalues = {}
+        obsvalues = {}
+        for cat in self._categories:
+            print cat
+            os.system("pushd %s; "%(self._outdir) + 
+                      "combine -M GoodnessOfFit card_rhalphabet_%s.txt --freezeParameters tqqeffSF_2017,tqqnormSF_2017 --algo saturated -n %s; "%(cat.replace('pass_',''),cat) + 
+                      "combine -M GoodnessOfFit card_rhalphabet_%s.txt --freezeParameters tqqeffSF_2017,tqqnormSF_2017 --algo saturated -n %s -t 500 --toysFreq; "%(cat.replace('pass_',''),cat) +
+                      "popd")
+
+            obs_tfile = rt.TFile.Open('%s/higgsCombine%s.GoodnessOfFit.mH120.root'%(self._outdir,cat),'read')
+            obs_limit = obs_tfile.Get('limit')
+            obs_limit.GetEntry(0)
+            obs_q = obs_limit.limit
+            exp_tfile = rt.TFile.Open('%s/higgsCombine%s.GoodnessOfFit.mH120.123456.root'%(self._outdir,cat))
+            exp_limit = exp_tfile.Get('limit')
+            pass_q = exp_limit.Draw('limit','limit>%f'%obs_q)
+            all_q = exp_limit.Draw('limit','limit>0')
+            obsvalues[cat] = obs_q
+            pval = 100.*pass_q/all_q
+            pvalues[cat] = pval
+            print ''
+            print '%s obs = %.2f'%(cat, obs_q)
+            print '%s p-value = %.1f%%'%(cat, pval)
+            print ''
+        
         icat = 0
         for cat in self._categories:
-            #getattr(wralphabase[cat], 'import')(x, rt.RooFit.RecycleConflictNodes())
-            #getattr(wralphabase[cat], 'import')(qcd_pdfs['qcd_%s'%cat], rt.RooFit.RecycleConflictNodes())
-            #getattr(wralphabase[cat], 'import')(qcd_binpdfs['qcd_%s'%cat], rt.RooFit.RecycleConflictNodes())
-            #getattr(wralphabase[cat], 'import')(qcd_norms['qcd_%s'%cat], rt.RooFit.RecycleConflictNodes())
-            #reset(wralphabase[cat], fr)
-            #if icat == 0:
-            #    getattr(wralphabase[cat], 'import')(fr)
-            #    wralphabase[cat].writeToFile(self._rhalphabet_output_path.replace('.root','_update.root'), True)
-            #else:
-            #    wralphabase[cat].writeToFile(self._rhalphabet_output_path.replace('.root','_update.root'), False)
             icat += 1
             rooCat.setLabel(cat)
             frame = x.frame()
             combData.plotOn(frame,rt.RooFit.Cut("cat==cat::%s"%cat))
             simPdf_s.plotOn(frame,rt.RooFit.Slice(rooCat,cat),rt.RooFit.ProjWData(rt.RooArgSet(rooCat),combData))
             frame.Draw()
-            c.Print("freeFitTest/x_%s.pdf"%(cat))
-            
+            c.Print("%s/x_%s.pdf"%(self._outdir,cat))
+
+        for cat in self._categories:
+            print '%s p-value = %.1f%%'%(cat, pvalues[cat])
         
+
+        # final sensitivity check
+        os.system("pushd %s; "%(self._outdir) + 
+                  "combineCards.py  cat1_2017=card_rhalphabet_cat1.txt  cat2_2017=card_rhalphabet_cat2.txt  cat3_2017=card_rhalphabet_cat3.txt  cat4_2017=card_rhalphabet_cat4.txt  cat5_2017=card_rhalphabet_cat5.txt  cat6_2017=card_rhalphabet_cat6.txt > card_rhalphabet_all_2017.txt; " + 
+                  "text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/*hqq125:r[1,0,20]' --PO 'map=.*/zqq:r_z[1,0,20]' card_rhalphabet_all_2017.txt  -o card_rhalphabet_all_2017_floatZ_freeFit.root; " +
+                  "combine -M Significance -t -1 --toysFreq card_rhalphabet_all_2017_floatZ_freeFit.root  --setParameters r=1,r_z=1 --redefineSignalPOIs r  --freezeParameters tqqnormSF_2017,tqqeffSF_2017; " +
+                  "combine -M Significance -t -1 --toysFreq card_rhalphabet_all_2017_floatZ_freeFit.root  --setParameters r=1,r_z=1 --redefineSignalPOIs r_z  --freezeParameters tqqnormSF_2017,tqqeffSF_2017; " +
+                  "combine -M FitDiagnostics card_rhalphabet_all_2017_floatZ_freeFit.root  --setParameters r=1,r_z=1 --redefineSignalPOIs r  --freezeParameters tqqnormSF_2017,tqqeffSF_2017 --plots -t -1 --toysFreq; " + 
+                  #"combine -M GoodnessOfFit --algo saturated card_rhalphabet_all_2017_floatZ_freeFit.root  --setParameters r=1,r_z=1 --redefineSignalPOIs r  --freezeParameters tqqnormSF_2017,tqqeffSF_2017; " + 
+                  #"combine -M GoodnessOfFit --algo saturated card_rhalphabet_all_2017_floatZ_freeFit.root  --setParameters r=1,r_z=1 --redefineSignalPOIs r  --freezeParameters tqqnormSF_2017,tqqeffSF_2017 -t 200 --toysFreq; " +
+                  "popd")
 
 def reset(w, fr, exclude=None):
     for p in RootIterator(fr.floatParsFinal()):
@@ -279,4 +329,8 @@ def reset(w, fr, exclude=None):
 
 if __name__ == '__main__':
     rt.gROOT.SetBatch()
-    ff = FreeFit()
+    parser = OptionParser()
+    parser.add_option("--nm", dest="nm", default=-1, type="int", help="mass order", metavar="nm")
+
+    (options, args) = parser.parse_args()
+    ff = FreeFit(options.nm)
