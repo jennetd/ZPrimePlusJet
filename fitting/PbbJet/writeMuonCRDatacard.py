@@ -17,7 +17,8 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         obsRate[box] = histoDict['data_obs_%s'%box].Integral()
     nBkgd = len(bkgs)
     nSig = len(sigs)
-    rootFileName = txtfileName.replace('.txt','.root')
+    #rootFileName = txtfileName.replace('.txt','.root')
+    rootFileName = txtfileName.replace('.txt','_hist.root')
 
     if options.year=='2018':
         BB_SF    =SF2018['BB_SF'] 
@@ -125,8 +126,10 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
       'bin fail_muonCR pass_muonCR\n' + \
       'observation %.3f %.3f\n'%(obsRate['fail'],obsRate['pass']) + \
       divider + \
-      'shapes * pass_muonCR %s w_muonCR:$PROCESS_pass w_muonCR:$PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
-      'shapes * fail_muonCR %s w_muonCR:$PROCESS_fail w_muonCR:$PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
+      '#shapes * pass_muonCR %s w_muonCR:$PROCESS_pass w_muonCR:$PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
+      '#shapes * fail_muonCR %s w_muonCR:$PROCESS_fail w_muonCR:$PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
+      'shapes * pass_muonCR %s $PROCESS_pass $PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
+      'shapes * fail_muonCR %s $PROCESS_fail $PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
       divider
     binString = 'bin'
     processString = 'process'
@@ -199,10 +202,11 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     # now nuisances
     datacard+=lumiString+hqq125ptString+veffString+bbeffString+znormEWString+znormQString+wznormEWString+mutriggerString+muidString+muisoString+jesString+jerString+puString
 
-    for proc in (sigs+bkgs):
-        for box in boxes:
-            if rates['%s_%s'%(proc,box)] <= 0.0: continue
-            datacard+=mcStatErrString['%s_%s'%(proc,box)]
+    # comment out total mcstat lnN errors
+    #for proc in (sigs+bkgs):
+    #    for box in boxes:
+    #        if rates['%s_%s'%(proc,box)] <= 0.0: continue
+    #        datacard+=mcStatErrString['%s_%s'%(proc,box)]
 
     # now top rate params
     tqqeff = histoDict['tqq_pass'].Integral()/(histoDict['tqq_pass'].Integral()+histoDict['tqq_fail'].Integral())
@@ -212,7 +216,8 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         'tqqfailmuonCR%snorm rateParam fail_muonCR tqq (@0*(1.0-@1*%.4f)/(1.0-%.4f)) tqqnormSF_%s,tqqeffSF_%s\n'%(options.year,tqqeff,tqqeff,options.year,options.year) + \
         'tqqnormSF_%s extArg 1.0 [0.0,10.0]\n'%options.year + \
         'tqqeffSF_%s extArg 1.0 [0.0,10.0]\n'%options.year
-
+    
+    datacard+='* autoMCStats 0 0 1\n'
     txtfile = open(options.odir+'/'+txtfileName,'w')
     txtfile.write(datacard)
     txtfile.close()
@@ -277,19 +282,26 @@ def main(options, args):
                 
     
     outFile = 'datacard_muonCR.root'
+    outFileHist = 'datacard_muonCR_hist.root'
     
     outputFile = rt.TFile.Open(options.odir+'/'+outFile,'recreate')
-    outputFile.cd()
     w = rt.RooWorkspace('w_muonCR')
     #w.factory('y[40,40,201]')
     #w.var('y').setBins(1)
     w.factory('x[%i,%i,%i]'%(MASS_LO,MASS_LO,MASS_HI))
     w.var('x').setBins(MASS_BINS)
+
+    outputFileHist = rt.TFile.Open(options.odir+'/'+outFileHist,'recreate')
     for key, histo in histoDict.iteritems():
+        outputFileHist.cd()
+        histo.Write(key)
         #histo.Rebin(23)
         #ds = rt.RooDataHist(key,key,rt.RooArgList(w.var('y')),histo)
         ds = rt.RooDataHist(key,key,rt.RooArgList(w.var('x')),histo)
         getattr(w,'import')(ds, rt.RooCmdArg())
+    outputFileHist.Close()
+
+    outputFile.cd()
     w.Write()
     outputFile.Close()
     txtfileName = outFile.replace('.root','.txt')
