@@ -22,7 +22,7 @@ def bern_str(x,v,n):
 ### rescale = False  : Domain =[0,1][0,1]
 ### qcdeff           : Factor out QCD eff parameter if false 
 ### TO DO: add print string function to check results
-def genBernsteinTF(n_rho,n_pT,boundaries,IsMsdPt,qcdeff=True,rescale=True): 
+def genBernsteinTF(n_rho,n_pT,boundaries,IsMsdPt,qcdeff=True,rescale=True,exp=False): 
 
     RHO_LO= boundaries['RHO_LO']
     RHO_HI= boundaries['RHO_HI']
@@ -69,7 +69,12 @@ def genBernsteinTF(n_rho,n_pT,boundaries,IsMsdPt,qcdeff=True,rescale=True):
                     poly += par[0] * par[iPar] *  bern(pT_norm,i_pT,n_pT) *  bern(rho_norm,i_rho,n_rho)
                     iPar+=1
 
-        if not qcdeff:
+        if exp:
+            if not qcdeff:
+                poly = math.exp(poly)/par[0]  # remove overall qcd eff if not needed
+            else:
+                poly = par[0]*math.exp(poly/par[0])  # remove overall qcd eff if not needed
+        elif not qcdeff:
             poly = poly/par[0]  # remove overall qcd eff if not needed
         return poly
     return funbern
@@ -186,6 +191,7 @@ def getParsfromWS(ws_path,pamNames):
         except:
             if 'qcdeff' in pamName:
                 pars['qcdeff'] =-999. 
+                parsArr.append(-999.)
             else:
                 pars[pamName] = -999. 
             #print "%s is not present in ws"%pamName
@@ -318,6 +324,8 @@ def drawOpt(f2,colz,MsdOrRho,ofname):
     f2.GetYaxis().SetTitle("p_{T} [GeV]")
     f2.GetZaxis().SetTitle("Pass-to-fail Ratio")
     f2.GetZaxis().SetTitleOffset(2)
+    f2.SetMaximum(2.0)
+    f2.SetMinimum(0.5)
     f2.SetTitle("")
 
     #drawCMS()
@@ -342,13 +350,14 @@ def drawOpt(f2,colz,MsdOrRho,ofname):
     else:
         c1.SaveAs(ofname)
 
-    
-def makeTFs(pars,nrho,npT,odir):
+   
+# Exp = exponential function
+def makeTFs(pars,nrho,npT,odir,exp=False):
     if not pars['qcdeff'] ==-999:
         f2params = array.array('d', pars['arr'])
     else:
         print " Cannot find qcdeff, assume it's 1"
-        f2params = array.array('d', [1.0]+pars['arr'])
+        f2params = array.array('d', [1.0]+pars['arr'][1:])
     npar = len(f2params)
     #print f2params, npar
     colz = False 
@@ -361,16 +370,16 @@ def makeTFs(pars,nrho,npT,odir):
 
     for colz in [True,False]:
         # Pass-to-Fail ratio in mSD-pT plane
-        fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,True,True,True)
+        fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=True,qcdeff=True,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
         f2.SetParameters(f2params)
         drawOpt(f2,colz,'msd',odir+"f2.pdf")
-        fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,False,True,True)
+        fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=True,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_rho_pT, -6,-2.1,450,1200,npar)
         f2.SetParameters(f2params)
         drawOpt(f2,colz,'rho',odir+"f2_rho.pdf")
         # Transfer-factor in mSD-pT plane
-        fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,True,False,True)
+        fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=True,qcdeff=False,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
         f2.SetParameters(f2params)
         #for pT in [500,700,800]:
@@ -381,12 +390,12 @@ def makeTFs(pars,nrho,npT,odir):
 
         drawOpt(f2,colz,'msd',odir+"f2_noqcdeff.pdf")
         # Transfer-factor in rho-pT plane
-        fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,False,False,True)
+        fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=False,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_rho_pT,  -6,-2.1,450,1200,npar)
         f2.SetParameters(f2params)
         drawOpt(f2,colz,'rho',odir+"f2_noqcdeff_rho.pdf")
         # Pass-to-Fail ratio in rho-pT unit plane
-        fun2 =  genBernsteinTF(nrho,npT,boundaries,False,True,False)
+        fun2 =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=True,rescale=False,exp=exp)
         f2 = r.TF2("f_unit", fun2, 0,1,0,1,npar)
         f2.SetParameters(f2params)
         drawOpt(f2,colz,'rho',odir+"f2_unit.pdf")
