@@ -344,7 +344,8 @@ def main(options,args):
 
         tag = "cat"+str(i)
         dctmp = open(options.odir+"/card_rhalphabet_%s.txt" % tag, 'w')
-        for l in linel:
+        for j,l in enumerate(linel):
+            if '#' == l[0]:continue
             if 'shapes qcd' in l:
                 newline = l+options.suffix
                 if options.multi:
@@ -365,7 +366,7 @@ def main(options,args):
             elif 'bbeff' in l:
                 newline = bbString
             elif 'weff' in l:
-                #newline = weffString
+                newline = weffString
                 pass
             elif 'hqq125pt' in l and not 'hqq125ptShape' in l:
                 newline = hqq125ptString
@@ -399,47 +400,17 @@ def main(options,args):
                 newline = newline.replace('CATXnorm','CATX%snorm'%options.suffix)
                 newline = newline.replace('tqqnormSF','tqqnormSF%s'%options.suffix)
                 newline = newline.replace('tqqeffSF','tqqeffSF%s'%options.suffix)
-            #elif 'wznormEW' in l:
-            #    if i==4:
-            #        newline = l.replace('1.05','1.15')
-            #    elif i==5:
-            #        newline = l.replace('1.05','1.15')
-            #    elif i==6:
-            #        newline = l.replace('1.05','1.15')
-            #    else:
-            #        newline = l
-            #elif 'znormEW' in l:
-            #    if i==3:
-            #        newline = l.replace('1.15','1.25')
-            #    elif i==4:
-            #        newline = l.replace('1.15','1.35')
-            #    elif i==5:
-            #        newline = l.replace('1.15','1.35')
-            #    elif i==6:
-            #        newline = l.replace('1.15','1.35')      
-            #    else:
-            #        newline = l              
-            elif 'wznormEW' in l:
-                if i==4:
-                    newline = l.replace('1.02','1.06')
-                elif i==5:
-                    newline = l.replace('1.02','1.06')
-                elif i==6:
-                    newline = l.replace('1.02','1.06')
-                else:
-                    newline = l
-            elif 'znormEW' in l:
-                if i==3:
-                    newline = l.replace('1.05','1.07')
-                elif i==4:
-                    newline = l.replace('1.05','1.07')
-                elif i==5:
-                    newline = l.replace('1.05','1.07')
-                elif i==6:
-                    newline = l.replace('1.05','1.07')      
-                else:
-                    newline = l              
-
+            elif "wznormEW" in l:
+                if i==4:                    newline = l.replace('1.02','1.06')
+                elif i==5:                    newline = l.replace('1.02','1.06')
+                elif i==6:                    newline = l.replace('1.02','1.06')
+                else:                    newline = l
+            elif "znormEW" in l:
+                if i==3:                    newline = l.replace('1.05','1.07')
+                elif i==4:                    newline = l.replace('1.05','1.07')
+                elif i==5:                    newline = l.replace('1.05','1.07')
+                elif i==6:                    newline = l.replace('1.05','1.07')      
+                else:                    newline = l              
             else:
                 newline = l
             if "CATX" in l:
