@@ -34,6 +34,7 @@ def main(options,args):
     fml   = r.TFile(options.idir+"mlfit.root");
     f     = r.TFile(options.idir+"base.root");
     fr    = r.TFile(options.idir+"rhalphabase.root");
+    logf  = options.idir+"buildcard.log"
 
     wp = f.Get("w_pass_cat1");
     wf = f.Get("w_fail_cat1");
@@ -46,49 +47,507 @@ def main(options,args):
     #wfr.Print();
     #ReplaceQCDpass(f,fr,"poissonQCD",True)
     #ReplaceQCDpass(f,fr,"fakeQCD",False)
+    #RescaleVqq('rescaledVqq','ddb_Apr17/ddb_M2_full/data/')
 
+    fmls =[
+        {'f':'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_looserWZ_p80/mlfit.root','suffix':'2016'  ,'tag':'2016'              ,'color':r.kGreen},
+        {'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/mlfit.root'   , 'suffix':'2017'  ,'tag':'2017'              ,'color':r.kBlue},
+        #{'f':'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_muonCR_SFJul8/mlfit.root'     , 'suffix':'2018'  ,'tag':'2018 full'         ,'color':r.kRed},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scaleFailpt/mlfit.root'     , 'suffix':'2017'   ,'tag':'scale Fail pt'     ,'color':r.kOrange},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scaleCat/mlfit.root'         , 'suffix':'2017'  ,'tag':'scale cat'         ,'color':r.kGreen},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_scalePassFailCat/mlfit.root' , 'suffix':'2017'  ,'tag':'scale PassFailcat' ,'color':r.kMagenta},
+    ]
+
+    #drawScale(f,logf,fmls,['zqq','wqq'])
+    fmls =[
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/expTF31_blind_muonCR_bbSF1/mlfit.root'         , 'suffix':'2017'  ,'tag':'expTF(3,1)'   ,'color':r.kBlue},
+        {'f':'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/mlfit.root'           , 'suffix':'2017'  ,'tag':'TF(2,2)xqcdTF22'        ,'color':r.kRed},
+        {'f':'ddb_Jun24_v2/ddb_M2_full/expTF22_blind_qcdTF22_muonCR_SFJul8/mlfit.root'        , 'suffix':'2017'  ,'tag':'expTF(2,2)xqcdTF22'      ,'color':r.kBlue},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/expTF21_blind_qcdTF22_muonCR_SFJul8/mlfit.root' , 'suffix':'2017'  ,'tag':'expTF(2,1):qcdTF22' ,'color':r.kBlue},
+        #{'f':'ddb_Jun24_v2/ddb_M2_full/TF21_blind_qcdTF22_muonCR_SFJul8/mlfit.root'    , 'suffix':'2017'  ,'tag':'TF(2,1):qcdTF22'    ,'color':r.kRed},
+    ]
+    for i in range(6): 
+        drawQCDratio(f,fmls,fhist,'cat'+str(i+1))
+    MergeQCD('Ratio_cat*','Ratio_all_qcdTF22')
     for i in range(6): 
         #drawCategory(f,fr,fhist,fml,"cat"+str(i+1));
-        drawProcess(f,fml,['qcd','zqq','wqq'],'cat'+str(i+1))
+        #drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=True)
+        #drawProcess(f,fml,['zqq','wqq'],'cat'+str(i+1),nostack=False)
         pass
+    #MergeDrawProcess(nostack=True)
+    #MergeDrawProcess(nostack=False)
+
+def MergeQCD(sub_plotNames, plotname):
+    cmd = ' montage -density 750 -tile 3x0 -geometry 1600x1600 -border 5 '
+    #plotName = options.odir+"plots/"+"_".join(["shapes",pf,'nostack',"cat*"])
+    #plotpdf  = options.odir+"plots/"+"_".join(["shapes",pf,'all','nostack'])
+    plotName = options.odir+"plots/"+sub_plotNames
+    plotpdf  = options.odir+"plots/"+plotname
+
+    cmd += plotName+".png"
+    cmd += ' ' 
+    cmd += plotpdf+".pdf"
+    print cmd
+    os.system(cmd)
+    print 'rm '+plotName+".png"
+    os.system('rm '+plotName+'.png')
+
+def MergeDrawProcess(nostack=True):
+    for pf in ['pass','fail']:
+        cmd = ' montage -density 500 -tile 3x0 -geometry 1600x1600 -border 5 '
+        if nostack:
+            plotName = options.odir+"plots/"+"_".join(["shapes",pf,'nostack',"cat*"])
+            plotpdf = options.odir+"plots/"+"_".join(["shapes",pf,'all','nostack'])
+        else:
+            plotName = options.odir+"plots/"+"_".join(["shapes",pf,'stack',"cat*"])
+            plotpdf = options.odir+"plots/"+"_".join(["shapes",pf,'all','stack'])
+
+        cmd += plotName+".png"
+        cmd += ' ' 
+        cmd += plotpdf+".pdf"
+        print cmd
+        os.system(cmd)
+        print 'rm '+plotName+".png"
+        os.system('rm '+plotName+'.png')
+
 
 ###############################################################
+def drawRatio(h_numer,h_denom,texList,pname,options,drawOpt='',yr=(-1,-1),xr=(-1,-1),outf=''):
+   
+    #colors = [kBlack,kBlue,kRed,kGreen,kMagenta,kViolet,kPink,kOrange] 
 
-def drawProcess(f,fml,procs,catname): 
+    iPos = 0
+    iPeriod = 4
+
+    hlist = h_numer+ h_denom
+    c1 = r.TCanvas("c1","c1",800,800)
+    pad1 = r.TPad("pad1", "pad1", 0, 0.3, 1, 1.0)
+    pad2 = r.TPad("pad2", "pad2", 0, 0.05, 1, 0.3)
+    pad1.SetTopMargin(0.1)
+    pad1.SetBottomMargin(0)
+    pad2.SetTopMargin(0)
+    pad2.SetBottomMargin(0.25)
+    pad1.Draw()
+    pad2.Draw()
+    leg= r.TLegend(0.6,0.7,0.9,0.9)
+
+    r.gStyle.SetPaintTextFormat("1.2f")
+    r.gStyle.SetOptStat(0)
+    r.gStyle.SetPalette(55)
+
+    pad1.cd()
+    pad1.SetGrid()
+
+
+    ymaxs = []
+    for h in hlist:
+        ymaxs.append(h['hist'].GetMaximum())
+    for h in h_numer:
+        leg.AddEntry(h['hist'],h['label'],"lp")
+   
+    if not hlist[0]['ytitle']=="":    
+        hlist[0]['hist'].GetYaxis().SetTitle(hlist[0]['ytitle'])
+        print hlist[0]['ytitle']
+    hlist[0]['hist'].GetYaxis().SetTitleOffset(0.9)
+    hlist[0]['hist'].GetYaxis().SetTitleSize(0.04)
+    hlist[0]['hist'].GetXaxis().SetTitleOffset(1.1)
+    hlist[0]['hist'].GetXaxis().SetTitleSize(0.1)
+
+    if not yr==(-1,-1):
+        ymin,ymax = yr
+        hlist[0]['hist'].GetYaxis().SetRangeUser(ymin,ymax)
+    else:
+        hlist[0]['hist'].GetYaxis().SetRangeUser(1E-1,1.2*max(ymaxs))
+        #pad1.SetLogy()
+    if not xr==(-1,-1):
+        xmin,xmax = xr
+        hlist[0]['hist'].GetXaxis().SetRangeUser(xmin,xmax)
+
+    for i,h in enumerate(hlist):
+        h['hist'].SetLineColor(h['colors'])
+        #h['hist'].SetLineStyle(h['style'])
+        h['hist'].SetLineWidth(2)
+        h['hist'].SetMarkerColor(h['colors'])
+
+    options.norm = True
+    if options.norm:
+        for i,h in enumerate(hlist): h['hist'].Scale(1./h['hist'].Integral())
+        
+
+    if drawOpt=="":
+        for h in hlist:
+            h['hist'].Draw("same")
+    else:
+        hlist[0]['hist'].Draw('ep')
+        for h in hlist[1:]:
+            h['hist'].Draw(drawOpt+"same")
+    leg.Draw("same") 
+    if texList:
+        tex=r.TLatex()
+        for t in texList:
+            tex.SetTextSize(  t['size'])
+            tex.DrawLatexNDC( t['x'],t['y'],t['text'])
+        tex.Draw()
+
+    lumi = 41.1
+    tag1 = r.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%lumi)
+    tag1.SetNDC(); tag1.SetTextFont(42)
+    tag1.SetTextSize(0.045)
+    tag2 = r.TLatex(0.15,0.92,"CMS")
+    tag2.SetNDC()
+    tag2.SetTextFont(62)
+    tag3 = r.TLatex(0.25,0.92,"Simulation Preliminary")
+    tag3.SetNDC()
+    tag3.SetTextFont(52)
+    tag2.SetTextSize(0.055)
+    tag3.SetTextSize(0.045)
+    tag1.Draw()
+    tag2.Draw()
+    tag3.Draw()
+    pad1.Update()
+
+    options.ratio = False
+    options.ratioFromLists = True
+    if options.ratio:
+        pad2.cd()
+        ymaxsPad2 = 0
+        denomPos = 0
+        for i,h in enumerate(hlist):
+            h['clone'] = h['hist'].Clone(h['hist'].GetName()+"_ratio")
+            if h['denom']:  denomPos =i 
+        for i,h in enumerate(hlist):
+            h['clone'].Divide(hlist[denomPos]['hist'])
+            h['clone'].SetLineColor(h['colors'])
+            h['clone'].SetMarkerColor(h['colors'])
+        if not hlist[denomPos]['hist'].GetMaximum()==0:
+            ymaxsPad2 =  max(ymaxs)/hlist[denomPos]['hist'].GetMaximum()
+        hlist[0]['clone'].GetYaxis().SetRangeUser(0,2)
+        hlist[0]['clone'].GetYaxis().SetTitle("Ratio")
+        hlist[0]['clone'].GetYaxis().SetTitleSize(0.08)
+        hlist[0]['clone'].GetYaxis().SetTitleOffset(0.5)
+        hlist[0]['clone'].GetYaxis().SetLabelSize(0.07)
+        hlist[0]['clone'].GetXaxis().SetLabelOffset(0.03)
+        hlist[0]['clone'].GetXaxis().SetLabelSize(0.09)
+        for i,h in enumerate(hlist):
+            if drawOpt:
+                h['clone'].Draw(drawOpt+"same")
+            else:
+                h['clone'].Draw("same")
+            if outf and i != denomPos:
+                outf.cd()
+                h['clone'].Write(pname)
+    elif options.ratioFromLists:
+        pad2.cd()
+        ymaxsPad2 = []
+        for i,h in enumerate(h_numer+h_denom):
+            h['clone'] = h['hist'].Clone(h['hist'].GetName()+"_ratio")
+        for i,h in enumerate(h_numer):
+            h['clone'].Divide(h_denom[i]['hist'])
+            h['clone'].SetLineColor(h['colors'])
+            h['clone'].SetMarkerColor(h['colors'])
+            ymaxsPad2.append(h['clone'].GetMaximum())
+        h_numer[0]['clone'].GetYaxis().SetRangeUser(0.5,1.2*max(ymaxsPad2))
+        h_numer[0]['clone'].GetYaxis().SetTitle("Ratio")
+        h_numer[0]['clone'].GetYaxis().SetTitleSize(0.08)
+        h_numer[0]['clone'].GetYaxis().SetTitleOffset(0.5)
+        h_numer[0]['clone'].GetYaxis().SetLabelSize(0.07)
+        h_numer[0]['clone'].GetXaxis().SetLabelOffset(0.03)
+        h_numer[0]['clone'].GetXaxis().SetLabelSize(0.09)
+        for i,h in enumerate(h_numer):
+            if drawOpt:
+                h['clone'].Draw(drawOpt+"same")
+            else:
+                h['clone'].Draw("same")
+            if outf and i != denomPos:
+                outf.cd()
+                h['clone'].Write(pname)
+
+    c1.Update()
+    c1.SaveAs(options.odir+pname+".pdf")
+    c1.SaveAs(options.odir+pname+".png")
+    #c1.SaveAs(options.odir+pname+".root")
+
+def getShape(fml,pf,catname,proc,fit,suffix):
+    rags        = fml.Get("norm_" + fit)
+    if suffix:
+        shape       = fml.Get("shapes_%s/%s_%s_%s_%s/%s"%(fit,catname,suffix,pf,catname,proc))
+        rrvName     = "%s_%s_%s_%s/%s" % (catname,suffix,pf,catname, proc)
+    else:
+        shape       = fml.Get("shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc))
+        rrvName     = "%s_%s_%s/%s" % (catname,pf,catname, proc)
+    if rags.find(rrvName) != None:
+      rrv = r.RooRealVar(rags.find(rrvName))
+      norm = rrv.getVal()
+    else:
+        raise ValueError("Cannot find rrv %s in  %s/%s"%(rrvName,"_".join([catname,pf,catname]),proc))
+    print rrvName, norm, shape.Integral()
+    if norm>0 and shape.Integral()>0: 
+        shape.Scale(norm/shape.Integral())
+    else:
+        if not ('125' in proc and fit =='fit_b'):
+            raise ValueError("Norm or integral of %s <=0, norm = %s, integral = %s"%("_".join([proc,catname,pf]),norm,shape.Integral()))
+    if fit =='prefit': kColor = r.kBlack
+    if fit =='fit_b' : kColor = r.kBlue
+    if fit =='fit_s' : kColor = r.kRed
+    shape.SetLineColor(kColor)
+    shape.SetMarkerColor(kColor)
+    shape.SetLineWidth(2)
+    return shape
+
+def getpT(cat):
+    pT = 475.0
+    if '1' in cat:  pT= 475.0
+    if '2' in cat:  pT= 525.0
+    if '3' in cat:  pT= 575.0
+    if '4' in cat:  pT= 637.5
+    if '5' in cat:  pT= 737.0
+    if '6' in cat:  pT= 1000.0
+    return pT
+    
+def getScaleErr(logf):
+    shift_SF     = 0.0
+    shift_SF_ERR = 0.0
+    with open(logf,'r') as f:
+        for line in f:
+            line = line.strip().split()
+            if 'shift_SF' in line:     shift_SF = line[1]
+            if 'shift_SF_ERR' in line: shift_SF_ERR = line[1]
+            if shift_SF !=0 and shift_SF_ERR !=0:   break
+    print 'found shift_SF = ',shift_SF, "  shift_SF_ERR  = ",shift_SF_ERR
+    return float(shift_SF),float(shift_SF_ERR)
+
+## Return graphs with scale and scalept unc.
+def getProcScaleGraphs(fml,pf,proc,shift_SF,shift_SF_ERR,suffix):
+    g_Vqq = r.TGraphErrors()
+    g_Vqq.SetName('%s scaleUnc'%proc)
+    g_Vqq_pt = r.TGraphErrors()
+    g_Vqq_pt.SetName('%s scaleUnc pT'%proc)
+    g_Vqq_Tot = r.TGraphErrors()
+    g_Vqq_Tot.SetName('%s scaleUnc Tot'%proc)
+   
+    if proc=='wqq':         mass  = 80.4
+    if proc=='zqq':         mass  = 91.0
+    if 'hqq' in proc:       mass  = 125.0
+    for catname in ['cat'+str(i) for i in range(1,7)]:
+        pT = getpT(catname)
+        shape = getShape(fml,pf,catname,proc,'prefit',suffix)
+        if catname =='cat1': scalePt = 0.0 
+        if catname =='cat2': scalePt = (500-450)/100.
+        if catname =='cat3': scalePt = (550-450)/100. 
+        if catname =='cat4': scalePt = (600-450)/100. 
+        if catname =='cat5': scalePt = (675-450)/100. 
+        if catname =='cat6': scalePt = (800-450)/100. 
+        ### Shift Unc. is calculated from True W mass 
+        ### Uncertainty for "scale" variable
+        scaleSigma                    = mass * shift_SF *  shift_SF_ERR           ## in GeV
+        ### Uncertainty for "scalepT" variable
+        scaleSigmaPT                  = mass * shift_SF *  shift_SF_ERR *scalePt  ## in GeV
+        ### Sum them in quadrature
+        TotalUnc                      = (scaleSigma**2+scaleSigmaPT**2)**0.5
+        g_Vqq.SetPoint(g_Vqq.GetN(), pT , shape.GetMean() )
+        g_Vqq_pt.SetPoint(g_Vqq_pt.GetN(), pT , shape.GetMean())
+        g_Vqq_Tot.SetPoint(g_Vqq_Tot.GetN(), pT , shape.GetMean())
+
+        g_Vqq.SetPointError(g_Vqq.GetN()-1, 0 , scaleSigma )
+        g_Vqq_pt.SetPointError(g_Vqq_pt.GetN()-1, 0 ,  scaleSigmaPT )
+        g_Vqq_Tot.SetPointError(g_Vqq_Tot.GetN()-1, 0 ,  TotalUnc)
+
+        print shape.GetMean(), scaleSigma, scaleSigmaPT, TotalUnc   
+    g_Vqq.SetFillColor(r.kGray+2)
+    g_Vqq.SetFillStyle(3004)
+    g_Vqq_pt.SetFillColor(r.kGray+1)
+    g_Vqq_pt.SetFillStyle(3005)
+    g_Vqq_Tot.SetFillColor(r.kGray)
+    g_Vqq_Tot.SetFillStyle(3005)
+    return g_Vqq,g_Vqq_pt,g_Vqq_Tot
+
+
+def drawScale(f,logf,fmls,procs):
+    shift_SF,shift_SF_ERR = getScaleErr(logf) 
+    prefit_fml = r.TFile(fmls[0]['f'])
     for pf in ['pass','fail']:
         cp = r.TCanvas("cp","cp",1000,800);
         leg = r.TLegend(0.7,0.7,0.9,0.9)
         maxs = []
-        stack = r.THStack('stack_%s'%(pf),"")
+        stacks = []
+
+        suffix = fmls[0]['suffix']
+        tex = r.TLatex()
+        iPlot = 0
+        mg = r.TMultiGraph()
+        mg.SetName('mg_%s'%(pf))
+        if 'wqq' in procs:
+            g_wqq,g_wqq_pt,g_wqq_Tot = getProcScaleGraphs(prefit_fml,pf,'wqq',shift_SF,shift_SF_ERR,suffix)
+            #mg.Add(g_wqq_Tot,'l3')
+            mg.Add(g_wqq_pt,'l3')
+            mg.Add(g_wqq,'l3')
+        if 'zqq' in procs:
+            g_zqq,g_zqq_pt,g_zqq_Tot = getProcScaleGraphs(prefit_fml,pf,'zqq',shift_SF,shift_SF_ERR,suffix)
+            mg.Add(g_zqq_pt,'l3')
+            mg.Add(g_zqq,'l3')
+        listOfLegs = []
+        for j,fit in enumerate(['prefit','fit_b']):
+            for i,proc in enumerate(procs):
+                for l,d_fml in enumerate(fmls):
+                    if fit=='prefit' and (l>0): continue             #skip multiple prefit
+                    fml = r.TFile(d_fml['f'])
+                    tag = d_fml['tag']
+                    g = r.TGraphErrors()
+                    g.SetName('%s_%s'%(proc,fit))
+                    for catname in ['cat'+str(i) for i in range(1,7)]:
+                        pT = getpT(catname)
+                        shape = getShape(fml,pf,catname,proc,fit,d_fml['suffix'])
+                        if fit =='prefit': kColor = r.kBlack
+                        if fit =='fit_b' : kColor = r.kBlue
+                        if fit =='fit_s' : kColor = r.kRed
+                        if fit=='fit_b' and 'color' in d_fml.keys():
+                            kColor = d_fml['color']
+                        g.SetPoint(g.GetN(), pT + (j+l)*10 , shape.GetMean()) 
+                        g.SetPointError(g.GetN()-1, 0 , shape.GetMeanError()) 
+                        #g.SetPoint(g.GetN(), pT + j*10 , shape.Integral()) 
+                        #err=r.Double(1.0)
+                        #shape.IntegralAndError(1,shape.GetNbinsX(),err) 
+                        #g.SetPointError(g.GetN()-1, 0 ,err ) 
+                        g.SetLineColor(kColor)
+                        g.SetMarkerColor(kColor)
+                        g.SetLineStyle(i+1)
+                        g.SetLineWidth(2)
+                    iPlot+=1
+                    #leg.AddEntry(g," ".join([pf,fit,tag]),'lep')
+                    legEntry = " ".join([pf,fit,tag])
+                    if not legEntry in listOfLegs:
+                        leg.AddEntry(g," ".join([pf,tag]),'lep')
+                        listOfLegs.append(legEntry)
+                    mg.Add(g)
+        mg.Draw('AEP')
+        if 'wqq' in procs:
+            leg.AddEntry(g_wqq,"W scaleUnc",'lf')
+        if 'zqq' in procs:
+            leg.AddEntry(g_wqq,"Z scaleUnc",'lf')
+            #mg.Add(g_zqq_Tot,'l3')
+
+        mg.GetXaxis().SetTitle("pT[GeV]")
+        mg.GetYaxis().SetTitle("Mean mSD[GeV]")
+        #mg.GetYaxis().SetTitle("Integral")
+        mg.GetYaxis().SetRangeUser(75,105)
+        leg.Draw("same")
+        plotName =options.odir+"plots/"+"_".join(["Scale",pf])
+        #plotName =options.odir+"plots/"+"_".join(["Integral",pf])
+        cp.SaveAs(plotName+".pdf")
+
+
+def drawQCDratio(f,fmls,fhist,catname): 
+    cp = r.TCanvas("cp","cp",1000,800);
+    leg = r.TLegend(0.7,0.7,0.9,0.9)
+    maxs = []
+    h_numer = []
+    h_denom = []
+    wp      = f.Get("w_%s_%s"%('pass',catname))
+    wf      = f.Get("w_%s_%s"%('fail',catname))
+    dh_d_p  = wp.data("data_obs_%s_%s"%('pass',catname))
+    dh_d_f  = wf.data("data_obs_%s_%s"%('fail',catname))
+    ipt = int(catname[-1])-1
+    qcdMCpass_2d  = fhist.Get("qcd_pass")
+    qcdMCfail_2d  = fhist.Get("qcd_fail")
+    qcdMCpass      = qcdMCpass_2d.ProjectionX( "px_" + qcdMCpass_2d.GetName() + str(ipt), ipt+1, ipt+1 );
+    qcdMCfail      = qcdMCfail_2d.ProjectionX( "px_" + qcdMCfail_2d.GetName() + str(ipt), ipt+1, ipt+1 );
+    d_qcdpass = {'hist':qcdMCpass,'colors':r.kBlue,'ytitle':'','label':'qcdMC pass ','denom':False}
+    d_qcdfail = {'hist':qcdMCfail,'colors':r.kRed,'ytitle':'','label':'qcdMC fail','denom':False}
+    #h_numer.append(d_qcdpass)
+    #h_denom.append(d_qcdfail)
+
+    x   = wp.var("x"); 
+    frame = x.frame()
+
+    #data - tqq - W - Z:
+    #for pf in ['pass','fail']:
+    #    fit='fit_b'
+    #    tqqshape  = getShape(fml,pf,catname,'tqq',fit,options.suffix)
+    #    wqqshape  = getShape(fml,pf,catname,'wqq',fit,options.suffix)
+    #    zqqshape  = getShape(fml,pf,catname,'zqq',fit,options.suffix)
+    #    if pf =='pass':
+    #        dataShape = dh_d_p.createHistogram('h_dataPass'+catname,x)
+    #    else:
+    #        dataShape = dh_d_f.createHistogram('h_dataFail'+catname,x)
+    #    dataShape.Add(tqqshape,-1)
+    #    dataShape.Add(wqqshape,-1)
+    #    dataShape.Add(zqqshape,-1)
+    #    dataShape.Scale(1.0/dataShape.Integral())  
+    #    if pf =='pass':
+    #        d_pass = {'hist':dataShape,'colors':r.kBlue,'ytitle':'','label':"(data-V-tt) pass",'denom':False}
+    #    else:
+    #        d_fail = {'hist':dataShape,'colors':r.kRed,'ytitle':'' ,'label':"(data-V-tt) fail",'denom':True}
+    #h_numer.append(d_pass)
+    #h_denom.append(d_fail)
+    #leg.AddEntry(dataPass,'data pass','p')
+    #leg.AddEntry(dataPass,'data fail','lp')
+
+    tex = r.TLatex()
+    iPlot = 0
+    for i,d_fml in enumerate(fmls):
+        fml = r.TFile(d_fml['f'])
+        fit = 'fit_b'
+        suffix = d_fml['suffix']
+        tag = d_fml['tag']
+        for pf in ['pass','fail']:
+            i_qcdshape = getShape(fml,pf,catname,'qcd',fit,suffix)
+            i_qcdshape.SetDirectory(0)
+            i_qcdshape.Scale(1.0/i_qcdshape.Integral())
+            leg.AddEntry(i_qcdshape,'qcd %s %s'%(pf,fit),'l')
+            kColor = d_fml['color']
+            if pf=='pass':
+                i_qcdshape.SetLineStyle(1)
+                d_qcdshape = {'hist':i_qcdshape,'colors':kColor,'ytitle':'Normalized unit.','label':'qcd shape %s'%(tag),'denom':False}
+                h_numer.append(d_qcdshape)
+            else:
+                i_qcdshape.SetLineStyle(2)
+                d_qcdshape = {'hist':i_qcdshape,'colors':kColor,'ytitle':'Normalized unit','label':'qcd %s %s'%(pf,tag),'denom':False}
+                h_denom.append(d_qcdshape)
+
+    plotName ="/plots/"+"_".join(["Ratio",catname])
+    drawRatio(h_numer,h_denom,[],plotName,options)
+
+def drawProcess(f,fml,procs,catname,nostack=True): 
+    for pf in ['pass','fail']:
+        cp = r.TCanvas("cp","cp",1000,800);
+        leg = r.TLegend(0.7,0.7,0.9,0.9)
+        maxs = []
+        stacks = []
         wp      = f.Get("w_%s_%s"%(pf,catname))
         dh_d_p  = wp.data("data_obs_%s_%s"%(pf,catname))
         x   = wp.var("x"); 
         frame = x.frame()
-        dh_d_p.plotOn(frame, r.RooFit.DrawOption("pe"), r.RooFit.MarkerColor(r.kBlack));
-        frame.Draw()
-        
+
+        subtractQCD = True
+        drawMean    = True
+        if subtractQCD:  
+            data_shapes = [] 
+            for fit in ['fit_b']:
+                qcdshape  = getShape(fml,pf,catname,'qcd',fit,options.suffix)
+                tqqshape  = getShape(fml,pf,catname,'tqq',fit,options.suffix)
+                dataShape = dh_d_p.createHistogram("h_dataMinusBkg_"+catname,x)
+                dataShape.Add(qcdshape,-1)
+                dataShape.Add(tqqshape,-1)
+                dataShape.SetMarkerColor(r.kBlack)
+                dataShape.Draw("pe same")
+                leg.AddEntry(dataShape,'data-QCD-tqq(fit_b)','p')
+        else:
+            dh_d_p.plotOn(frame, r.RooFit.DrawOption("pe same"), r.RooFit.MarkerColor(r.kBlack));
+            frame.Draw()
+
         suffix = options.suffix
-        for i,proc in enumerate(procs):
-            for fit in ['prefit','fit_b','fit_s']:
+        tex = r.TLatex()
+        iPlot = 0
+        #for fit in ['prefit','fit_b','fit_s']:
+        for fit in ['prefit','fit_b']:
+            stack = r.THStack('stack_%s_%s'%(pf,fit),"")
+            for i,proc in enumerate(procs):
                 #print "shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc)
-                rags        = fml.Get("norm_" + fit)
-                if options.suffix:
-                    shape       = fml.Get("shapes_%s/%s_%s_%s_%s/%s"%(fit,catname,suffix,pf,catname,proc))
-                    rrvName     = "%s_%s_%s_%s/%s" % (catname,suffix,pf,catname, proc)
-                else:
-                    shape       = fml.Get("shapes_%s/%s_%s_%s/%s"%(fit,catname,pf,catname,proc))
-                    rrvName     = "%s_%s_%s/%s" % (catname,pf,catname, proc)
-                if rags.find(rrvName) != None:
-                  rrv = r.RooRealVar(rags.find(rrvName))
-                  norm = rrv.getVal()
-                else:
-                    raise ValueError("Cannot find rrv %s in  %s/%s"%(rrvName,"_".join([catname,pf,catname]),proc))
-                print rrvName, norm, shape.Integral()
-                if norm>0 and shape.Integral()>0: 
-                    shape.Scale(norm/shape.Integral())
-                else:
-                    if not ('125' in proc and fit =='fit_b'):
-                        raise ValueError("Norm or integral of %s <=0, norm = %s, integral = %s"%("_".join([proc,catname,pf]),norm,shape.Integral()))
+                shape     = getShape(fml,pf,catname,proc,fit,suffix)
+                if drawMean:
+                    tex.SetTextSize(0.03)
+                    tex.DrawLatexNDC( 0.5 , 0.85 - (iPlot)*0.03, 'mean = %.3f'%shape.GetMean())        
+                    #tex.DrawLatexNDC( 0.5 , 0.85 - (iPlot)*0.03, 'Integral = %.3f'%shape.Integral())        
                 if fit =='prefit': kColor = r.kBlack
                 if fit =='fit_b' : kColor = r.kBlue
                 if fit =='fit_s' : kColor = r.kRed
@@ -98,9 +557,46 @@ def drawProcess(f,fml,procs,catname):
                 shape.SetLineWidth(2)
                 stack.Add(shape)
                 leg.AddEntry(shape," ".join([proc,pf,fit]),'l')
-        stack.Draw("same nostack hist")
+                iPlot+=1
+            stacks.append(stack)
+        for stack in stacks:
+            if nostack:
+                stack.Draw("same nostack hist")
+            else:
+                stack.Draw("same hist")
+
         leg.Draw("same")
-        cp.SaveAs(options.odir+"plots/"+"_".join(["shapes",pf,catname])+".pdf")
+        if nostack:
+            plotName =options.odir+"plots/"+"_".join(["shapes",pf,'nostack',catname])
+        else:
+            plotName =options.odir+"plots/"+"_".join(["shapes",pf,'stack',catname])
+        cp.SaveAs(plotName+".pdf")
+        cp.SaveAs(plotName+".png")
+        
+
+def RescaleVqq(fhist_outdir,ref_dir):
+    vqqIn = options.idir+"../data/hist_1DZbb_pt_scalesmear.root"
+    vqqRef= ref_dir+"../data/hist_1DZbb_pt_scalesmear.root"
+    vqqOut= vqqIn.replace("data",fhist_outdir)
+
+    if not os.path.isdir(options.idir+"../%s"%fhist_outdir):
+       os.mkdir(options.idir+"../%s"%fhist_outdir )
+
+    os.system("cp %s %s"%(vqqIn,vqqOut))
+    fhist_Out       = r.TFile(vqqOut,"UPDATE")
+    fhist_ref       = r.TFile(vqqRef,"READ")
+    for proc in ['zqq','wqq']:
+        for pf in ['pass','fail']:
+            hname = '_'.join([proc,pf,'matched'])
+            href  = fhist_ref.Get(hname)
+            hout  = fhist_Out.Get(hname)
+            hout.SetDirectory(0)
+            ratio =  href.Integral()/hout.Integral()
+            print hname, " Ref integral: %.3f"% href.Integral(), ' out integral: %.3f '% hout.Integral(), ' ratio = %.3f'%ratio
+            hout.Scale(ratio)
+            print "After scale: %.3f"% hout.Integral()
+            fhist_Out.cd()
+            hout.Write()
 
 def ReplaceQCDpass(f,fr,fhist_outdir,doPoisson=False):
     qcdIn = options.idir+"../data/hist_1DZbb_pt_scalesmear.root"

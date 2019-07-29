@@ -117,6 +117,7 @@ def main(options,args):
         jerErrs = {}
         puErrs = {}
         bbErrs = {}
+        weffErrs = {}
         vErrs = {}
         mcstatErrs = {}
         scaleErrs = {}
@@ -151,7 +152,7 @@ def main(options,args):
                     procsToRemove.append((proc, "cat%i"%i, box))
                
                 if proc == 'wqq':
-                    mass = 80.
+                    mass = 80.4
                 elif proc == 'zqq':
                     mass = 91.
                 elif 'hqq' in proc:
@@ -162,10 +163,22 @@ def main(options,args):
                 #          scaleSigma = mass * massShift * massShiftUnc
                 #    ==>   scaleErr   = scaleSigma/7GeV
                 scaleSigma                    = mass * SF['shift_SF'] *  SF['shift_SF_ERR']
-                #scaleErrs['%s_%s'%(proc,box)] =  0.1 
                 scaleErrs['%s_%s'%(proc,box)] =  scaleSigma/7.0
                 #print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
 
+                ##### old scheme
+                #scaleErrs['%s_%s'%(proc,box)] =  0.1 
+                #if i == 2:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.05
+                #elif i == 3:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.1
+                #elif i == 4:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.2
+                #elif i == 5:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.3
+                #elif i == 6:
+                #    scaleptErrs['%s_%s'%(proc,box)] =  0.4
+                
                 if i == 2:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(500-450)/100
                 elif i == 3:
@@ -176,7 +189,7 @@ def main(options,args):
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(675-450)/100
                 elif i == 6:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(800-450)/100
-
+                
                 
                 vErrs['%s_%s'%(proc,box)] = 1.0+V_SF_ERR/V_SF
                 if box=='pass':
@@ -188,6 +201,19 @@ def main(options,args):
                         bbErrs['%s_%s'%(proc,box)] = 1.0-BB_SF_ERR*(ratePass/rateFail)
                     else:
                         bbErrs['%s_%s'%(proc,box)] = 1.0
+
+                WEFF_SF_ERR = 0.3
+                WEFF_SF     = 1.0   # if differ from 1, need to update rhalphabet builder
+                if box=='pass':
+                    weffErrs['%s_%s'%(proc,box)] = 1.0+WEFF_SF_ERR/WEFF_SF
+                else:
+                    ratePass = histoDict['%s_%s'%(proc,'pass')].Integral()
+                    rateFail = histoDict['%s_%s'%(proc,'fail')].Integral()
+                    if rateFail>0:
+                        weffErrs['%s_%s'%(proc,box)] = 1.0-WEFF_SF_ERR*(ratePass/rateFail)
+                    else:
+                        weffErrs['%s_%s'%(proc,box)] = 1.0
+
                         
                     
                 #for j in range(1,numberOfMassBins+1):                    
@@ -217,9 +243,24 @@ def main(options,args):
         jerString = 'JER%s lnN'%options.suffix
         puString = 'Pu%s lnN'%options.suffix
         bbString = 'bbeff%s lnN'%options.suffix
+        hqq125ptString = 'hqq125pt lnN'
+        weffString = 'weff%s lnN'%options.suffix
         vString = 'veff%s lnN'%options.suffix
+        ### Normal scale/scale pt
         scaleptString = 'scalept%s shape'%options.suffix
         scaleString   = 'scale%s shape'%options.suffix
+        ### scale(pt) pass/fail 
+        #scalepassptString = 'scalepasspt%s shape'%options.suffix
+        #scalefailptString = 'scalefailpt%s shape'%options.suffix
+        #scalepassString   = 'scalepass%s shape'%options.suffix
+        #scalefailString   = 'scalefail%s shape'%options.suffix
+        #scalepassString   = 'scalepass_cat%i%s shape'%(i,options.suffix)
+        #scalefailString   = 'scalefail_cat%i%s shape'%(i,options.suffix)
+        ### scale cat i 
+        #if i >=2:
+        #    scaleString   = 'scale_cat%i%s shape'%(i,options.suffix)
+        #else:
+        #    scaleString   = 'scale%s shape'%(options.suffix)
         mcStatStrings = {}
         lumiString = 'lumi%s lnN'%options.suffix
         mcStatGroupString = 'mcstat group ='
@@ -248,16 +289,46 @@ def main(options,args):
                     lumiString += ' %.3f'%LUMI_ERR
                 if proc in ['qcd','tqq']:
                     scaleString += ' -'
+                    #scalepassString += ' -'
+                    #scalefailString += ' -'
                     if i > 1:
                         scaleptString += ' -'
+                        #scalepassptString += ' -'
+                        #scalefailptString += ' -'
                 else:
                     scaleString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
                     if i > 1:
                         scaleptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
+                    #if box =='pass':
+                    #    scalepassString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
+                    #    scalefailString += ' -'
+                    #    if i > 1:
+                    #        scalepassptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
+                    #        scalefailptString += ' -'
+                    #else:
+                    #    scalepassString += ' -'
+                    #    scalefailString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
+                    #    if i > 1:
+                    #        scalepassptString += ' -'
+                    #        scalefailptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
+
                 if proc in ['qcd','tqq','wqq']:
                     bbString += ' -'
                 else:
                     bbString += ' %.3f'%bbErrs['%s_%s'%(proc,box)]
+                if proc in ['hqq125']:
+                    if not options.addHptShape:
+                        hqq125ptString += ' 1.20'
+                    else:
+                        hqq125ptString += ' 1.30'
+                else:
+                    hqq125ptString += ' -'
+
+                if proc in ['wqq']:
+                    weffString += ' %.3f'%weffErrs['%s_%s'%(proc,box)]
+                else:
+                    weffString += ' -'
+
                 if proc in ['qcd','tqq']:
                     vString += ' -'
                 else:
@@ -293,40 +364,82 @@ def main(options,args):
                 newline = puString
             elif 'bbeff' in l:
                 newline = bbString
+            elif 'weff' in l:
+                #newline = weffString
+                pass
+            elif 'hqq125pt' in l and not 'hqq125ptShape' in l:
+                newline = hqq125ptString
+            elif 'hqq125ptShape' in l:
+                if options.addHptShape:
+                    newline = l
+                else:
+                    newline = l.replace("hqq125ptShape","#hqq125ptShape")
             elif 'veff' in l:
                 newline = vString
-            elif 'scalept' in l and i>1:
+            elif 'scale' in l  and 'pt' in l and i>1:
+                #newline = scaleptString.replace("scalept","scalept_cat%i"%i)
                 newline = scaleptString
+                #if 'pass' in l:
+                #    newline = scalepassptString
+                #elif 'fail' in l:
+                #    newline = scalefailptString
+                pass
             elif 'smear' in l:
                 newline = l.replace('smear','smear'+options.suffix)
-            elif 'scale' in l and not 'scalept' in l:
+            elif 'scale' in l and not 'pt' in l:
                 newline = scaleString
+                #if 'pass' in l:
+                #    newline = scalepassString
+                #elif 'fail' in l:
+                #    newline = scalefailString
             elif 'TQQEFF' in l or 'tqqnormSF' in l or 'tqqeffSF' in l:
                 tqqeff = histoDict['tqq_pass'].Integral() / (
                 histoDict['tqq_pass'].Integral() + histoDict['tqq_fail'].Integral())
                 newline = l.replace('TQQEFF','%.4f'%tqqeff)
+                newline = newline.replace('CATXnorm','CATX%snorm'%options.suffix)
                 newline = newline.replace('tqqnormSF','tqqnormSF%s'%options.suffix)
                 newline = newline.replace('tqqeffSF','tqqeffSF%s'%options.suffix)
+            #elif 'wznormEW' in l:
+            #    if i==4:
+            #        newline = l.replace('1.05','1.15')
+            #    elif i==5:
+            #        newline = l.replace('1.05','1.15')
+            #    elif i==6:
+            #        newline = l.replace('1.05','1.15')
+            #    else:
+            #        newline = l
+            #elif 'znormEW' in l:
+            #    if i==3:
+            #        newline = l.replace('1.15','1.25')
+            #    elif i==4:
+            #        newline = l.replace('1.15','1.35')
+            #    elif i==5:
+            #        newline = l.replace('1.15','1.35')
+            #    elif i==6:
+            #        newline = l.replace('1.15','1.35')      
+            #    else:
+            #        newline = l              
             elif 'wznormEW' in l:
                 if i==4:
-                    newline = l.replace('1.05','1.15')
+                    newline = l.replace('1.02','1.06')
                 elif i==5:
-                    newline = l.replace('1.05','1.15')
+                    newline = l.replace('1.02','1.06')
                 elif i==6:
-                    newline = l.replace('1.05','1.15')
+                    newline = l.replace('1.02','1.06')
                 else:
                     newline = l
             elif 'znormEW' in l:
                 if i==3:
-                    newline = l.replace('1.15','1.25')
+                    newline = l.replace('1.05','1.07')
                 elif i==4:
-                    newline = l.replace('1.15','1.35')
+                    newline = l.replace('1.05','1.07')
                 elif i==5:
-                    newline = l.replace('1.15','1.35')
+                    newline = l.replace('1.05','1.07')
                 elif i==6:
-                    newline = l.replace('1.15','1.35')      
+                    newline = l.replace('1.05','1.07')      
                 else:
                     newline = l              
+
             else:
                 newline = l
             if "CATX" in l:
@@ -373,6 +486,14 @@ def main(options,args):
             flatPars = ['p0r0','p0r1', 'p0r2', 'p1r0', 'p1r1', 'p1r2']
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
+        if options.addqcdCovMat:
+            if options.year == '2017':                qcdfit ='ddb_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/'
+            elif options.year =='2016':               qcdfit ='ddb2016_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/'
+            elif options.year =='2018':               qcdfit ='ddb2018_Jun24_v3/ddb_M2_full/TF22_MC_muonCR_SFJul8/'
+            with open('%s/qcdTF_MC_cov_cat%i.txt'%(qcdfit,i)) as qcdtxt:
+                for qcdline in qcdtxt:
+                    dctmp.write(qcdline)
+                
 
         #dctmp.write(mcStatGroupString + "\n")
         #dctmp.write(qcdGroupString + "\n")
@@ -429,6 +550,8 @@ if __name__ == '__main__':
     parser.add_option('--blind', action='store_true', dest='blind', default =False,help='blind signal region', metavar='blind')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
+    parser.add_option('--addHptShape', action='store_true', dest='addHptShape', default =False,help='add higgspt shape', metavar='addHptShape')
+    parser.add_option('--addqcdCovMat', action='store_true', dest='addqcdCovMat', default =False,help='add qcdCovMat', metavar='addqcdCovMat')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
     parser.add_option('--multi', action='store_true', dest='multi', default=False, help='define RooMultiPdf',
