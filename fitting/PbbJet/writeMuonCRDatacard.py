@@ -7,6 +7,7 @@ import sys
 import time
 import array
 import os
+from hist import *  
 
 from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016,SF2018
 from rhalphabet_builder import GetSF
@@ -17,8 +18,13 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         obsRate[box] = histoDict['data_obs_%s'%box].Integral()
     nBkgd = len(bkgs)
     nSig = len(sigs)
-    #rootFileName = txtfileName.replace('.txt','.root')
-    rootFileName = txtfileName.replace('.txt','_hist.root')
+    rootFileName = txtfileName.replace('.txt','.root')
+    #rootFileName = txtfileName.replace('.txt','_hist.root')
+
+
+    for key, myhist in histoDict.iteritems():
+        if 'mcstat' in key:
+            print 'mcstat names',key
 
     if options.year=='2018':
         BB_SF    =SF2018['BB_SF'] 
@@ -98,10 +104,14 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
                 znormQErrs['%s_%s'%(proc,box)] = 1.
                 znormEWErrs['%s_%s'%(proc,box)] = 1.
                 
-            if rate>0:
-                mcStatErrs['%s_%s'%(proc,box)] = 1.0+(error[0]/rate)
+            if options.noMcStatShape:                 
+                if rate>0:
+                    mcStatErrs['%s_%s'%(proc,box)] = 1.0+(error[0]/rate)
+                else:
+                    mcStatErrs['%s_%s'%(proc,box)] = 1.0
             else:
-                mcStatErrs['%s_%s'%(proc,box)] = 1.0
+                for j in range(1,MASS_BINS+1):
+                    mcStatErrs['%s_%s'%(proc,box),j] = 1.0
                 
             if rate>0:
                 rateJESUp = histoDict['%s_%s_JESUp'%(proc,box)].Integral()
@@ -126,10 +136,10 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
       'bin fail_muonCR pass_muonCR\n' + \
       'observation %.3f %.3f\n'%(obsRate['fail'],obsRate['pass']) + \
       divider + \
-      '#shapes * pass_muonCR %s w_muonCR:$PROCESS_pass w_muonCR:$PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
-      '#shapes * fail_muonCR %s w_muonCR:$PROCESS_fail w_muonCR:$PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
-      'shapes * pass_muonCR %s $PROCESS_pass $PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
-      'shapes * fail_muonCR %s $PROCESS_fail $PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
+      'shapes * pass_muonCR %s w_muonCR:$PROCESS_pass w_muonCR:$PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
+      'shapes * fail_muonCR %s w_muonCR:$PROCESS_fail w_muonCR:$PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
+      '#shapes * pass_muonCR %s $PROCESS_pass $PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
+      '#shapes * fail_muonCR %s $PROCESS_fail $PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
       divider
     binString = 'bin'
     processString = 'process'
@@ -153,7 +163,11 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     mcStatErrString = {}
     for proc in sigs+bkgs:
         for box in boxes:
-            mcStatErrString['%s_%s'%(proc,box)] = '%s%smuonCR%smcstat\tlnN'%(proc,box,options.year)
+            if options.noMcStatShape:
+                 mcStatErrString['%s_%s'%(proc,box)] = '%s%smuonCR%smcstat\tlnN'%(proc,box,options.year)
+            else:
+                for j in range(1,MASS_BINS+1):
+                    mcStatErrString['%s_%s'%(proc,box),j] = '%s%smuonCR%smcstat%i\tshape'%(proc,box,options.year,j)
 
     for box in boxes:
         i = -1
@@ -177,25 +191,37 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
             znormEWString += format_string(znormEWErrs['%s_%s'%(proc,box)])
             znormQString += format_string(znormQErrs['%s_%s'%(proc,box)])
             wznormEWString += format_string(wznormEWErrs['%s_%s'%(proc,box)])
-            mutriggerString += format_string(mutriggerErrs['%s_%s'%(proc,box)])
-            muidString += format_string(muidErrs['%s_%s'%(proc,box)])
-            muisoString += format_string(muisoErrs['%s_%s'%(proc,box)])
+            mutriggerString += '\t%.3f'%(mutriggerErrs['%s_%s'%(proc,box)])
+            muidString += '\t%.3f'%(muidErrs['%s_%s'%(proc,box)])
+            muisoString += '\t%.3f'%(muisoErrs['%s_%s'%(proc,box)])
             jesString += format_string(jesErrs['%s_%s'%(proc,box)])
             jerString += format_string(jerErrs['%s_%s'%(proc,box)])
             puString += format_string(puErrs['%s_%s'%(proc,box)])
             for proc1 in sigs+bkgs:
                 for box1 in boxes:
-                    if proc1==proc and box1==box:
-                        mcStatErrString['%s_%s'%(proc1,box1)] += '\t%.3f'% mcStatErrs['%s_%s'%(proc,box)]
-                    else:                        
-                        mcStatErrString['%s_%s'%(proc1,box1)] += '\t-'
+                    if options.noMcStatShape:
+                        if proc1==proc and box1==box:
+                            mcStatErrString['%s_%s'%(proc1,box1)] += '\t%.3f'% mcStatErrs['%s_%s'%(proc,box)]
+                        else:                        
+                            mcStatErrString['%s_%s'%(proc1,box1)] += '\t-'
+                    else:
+                        for j in range(1,MASS_BINS+1):
+                            if proc1==proc and box1==box:
+                                mcStatErrString['%s_%s'%(proc1,box1),j] += '\t1.0'
+                            else:                        
+                                mcStatErrString['%s_%s'%(proc1,box1),j] += '\t-'
+
             
     binString+='\n'; processString+='\n'; processNumberString+='\n'; rateString +='\n'; lumiString+='\n'; hqq125ptString+='\n';
     veffString+='\n'; bbeffString+='\n'; znormEWString+='\n'; znormQString+='\n'; wznormEWString+='\n'; mutriggerString+='\n'; muidString+='\n'; muisoString+='\n'; 
     jesString+='\n'; jerString+='\n'; puString+='\n';     
     for proc in (sigs+bkgs):
         for box in boxes:
-            mcStatErrString['%s_%s'%(proc,box)] += '\n'
+            if options.noMcStatShape:                 
+                mcStatErrString['%s_%s'%(proc,box)] += '\n'
+            else:
+                for j in range(1,MASS_BINS+1):
+                    mcStatErrString['%s_%s'%(proc,box),j] += '\n'
             
     datacard+=binString+processString+processNumberString+rateString+divider
 
@@ -203,10 +229,25 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     datacard+=lumiString+hqq125ptString+veffString+bbeffString+znormEWString+znormQString+wznormEWString+mutriggerString+muidString+muisoString+jesString+jerString+puString
 
     # comment out total mcstat lnN errors
-    #for proc in (sigs+bkgs):
-    #    for box in boxes:
-    #        if rates['%s_%s'%(proc,box)] <= 0.0: continue
-    #        datacard+=mcStatErrString['%s_%s'%(proc,box)]
+    for proc in (sigs+bkgs):
+        for box in boxes:
+            if rates['%s_%s'%(proc,box)] <= 0.0: continue
+            if options.noMcStatShape:                 
+                datacard+=mcStatErrString['%s_%s'%(proc,box)]
+            else:
+                for j in range(1,MASS_BINS+1):
+                    error = histoDict['%s_%s'%(proc,box)].GetBinError(j)
+                    rate  = histoDict['%s_%s'%(proc,box)].GetBinContent(j) 
+                    if rate-error<=0:
+                        print "rejecting %s_%s_%s"%(proc,box,j)
+                        continue        ## veto small mcstat uncertainties
+                    elif (error/rate)<=0.1 :
+                        print "rejecting %s_%s_%s"%(proc,box,j)
+                        continue        ## veto small mcstat uncertainties
+                    else:
+                        print "accepting %s_%s_%s with rate = %.5f, error = %.5f, error/rate = %.5f"%(proc,box,j,rate,error,error/rate)
+                        datacard+=mcStatErrString['%s_%s'%(proc,box),j]
+            
 
     # now top rate params
     tqqeff = histoDict['tqq_pass'].Integral()/(histoDict['tqq_pass'].Integral()+histoDict['tqq_fail'].Integral())
@@ -217,7 +258,7 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         'tqqnormSF_%s extArg 1.0 [0.0,10.0]\n'%options.year + \
         'tqqeffSF_%s extArg 1.0 [0.0,10.0]\n'%options.year
     
-    datacard+='* autoMCStats 0 0 1\n'
+    #datacard+='* autoMCStats 0 0 1\n'
     txtfile = open(options.odir+'/'+txtfileName,'w')
     txtfile.write(datacard)
     txtfile.close()
@@ -235,7 +276,8 @@ def main(options, args):
     #for just Zbb extraction:
     #sigs = ['zqq']
     #bkgs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125','qcd','tqq','wqq','vvqq','stqq','wlnu','zll']
-    systs = ['JER','JES','mutrigger','muid','muiso','Pu']
+    #systs = ['JER','JES','mutrigger','muid','muiso','Pu']
+    systs = ['JER','JES','mutrigger','muid','muiso','Pu','mcstat']
 
     if options.year=='2018':
         BB_SF    =SF2018['BB_SF'] 
@@ -272,14 +314,25 @@ def main(options, args):
             histoDict['%s_%s'%(proc,box)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
             for syst in systs:
                 if proc!='data_obs':
-                    #print 'getting histogram for process: %s_%s_%sUp'%(proc,box,syst)
-                    histoDict['%s_%s_%sUp'%(proc,box,syst)] = tfile.Get('%s_%s_%sUp'%(proc,box,syst)).Clone()
-                    histoDict['%s_%s_%sUp'%(proc,box,syst)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
-                    #print 'getting histogram for process: %s_%s_%sDown'%(proc,box,syst)
-                    histoDict['%s_%s_%sDown'%(proc,box,syst)] = tfile.Get('%s_%s_%sDown'%(proc,box,syst)).Clone()
-                    histoDict['%s_%s_%sDown'%(proc,box,syst)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
-                    
-                
+                    if syst!='mcstat':
+                        #print 'getting histogram for process: %s_%s_%sUp'%(proc,box,syst)
+                        histoDict['%s_%s_%sUp'%(proc,box,syst)] = tfile.Get('%s_%s_%sUp'%(proc,box,syst)).Clone()
+                        histoDict['%s_%s_%sUp'%(proc,box,syst)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
+                        #print 'getting histogram for process: %s_%s_%sDown'%(proc,box,syst)
+                        histoDict['%s_%s_%sDown'%(proc,box,syst)] = tfile.Get('%s_%s_%sDown'%(proc,box,syst)).Clone()
+                        histoDict['%s_%s_%sDown'%(proc,box,syst)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
+                    else:
+                        histoDict['%s_%s_%s%smuonCR%smcstatUp'%(proc,box,proc,box,options.year)] = tfile.Get('%s_%s'%(proc,box)).Clone(tfile.Get('%s_%s'%(proc,box)).GetName()+'_%s%smuonCR%smcstatUp'%(proc,box,options.year))
+                        histoDict['%s_%s_%s%smuonCR%smcstatUp'%(proc,box,proc,box,options.year)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
+                        histoDict['%s_%s_%s%smuonCR%smcstatDown'%(proc,box,proc,box,options.year)] = tfile.Get('%s_%s'%(proc,box)).Clone(tfile.Get('%s_%s'%(proc,box)).GetName()+'_%s%smuonCR%smcstatDown'%(proc,box,options.year))
+                        histoDict['%s_%s_%s%smuonCR%smcstatDown'%(proc,box,proc,box,options.year)].Scale(GetSF(proc,box,tfile,fLoose,removeUnmatched,iPt,sf_dict))
+                        for ibin in range(1,histoDict['%s_%s'%(proc,box)].GetNbinsX()+1):
+                            if histoDict['%s_%s'%(proc,box)].GetBinContent(ibin) <0:            ### Set negative bin to zero
+                                histoDict['%s_%s'%(proc,box)].SetBinContent(ibin,0) 
+                            histoDict['%s_%s_%s%smuonCR%smcstatUp'%(proc,box,proc,box,options.year)].SetBinContent(ibin, histoDict['%s_%s'%(proc,box)].GetBinContent(ibin)+ histoDict['%s_%s'%(proc,box)].GetBinError(ibin)) 
+                            histoDict['%s_%s_%s%smuonCR%smcstatDown'%(proc,box,proc,box,options.year)].SetBinContent(ibin,max(1E-06, histoDict['%s_%s'%(proc,box)].GetBinContent(ibin)- histoDict['%s_%s'%(proc,box)].GetBinError(ibin))) 
+    uncorrelate(histoDict, 'mcstat')
+
     
     outFile = 'datacard_muonCR.root'
     outFileHist = 'datacard_muonCR_hist.root'
@@ -320,6 +373,7 @@ if __name__ == '__main__':
     parser.add_option('-o','--odir', dest='odir', default = './',help='directory to write cards', metavar='odir')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
+    parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     
     (options, args) = parser.parse_args()
 
