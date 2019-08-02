@@ -81,41 +81,41 @@ SF2016={
 #p1r1 =  1.7097   +/- 0.1284 
 #p1r2 =  -0.8651  +/- 0.0997 
 
-#==================== ddb_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/card_rhalphabet_all_2017_floatZ.root ====================
-#qcdeff_2017 =  0.0151  +/- 0.0000              (post-fit)
-#p0r0_2017   =  -1.0404 +/- 0.0667              p0r0_2017   -9.2544e-01 +/-  1.17e-01
-#p0r1_2017   =  2.3977  +/- 0.0406              p0r1_2017    2.3221e+00 +/-  7.27e-02
-#p0r2_2017   =  0.7081  +/- 0.0174              p0r2_2017    7.2724e-01 +/-  2.34e-02
-#p1r0_2017   =  1.1165  +/- 0.1255              p1r0_2017    1.0017e+00 +/-  2.90e-01
-#p1r1_2017   =  1.6787  +/- 0.1259              p1r1_2017    1.7054e+00 +/-  2.45e-01
-#p1r2_2017   =  -0.1655 +/- 0.0798              p1r2_2017   -1.7416e-01 +/-  1.30e-01
-#p2r0_2017   =  0.1460  +/- 0.1745              p2r0_2017    2.8648e-01 +/-  3.77e-01
-#p2r1_2017   =  1.5137  +/- 0.2721              p2r1_2017    1.3657e+00 +/-  5.22e-01
-#p2r2_2017   =  -0.0976 +/- 0.3093              p2r2_2017    8.9347e-02 +/-  5.33e-01
+#==================== ddb_Jun24_v2/ddb_M2_full/TF22_MC_w2Fit/card_rhalphabet_all_2017_floatZ.root ====================
+#qcdeff_2017 =  0.0151  +/- 0.0000 
+#p0r0_2017   =  -1.0359 +/- 0.1669 
+#p0r1_2017   =  2.3953  +/- 0.1000 
+#p0r2_2017   =  0.7093  +/- 0.0362 
+#p1r0_2017   =  1.0947  +/- 0.3854 
+#p1r1_2017   =  1.6930  +/- 0.3269 
+#p1r2_2017   =  -0.1745 +/- 0.1725 
+#p2r0_2017   =  0.1980  +/- 0.4379 
+#p2r1_2017   =  1.4567  +/- 0.5200 
+#p2r2_2017   =  -0.0427 +/- 0.4857 
 
-#==================== ddb2016_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/card_rhalphabet_all_2016_floatZ.root ====================
+#==================== ddb2016_Jun24_v2/ddb_M2_full/TF22_MC_w2Fit/card_rhalphabet_all_2016_floatZ.root ====================
 #qcdeff_2016 =  0.0145 +/- 0.0000 
-#p0r0_2016 =  -1.0210 +/- 0.0610 
-#p0r1_2016 =  2.3459  +/- 0.0361 
-#p0r2_2016 =  0.6978  +/- 0.0147 
-#p1r0_2016 =  0.9232  +/- 0.1238 
-#p1r1_2016 =  2.3925  +/- 0.1187 
-#p1r2_2016 =  -0.7023  +/- 0.0676 
-#p2r0_2016 =  0.5732  +/- 0.1745 
-#p2r1_2016 =  1.2283  +/- 0.2591 
-#p2r2_2016 =  0.1019  +/- 0.2752 
+#p0r0_2016   =  -1.0136 +/- 0.3498 
+#p0r1_2016   =  2.3427 +/- 0.2129 
+#p0r2_2016   =  0.6987 +/- 0.0783 
+#p1r0_2016   =  0.8998 +/- 0.7414 
+#p1r1_2016   =  2.4030 +/- 0.6171 
+#p1r2_2016   =  -0.7088 +/- 0.3288 
+#p2r0_2016   =  0.6278 +/- 0.8229 
+#p2r1_2016   =  1.1812 +/- 0.9868 
+#p2r2_2016   =  0.1521 +/- 0.9433 
 
-#==================== ddb2018_Jun24_v3/ddb_M2_full/TF22_MC_muonCR_SFJul8/card_rhalphabet_all_2018_floatZ.root ====================
+#==================== ddb2018_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/card_rhalphabet_all_2018_floatZ.root ====================
 #qcdeff_2018 =  0.0139 +/- 0.0000 
-#p0r0_2018 =   -0.9751 +/- 0.0547 
-#p0r1_2018 =   2.3730 +/- 0.0331 
-#p0r2_2018 =   0.6757 +/- 0.0142 
-#p1r0_2018 =   1.0980 +/- 0.1051 
-#p1r1_2018 =   1.4290 +/- 0.1057 
-#p1r2_2018 =   0.1947 +/- 0.0669 
-#p2r0_2018 =   0.1500 +/- 0.1493 
-#p2r1_2018 =   1.9308 +/- 0.2261 
-#p2r2_2018 =   -0.9522 +/- 0.2458 
+#p0r0_2018 =  -0.9680 +/- 0.1666 
+#p0r1_2018 =  2.3695 +/- 0.1017 
+#p0r2_2018 =  0.6775 +/- 0.0382 
+#p1r0_2018 =  1.0759 +/- 0.3846 
+#p1r1_2018 =  1.4427 +/- 0.3313 
+#p1r2_2018 =  0.1826 +/- 0.1843 
+#p2r0_2018 =  0.2077 +/- 0.4334 
+#p2r1_2018 =  1.8612 +/- 0.5152 
+#p2r2_2018 =  -0.8737 +/- 0.4928 
 
 #qcdTFpars={
 #            #'n_rho':2, 'n_pT':1,
@@ -126,11 +126,11 @@ SF2016={
 #            #'pars':[  0.0145 ,-1.0210,2.3459 ,0.6978 ,0.9232 ,2.3925 ,-0.7023,0.5732 ,1.2283 ,0.1019 ]
 #        }
 qcdTFpars_2017={'n_rho':2, 'n_pT':2,
-            'pars':[  0.0151 ,-1.0404,2.3977 ,0.7081 ,1.1165 ,1.6787 ,-0.1655,0.1460 ,1.5137 ,-0.0976]}
+            'pars':[ 0.0151 , -1.0359, 2.3953 , 0.7093 , 1.0947 , 1.6930 , -0.1745, 0.1980 , 1.4567 , -0.0427]}
 qcdTFpars_2016={'n_rho':2, 'n_pT':2,
-            'pars':[  0.0145 ,-1.0210,2.3459 ,0.6978 ,0.9232 ,2.3925 ,-0.7023,0.5732 ,1.2283 ,0.1019 ]}
+            'pars':[0.0145 ,-1.0136,2.3427 ,0.6987 ,0.8998 ,2.4030 ,-0.7088,0.6278 ,1.1812 ,0.1521 ]}
 qcdTFpars_2018={'n_rho':2, 'n_pT':2,
-            'pars':[ 0.0139 ,-0.9751 ,2.3730 ,0.6757 ,1.0980 ,1.4290 ,0.1947 ,0.1500 ,1.9308 ,-0.9522]}
+            'pars':[0.0139,-0.9680,2.3695 ,0.6775 ,1.0759 ,1.4427 ,0.1826 ,0.2077 ,1.8612 ,-0.8737]}
 
 
 #2016  T2pt350to2000, WPcut=0.92, SF= 0.68  +0.20/-0.10
@@ -149,17 +149,19 @@ def main(options, args):
     # 	- for each MC sample and the data
     f = r.TFile.Open(ifile)    
     fLoose = None
+    qcdTFpars = {}
     if options.ifile_loose is not None:
         fLoose = r.TFile.Open(options.ifile_loose)
     if   options.year =='2018':
           sf=SF2018
-          qcdTFpars = qcdTFpars_2018 
+          if not options.pseudo:    qcdTFpars = qcdTFpars_2018 
     elif options.year =='2017':
           sf=SF2017
-          qcdTFpars = qcdTFpars_2017
+          if not options.pseudo:    qcdTFpars = qcdTFpars_2017
     elif options.year =='2016':
           sf=SF2016
-          qcdTFpars = qcdTFpars_2016
+          if not options.pseudo:    qcdTFpars = qcdTFpars_2016
+
     #(hpass, hfail) = loadHistograms(f, options.pseudo, options.blind, options.useQCD, options.scale, options.r)
     (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf,createPassFromFail=options.createPassFromFail,skipQCD=options.skipQCD)
     #f.Close()
@@ -167,7 +169,7 @@ def main(options, args):
     # Build the workspacees
     #dazsleRhalphabetBuilder(hpass, hfail, f, odir, options.NR, options.NP)
 
-    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf,mass_hist_lo=MASS_HIST_LO,mass_hist_hi=MASS_HIST_HI,qcdTFpars=qcdTFpars,exp=options.exp,multi=options.multi)
+    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf,mass_hist_lo=MASS_HIST_LO,mass_hist_hi=MASS_HIST_HI,qcdTFpars=qcdTFpars,exp=options.exp,multi=options.multi,pseudo=options.pseudo)
     rhalphabuilder.run()
     if options.addHptShape:
         rhalphabuilder.addHptShape()	

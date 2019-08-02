@@ -29,7 +29,7 @@ import bernstein
 class RhalphabetBuilder():
     def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
-                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201,qcdTFpars={},exp=False,multi=False):
+                 remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201,qcdTFpars={},exp=False,multi=False,pseudo=False):
         self._pass_hists = pass_hists
         self._fail_hists = fail_hists
         self._mass_fit = mass_fit
@@ -37,6 +37,7 @@ class RhalphabetBuilder():
         self._inputfile = input_file
         self._inputfile_loose = input_file_loose
         self._sf_dict = sf_dict
+        self._pseudo = pseudo
         if suffix:
             if suffix[0]!='_': self._suffix = '_'+suffix 
         else:
@@ -414,22 +415,24 @@ class RhalphabetBuilder():
                     w.var('p'+str(j)+'r'+str(i)+self._suffix).setConstant(False)
                     w.var('p'+str(j)+'r'+str(i)+self._suffix).Print('v')
 
-        nll = simPdf_s.createNLL(combData)
-        m2 = r.RooMinimizer(nll)
-        m2.setStrategy(2)
-        m2.setMaxFunctionCalls(100000)
-        m2.setMaxIterations(100000)
-        m2.setPrintLevel(-1)
-        m2.setPrintEvalErrors(-1)
-        m2.setEps(1e-5)
-        m2.optimizeConst(2)
+        if not self._pseudo:
+            nll = simPdf_s.createNLL(combData)
+            m2 = r.RooMinimizer(nll)
+            m2.setStrategy(2)
+            m2.setMaxFunctionCalls(100000)
+            m2.setMaxIterations(100000)
+            m2.setPrintLevel(-1)
+            m2.setPrintEvalErrors(-1)
+            m2.setEps(1e-5)
+            m2.optimizeConst(2)
 
-        
-        migrad_status = m2.minimize('Minuit2', 'migrad')
-        improve_status = m2.minimize('Minuit2', 'improve')
-        hesse_status = m2.minimize('Minuit2', 'hesse')
-        
-        fr = m2.save()
+            migrad_status = m2.minimize('Minuit2', 'migrad')
+            improve_status = m2.minimize('Minuit2', 'improve')
+            hesse_status = m2.minimize('Minuit2', 'hesse')
+            
+            fr = m2.save()
+        else:
+            fr = simPdf_s.fitTo(combData,r.RooFit.Extended(True),r.RooFit.SumW2Error(True),r.RooFit.Strategy(2),r.RooFit.Save(),r.RooFit.Minimizer('Minuit2','migradimproved'))
         fr.Print('v')
 
         if self._multi:
