@@ -630,7 +630,7 @@ def main(options, args):
         #### reduced set of 2016 bkg samples
         bkgSamples['wqq']  = normSampleContainer('wqq',tfiles['wqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-        #bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         if not options.skipQCD:
             bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
