@@ -632,10 +632,12 @@ def main(options, args):
         bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        if muonCR:
+            bkgSamples['wlnu'] = normSampleContainer('wlnu',tfiles['wlnu'],  1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         if not options.skipQCD:
             bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         bkgSamples['stqq'] = normSampleContainer('stqq', tfiles['stqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-        #bkgSamples['zll']  = normSampleContainer('zll', tfiles['zll']  , 1, dbtagmin,lumi,False,False,'1',False ,iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        bkgSamples['zll']  = normSampleContainer('zll', tfiles['zll']  , 1, dbtagmin,lumi,False,False,'1',False ,iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
 
 
     print "Data..."
