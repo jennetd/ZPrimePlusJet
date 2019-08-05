@@ -206,7 +206,7 @@ def get2016legacyfiles():
     idir_1503skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v15.03/skim/'
     idir_1603     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/'
     idir_1603skim     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/'
-    idir_16031skim     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.031/skim/'
+    idir_16031skim     = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.031/'
     tfiles = {
 	          'ggHbb'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
 	          'VBFHbb'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1603skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
@@ -255,11 +255,11 @@ def get2016legacyfiles():
                             },
               'QCD':        {
                              #'QCD_HT300to500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_1603skim+'/QCD_HT300to500_*.root'  ],
-                             'QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_16031skim+'/QCD_HT500to700_*.root'  ],
-                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_16031skim+'/QCD_HT700to1000_*.root' ],
-                             'QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_16031skim+'/QCD_HT1000to1500_*.root'],
-                             'QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_16031skim+'/QCD_HT1500to2000_*.root'],
-                             'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_16031skim+'/QCD_HT2000toInf_*.root' ]
+                             'QCD_HT500to700_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'  :[idir_16031skim+'/QCD_HT500to700_TuneCUETP8M1_13TeV/*.root'  ],
+                             'QCD_HT700to1000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_16031skim+'/QCD_HT700to1000_TuneCUETP8M1_13TeV/*.root' ],
+                             'QCD_HT1000to1500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_16031skim+'/QCD_HT1000to1500_TuneCUETP8M1_13TeV/*.root'],
+                             'QCD_HT1500to2000_TuneCUETP8M1_13TeV-madgraphMLM-pythia8':[idir_16031skim+'/QCD_HT1500to2000_TuneCUETP8M1_13TeV/*.root'],
+                             'QCD_HT2000toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8' :[idir_16031skim+'/QCD_HT2000toInf_TuneCUETP8M1_13TeV/*.root' ]
                             },
               'data': [
                             idir_1503skim + 'JetHTRun2016B_07Aug17_v*_withPF*.root',
