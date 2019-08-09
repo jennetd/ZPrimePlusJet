@@ -324,8 +324,8 @@ def drawOpt(f2,colz,MsdOrRho,ofname):
     f2.GetYaxis().SetTitle("p_{T} [GeV]")
     f2.GetZaxis().SetTitle("Pass-to-fail Ratio")
     f2.GetZaxis().SetTitleOffset(2)
-    f2.SetMaximum(2.0)
-    f2.SetMinimum(0.5)
+    f2.SetMaximum(1.0)
+    f2.SetMinimum(0.0)
     f2.SetTitle("")
 
     #drawCMS()
@@ -350,6 +350,39 @@ def drawOpt(f2,colz,MsdOrRho,ofname):
     else:
         c1.SaveAs(ofname)
 
+def drawBasisMaps(nrho,npT,odir,exp=False):
+    boundaries={}
+    boundaries['RHO_LO']=-6.
+    boundaries['RHO_HI']=-2.1
+    boundaries['PT_LO' ]= 450.
+    boundaries['PT_HI' ]= 1200.
+
+    arr=[1.0] ##qcdeff
+    #initialize parameters  npar = (nrho+1)*(npT+1)
+    for i_pT in range(0,(npT+1)*(nrho+1)):            arr.append(0)
+    npar = len(arr)
+    ipos=1
+    colz=True
+    for i_pT in range(0,npT+1):
+        for i_rho in range(0,nrho+1):
+            arr[ipos] =1.0          # turn on this basis
+            print "Generating basis map for : p%sr%s"%(i_pT,i_rho)
+            print arr
+            f2params = array.array('d', arr)
+            fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=True,qcdeff=False,rescale=True,exp=exp)
+            f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
+            f2.SetParameters(f2params)
+            #drawOpt(f2,colz,'msd',odir+"bern_msd_p%sr%s.pdf"%(i_pT,i_rho))
+            drawOpt(f2,colz,'msd',odir+"bern_msd_p%sr%s.png"%(i_pT,i_rho))
+
+            fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=False,rescale=True,exp=exp)
+            f2 = r.TF2("f2", fun_rho_pT, -6,-2.1,450,1200,npar)
+            f2.SetParameters(f2params)
+            #drawOpt(f2,colz,'rho',odir+"bern_rho_p%sr%s.pdf"%(i_pT,i_rho))
+            drawOpt(f2,colz,'rho',odir+"bern_rho_p%sr%s.png"%(i_pT,i_rho))
+
+            arr[ipos] =0.0          # reset arr
+            ipos +=1 
    
 # Exp = exponential function
 def makeTFs(pars,nrho,npT,odir,exp=False):
