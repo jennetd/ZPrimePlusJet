@@ -24,7 +24,8 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
 
     for key, myhist in histoDict.iteritems():
         if 'mcstat' in key:
-            print 'mcstat names',key
+            #print 'mcstat names',key
+            pass
 
     if options.year=='2018':
         BB_SF    =SF2018['BB_SF'] 
@@ -47,6 +48,7 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
 
 
     rates = {}
+    Effentries = {}
     lumiErrs = {}
     hqq125ptErrs = {}
     mcStatErrs = {}
@@ -66,7 +68,9 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
             #print proc, box
             error = array.array('d',[0.0])
             rate = histoDict['%s_%s'%(proc,box)].IntegralAndError(1,histoDict['%s_%s'%(proc,box)].GetNbinsX(),error)
+            effentries = histoDict['%s_%s'%(proc,box)].GetEffectiveEntries()
             rates['%s_%s'%(proc,box)]  = rate
+            Effentries['%s_%s'%(proc,box)]  = effentries
             lumiErrs['%s_%s'%(proc,box)] = LUMI_ERR 
             #lumiErrs['%s_%s'%(proc,box)] = 1.025
             if proc=='hqq125':
@@ -180,6 +184,9 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         for proc in sigs+bkgs:
             i+=1
             if rates['%s_%s'%(proc,box)] <= 0.0: continue
+            if Effentries['%s_%s'%(proc,box)] <= 10.0:      
+                print "rejecting %s_%s , effective entries = %.3f <= 10,"%(proc,box,Effentries['%s_%s'%(proc,box)])
+                continue
             binString +='\t%s_muonCR'%box
             processString += '\t%s'%(proc)
             processNumberString += '\t%i'%(i-nSig+1)
@@ -232,6 +239,9 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     for proc in (sigs+bkgs):
         for box in boxes:
             if rates['%s_%s'%(proc,box)] <= 0.0: continue
+            if Effentries['%s_%s'%(proc,box)] <= 10.0:      
+                print "rejecting %s_%s , effective entries = %.3f <= 10,"%(proc,box,Effentries['%s_%s'%(proc,box)])
+                continue
             if options.noMcStatShape:                 
                 datacard+=mcStatErrString['%s_%s'%(proc,box)]
             else:
@@ -239,10 +249,10 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
                     error = histoDict['%s_%s'%(proc,box)].GetBinError(j)
                     rate  = histoDict['%s_%s'%(proc,box)].GetBinContent(j) 
                     if rate-error<=0:
-                        print "rejecting %s_%s_%s"%(proc,box,j)
+                        #print "rejecting %s_%s_%s"%(proc,box,j)
                         continue        ## veto small mcstat uncertainties
                     elif (error/rate)<=0.1 :
-                        print "rejecting %s_%s_%s"%(proc,box,j)
+                        #print "rejecting %s_%s_%s"%(proc,box,j)
                         continue        ## veto small mcstat uncertainties
                     else:
                         print "accepting %s_%s_%s with rate = %.5f, error = %.5f, error/rate = %.5f"%(proc,box,j,rate,error,error/rate)

@@ -460,7 +460,8 @@ def main(options,args):
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
         if options.addqcdCovMat:
             if options.year == '2017':                qcdfit ='ddb_Jun24_v2/ddb_M2_full/TF22_MC_w2Fit/'
-            elif options.year =='2016':               qcdfit ='ddb2016_Jun24_v2/ddb_M2_full/TF22_MC_w2Fit/'
+            #elif options.year =='2016':               qcdfit ='ddb2016_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/'
+            elif options.year =='2016':               qcdfit ='ddb2016_Jun24_v3/ddb_M2_full/TF22_MC_w2Fitv2/'
             elif options.year =='2018':               qcdfit ='ddb2018_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/'
             #with open('%s/qcdTF_MCstat_cat%i.txt'%(qcdfit,i)) as qcdtxt:
             with open('%s/qcdTF_MC_cov_cat%i.txt'%(qcdfit,i)) as qcdtxt:
