@@ -659,10 +659,14 @@ class RhalphabetBuilder():
                         qcd_fail_bin_content,qcd_pass_bin_content,qcd_pass_bin_content/qcd_fail_bin_content,qcd_bin_ratio,self._lEffQCD.getVal())
                 lEffQCD_bin = r.RooRealVar("qcdeff_"+category+self._suffix + "_Bin" + str(mass_bin),
                                          "qcdeff_"+category+self._suffix + "_Bin" + str(mass_bin),
-                                          0.01, 0., 10.)
-                lEffQCD_bin.setVal(qcd_bin_ratio)
+                                          10, 0., 100.)
+                lEffQCD_bin_exp = r.RooFormulaVar("qcdeff_exp_"+category+self._suffix + "_Bin" + str(mass_bin),
+                                                  "qcdeff_exp_"+category+self._suffix + "_Bin" + str(mass_bin),
+                                                   "@0*1E-3", r.RooArgList(lEffQCD_bin))
+
+                lEffQCD_bin.setVal(qcd_bin_ratio*1000)
                 lEffQCD_bin.setConstant(True)
-                lArg = r.RooArgList(fail_bin_var, roopolyarray, lEffQCD_bin)  #Use bin-by-bin qcd-eff
+                lArg = r.RooArgList(fail_bin_var, roopolyarray, lEffQCD_bin_exp)  #Use bin-by-bin qcd-eff
             else:
                 qcd_bin_ratio        = 1.0
                 if qcd_fail_bin_content>0:
@@ -705,7 +709,7 @@ class RhalphabetBuilder():
                 pass_bins_exp.add(pass_bin_var_exp)
             fail_bins.add(fail_bin_var)
             if not self._qcdTFpars=={}:
-                self._all_vars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real,lEffQCD_bin])
+                self._all_vars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real,lEffQCD_bin,lEffQCD_bin_exp])
             else:
                 self._all_vars.extend([pass_bin_var, fail_bin_var, fail_bin_var_in, fail_bin_var_unc, fail_bin_var_real])
             # print  fail_bin_var.GetName(),"flatParam",lPass#,lPass+"/("+lFail+")*@0"
@@ -1605,6 +1609,12 @@ def GetSF(process, cat, f, fLoose=None, removeUnmatched=False, iPt=-1,sf_dict={}
         SF *= passInt / passIntLoose
         if 'zqq' in process:
             print passInt / passIntLoose
+    if 'qcd' in process:
+        qcdkfactor =0.78
+        print "Applying qcdkfactor = %s"%qcdkfactor
+        SF *= qcdkfactor
+
+
     # remove cross section from MH=125 signal templates (template normalized to luminosity*efficiency*acceptance)
     ## if process=='hqq125':
     ##     SF *= 1./48.85*5.824E-01

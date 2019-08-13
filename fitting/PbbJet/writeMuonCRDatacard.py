@@ -92,9 +92,9 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
             else:
                 veffErrs['%s_%s'%(proc,box)] = 1.
                 bbeffErrs['%s_%s'%(proc,box)] = 1.
-            mutriggerErrs['%s_%s'%(proc,box)] = 1
-            muidErrs['%s_%s'%(proc,box)] = 1
-            muisoErrs['%s_%s'%(proc,box)] = 1
+            #mutriggerErrs['%s_%s'%(proc,box)] = 1
+            #muidErrs['%s_%s'%(proc,box)] = 1
+            #muisoErrs['%s_%s'%(proc,box)] = 1
             #jesErrs['%s_%s'%(proc,box)] = 1
             #jerErrs['%s_%s'%(proc,box)] = 1
             if proc=='wqq':
@@ -124,13 +124,27 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
                 rateJERDown = histoDict['%s_%s_JERDown'%(proc,box)].Integral()
                 ratePuUp = histoDict['%s_%s_PuUp'%(proc,box)].Integral()
                 ratePuDown = histoDict['%s_%s_PuDown'%(proc,box)].Integral()
+                rateTrigUp = histoDict['%s_%s_mutriggerUp'%(proc,box)].Integral()
+                rateIdUp   = histoDict['%s_%s_muisoUp'%(proc,box)].Integral()
+                rateIsoUp  = histoDict['%s_%s_muidUp'%(proc,box)].Integral()
+                rateTrigDown = histoDict['%s_%s_mutriggerDown'%(proc,box)].Integral()
+                rateIdDown   = histoDict['%s_%s_muisoDown'%(proc,box)].Integral()
+                rateIsoDown  = histoDict['%s_%s_muidDown'%(proc,box)].Integral()
+
                 jesErrs['%s_%s'%(proc,box)] =  1.0+(abs(rateJESUp-rate)+abs(rateJESDown-rate))/(2.*rate)   
                 jerErrs['%s_%s'%(proc,box)] =  1.0+(abs(rateJERUp-rate)+abs(rateJERDown-rate))/(2.*rate)
+                mutriggerErrs['%s_%s'%(proc,box)] =  1.0+(abs(rateTrigUp-rate)+abs(rateTrigDown-rate))/(2.*rate)   
+                muidErrs['%s_%s'%(proc,box)]      =  1.0+(abs(rateIdUp-rate)+abs(rateIdDown-rate))/(2.*rate)   
+                muisoErrs['%s_%s'%(proc,box)]     =  1.0+(abs(rateIsoUp-rate)+abs(rateIsoDown-rate))/(2.*rate)   
                 puErrs['%s_%s'%(proc,box)] =  1.0+(abs(ratePuUp-rate)+abs(ratePuDown-rate))/(2.*rate)
             else:
                 jesErrs['%s_%s'%(proc,box)] =  1.0
                 jerErrs['%s_%s'%(proc,box)] =  1.0
                 puErrs['%s_%s'%(proc,box)] =  1.0
+                mutriggerErrs['%s_%s'%(proc,box)] =  1.0
+                muidErrs['%s_%s'%(proc,box)]      =  1.0
+                muisoErrs['%s_%s'%(proc,box)]     =  1.0
+
 
     divider = '------------------------------------------------------------\n'
     datacard = 'imax 2 number of channels\n' + \
@@ -140,8 +154,9 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
       'bin fail_muonCR pass_muonCR\n' + \
       'observation %.3f %.3f\n'%(obsRate['fail'],obsRate['pass']) + \
       divider + \
-      'shapes * pass_muonCR %s w_muonCR:$PROCESS_pass w_muonCR:$PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
-      'shapes * fail_muonCR %s w_muonCR:$PROCESS_fail w_muonCR:$PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
+      'shapes * * FAKE\n' + \
+      '#shapes * pass_muonCR %s w_muonCR:$PROCESS_pass w_muonCR:$PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
+      '#shapes * fail_muonCR %s w_muonCR:$PROCESS_fail w_muonCR:$PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
       '#shapes * pass_muonCR %s $PROCESS_pass $PROCESS_pass_$SYSTEMATIC\n'%rootFileName + \
       '#shapes * fail_muonCR %s $PROCESS_fail $PROCESS_fail_$SYSTEMATIC\n'%rootFileName + \
       divider
@@ -156,14 +171,18 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     znormEWString = 'znormEW\tlnN'
     znormQString = 'znormQ\tlnN'    
     wznormEWString = 'wznormEW\tlnN'
-    muidString = 'muid\tshape'   
-    muisoString = 'muiso\tshape'   
-    mutriggerString = 'mutrigger\tshape'  
+    #muidString = 'muid\tshape'   
+    #muisoString = 'muiso\tshape'   
+    #mutriggerString = 'mutrigger\tshape'  
     #jesString = 'JES\tshape'    
     #jerString = 'JER\tshape'
     jesString = 'JES%s\tlnN'%options.suffix
     jerString = 'JER%s\tlnN'%options.suffix
     puString = 'Pu%s\tlnN'%options.suffix
+    muidString = 'muid%s\tlnN'%options.suffix
+    muisoString = 'muiso%s\tlnN'%options.suffix   
+    mutriggerString = 'mutrigger%s\tlnN'%options.suffix  
+
     mcStatErrString = {}
     for proc in sigs+bkgs:
         for box in boxes:
@@ -184,9 +203,11 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         for proc in sigs+bkgs:
             i+=1
             if rates['%s_%s'%(proc,box)] <= 0.0: continue
-            if Effentries['%s_%s'%(proc,box)] <= 10.0:      
-                print "rejecting %s_%s , effective entries = %.3f <= 10,"%(proc,box,Effentries['%s_%s'%(proc,box)])
-                continue
+            #if Effentries['%s_%s'%(proc,box)] <= 10.0:      
+            #    print "rejecting %s_%s , effective entries = %.3f <= 10,"%(proc,box,Effentries['%s_%s'%(proc,box)])
+            #    continue
+            #else:
+            #    print "acceptting %s_%s , effective entries = %.3f > 10,"%(proc,box,Effentries['%s_%s'%(proc,box)])
             binString +='\t%s_muonCR'%box
             processString += '\t%s'%(proc)
             processNumberString += '\t%i'%(i-nSig+1)
@@ -239,9 +260,9 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     for proc in (sigs+bkgs):
         for box in boxes:
             if rates['%s_%s'%(proc,box)] <= 0.0: continue
-            if Effentries['%s_%s'%(proc,box)] <= 10.0:      
-                print "rejecting %s_%s , effective entries = %.3f <= 10,"%(proc,box,Effentries['%s_%s'%(proc,box)])
-                continue
+            #if Effentries['%s_%s'%(proc,box)] <= 10.0:      
+            #    print "rejecting %s_%s , effective entries = %.3f <= 10,"%(proc,box,Effentries['%s_%s'%(proc,box)])
+            #    continue
             if options.noMcStatShape:                 
                 datacard+=mcStatErrString['%s_%s'%(proc,box)]
             else:
@@ -280,6 +301,8 @@ def main(options, args):
     #for Hbb extraction:
     sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
     bkgs = ['zqq','wqq','qcd','tqq','vvqq','stqq','wlnu','zll']
+    #sigs = []
+    #bkgs = ['qcd','tqq','stqq']
     #for Wqq/Zbb extraction:
     #sigs = ['zqq','wqq']
     #bkgs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125','qcd','tqq','vvqq','stqq','wlnu','zll']

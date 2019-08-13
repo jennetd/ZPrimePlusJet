@@ -466,8 +466,12 @@ def main(options,args):
             #with open('%s/qcdTF_MCstat_cat%i.txt'%(qcdfit,i)) as qcdtxt:
             with open('%s/qcdTF_MC_cov_cat%i.txt'%(qcdfit,i)) as qcdtxt:
                 for qcdline in qcdtxt:
-                    dctmp.write(qcdline)
-                    qcdeffGroupString += qcdline.split()[0] +' '
+                    qcdline = qcdline.split()
+                    qcdline[2] = str(float(qcdline[2])*1000)     ### rescaled qcdMC eff
+                    qcdline[3] = str(float(qcdline[3])*1000)     ### rescaled qcdMC eff unc.
+                    dctmp.write(" ".join(qcdline)+'\n')
+                    #qcdeffGroupString += qcdline.split()[0] +' '
+                    qcdeffGroupString += qcdline[0] +' '
                 
 
         dctmp.write(mcStatGroupString + "\n")
