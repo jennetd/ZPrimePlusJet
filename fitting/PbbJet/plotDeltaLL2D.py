@@ -141,6 +141,7 @@ def interpolate2D(hist,epsilon=0.2,smooth=1):
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option('--data', action='store_true', dest='isData', default=False, help='is data')
+    parser.add_option('--toysFreq', action='store_true', dest='toysFreq', default=False, help='toys frequentist')
     parser.add_option('--rMin',dest='rMin', default=0 ,type='float',help='minimum of r (signal strength) in profile likelihood plot')
     parser.add_option('--rMax',dest='rMax', default=20,type='float',help='maximum of r (signal strength) in profile likelihood plot')  
     parser.add_option('--rzMin',dest='rzMin', default=0 ,type='float',help='minimum of r_z (signal strength) in profile likelihood plot')
@@ -186,11 +187,12 @@ if __name__ == '__main__':
     c = rt.TCanvas('c','c',500,400)
     
     if options.isData:
-        #dataTag = 'data_nosys'
         dataTag = 'data'
     else:
-        #dataTag = 'asimov_nosys'
-        dataTag = 'asimov'
+        if options.toysFreq:
+            dataTag = 'asimov_toysFreq'
+        else:
+            dataTag = 'asimov'
 
     limit = rt.TChain('limit') 
     #for ifile in glob.glob('higgsCombine2D_%s.POINTS.*.MultiDimFit.mH120.root'%dataTag):
@@ -300,8 +302,8 @@ if __name__ == '__main__':
     m.SetMarkerStyle(29)
     m.DrawMarker(smx,smy)
     
-    lumi = 35.9
-    tag1 = rt.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%lumi)
+    
+    tag1 = rt.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%options.lumi)
     tag1.SetNDC(); tag1.SetTextFont(42)
     tag1.SetTextSize(0.04)
     tag2 = rt.TLatex(0.17,0.92,"CMS")
