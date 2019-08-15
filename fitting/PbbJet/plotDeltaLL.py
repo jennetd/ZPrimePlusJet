@@ -17,7 +17,7 @@ from RootIterator import RootIterator
 
 from array import array
 
-        
+
 def exec_me(command,dryRun=True):
     print command
     if not dryRun: os.system(command)
@@ -37,23 +37,31 @@ def main(options,args):
     if options.floatOtherPOIs:
         floatTag = '--floatOtherPOIs 1 -P %s'%options.poi
 
+    
+    
     floatString = 'fixOtherPOIs'
     if options.floatOtherPOIs:
         floatString = 'floatOtherPOIs'
         
-    
+    if options.toysFreq:
+        floatString += '_toysFreq'
+
     freezeString = ''
     if options.freeze is not '':
         freezeString = '--freezeParameters %s'%options.freeze
 
+    toysFreqString = ''
+    if options.toysFreq:
+        toysFreqString = '--toysFreq'
+
     if not options.justPlot:
         if options.isData:
             exec_me('combine -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2 --robustFit 1  --setParameterRanges %s=%f,%f --algo grid --points %i -d %s -n %s --saveWorkspace %s %s'%(options.poi,options.rMin,options.rMax,options.npoints,options.datacard,options.datacard.replace('.root','_data_%s_%s'%(options.poi,floatString)),floatTag,freezeString),options.dryRun)
-            exec_me('combine -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2 --robustFit 1 --setParameterRanges %s=%f,%f --algo grid --points %i -d %s -n %s -S 0 --snapshotName MultiDimFit %s'%(options.poi,options.rMin,options.rMax,options.npoints,'higgsCombine%s.MultiDimFit.mH120.root'%options.datacard.replace('.root','_data_%s_%s'%(options.poi,floatString)),options.datacard.replace('.root','_data_nosys_%s_%s'%(options.poi,floatString)),floatTag),options.dryRun)
+            exec_me('combine -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2 --robustFit 1 --setParameterRanges %s=%f,%f --algo grid --points %i -d %s -n %s --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit %s'%(options.poi,options.rMin,options.rMax,options.npoints,'higgsCombine%s.MultiDimFit.mH120.root'%options.datacard.replace('.root','_data_%s_%s'%(options.poi,floatString)),options.datacard.replace('.root','_data_nosYs_%s_%s'%(options.poi,floatString)),floatTag),options.dryRun)
         else:
             dataTag = 'asimov'
-            exec_me('combine -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2 --robustFit 1  --setParameterRanges %s=%f,%f --algo grid --points %i -d %s -n %s -t -1 --toysFreq --setParameters %s=%f --saveWorkspace %s %s'%(options.poi,options.rMin,options.rMax,options.npoints,options.datacard,options.datacard.replace('.root','_asimov_%s_%s'%(options.poi,floatString)),options.poi,options.r,floatTag,freezeString),options.dryRun)
-            exec_me('combine -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2 --robustFit 1 --setParameterRanges %s=%f,%f --algo grid --points %i -d %s -n %s -t -1 -S 0 --snapshotName MultiDimFit --setParameters %s=%f %s'%(options.poi,options.rMin,options.rMax,options.npoints,'higgsCombine%s.MultiDimFit.mH120.root'%options.datacard.replace('.root','_asimov_%s_%s'%(options.poi,floatString)),options.datacard.replace('.root','_asimov_nosys_%s_%s'%(options.poi,floatString)),options.poi,options.r,floatTag),options.dryRun)
+            exec_me('combine -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2 --robustFit 1  --setParameterRanges %s=%f,%f --algo grid --points %i -d %s -n %s -t -1 --setParameters %s=%f --saveWorkspace %s %s %s'%(options.poi,options.rMin,options.rMax,options.npoints,options.datacard,options.datacard.replace('.root','_asimov_%s_%s'%(options.poi,floatString)),options.poi,options.r,floatTag,freezeString,toysFreqString),options.dryRun)
+            exec_me('combine -M MultiDimFit --setRobustFitTolerance 0.001 --setRobustFitStrategy 2 --robustFit 1 --setParameterRanges %s=%f,%f --algo grid --points %i -d %s -n %s -t -1 --freezeParameters allConstrainedNuisances --snapshotName MultiDimFit --setParameters %s=%f %s'%(options.poi,options.rMin,options.rMax,options.npoints,'higgsCombine%s.MultiDimFit.mH120.root'%options.datacard.replace('.root','_asimov_%s_%s'%(options.poi,floatString)),options.datacard.replace('.root','_asimov_nosys_%s_%s'%(options.poi,floatString)),options.poi,options.r,floatTag),options.dryRun)
 
     tfileWithSys = rt.TFile.Open('higgsCombine%s.MultiDimFit.mH120.root'%(options.datacard.replace('.root','_%s_%s_%s'%(dataTag,options.poi,floatString))))
     limitWithSys = tfileWithSys.Get('limit')    
@@ -223,6 +231,7 @@ if __name__ == '__main__':
     parser.add_option('-P','--poi'   ,action='store',type='string',dest='poi'   ,default='r', help='poi name')  
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freeze'   ,default='',help='freeze')
     parser.add_option('--floatOtherPOIs',action='store_true', dest='floatOtherPOIs', default=False, help='float other pois')
+    parser.add_option('--toysFreq',action='store_true', dest='toysFreq', default=False, help='toys frequentist')
 
     (options, args) = parser.parse_args()
 
