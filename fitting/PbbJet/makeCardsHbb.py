@@ -346,7 +346,7 @@ def main(options,args):
         tag = "cat"+str(i)
         dctmp = open(options.odir+"/card_rhalphabet_%s.txt" % tag, 'w')
         for j,l in enumerate(linel):
-            if '#' == l[0]:continue
+            #if '#' == l[0]:continue
             if 'shapes qcd' in l:
                 newline = l+options.suffix
                 if options.multi:
@@ -366,9 +366,9 @@ def main(options,args):
                 newline = puString
             elif 'bbeff' in l:
                 newline = bbString
-            elif 'weff' in l:
-                newline = weffString
-                pass
+            #elif 'weff' in l:
+            #    newline = weffString
+            #    pass
             elif 'hqq125pt' in l and not 'hqq125ptShape' in l:
                 newline = hqq125ptString
             elif 'hqq125ptShape' in l:
