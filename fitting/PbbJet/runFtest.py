@@ -32,21 +32,46 @@ def buildcats(ifile,odir,muonCR,suffix):
 
 def buildcards(odir,nr,np, options):
     ifile = options.ifile
-    suffix= options.suffix
-    pseudo= options.pseudo
-    blind = options.blind
-    iloose= options.ifile_loose
-    muonCR= options.ifile_muon
-    #is2017= options.is2017
-    year   = options.year
     dryRun= options.dryRun
-    exp    = options.exp
+    if hasattr(options,'suffix'): suffix= options.suffix
+    else:                         suffix=''
+    if hasattr(options,'suffix'): pseudo= options.pseudo
+    else:                         pseudo=''
+    if hasattr(options,'suffix'): blind = options.blind
+    else:                         blind = True
+    if hasattr(options,'suffix'): iloose= options.ifile_loose
+    else:                         iloose=''
+    if hasattr(options,'suffix'): muonCR= options.ifile_muon
+    else:                         muonCR=''
+    if hasattr(options,'suffix'): is2017= options.is2017
+    else:                         is2017=True
+    if hasattr(options,'suffix'): year  = options.year
+    else:                         year  =''
+    if hasattr(options,'suffix'): exp  = options.exp
+    else:                         exp  = False
+    if hasattr(options,'suffix'): pseudoPass  = options.pseudoPass
+    else:                         pseudoPass  = False
+    if hasattr(options,'suffix'): nr    = options.nr
+    else:                         nr    = 2
+    if hasattr(options,'suffix'): np    = options.np
+    else:                         np    = 2
+    if hasattr(options,'suffix'): skipQCD = options.skipQCD
+    else:                         skipQCD = False
+    if hasattr(options,'MiNLO'): MiNLO = options.MiNLO
+    else:                        MiNLO = False
+    if hasattr(options,'qcdTF'): qcdTF = options.qcdTF
+    else:                        qcdTF = False
+    if   year=='2018':   SF = SF2018
+    elif year=='2017':   SF = SF2017
+    elif year=='2016':   SF = SF2016
+    else:                SF = {}
+
     
     ifileName = ifile.split("/")[-1]
     if odir=="":
         odir = os.path.dirname(ifile) 
         print "using default output dir:", odir
-    rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit --addHptShape "%(ifile,odir,nr,np)
+    rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit "%(ifile,odir,nr,np)
     makecard_base  = "python makeCardsHbb.py       -i %s -o %s                 --remove-unmatched --no-mcstat-shape "%(ifile,odir)
     if muonCR:
         makemuonCR_base = "python writeMuonCRDatacard.py       -i %s -o %s "%(muonCR,odir)
@@ -58,9 +83,14 @@ def buildcards(odir,nr,np, options):
     for cat in cats:
         combcards_base += " %s=%s "%(cat['name'],cat['card'])
     
+    if not MiNLO:
+        rhalph_base += " --addHptShape"
+        makecard_base += " --addHptShape"
+
     if suffix:
         rhalph_base += " --suffix %s"%suffix
         makecard_base += " --suffix %s"%suffix
+        makemuonCR_base += " --suffix %s"%suffix
         combcard_all = "%scard_rhalphabet_all_%s_r%ip%i.txt "%(odir,suffix,nr,np)
         combcards_base += " > %s"%(combcard_all)
     else:
@@ -86,6 +116,8 @@ def buildcards(odir,nr,np, options):
         makecard_base +=" --year %s "%year
         if muonCR:
             makemuonCR_base +=" --year %s "%year
+    if qcdTF: 
+        makecard_base +=" --addqcdCovMat "
 
 
     wsRoot = combcard_all.replace(".txt","_floatZ.root")       
@@ -127,7 +159,6 @@ if __name__ == "__main__":
     parser.add_option('-n','--n' ,action='store',type='int',dest='n'   ,default=5*20, help='number of bins')
     parser.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='run on asimov dataset')
-    #parser.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--blind', action='store_true', dest='blind', default=False, help='run on blinded dataset')
     parser.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',metavar='exp')

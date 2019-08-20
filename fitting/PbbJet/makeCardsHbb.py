@@ -460,9 +460,11 @@ def main(options,args):
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
         if options.addqcdCovMat:
             if options.year == '2017':                qcdfit ='ddb_Jun24_v2/ddb_M2_full/TF22_MC_w2Fit/'
-            #elif options.year =='2016':               qcdfit ='ddb2016_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/'
+            #elif options.year =='2016':              qcdfit ='ddb2016_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/'
             elif options.year =='2016':               qcdfit ='ddb2016_Jun24_v3/ddb_M2_full/TF22_MC_w2Fitv2/'
             elif options.year =='2018':               qcdfit ='ddb2018_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/'
+            if options.qcdfitdir :
+                qcdfit = qcdfitdir
             #with open('%s/qcdTF_MCstat_cat%i.txt'%(qcdfit,i)) as qcdtxt:
             with open('%s/qcdTF_MC_cov_cat%i.txt'%(qcdfit,i)) as qcdtxt:
                 for qcdline in qcdtxt:
@@ -532,6 +534,7 @@ if __name__ == '__main__':
     parser.add_option('--remove-unmatched', action='store_true', dest='removeUnmatched', default =False,help='remove unmatched', metavar='removeUnmatched')
     parser.add_option('--addHptShape', action='store_true', dest='addHptShape', default =False,help='add higgspt shape', metavar='addHptShape')
     parser.add_option('--addqcdCovMat', action='store_true', dest='addqcdCovMat', default =False,help='add qcdCovMat', metavar='addqcdCovMat')
+    parser.add_option('--qcdfitdir',  dest='qcdfitdir', default ='',help='add qcdfit dir', metavar='qcdfitdir')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
     parser.add_option('--multi', action='store_true', dest='multi', default=False, help='define RooMultiPdf',
