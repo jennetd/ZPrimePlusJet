@@ -1,5 +1,6 @@
 import ROOT as r,sys,math,os
 from ROOT import TFile, TTree, TChain, gPad, gDirectory
+from buildRhalphabetHbb import SF2018,SF2017,SF2016
 from multiprocessing import Process
 from optparse import OptionParser
 from operator import add
@@ -18,7 +19,7 @@ def exec_me(command, outf, dryRun=False):
 def buildcats(ifile,odir,muonCR,suffix):
     #get N ptbins
     tf = r.TFile(ifile)
-    ncats=tf.Get("qcd_pass").GetYaxis().GetNbins()
+    ncats=tf.Get("data_obs_pass").GetYaxis().GetNbins()
     cats=[]
     for icat in range(1,ncats+1):
         cats.append( {"name":"cat%s"%icat,"card":odir+"card_rhalphabet_cat%s.txt"%icat})
@@ -35,28 +36,20 @@ def buildcards(odir,nr,np, options):
     dryRun= options.dryRun
     if hasattr(options,'suffix'): suffix= options.suffix
     else:                         suffix=''
-    if hasattr(options,'suffix'): pseudo= options.pseudo
+    if hasattr(options,'pseudo'): pseudo= options.pseudo
     else:                         pseudo=''
-    if hasattr(options,'suffix'): blind = options.blind
+    if hasattr(options,'blind'): blind = options.blind
     else:                         blind = True
-    if hasattr(options,'suffix'): iloose= options.ifile_loose
+    if hasattr(options,'ifile_loose'): iloose= options.ifile_loose
     else:                         iloose=''
-    if hasattr(options,'suffix'): muonCR= options.ifile_muon
+    if hasattr(options,'ifile_muon'): muonCR= options.ifile_muon
     else:                         muonCR=''
-    if hasattr(options,'suffix'): is2017= options.is2017
-    else:                         is2017=True
-    if hasattr(options,'suffix'): year  = options.year
+    if hasattr(options,'year'): year  = options.year
     else:                         year  =''
-    if hasattr(options,'suffix'): exp  = options.exp
+    if hasattr(options,'exp'): exp  = options.exp
     else:                         exp  = False
-    if hasattr(options,'suffix'): pseudoPass  = options.pseudoPass
+    if hasattr(options,'pseudoPass'): pseudoPass  = options.pseudoPass
     else:                         pseudoPass  = False
-    if hasattr(options,'suffix'): nr    = options.nr
-    else:                         nr    = 2
-    if hasattr(options,'suffix'): np    = options.np
-    else:                         np    = 2
-    if hasattr(options,'suffix'): skipQCD = options.skipQCD
-    else:                         skipQCD = False
     if hasattr(options,'MiNLO'): MiNLO = options.MiNLO
     else:                        MiNLO = False
     if hasattr(options,'qcdTF'): qcdTF = options.qcdTF
