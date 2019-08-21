@@ -111,6 +111,7 @@ def buildcards(odir,nr,np, options):
             makemuonCR_base +=" --year %s "%year
     if qcdTF: 
         makecard_base +=" --addqcdCovMat "
+        makecard_base +=" --qcdfitdir %s "%options.qcdfitdir
 
 
     wsRoot = combcard_all.replace(".txt","_floatZ.root")       
@@ -154,6 +155,8 @@ if __name__ == "__main__":
     parser.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='run on asimov dataset')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--blind', action='store_true', dest='blind', default=False, help='run on blinded dataset')
+    parser.add_option('--qcdTF', action='store_true', dest='qcdTF', default=False, help='switch to make qcdTF cards')
+    parser.add_option('--qcdfitdir', dest='qcdfitdir', default='./', help='dir to look for qcdTF cards')
     parser.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',metavar='exp')
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     parser.add_option('--dryRun',dest="dryRun",default=False,action='store_true',

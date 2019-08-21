@@ -96,6 +96,7 @@ if __name__ == '__main__':
     parser.add_option('-i','--ifile', dest='ifile', default = 'hist_1DZbb.root',help='file with histogram inputs', metavar='ifile')
     parser.add_option('--ifile-loose', dest='ifile_loose', default=None, help='second file with histogram inputs (looser b-tag cut to take W/Z/H templates)', metavar='ifile_loose')
     parser.add_option('--ifile-muon', dest='ifile_muon', default=None, help='path to muonCR templates ',metavar='ifile_muon')
+    parser.add_option('--qcdfitdir', dest='qcdfitdir', default='./', help='dir to look for qcdTF cards')
 
     #limit.py group
     script_group  = OptionGroup(parser, "script options")
@@ -112,11 +113,12 @@ if __name__ == '__main__':
     script_group.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     script_group.add_option('--pseudo', action='store_true', dest='pseudo', default=False, help='run on asimov dataset', metavar='pseudo')
     script_group.add_option('--blind', action='store_true', dest='blind', default=False, help='run on blinded dataset',metavar='blind')
+    script_group.add_option('--qcdTF', action='store_true', dest='qcdTF', default=False, help='switch to make qcdTF cards')
     script_group.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',metavar='exp')
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
     script_group.add_option('--suffix', dest='suffix', default=None, help='suffix for conflict variables',metavar='suffix')
-    script_group.add_option('--is2017', action='store_true', dest='is2017', default=False, help='use 2017SF',metavar='is2017')
+    script_group.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
 
     parser.add_option_group(script_group)
 
@@ -132,8 +134,8 @@ if __name__ == '__main__':
     outpath= options.odir
     #gitClone = "git clone -b Hbb git://github.com/DAZSLE/ZPrimePlusJet.git"
     #gitClone = "git clone -b Hbb_test git://github.com/kakwok/ZPrimePlusJet.git"
-    gitClone = "git clone -b shift_SF git://github.com/kakwok/ZPrimePlusJet.git"
-    #gitClone = "git clone -b PerBinEff git://github.com/kakwok/ZPrimePlusJet.git"
+    #gitClone = "git clone -b shift_SF git://github.com/kakwok/ZPrimePlusJet.git"
+    gitClone = "git clone -b simpleMuonCR git://github.com/kakwok/ZPrimePlusJet.git"
 
     #Small files used by the exe
     files = [options.ifile]
@@ -154,6 +156,9 @@ if __name__ == '__main__':
         files.append( options.ifile_muon)
         command  += '--ifile-muon ${MAINDIR}/$%i'%(files.index( options.ifile_muon)+3)
         plot_command += ' --ifile-muon %s '%(options.ifile_muon)
+    if  options.qcdfitdir is not '':
+        files.append( options.qcdfitdir+"/qcdTF_MC_cov_cat*.txt")
+        command  += ' --qcdTF --qcdfitdir ${MAINDIR}/'
     #Add script options to job command
     for opts in script_group.option_list:
         if not getattr(options, opts.dest)==opts.default:
