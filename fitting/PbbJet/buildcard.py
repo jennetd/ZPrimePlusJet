@@ -37,27 +37,27 @@ def main(options,mode,dryRun):
     cats  = options.cats
     if hasattr(options,'suffix'): suffix= options.suffix
     else:                         suffix=''
-    if hasattr(options,'suffix'): pseudo= options.pseudo
+    if hasattr(options,'pseudo'): pseudo= options.pseudo
     else:                         pseudo=''
-    if hasattr(options,'suffix'): blind = options.blind
+    if hasattr(options,'blind'): blind = options.blind
     else:                         blind = True
-    if hasattr(options,'suffix'): iloose= options.iloose
+    if hasattr(options,'iloose'): iloose= options.iloose
     else:                         iloose=''
-    if hasattr(options,'suffix'): muonCR= options.muonCR
+    if hasattr(options,'muonCR'): muonCR= options.muonCR
     else:                         muonCR=''
-    if hasattr(options,'suffix'): is2017= options.is2017
+    if hasattr(options,'is2017'): is2017= options.is2017
     else:                         is2017=True
-    if hasattr(options,'suffix'): year  = options.year
+    if hasattr(options,'year'): year  = options.year
     else:                         year  =''
-    if hasattr(options,'suffix'): exp  = options.exp
+    if hasattr(options,'exp'): exp  = options.exp
     else:                         exp  = False
-    if hasattr(options,'suffix'): pseudoPass  = options.pseudoPass
+    if hasattr(options,'pseudoPass'): pseudoPass  = options.pseudoPass
     else:                         pseudoPass  = False
-    if hasattr(options,'suffix'): nr    = options.nr
+    if hasattr(options,'nr'): nr    = options.nr
     else:                         nr    = 2
-    if hasattr(options,'suffix'): np    = options.np
+    if hasattr(options,'np'): np    = options.np
     else:                         np    = 2
-    if hasattr(options,'suffix'): skipQCD = options.skipQCD
+    if hasattr(options,'skipQCD'): skipQCD = options.skipQCD
     else:                         skipQCD = False
     if hasattr(options,'MiNLO'): MiNLO = options.MiNLO
     else:                        MiNLO = False
@@ -99,10 +99,9 @@ def main(options,mode,dryRun):
     for key,item in sorted(SF.iteritems()): print("%s       %s"%(key,item))
     exec_me('git log -n 1 ',outf,dryRun)
 
-    #rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit --addHptShape "%(ifile,odir,nr,np)
     rhalph_base    = "python buildRhalphabetHbb.py -i %s -o %s --nr %i --np %i --remove-unmatched --prefit "%(ifile,odir,nr,np)
     makecard_base  = "python makeCardsHbb.py       -i %s -o %s --remove-unmatched --no-mcstat-shape "%(ifile,odir)
-    makemuonCR_base = "python writeMuonCRDatacard.py       -i %s -o %s "%(muonCR,odir)
+    makemuonCR_base = "python writeMuonCRDatacard.py       -i %s -o %s --no-mcstat-shape "%(muonCR,odir)
     combcards_base = "combineCards.py "
 
     if mode =="vbf":
@@ -339,6 +338,15 @@ def DDB_combination(options):
        #'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/',
        #'ddb2018_Jun24/ddb_M2_full/TF22_blind_muonCR_bbSF1_v6_ewk/',
 
+        ####  test ##
+        #{'idirs':[
+        #    'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCRv3_SFJul8/',
+        #    'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22unc_muonCRv3_SFJul8/',
+        #    'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCRv3_SFJul8_looserWZ_p80/'
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/Pow_blind_muCRv3/'
+        #}, 
+        #################################
         ####  Pow_blind_SFJul8##
         #{'idirs':[
         #    'ddb_Jun24_v2/ddb_M2_full/TF22_blind_muonCR_SFJul8/',
@@ -355,21 +363,38 @@ def DDB_combination(options):
         #'odir':'ddb_comb_Jun24/comb161718/Pow_SFJul8/'
         #},
         #################################
-        ###  Pow_qcdTF22_blind_SFJul8##
+        ###  Pow_qcdTF22unc_blind_SFJul8##
+        #{'idirs':[
+        #    'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8/',
+        #    'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8/',
+        #    'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22unc_blind_SFJul8/'
+        #},
+        #{'idirs':[
+        #    'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8/',
+        #    'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8/',
+        #    'ddb2016_Jun24_v2/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22unc_SFJul8/'
+        #},
+        #################################
+        ##  Pow_qcdTF22uncV5_blind_SFJul8##
         {'idirs':[
-            'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8/',
-            'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8/',
-            'ddb2016_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',
+            'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
+            'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
+            'ddb2016_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',
          ],
-        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22unc_blind_SFJul8/'
+        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22uncV5_blind_SFJul8_v1/'
         },
         {'idirs':[
-            'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8/',
-            'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8/',
-            'ddb2016_Jun24_v2/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',
+            'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
+            'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
+            'ddb2016_Jun24_v3/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',
          ],
-        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22unc_SFJul8/'
+        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22uncV5_SFJul8_v1/'
         },
+
         #################################
        ###  MiNLO_blind_SFJul8##
         #{'idirs':[
@@ -388,22 +413,42 @@ def DDB_combination(options):
         #'odir':'ddb_comb_Jun24/comb161718/MiNLO_SFJul8/'
         #}
         #################################
-       ###  MiNLO_qcdTF22_blind_SFJul8##
+        ###  MiNLO_qcdTF22unc_blind_SFJul8##
         # {'idirs':[
-        #            'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
-        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/',
-        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22_muonCR_SFJul8/'
+        #            'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',
+        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8/',
+        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22unc_muonCR_SFJul8/'
         # ],
-        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22_blind_SFJul8/'
+        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22unc_blind_SFJul8/'
         #},
-       ####  MiNLO_qcdTF22_MuonCR_SFJul8##
+        #####  MiNLO_qcdTF22_MuonCR_SFJul8##
         #{'idirs':[
-        #            'ddb2016_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8_looserWZ_p80/',
-        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/',
-        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22_muonCR_SFJul8/'
+        #            'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',
+        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8/',
+        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22unc_muonCR_SFJul8/'
         #        ],
-        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22_SFJul8/'
+        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22unc_SFJul8/'
         #}
+
+         ###  MiNLO_qcdTF22unc_blind_SFJul8##
+         {'idirs':[
+                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',
+                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
+                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v1/'
+         ],
+        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22uncV5_blind_SFJul8_v1/'
+        },
+        {'idirs':[
+                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',
+                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
+                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFJul8_v1/'
+                ],
+        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22uncV5_SFJul8_v1/'
+        }
+        ###############################
+
+
+
 
     ]
     #odir = 'ddb_comb_Jun24/comb161718/MiNLO_blind_SFJul8/'
@@ -591,15 +636,17 @@ def DDB_data_main(options):
         #'ddb2016_Jun16/ddb_T3_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
         #'ddb_Jun21/ddb_M2_full/',      #Jun16   += 2017 BtoE only
         #'ddb_Jun24/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16
-        #'ddb_Jun24_v2/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16, shifted central template
+        'ddb_Jun24_v2/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16, shifted central template
         #'ddb2018_Jun24/ddb_M2_full/',      # prod16 reduced 2018D 
         #'ddb2018_Jun24_v2/ddb_M2_full/',      # prod16 reduced 2018D , shifted central template
         #'ddb2018_Jun24_v3/ddb_M2_full/',      # prod16 Full 2018D , shifted central template SF Jul8
         #'ddb2016_Jun24/ddb_M2_full/',   # 2016 fixed MC template,prod16, no QCD MC
-        'ddb2016_Jun24_v2/ddb_M2_full/',   # 2016 fixed MC template,prod16, w/ QCD MC
+        #'ddb2016_Jun24_v2/ddb_M2_full/',   # 2016 fixed MC template,prod16, w/ QCD MC
+        #'ddb2016_Jun24_v3/ddb_M2_full/',   # 2016 fixed MC template,prod16, w/ full QCD MC stat
         #'ddb_Jun24_MiNLO/ddb_M2_full/',          #Jun24_v2   += MiNLO Jul7 shifted central template 
         #'ddb2018_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v3   += MiNLO Jul7 shifted central template 
         #'ddb2016_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v2   += MiNLO Jul7 shifted central template 
+        #'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/',      #Jun24_v2   += MiNLO GluGlu Powheg reweighting
         ###### special prod###########
         #'ddb_Jun20/ddb_M2_full/',         #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cuti
         #'ddb2016_Jun20/ddb_M2_full/',     #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cut
@@ -622,12 +669,37 @@ def DDB_data_main(options):
         #'TF22_muonCR_SFJul8_looserWZ_p80/',   
         #'TF22_blind_bbSF1_v6_ewk/',   
         #'TF22_MC_muonCR_SFJul8/',  
+        #'TF22_MC_w2Fitv2/',                                     ### v2 = new MC TF for 2016 only
+        #'TF21_MC_w2Fit/',                                     ### v2 = new MC TF for 2016 only
         #'TF21_qcdTF22_muonCR_SFJul8/',  
-        #'TF22_blind_qcdTF22unc_muonCR_SFJul8/',  
-        #'TF22_qcdTF22unc_muonCR_SFJul8/',  
+        #'TF22_blind_qcdTF22unc_muonCRv2_2017/',                 ### Special prod 
+        #############
+        ### muonCRv2 = autoMCstat ,
+        ### muonCRv3 = mcstat by hand ,
+        ### muonCRv4 = v3+qcdkfactor 0.78
+        ### muonCRv5 = v4+remove effective entries, 
+        ### muonCRv6 = v5+tqq,qcd,stqq only
+        ### qcdTF22 = no unc,
+        ### qcdTF22unc = cov gaus,
+        ### qcdTF22uncV2 = mcstat,
+        ### qcdTF22uncV3 = fixed cov
+        ### qcdTF22uncV4= round 2 MCstat (2016 only)
+        ### qcdTF22uncV5= rescaled qcdeff in workspace
+        #############
+        #'TF22_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                       
+        #'TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                 
+        #'TF22_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',  
+        #'TF22_blind_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',             
+        ##############
+        #'TF22_blind_qcdTF22unc_SFJul8/',  
+        #'TF22_qcdTF22unc_SFJul8/',  
+        #'TF22_qcdTF22unc_SFJul8_looserWZ_p80/',  
+        #'TF22_blind_qcdTF22unc_SFJul8_looserWZ_p80/',  
+        ####### TF21  ######
+        'TF21_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                 
+        'expTF21_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                 
+        #############
         #'expTF21_qcdTF22_muonCR_SFJul8/',  
-        'TF22_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',  
-        'TF22_blind_qcdTF22unc_muonCR_SFJul8_looserWZ_p80/',  
         #'expTF22_qcdTF22_muonCR_SFJul8/',  
         #'expTF22_blind_muonCR_SFJul8/',  
         #'expTF22_muonCR_SFJul8/',  
@@ -670,6 +742,9 @@ def DDB_data_main(options):
         else:                   options.year = '2017'
         options.suffix = options.year
         for odir in odirs:
+            if not 'MC' in odir:
+                if 'looserWZ' in odir and not( options.year=='2016'): continue
+                if '2016'     in idir and not( 'looserWZ' in odir  ): continue
             options.odir = idir+odir
             if not os.path.exists(options.odir): os.mkdir(options.odir)
             options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
@@ -680,18 +755,16 @@ def DDB_data_main(options):
             else:                               options.blind = False
             if 'exp'   in odir:                 options.exp = True
             else:                               options.exp = False
-            if 'looserWZ'   in odir:            options.iloose = options.idir+'looserWZ_%s'%odir.split("_")[-1]+"/hist_1DZbb_pt_scalesmear_looserWZ.root"
+            if 'looserWZ'   in odir:            options.iloose = options.idir+'looserWZ_%s'%odir.split("_")[-2]+"/hist_1DZbb_pt_scalesmear_looserWZ.root"
             else:                               options.iloose = ''
             if 'pseudoPass'   in odir:          options.pseudoPass = True
             else:                               options.pseudoPass = False
             if 'MC'      in odir:               options.pseudo     = True
             else:                               options.pseudo     = False
-            if 'MiNLO'  in odir:            options.MiNLO     = True
+            if 'MiNLO'  in idir:                options.MiNLO     = True
             else:                               options.MiNLO     = False
-            if 'qcdTF'  in odir:                
-                if options.year in ['2017','2018'] :    options.qcdTF     = 'ddb_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/'
-                else:                                   options.qcdTF     = 'ddb2016_Jun24_v2/ddb_M2_full/TF22_MC_muonCR_SFJul8/'
-            else:                               options.qcdTF     = ''
+            if 'qcdTF'  in odir:                options.qcdTF     = True 
+            else:                               options.qcdTF     = False
             if idir =='ddb2016_Jun24/ddb_M2_full/': options.skipQCD = True
             else:                                   options.skipQCD = False
             nrho, npT  = getPolyOrder(odir)
@@ -724,10 +797,10 @@ if __name__ == '__main__':
     #secJetMain(options)
     ############# DDB jet ###########
     #DDB_MC_main(options)
-    DDB_combination(options)
+    #DDB_combination(options)
     #DDB_MC_combination(options)
     #DB_MC_main(options)
     #DDB_10p_main(options)
-    #DDB_data_main(options)
+    DDB_data_main(options)
 
     #VBFddb(options)
