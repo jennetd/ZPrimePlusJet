@@ -9,8 +9,8 @@ import math
 import sys
 import time
 import array
-import re
-from  bernstein import *
+import re,copy
+import  bernstein 
 
 # including other directories
 # sys.path.insert(0, '../.')
@@ -29,18 +29,23 @@ BIN_WIDTH = 7
 def main(options, args):
     mass = 125
 
-    fml = r.TFile.Open(options.idir + "/mlfit.root", 'read')
+    #fml = r.TFile.Open(options.idir + "/mlfit.root", 'read')
+    fml = r.TFile.Open(options.idir + "/mlfit_%s.root"%options.suffix.replace(":","_"), 'read')
     fd = r.TFile.Open(options.idir + "/base.root", 'read')
     histograms_pass_all = {}
     histograms_fail_all = {}
 
-    histograms_pass_summed = {}
-    histograms_fail_summed = {}
 
     shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125', 'data']
     bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
     sigshapes=['hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
-   
+  
+    qcdTFpars_2017={'n_rho':2, 'n_pT':2,
+                'pars':[ 0.0151 , -1.0359, 2.3953 , 0.7093 , 1.0947 , 1.6930 , -0.1745, 0.1980 , 1.4567 , -0.0427]}
+    qcdTFpars_2016={'n_rho':2, 'n_pT':2,
+                'pars':[ 0.0144,-1.0856,2.4440 ,0.6407 ,1.3394 ,1.8660 ,-0.4000,0.1670 ,1.7287 ,-0.1297]} ## v2
+    qcdTFpars_2018={'n_rho':2, 'n_pT':2,
+                'pars':[0.0139,-0.9680,2.3695 ,0.6775 ,1.0759 ,1.4427 ,0.1826 ,0.2077 ,1.8612 ,-0.8737]} 
     suffixes = options.suffix.split(":")
 
     for suffix in suffixes:
@@ -50,7 +55,11 @@ def main(options, args):
 
         for i in range(len(pt_binBoundaries) - 1):
             print i,suffix
-            (tmppass, tmpfail) = plotCategory(fml, fd, i + 1, options.fit,suffix)
+            if suffix =='2016': qcdTFpars = qcdTFpars_2016
+            elif suffix =='2017': qcdTFpars = qcdTFpars_2017
+            elif suffix =='2018': qcdTFpars = qcdTFpars_2018
+            qcdTFpars = {} 
+            (tmppass, tmpfail) = plotCategory(fml, fd, i + 1, options.fit,suffix,qcdTFpars)
             histograms_pass_all[suffix][i] = {}
             histograms_fail_all[suffix][i] = {}
             for shape in shapes:
@@ -63,10 +72,10 @@ def main(options, args):
     fail_2d = {}
     for suffix in suffixes:
         for shape in shapes:
-            pass_2d[shape] = r.TH2F('%s_pass_2d' % shape, '%s_pass_2d' % shape, len(msd_binBoundaries) - 1,
+            pass_2d[shape] = r.TH2F('%s_pass_%s_2d' % (shape,suffix), '%s_pass_%s_2d' % (shape,suffix), len(msd_binBoundaries) - 1,
                                     array.array('d', msd_binBoundaries), len(pt_binBoundaries) - 1,
                                     array.array('d', pt_binBoundaries))
-            fail_2d[shape] = r.TH2F('%s_fail_2d' % shape, '%s_fail_2d' % shape, len(msd_binBoundaries) - 1,
+            fail_2d[shape] = r.TH2F('%s_fail_%s_2d' % (shape,suffix), '%s_fail_%s_2d' % (shape,suffix), len(msd_binBoundaries) - 1,
                                     array.array('d', msd_binBoundaries), len(pt_binBoundaries) - 1,
                                     array.array('d', pt_binBoundaries))
             for i in range(1, pass_2d[shape].GetNbinsX() + 1):
@@ -97,40 +106,74 @@ def main(options, args):
             if rhoVal < RHO_LO or rhoVal > RHO_HI:
                 ratio_2d_data_subtract.SetBinContent(i, j, 0)
 
-    ##  returns g1 = g1+g2, There is no TGraph::Add. 
-    def AddGraphs(g1,g2):
-        (x1,y1) = (r.Double(), r.Double())
-        (x2,y2) = (r.Double(), r.Double())
-        alpha = 1-0.6827
-        for ipt in range(0,g1.GetN()):
-            g1.GetPoint(ipt,x1,y1)
-            g2.GetPoint(ipt,x2,y2)
-            N = y1 +y2
-            L = 0
-            if N!=0:
-                L = r.Math.gamma_quantile(alpha/2,N,1.)
-            U = r.Math.gamma_quantile_c(alpha/2,N+1,1)
-            if options.isData:
-                g1.SetPointEYlow(ipt, (N-L))
-                g1.SetPointEYhigh(ipt, (U-N))
-            else:
-                g1.SetPointEYlow( ipt, N**0.5)
-                g1.SetPointEYhigh(ipt, N**0.5)
-            g1.SetPoint(ipt,x1,N)
-            g1.SetPointEXlow(ipt,0)
-            g1.SetPointEXhigh(ipt,0)
-    
+
+    qcdeff = 0.015
+    for suffix in suffixes:
+        rBestFit,pars = getFitPars(fml,options.fit,suffix,qcdeff)
+
+    ptCats = range(len(pt_binBoundaries)-1)
+    (histograms_pass_summed,histograms_fail_summed) =  sumShapes(shapes,suffixes,ptCats,histograms_pass_all,histograms_fail_all)
+    plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,'allcats_%s'%options.suffix.replace(":","_"),histograms_pass_summed,histograms_fail_summed)
+    if len(suffixes)>1:
+        for ipt in ptCats:
+            (histograms_pass_summed,histograms_fail_summed) =  sumShapes(shapes,suffixes,[ipt],histograms_pass_all,histograms_fail_all)
+            plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,'sumcat%s'%(ipt+1),histograms_pass_summed,histograms_fail_summed)
+        
+
+    # Plot TF poly
+    #includeQCDeff = True
+    #makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
+    #includeQCDeff = False
+    #makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
+
+    #print "sum ",histograms_pass_summed_list[0:4], histograms_pass_summed_list[9], histograms_pass_summed_list[4:9]
+ 
+##  returns g1 = g1+g2, There is no TGraph::Add. 
+def AddGraphs(g1,g2):
+    (x1,y1) = (r.Double(), r.Double())
+    (x2,y2) = (r.Double(), r.Double())
+    alpha = 1-0.6827
+    for ipt in range(0,g1.GetN()):
+        g1.GetPoint(ipt,x1,y1)
+        g2.GetPoint(ipt,x2,y2)
+        N = y1 +y2
+        ey1h = g1.GetEYhigh()[ipt]
+        ey2h = g2.GetEYhigh()[ipt]
+        ey1l = g1.GetEYlow()[ipt]
+        ey2l = g2.GetEYlow()[ipt]
+        if options.isData:
+            #g1.SetPointEYlow(ipt, (N-L))
+            #g1.SetPointEYhigh(ipt, (U-N))
+            g1.SetPointEYlow(ipt, (ey1l**2+ey2l**2)**0.5)     #Add errors from density
+            g1.SetPointEYhigh(ipt, (ey1h**2+ey2h**2)**0.5)
+        else:
+            g1.SetPointEYlow( ipt, N**0.5)
+            g1.SetPointEYhigh(ipt, N**0.5)
+        g1.SetPoint(ipt,x1,N)
+        g1.SetPointEXlow(ipt,0)
+        g1.SetPointEXhigh(ipt,0)
+ 
+### Sum all the shapes for all [suffixes] and [ptCats] in histograms_pass_all,histograms_fail_all
+def sumShapes(shapes,suffixes,ptCats,histograms_pass_all,histograms_fail_all): 
+    histograms_pass_summed = {}
+    histograms_fail_summed = {}
     #Sum all cats for each shapes, for each suffix
     for shape in shapes:
         suffix0 = suffixes[0]
-        if not shape in histograms_pass_all[suffix][0].keys(): continue
-        histograms_pass_summed[shape] = histograms_pass_all[suffix0][0][shape].Clone(shape + '_pass_sum')
+        pt0     = ptCats[0]
+        if not shape in histograms_pass_all[suffix0][pt0].keys(): continue
+        histograms_pass_summed[shape] = histograms_pass_all[suffix0][pt0][shape].Clone(shape + '_pass_sum')
         for suffix in suffixes:
-            for i in range( len(pt_binBoundaries)-1):
+            for i in  ptCats:
+                if i==pt0 and suffix==suffix0:
+                    print suffix,shape,i, histograms_pass_summed[shape].Integral()
+                    continue
                 if not shape in histograms_pass_all[suffix][i].keys(): continue
                 print suffix,shape,i, histograms_pass_summed[shape].Integral(), " + ", histograms_pass_all[suffix][i][shape].Integral()
                 if shape=='data':
+                    #print "before add data:",histograms_pass_summed[shape].Print()
                     AddGraphs(histograms_pass_summed[shape], histograms_pass_all[suffix][i][shape])
+                    #print "AFter add data:",histograms_pass_summed[shape].Print()
                 else:
                     histograms_pass_summed[shape].Add(histograms_pass_all[suffix][i][shape])
                 print "= ",histograms_pass_summed[shape].Integral()
@@ -140,16 +183,21 @@ def main(options, args):
 
     for shape in shapes:
         suffix0 = suffixes[0]
-        if not shape in histograms_fail_all[suffix][0].keys(): continue
-        histograms_fail_summed[shape] = histograms_fail_all[suffix0][0][shape].Clone(shape + '_fail_sum')
+        pt0     = ptCats[0]
+        if not shape in histograms_fail_all[suffix0][pt0].keys(): continue
+        histograms_fail_summed[shape] = histograms_fail_all[suffix0][pt0][shape].Clone(shape + '_fail_sum')
         for suffix in suffixes:
-            for i in range( len(pt_binBoundaries)-1):
+            for i in  ptCats:
+                if i==pt0 and suffix==suffix0:                    continue ##Avoid double counting
                 if not shape in histograms_fail_all[suffix][i].keys(): continue
                 if shape=='data':
                     AddGraphs(histograms_fail_summed[shape], histograms_fail_all[suffix][i][shape])
                 else:
                     histograms_fail_summed[shape].Add(histograms_fail_all[suffix][i][shape])
 
+    return (histograms_pass_summed,histograms_fail_summed)
+
+def plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,tag,histograms_pass_summed,histograms_fail_summed):
     ## sort histograms into bkg sig and data
     histograms_pass_summed_list = {"bkg":[],"sig":[]}
     histograms_fail_summed_list = {"bkg":[],"sig":[]}
@@ -170,25 +218,14 @@ def main(options, args):
             if shape in ['data']:
                 histograms_fail_summed_list['data']=histograms_fail_summed[shape]
  
-    qcdeff = 0.015
-    for suffix in suffixes:
-        rBestFit,pars = getFitPars(fml,options.fit,suffix,qcdeff)
-
-    # Plot TF poly
-    includeQCDeff = True
-    makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
-    includeQCDeff = False
-    makeTF(pars, ratio_2d_data_subtract,options.NR,options.NP,includeQCDeff)
-
-    #print "sum ",histograms_pass_summed_list[0:4], histograms_pass_summed_list[9], histograms_pass_summed_list[4:9]
 
     [histograms_pass_summed_list] = makeMLFitCanvas(histograms_pass_summed_list['bkg'], histograms_pass_summed_list['data'],
                                                     histograms_pass_summed_list['sig'], shapes,
-                                                    "pass_allcats_" + options.fit, options.odir, rBestFit,
+                                                    "pass_%s_"%tag + options.fit, options.odir, rBestFit,
                                                     options.sOverSb, options.splitS, options.ratio)
     [histograms_fail_summed_list] = makeMLFitCanvas(histograms_fail_summed_list['bkg'], histograms_fail_summed_list['data'],
                                                     histograms_fail_summed_list['sig'], shapes,
-                                                    "fail_allcats_" + options.fit, options.odir, rBestFit,
+                                                    "fail_%s_"%tag + options.fit, options.odir, rBestFit,
                                                     options.sOverSb, options.splitS, options.ratio)
 
 def getFitPars(fml,fitType,suffix,qcdeff=0.01):
@@ -206,6 +243,9 @@ def getFitPars(fml,fitType,suffix,qcdeff=0.01):
             lParams.append("p1r0_"+suffix)  
             lParams.append("p1r1_"+suffix)  
             lParams.append("p1r2_"+suffix)
+            lParams.append("p2r0_"+suffix)  
+            lParams.append("p2r1_"+suffix)  
+            lParams.append("p2r2_"+suffix)
         else:
             lParams.append("p0r0")
             lParams.append("p0r1")  
@@ -230,7 +270,7 @@ def getFitPars(fml,fitType,suffix,qcdeff=0.01):
 
     return (rBestFit,pars)
 
-def plotCategory(fml, fd, index, fittype,suffix=""):
+def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={}):
     shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
     bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
     sigshapes=['hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
@@ -244,9 +284,13 @@ def plotCategory(fml, fd, index, fittype,suffix=""):
             rBestFit = rfr.floatParsFinal().find('r').getVal()
         else:
             rBestFit = 0
-        
-    pass_cat_name = "_".join(filter(None,["cat%i"%index,suffix,"pass","cat%i"%index]))
-    fail_cat_name = "_".join(filter(None,["cat%i"%index,suffix,"fail","cat%i"%index]))
+       
+    #if suffix=='2016'  : ch = 'ch1' 
+    #elif suffix=='2017': ch = 'ch2' 
+    #elif suffix=='2018': ch = 'ch3' 
+    ch=''
+    pass_cat_name = "_".join(filter(None,[ch,"cat%i"%index,suffix,"pass","cat%i"%index]))
+    fail_cat_name = "_".join(filter(None,[ch,"cat%i"%index,suffix,"fail","cat%i"%index]))
 
     for i, ish in enumerate(bkgshapes+sigshapes):
         if i < 4:
@@ -310,11 +354,42 @@ def plotCategory(fml, fd, index, fittype,suffix=""):
             if histograms_pass[i] !=None: sig_pass.append(histograms_pass[i])
 
     [histograms_fail] = makeMLFitCanvas(bkg_fail, data_fail, sig_fail, shapes,
-                                        "fail_cat" + str(index) + "_" + fittype, options.odir, rBestFit,
+                                        "fail_cat" + str(index) + "_%s_"%suffix + fittype, options.odir, rBestFit,
                                         options.sOverSb, options.splitS, options.ratio)
     [histograms_pass] = makeMLFitCanvas(bkg_pass, data_pass, sig_pass, shapes,
-                                        "pass_cat" + str(index) + "_" + fittype, options.odir, rBestFit,
+                                        "pass_cat" + str(index) + "_%s_"%suffix + fittype, options.odir, rBestFit,
                                         options.sOverSb, options.splitS, options.ratio)
+    if qcdTFpars!={}:
+        bkg_pass_qcdfail    = copy.deepcopy(bkg_pass)
+        ## qcd position is 3
+        hqcd = bkg_fail[3]
+        f2params    = array.array('d', qcdTFpars['pars'])
+        npar        = len(f2params)
+        boundaries={}
+        boundaries['RHO_LO']=-6.
+        boundaries['RHO_HI']=-2.1
+        boundaries['PT_LO' ]= 450.
+        boundaries['PT_HI' ]= 1200.
+        if   index == 1 : pt = 465.0
+        elif index == 2 : pt = 515.0
+        elif index == 3 : pt = 565.0
+        elif index == 4 : pt = 622.5 
+        elif index == 5 : pt = 712.5
+        elif index == 6 : pt = 920.0
+
+        f_bernstein = bernstein.genBernsteinTF1D(qcdTFpars['n_rho'],qcdTFpars['n_pT'],pt,boundaries,IsMsdPt=True,qcdeff=True,rescale=True)
+        tf2   = r.TF1("f2", f_bernstein, 40,201,npar)
+        tf2.SetParameters(f2params)
+        for ibin in range(1,hqcd.GetNbinsX()+1):
+            mass   = hqcd.GetBinCenter(ibin)
+            qcdeff = tf2.Eval(mass)
+            hqcd.SetBinContent(ibin,  qcdeff * hqcd.GetBinContent(ibin))
+        
+        bkg_pass_qcdfail[3] = hqcd
+        makeMLFitCanvas(bkg_pass_qcdfail, data_pass, sig_pass, shapes,
+                                        "failTF_cat" + str(index) + "_%s_"%suffix + fittype, options.odir, rBestFit,
+                                        options.sOverSb, options.splitS, options.ratio,qcdTFpars)
+
 
     return (histograms_pass, histograms_fail)
 
@@ -339,7 +414,7 @@ def weightBySOverSpB(bkgs, data, hsigs, tag):
     return [bkgs, data, hsigs, weight]
 
 
-def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOverSb=False, splitS=True, ratio=False):
+def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOverSb=False, splitS=True, ratio=False,qcdTFpars={}):
     weight = 1
     if sOverSb:
         [bkgs, data, hsigs, weight] = weightBySOverSpB(bkgs, data, hsigs, tag)
@@ -359,6 +434,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     h = r.TH1F("h", "AK8 m_{SD} (GeV);", 23, 40, 201)
     htot = bkgs[0].Clone("htot%s" % tag)
     hqcd = bkgs[3].Clone("hqcd%s" % tag)
+
     hqcd.Add(bkgs[2])
     htot.SetLineColor(r.kBlack)
     htot.SetLineStyle(1)
@@ -498,11 +574,11 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
 
     htot.Draw('')
     if 'cat1' in tag:
-        htot.GetXaxis().SetRangeUser(40,201 - 7*5)
+        htot.GetXaxis().SetRangeUser(min(msd_binBoundaries),max(msd_binBoundaries) - 7*5)
     elif 'cat2' in tag:
-        htot.GetXaxis().SetRangeUser(40,201 - 7*3)
+        htot.GetXaxis().SetRangeUser(min(msd_binBoundaries),max(msd_binBoundaries) - 7*3)
     else:
-        htot.GetXaxis().SetRangeUser(40,201)
+        htot.GetXaxis().SetRangeUser(min(msd_binBoundaries),max(msd_binBoundaries))
         
     htot_line = htot.Clone('htot_line%s' % tag)
     htot_line.SetFillStyle(0)
@@ -704,11 +780,11 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     iOneWithErrors.SetLineWidth(2)
     iOneWithErrors.Draw('')
     if 'cat1' in tag:
-        iOneWithErrors.GetXaxis().SetRangeUser(40,201 - 7*5)
-    elif 'cat2' in tag:
-        iOneWithErrors.GetXaxis().SetRangeUser(40,201 - 7*3)
-    else:
-        iOneWithErrors.GetXaxis().SetRangeUser(40,201)
+        iOneWithErrors.GetXaxis().SetRangeUser(min(msd_binBoundaries),max(msd_binBoundaries) - 7*5)
+    elif 'cat2' in tag:                                                                     
+        iOneWithErrors.GetXaxis().SetRangeUser(min(msd_binBoundaries),max(msd_binBoundaries) - 7*3)
+    else:                                                                                   
+        iOneWithErrors.GetXaxis().SetRangeUser(min(msd_binBoundaries),max(msd_binBoundaries))
     iOneWithErrorsLine = iOneWithErrors.Clone('iOneWithErrorsLine%s' % tag)
     iOneWithErrorsLine.SetFillStyle(0)
 
@@ -795,7 +871,7 @@ def makeTF(pars, ratio,n_rho,n_pT,Include_qcdeff):
     print boundaries
   
     msd_pT = True 
-    fun_mass_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
+    fun_mass_pT =  bernstein.genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
     f2 = r.TF2("f2", fun_mass_pT,  ratio.GetXaxis().GetXmin(),ratio.GetXaxis().GetXmax(),
                                    ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
     f2.SetParameters(f2params)
@@ -931,7 +1007,7 @@ def makeTF(pars, ratio,n_rho,n_pT,Include_qcdeff):
             ratiorhograph.SetPoint(N,x,y,z)
 
     msd_pT = False  #switch to use msd-pT /rho-pT
-    fun_rho_pT =  genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
+    fun_rho_pT =  bernstein.genBernsteinTF(n_rho,n_pT,boundaries,msd_pT,Include_qcdeff) 
     f2rho = r.TF2("f2",fun_rho_pT,-6,-2.1,ratio.GetYaxis().GetXmin(),ratio.GetYaxis().GetXmax(),npar)
     f2rho.SetParameters(f2params)
     f2rhograph = r.TGraph2D()
