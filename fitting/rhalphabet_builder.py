@@ -8,11 +8,15 @@ import sys
 import time
 import array
 import re 
+import numpy as np
 #r.gSystem.Load("~/Dropbox/RazorAnalyzer/python/lib/libRazorRun2.so")
 r.gSystem.Load(os.getenv('CMSSW_BASE')+'/lib/'+os.getenv('SCRAM_ARCH')+'/libHiggsAnalysisCombinedLimit.so')
 # r.gInterpreter.GenerateDictionary("std::pair<std::string, RooDataHist*>", "map;string;RooDataHist.h")
 # r.gInterpreter.GenerateDictionary("std::map<std::string, RooDataHist*>", "map;string;RooDataHist.h")
 
+sys.path.insert(0, '/uscms_data/d3/ncsmith/dazsle/sl7combine/CMSSW_10_2_13/src/rhalphalib')
+import rhalphalib as rl
+rl.util.install_roofit_helpers()
 
 # including other directories
 import tools as tools
@@ -140,6 +144,7 @@ class RhalphabetBuilder():
 
         ## qcdTFpars = {'n_rho':n_rho,'n_pT':n_pT,'pars':[p0r0,...]}
         if not qcdTFpars =={}:
+            self._qcd_deco_output_path = "{}/qcdfit_decorrelated.root".format(out_dir)
             f2params    = array.array('d', qcdTFpars['pars'])
             npar        = len(f2params)
             boundaries={}
@@ -251,6 +256,78 @@ class RhalphabetBuilder():
             else:
                 wbase[cat].writeToFile(self._output_path, False)
             icat += 1
+
+    def createdeco(self):
+        qcdralpha = self._qcdTFpars['fitpath']
+        qcdfit    = r.TFile.Open(qcdralpha).Get("w_pass_cat1").obj("fitresult_simPdf_s_data_obs")
+
+        year = self._suffix.replace("_",'') 
+        fout = r.TFile.Open(self._qcd_deco_output_path, "recreate")
+        fralphabase = r.TFile.Open(self._rhalphabet_output_path, 'READ')
+        ws = r.RooWorkspace("qcdfit_deco_%s" % year)
+
+        def getconst(name):
+            p = qcdfit.constPars().find(name)
+            if p == None:
+                raise ValueError(name)
+            return p.getVal()
+
+        ptbins = np.array([450, 500, 550, 600, 675, 800, 1200])
+        npt = len(ptbins) - 1
+        msdbins = np.linspace(40, 201, 24)
+        msd = rl.Observable('x', msdbins)
+    
+        # here we derive these all at once with 2D array
+        ptpts, msdpts = np.meshgrid(ptbins[:-1] + 0.3 * np.diff(ptbins), msdbins[:-1] + 0.5 * np.diff(msdbins), indexing='ij')
+        rhopts = 2*np.log(msdpts/ptpts)
+        ptscaled = (ptpts - 450.) / (1200. - 450.)
+        rhoscaled = (rhopts - (-6)) / ((-2.1) - (-6))
+        validbins = (rhoscaled >= 0) & (rhoscaled <= 1)
+        validbins[:, 0] = False  # cut msd 40-47
+        # validbins[:, 10:13] = False  # blind
+        rhoscaled[~validbins] = 1  # we will mask these out later
+    
+        tf_MCtempl = rl.BernsteinPoly("qcdfit_tf_%s" % year, (2, 2), ['pt', 'rho'], limits=(-10, 10))
+        param_names = ['p%dr%d_%s' % (ipt, irho, year) for ipt in range(3) for irho in range(3)]
+        decoVector = rl.DecorrelatedNuisanceVector.fromRooFitResult(tf_MCtempl.name + '_deco', qcdfit, param_names)
+        tf_MCtempl.parameters = decoVector.correlated_params.reshape(tf_MCtempl.parameters.shape)
+        qcdeff = getconst("qcdeff_%s" % year)
+        tf_MCtempl_params_final = tf_MCtempl(ptscaled, rhoscaled)
+    
+        tf_dataResidual = rl.BernsteinPoly("dataResidual_%s" % year, (2, 2), ['pt', 'rho'], limits=(-10, 10), coefficient_transform=None)
+        tf_dataResidual_params = tf_dataResidual(ptscaled, rhoscaled)
+        tf_params = qcdeff * tf_MCtempl_params_final * tf_dataResidual_params
+
+        fout.cd()
+        for ipt in range(npt):
+            wbase = fralphabase.Get('w_fail_cat%d' % (ipt + 1, ))
+            qcdinV = np.full(msd.nbins, None)
+            qcduncV = np.full(msd.nbins, None)
+            qcdparamV = np.full(msd.nbins, None)
+            for imsd in range(msd.nbins):
+                qcdin_name = "qcd_fail_cat{ptcat}_Bin{msdbin}_In_{year}".format(ptcat=ipt + 1, msdbin=imsd + 1, year=year)
+                qcdunc_name = "qcd_fail_cat{ptcat}_Bin{msdbin}_Unc_{year}".format(ptcat=ipt + 1, msdbin=imsd + 1, year=year)
+                qcdparam_name = "qcd_fail_cat{ptcat}_Bin{msdbin}_{year}".format(ptcat=ipt + 1, msdbin=imsd + 1, year=year)
+                qcdin = wbase.var(qcdin_name).getVal()
+                qcdunc = wbase.var(qcdunc_name).getVal()
+                # already in card
+                # card.write("%s flatParam\n" % qcdparam_name)
+                valid = validbins[ipt, imsd]
+                if not valid and qcdin > 0.:
+                    print("nonzero qcdin for bin %d,%d: %d" % (ipt, imsd, qcdin))
+                qcdinV[imsd] = rl.IndependentParameter(qcdin_name, qcdin, constant=True)
+                qcduncV[imsd] = rl.IndependentParameter(qcdunc_name, qcdunc, constant=True)
+                if valid:
+                    qcdparamV[imsd] = rl.IndependentParameter(qcdparam_name, 0., lo=-50, hi=50)
+                else:
+                    qcdparamV[imsd] = rl.IndependentParameter(qcdparam_name, 0., constant=True)
+            
+            scaledparams = qcdinV * (qcduncV**qcdparamV)
+            fail_qcd = rl.ParametericSample('qcd_fail_cat%d_%s' % (ipt + 1, year), rl.Sample.BACKGROUND, msd, scaledparams)
+            fail_qcd.renderRoofit(ws)
+            pass_qcd = rl.TransferFactorSample('qcd_pass_cat%d_%s' % (ipt + 1, year), rl.Sample.BACKGROUND, tf_params[ipt, :], fail_qcd)
+            pass_qcd.renderRoofit(ws)
+        ws.Write()
 
     def prefit(self):
 

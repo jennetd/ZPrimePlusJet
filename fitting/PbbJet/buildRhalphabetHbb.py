@@ -155,11 +155,14 @@ SF2016={
 #p1r2_2018 =  -0.6247 +/- 0.1706 
 
 qcdTFpars_2017={'n_rho':2, 'n_pT':2,
-            'pars':[ 0.0151 , -1.0359, 2.3953 , 0.7093 , 1.0947 , 1.6930 , -0.1745, 0.1980 , 1.4567 , -0.0427]}
+            'pars':[ 0.0151 , -1.0359, 2.3953 , 0.7093 , 1.0947 , 1.6930 , -0.1745, 0.1980 , 1.4567 , -0.0427],
+            'fitpath':'ddb_Jun24_v2/ddb_M2_full/TF22_MC_w2Fit/rhalphabase.root'}
 qcdTFpars_2016={'n_rho':2, 'n_pT':2,
-            'pars':[ 0.0144,-1.0856,2.4440 ,0.6407 ,1.3394 ,1.8660 ,-0.4000,0.1670 ,1.7287 ,-0.1297]} ## v2
+            'pars':[ 0.0144,-1.0856,2.4440 ,0.6407 ,1.3394 ,1.8660 ,-0.4000,0.1670 ,1.7287 ,-0.1297], ## v2
+            'fitpath':'ddb2016_Jun24_v3/ddb_M2_full/TF22_MC_w2Fitv2/rhalphabase.root'}
 qcdTFpars_2018={'n_rho':2, 'n_pT':2,
-            'pars':[0.0139,-0.9680,2.3695 ,0.6775 ,1.0759 ,1.4427 ,0.1826 ,0.2077 ,1.8612 ,-0.8737]}
+            'pars':[0.0139,-0.9680,2.3695 ,0.6775 ,1.0759 ,1.4427 ,0.1826 ,0.2077 ,1.8612 ,-0.8737],
+            'fitpath':'ddb2018_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/rhalphabase.root'}
 
 #qcdTFpars_2016={'n_rho':2, 'n_pT':1,
 #            'pars':[ 0.0144, -0.7777, 2.3120 , 0.6491 , 1.3179 , 2.1454 , -1.2233]}
@@ -212,6 +215,8 @@ def main(options, args):
         rhalphabuilder.prefit()
     elif options.loadfit is not None:
         rhalphabuilder.loadfit(options.loadfit)
+    if not options.pseudo:
+        rhalphabuilder.createdeco()
         
 
 ##-------------------------------------------------------------------------------------
