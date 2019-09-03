@@ -164,24 +164,24 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     processString = 'process'
     processNumberString = 'process'
     rateString = 'rate'
-    lumiString = 'lumi%s\tlnN'%options.suffix
-    hqq125ptString = 'hqq125pt\tlnN'
-    veffString = 'veff%s\tlnN'%options.suffix
-    bbeffString = 'bbeff%s\tlnN'%options.suffix
-    znormEWString = 'znormEW\tlnN'
-    znormQString = 'znormQ\tlnN'    
-    wznormEWString = 'wznormEW\tlnN'
+    lumiString = 'lumi_13TeV%s\tlnN'%options.suffix
+    hqq125ptString = 'CMS_gghbb_hqq125pt\tlnN'
+    veffString = 'CMS_gghbb_veff%s\tlnN'%options.suffix
+    bbeffString = 'CMS_scale_bb%s\tlnN'%options.suffix
+    znormEWString = 'CMS_gghbb_znormEW\tlnN'
+    znormQString = 'CMS_gghbb_znormQ\tlnN'    
+    wznormEWString = 'CMS_gghbb_wznormEW\tlnN'
     #muidString = 'muid\tshape'   
     #muisoString = 'muiso\tshape'   
     #mutriggerString = 'mutrigger\tshape'  
     #jesString = 'JES\tshape'    
     #jerString = 'JER\tshape'
-    jesString = 'JES%s\tlnN'%options.suffix
-    jerString = 'JER%s\tlnN'%options.suffix
-    puString = 'Pu%s\tlnN'%options.suffix
-    muidString = 'muid%s\tlnN'%options.suffix
-    muisoString = 'muiso%s\tlnN'%options.suffix   
-    mutriggerString = 'mutrigger%s\tlnN'%options.suffix  
+    jesString = 'CMS_scale_j%s\tlnN'%options.suffix
+    jerString = 'CMS_res_j%s\tlnN'%options.suffix
+    puString = 'CMS_PU%s\tlnN'%options.suffix
+    muidString = 'CMS_eff_m_id%s\tlnN'%options.suffix
+    muisoString = 'CMS_eff_m_iso%s\tlnN'%options.suffix   
+    mutriggerString = 'CMS_eff_m_trg%s\tlnN'%options.suffix  
 
     mcStatErrString = {}
     for proc in sigs+bkgs:
@@ -284,10 +284,10 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     tqqeff = histoDict['tqq_pass'].Integral()/(histoDict['tqq_pass'].Integral()+histoDict['tqq_fail'].Integral())
 
     
-    datacard+='tqqpassmuonCR%snorm rateParam pass_muonCR tqq (@0*@1) tqqnormSF_%s,tqqeffSF_%s\n'%(options.year,options.year,options.year) + \
-        'tqqfailmuonCR%snorm rateParam fail_muonCR tqq (@0*(1.0-@1*%.4f)/(1.0-%.4f)) tqqnormSF_%s,tqqeffSF_%s\n'%(options.year,tqqeff,tqqeff,options.year,options.year) + \
-        'tqqnormSF_%s extArg 1.0 [0.0,10.0]\n'%options.year + \
-        'tqqeffSF_%s extArg 1.0 [0.0,10.0]\n'%options.year
+    datacard+='tqqpassmuonCR%snorm rateParam pass_muonCR tqq (@0*@1) CMS_gghbb_tqqnormSF_%s,CMS_gghbb_tqqeffSF_%s\n'%(options.year,options.year,options.year) + \
+        'tqqfailmuonCR%snorm rateParam fail_muonCR tqq (@0*(1.0-@1*%.4f)/(1.0-%.4f)) CMS_gghbb_tqqnormSF_%s,CMS_gghbb_tqqeffSF_%s\n'%(options.year,tqqeff,tqqeff,options.year,options.year) + \
+        'CMS_gghbb_tqqnormSF_%s extArg 1.0 [0.0,10.0]\n'%options.year + \
+        'CMS_gghbb_tqqeffSF_%s extArg 1.0 [0.0,10.0]\n'%options.year
     
     #datacard+='* autoMCStats 0 0 1\n'
     txtfile = open(options.odir+'/'+txtfileName,'w')

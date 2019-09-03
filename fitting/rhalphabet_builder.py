@@ -223,14 +223,14 @@ class RhalphabetBuilder():
 
             # validation
             self._outfile_validation.cd()
-            hist_up.SetName('%s_%s_%s'%(proc,cat,'hqq125ptShapeUp'))
+            hist_up.SetName('%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeUp'))
             hist_up.Write()
-            hist_down.SetName('%s_%s_%s'%(proc,cat,'hqq125ptShapeDown'))
+            hist_down.SetName('%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeDown'))
             hist_down.Write()
 
 
-            hptpdfUp_s[cat] = r.RooDataHist('%s_%s_%s'%(proc,cat,'hqq125ptShapeUp'), '%s_%s_%s'%(proc,cat,'hqq125ptShapeUp'), r.RooArgList(x), hist_up)
-            hptpdfDown_s[cat] = r.RooDataHist('%s_%s_%s'%(proc,cat,'hqq125ptShapeDown'), '%s_%s_%s'%(proc,cat,'hqq125ptShapeDown'), r.RooArgList(x), hist_down)
+            hptpdfUp_s[cat] = r.RooDataHist('%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeUp'), '%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeUp'), r.RooArgList(x), hist_up)
+            hptpdfDown_s[cat] = r.RooDataHist('%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeDown'), '%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeDown'), r.RooArgList(x), hist_down)
 
             getattr(wbase[cat], 'import')(hptpdfUp_s[cat], r.RooFit.RecycleConflictNodes())
             getattr(wbase[cat], 'import')(hptpdfDown_s[cat], r.RooFit.RecycleConflictNodes())
@@ -297,6 +297,9 @@ class RhalphabetBuilder():
         tf_dataResidual = rl.BernsteinPoly("dataResidual_%s" % year, (2, 2), ['pt', 'rho'], limits=(-10, 10), coefficient_transform=None)
         tf_dataResidual_params = tf_dataResidual(ptscaled, rhoscaled)
         tf_params = qcdeff * tf_MCtempl_params_final * tf_dataResidual_params
+
+        for (i, j), param in np.ndenumerate(tf_dataResidual.parameters):
+            param.name = 'p%dr%d_%s' % (i, j, year)
 
         fout.cd()
         for ipt in range(npt):
@@ -1404,8 +1407,8 @@ class RhalphabetBuilder():
                     hmatchedsys_smear[0].Add(tmph_mass_unmatched)
                     hmatchedsys_smear[1].Add(tmph_mass_unmatched)
                 hmatched_new_central.SetName(import_object.GetName())
-                hmatchedsys_shift[0].SetName(import_object.GetName() + "_scale%sUp"%self._suffix)
-                hmatchedsys_shift[1].SetName(import_object.GetName() + "_scale%sDown"%self._suffix)
+                hmatchedsys_shift[0].SetName(import_object.GetName() + "_CMS_gghbb_scale%sUp"%self._suffix)
+                hmatchedsys_shift[1].SetName(import_object.GetName() + "_CMS_gghbb_scale%sDown"%self._suffix)
                 #print "scale name = ", import_object.GetName() + "_scale%s%sUp"%(cat,self._suffix)
                 #hmatchedsys_shift[0].SetName(import_object.GetName() + "_scale%s%sUp"%(cat,self._suffix))
                 #hmatchedsys_shift[1].SetName(import_object.GetName() + "_scale%s%sDown"%(cat,self._suffix))
@@ -1417,8 +1420,8 @@ class RhalphabetBuilder():
                 print "Final smear mean up= ",hmatchedsys_smear[0].GetMean(),' smeared by ', res_shift_unc
                 print "Final smear mean up max bin center= ",hmatchedsys_smear[0].GetBinCenter(hmatchedsys_smear[0].GetMaximumBin())
 
-                hmatchedsys_smear[0].SetName(import_object.GetName() + "_smear%sUp"%self._suffix)
-                hmatchedsys_smear[1].SetName(import_object.GetName() + "_smear%sDown"%self._suffix)
+                hmatchedsys_smear[0].SetName(import_object.GetName() + "_CMS_gghbb_smear%sUp"%self._suffix)
+                hmatchedsys_smear[1].SetName(import_object.GetName() + "_CMS_gghbb_smear%sDown"%self._suffix)
 
 
 

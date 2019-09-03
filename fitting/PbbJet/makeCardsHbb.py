@@ -348,7 +348,7 @@ def main(options,args):
         for j,l in enumerate(linel):
             #if '#' == l[0]:continue
             if 'shapes qcd' in l:
-                newline = l+options.suffix
+                newline = l.replace("YEAR",options.suffix)+options.suffix
                 if options.multi:
                     newline = newline.replace('qcd','qcd_multi')
             elif 'qcd' in l:

@@ -4,9 +4,9 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 ----------------------------------------------------------------------------------------------------------------------------------
 shapes * fail_CATX base.root w_fail_CATX:$PROCESS_fail_CATX w_fail_CATX:$PROCESS_fail_CATX_$SYSTEMATIC
-shapes qcd fail_CATX rhalphabase.root w_fail_CATX:$PROCESS_fail_CATX
+shapes qcd fail_CATX qcdfit_decorrelated.root qcdfit_decoYEAR:$PROCESS_fail_CATX
 shapes * pass_CATX base.root w_pass_CATX:$PROCESS_pass_CATX w_pass_CATX:$PROCESS_pass_CATX_$SYSTEMATIC
-shapes qcd pass_CATX rhalphabase.root w_pass_CATX:$PROCESS_pass_CATX
+shapes qcd pass_CATX qcdfit_decorrelated.root qcdfit_decoYEAR:$PROCESS_pass_CATX
 ----------------------------------------------------------------------------------------------------------------------------------
 bin pass_CATX fail_CATX
 observation -1.0 -1.0 
@@ -19,7 +19,7 @@ rate -1 -1 -1 -1 -1 -1 -1 1.0 -1 -1 -1 -1 -1 -1 -1 -1 1.0 -1
 lumi_13TeV lnN 1.025 1.025 1.025 1.025 1.025 1.025 1.025 - - 1.025 1.025 1.025 1.025 1.025 1.025 1.025 - -
 CMS_gghbb_hqq125pt lnN - - 1.30 - - - - - - - - 1.30 - - - - - -
 CMS_gghbb_hqq125ptShape shape - - 1 - - - - - - - - 1 - - - - - -
-CMS_veff lnN 1.2 1.2 1.2 1.2 1.2 1.2 1.2 - - 1.2 1.2 1.2 1.2 1.2 1.2 1.2 - -
+CMS_gghbb_veff lnN 1.2 1.2 1.2 1.2 1.2 1.2 1.2 - - 1.2 1.2 1.2 1.2 1.2 1.2 1.2 - -
 CMS_scale_bb lnN 1.1 1.1 1.1 1.1 1.1 - - - - 1.1 1.1 1.1 1.1 1.1 - - - -
 CMS_gghbb_znormQ lnN - - - - - 1.1 1.1 - - - - - - - 1.1 1.1 - -
 CMS_gghbb_znormEW lnN - - - - - 1.05 1.05 - - - - - - - 1.05 1.05 - -
