@@ -239,16 +239,16 @@ def main(options,args):
                         mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0
                         
 
-        jesString = 'JES%s lnN'%options.suffix
-        jerString = 'JER%s lnN'%options.suffix
-        puString = 'Pu%s lnN'%options.suffix
-        bbString = 'bbeff%s lnN'%options.suffix
-        hqq125ptString = 'hqq125pt lnN'
-        weffString = 'weff%s lnN'%options.suffix
-        vString = 'veff%s lnN'%options.suffix
+        jesString = 'CMS_scale_j%s lnN'%options.suffix
+        jerString = 'CMS_res_j%s lnN'%options.suffix
+        puString = 'CMS_PU%s lnN'%options.suffix
+        bbString = 'CMS_scale_bb%s lnN'%options.suffix
+        hqq125ptString = 'CMS_gghbb_hqq125pt lnN'
+        weffString = 'weff%s lnN'%options.suffix            ### this is not used ##
+        vString = 'CMS_gghbb_veff%s lnN'%options.suffix
         ### Normal scale/scale pt
-        scaleptString = 'scalept%s shape'%options.suffix
-        scaleString   = 'scale%s shape'%options.suffix
+        scaleptString = 'CMS_gghbb_scalept%s shape'%options.suffix
+        scaleString   = 'CMS_gghbb_scale%s shape'%options.suffix
         ### scale(pt) pass/fail 
         #scalepassptString = 'scalepasspt%s shape'%options.suffix
         #scalefailptString = 'scalefailpt%s shape'%options.suffix
@@ -262,7 +262,7 @@ def main(options,args):
         #else:
         #    scaleString   = 'scale%s shape'%(options.suffix)
         mcStatStrings = {}
-        lumiString = 'lumi%s lnN'%options.suffix
+        lumiString = 'lumi_13TeV%s lnN'%options.suffix
         mcStatGroupString = 'mcstat group ='
         mcstatsuffix  = options.suffix.lower().strip("_")
         qcdGroupString = 'qcd group = '
@@ -358,13 +358,13 @@ def main(options,args):
                     newline = l
             elif 'lumi' in l:
                 newline = lumiString
-            elif 'JES' in l:
+            elif 'CMS_scale_j' in l:
                 newline = jesString
-            elif 'JER' in l:
+            elif 'CMS_res_j' in l:
                 newline = jerString
-            elif 'Pu' in l:
+            elif 'CMS_PU' in l:
                 newline = puString
-            elif 'bbeff' in l:
+            elif 'CMS_scale_bb' in l:
                 newline = bbString
             #elif 'weff' in l:
             #    newline = weffString
@@ -378,7 +378,7 @@ def main(options,args):
                     newline = l.replace("hqq125ptShape","#hqq125ptShape")
             elif 'veff' in l:
                 newline = vString
-            elif 'scale' in l  and 'pt' in l and i>1:
+            elif 'CMS_gghbb_scale' in l  and 'pt' in l and i>1:
                 #newline = scaleptString.replace("scalept","scalept_cat%i"%i)
                 newline = scaleptString
                 #if 'pass' in l:
@@ -390,7 +390,7 @@ def main(options,args):
                 newline = l.replace('smear','smear'+options.suffix)
             elif 'trigger' in l:
                 newline = l.replace('trigger','trigger'+options.suffix)
-            elif 'scale' in l and not 'pt' in l:
+            elif 'CMS_gghbb_scale' in l and not 'pt' in l:
                 newline = scaleString
                 #if 'pass' in l:
                 #    newline = scalepassString
