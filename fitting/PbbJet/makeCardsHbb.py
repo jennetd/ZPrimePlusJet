@@ -388,6 +388,8 @@ def main(options,args):
                 pass
             elif 'smear' in l:
                 newline = l.replace('smear','smear'+options.suffix)
+            elif 'trigger' in l:
+                newline = l.replace('trigger','trigger'+options.suffix)
             elif 'scale' in l and not 'pt' in l:
                 newline = scaleString
                 #if 'pass' in l:
