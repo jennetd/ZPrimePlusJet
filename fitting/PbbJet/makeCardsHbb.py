@@ -348,7 +348,11 @@ def main(options,args):
         for j,l in enumerate(linel):
             #if '#' == l[0]:continue
             if 'shapes qcd' in l:
-                newline = l.replace("YEAR",options.suffix)+options.suffix
+                if options.addqcdCovMat:
+                    l = l.replace("rhalphabase","qcdfit_decorrelated")
+                    l = l.replace("w_fail_CATX","qcdfit_deco%s"%options.suffix)
+                    l = l.replace("w_pass_CATX","qcdfit_deco%s"%options.suffix)
+                newline = l+options.suffix
                 if options.multi:
                     newline = newline.replace('qcd','qcd_multi')
             elif 'qcd' in l:
