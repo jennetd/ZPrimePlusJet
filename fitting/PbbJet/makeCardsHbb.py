@@ -461,22 +461,13 @@ def main(options,args):
         for flatPar in flatPars:
             dctmp.write('%s%s flatParam \n'%(flatPar,options.suffix))
         if options.addqcdCovMat:
-            if options.year == '2017':                qcdfit ='ddb_Jun24_v2/ddb_M2_full/TF22_MC_w2Fit/'
-            #elif options.year =='2016':              qcdfit ='ddb2016_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/'
-            elif options.year =='2016':               qcdfit ='ddb2016_Jun24_v3/ddb_M2_full/TF22_MC_w2Fitv2/'
-            elif options.year =='2018':               qcdfit ='ddb2018_Jun24_v3/ddb_M2_full/TF22_MC_w2Fit/'
-            if options.qcdfitdir :
-                qcdfit = qcdfitdir
-            #with open('%s/qcdTF_MCstat_cat%i.txt'%(qcdfit,i)) as qcdtxt:
-            with open('%s/qcdTF_MC_cov_cat%i.txt'%(qcdfit,i)) as qcdtxt:
-                for qcdline in qcdtxt:
-                    qcdline = qcdline.split()
-                    qcdline[2] = str(float(qcdline[2])*1000)     ### rescaled qcdMC eff
-                    qcdline[3] = str(float(qcdline[3])*1000)     ### rescaled qcdMC eff unc.
-                    dctmp.write(" ".join(qcdline)+'\n')
-                    #qcdeffGroupString += qcdline.split()[0] +' '
-                    qcdeffGroupString += qcdline[0] +' '
-                
+            qcdfit_deco = r.TFile.Open(options.odir+'qcdfit_decorrelated.root')
+            ws          = qcdfit_deco.Get("qcdfit_deco_%s"%options.year)
+            decoVars    = ws.allVars().selectByName("qcdfit_tf_%s_deco*"%options.year)
+            #decoVars.Print()
+            for i in range(0,decoVars.getSize()):
+                qcdeffGroupString += "qcdfit_tf_%s_deco%s "%(options.year,i)
+                dctmp.write("qcdfit_tf_%s_deco%s param 0 1"%(options.year,i)+'\n')
 
         dctmp.write(mcStatGroupString + "\n")
         dctmp.write(qcdGroupString + "\n")
