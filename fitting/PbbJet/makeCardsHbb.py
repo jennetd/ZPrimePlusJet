@@ -242,7 +242,7 @@ def main(options,args):
         jesString = 'CMS_scale_j%s lnN'%options.suffix
         jerString = 'CMS_res_j%s lnN'%options.suffix
         puString = 'CMS_PU%s lnN'%options.suffix
-        bbString = 'CMS_scale_bb%s lnN'%options.suffix
+        bbString = 'CMS_eff_bb%s lnN'%options.suffix
         hqq125ptString = 'CMS_gghbb_hqq125pt lnN'
         weffString = 'weff%s lnN'%options.suffix            ### this is not used ##
         vString = 'CMS_gghbb_veff%s lnN'%options.suffix
@@ -262,7 +262,10 @@ def main(options,args):
         #else:
         #    scaleString   = 'scale%s shape'%(options.suffix)
         mcStatStrings = {}
-        lumiString = 'lumi_13TeV%s lnN'%options.suffix
+        if options.year in ['2017','2018']:
+            lumiString = 'lumi_13TeV%s lnN'%options.suffix
+        else:
+            lumiString = 'lumi%s lnN'%options.suffix
         mcStatGroupString = 'mcstat group ='
         mcstatsuffix  = options.suffix.lower().strip("_")
         qcdGroupString = 'qcd group = '
@@ -368,7 +371,7 @@ def main(options,args):
                 newline = jerString
             elif 'CMS_PU' in l:
                 newline = puString
-            elif 'CMS_scale_bb' in l:
+            elif 'CMS_eff_bb' in l:
                 newline = bbString
             #elif 'weff' in l:
             #    newline = weffString
