@@ -12,13 +12,13 @@ bin pass_CATX fail_CATX
 observation -1.0 -1.0 
 ----------------------------------------------------------------------------------------------------------------------------------
 bin pass_CATX pass_CATX pass_CATX pass_CATX pass_CATX pass_CATX pass_CATX pass_CATX pass_CATX fail_CATX fail_CATX fail_CATX fail_CATX fail_CATX fail_CATX fail_CATX fail_CATX fail_CATX
-process tthqq125 whqq125 hqq125 zhqq125 vbfhqq125 zqq wqq qcd tqq tthqq125 whqq125 hqq125 zhqq125 vbfhqq125 zqq wqq qcd tqq 
+process ttH_hbb WH_hbb ggH_hbb ZH_hbb qqH_hbb zqq wqq qcd tqq ttH_hbb WH_hbb ggH_hbb ZH_hbb qqH_hbb zqq wqq qcd tqq 
 process -4 -3 -2 -1 0 1 2 3 4 -4 -3 -2 -1 0 1 2 3 4 
 rate -1 -1 -1 -1 -1 -1 -1 1.0 -1 -1 -1 -1 -1 -1 -1 -1 1.0 -1 
 ----------------------------------------------------------------------------------------------------------------------------------
 lumi_13TeV lnN 1.025 1.025 1.025 1.025 1.025 1.025 1.025 - - 1.025 1.025 1.025 1.025 1.025 1.025 1.025 - -
-CMS_gghbb_hqq125pt lnN - - 1.30 - - - - - - - - 1.30 - - - - - -
-CMS_gghbb_hqq125ptShape shape - - 1 - - - - - - - - 1 - - - - - -
+CMS_gghbb_ggHpt lnN - - 1.30 - - - - - - - - 1.30 - - - - - -
+CMS_gghbb_ggHptShape shape - - 1 - - - - - - - - 1 - - - - - -
 CMS_gghbb_veff lnN 1.2 1.2 1.2 1.2 1.2 1.2 1.2 - - 1.2 1.2 1.2 1.2 1.2 1.2 1.2 - -
 CMS_eff_bb lnN 1.1 1.1 1.1 1.1 1.1 - - - - 1.1 1.1 1.1 1.1 1.1 - - - -
 CMS_gghbb_znormQ lnN - - - - - 1.1 1.1 - - - - - - - 1.1 1.1 - -

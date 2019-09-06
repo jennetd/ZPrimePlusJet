@@ -46,6 +46,9 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         V_SF_ERR  =SF2016['V_SF_ERR']
         LUMI_ERR = 1.025
 
+    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb'}
+    for bkg in bkgs:
+        histToCard[bkg] = bkg
 
     rates = {}
     Effentries = {}
@@ -164,10 +167,13 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     processString = 'process'
     processNumberString = 'process'
     rateString = 'rate'
-    lumiString = 'lumi_13TeV%s\tlnN'%options.suffix
-    hqq125ptString = 'CMS_gghbb_hqq125pt\tlnN'
+    if options.year in ['2017','2018']:
+        lumiString = 'lumi_13TeV%s lnN'%options.suffix
+    else:
+        lumiString = 'lumi%s lnN'%options.suffix
+    hqq125ptString = 'CMS_gghbb_ggHpt\tlnN'
     veffString = 'CMS_gghbb_veff%s\tlnN'%options.suffix
-    bbeffString = 'CMS_scale_bb%s\tlnN'%options.suffix
+    bbeffString = 'CMS_eff_bb%s\tlnN'%options.suffix
     znormEWString = 'CMS_gghbb_znormEW\tlnN'
     znormQString = 'CMS_gghbb_znormQ\tlnN'    
     wznormEWString = 'CMS_gghbb_wznormEW\tlnN'
@@ -209,7 +215,7 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
             #else:
             #    print "acceptting %s_%s , effective entries = %.3f > 10,"%(proc,box,Effentries['%s_%s'%(proc,box)])
             binString +='\t%s_muonCR'%box
-            processString += '\t%s'%(proc)
+            processString += '\t%s'%(histToCard[proc])
             processNumberString += '\t%i'%(i-nSig+1)
             rateString += '\t%.3f' %rates['%s_%s'%(proc,box)]
             lumiString += format_string(lumiErrs['%s_%s'%(proc,box)])

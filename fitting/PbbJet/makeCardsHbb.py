@@ -56,6 +56,7 @@ def main(options,args):
     boxes = ['pass', 'fail']
     #Has to follow the ordering in template datacard
     sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
+    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'}
     bkgs = ['zqq','wqq','qcd','tqq']
     systs = ['JER','JES','Pu']
 
@@ -149,7 +150,7 @@ def main(options,args):
                     jerErrs['%s_%s'%(proc,box)] =  1.0
                     puErrs['%s_%s'%(proc,box)] =  1.0
                     print "to remove: proc, cat, box, rate =", proc, "cat%i"%i, box, rate
-                    procsToRemove.append((proc, "cat%i"%i, box))
+                    procsToRemove.append((proc, "cat%i"%i, box,histToCard[proc]))
                
                 if proc == 'wqq':
                     mass = 80.4
@@ -233,8 +234,8 @@ def main(options,args):
                             mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0+(error[0]/rate)
                         else:
                             mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0
-                            if (proc, "cat%i"%i, box) not in procsToRemove:
-                                procsToRemove.append((proc, "cat%i"%i, box))
+                            if (proc, "cat%i"%i, box,histToCard[proc]) not in procsToRemove:
+                                procsToRemove.append((proc, "cat%i"%i, box,histToCard[proc]))
                     else:
                         mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0
                         
@@ -243,7 +244,7 @@ def main(options,args):
         jerString = 'CMS_res_j%s lnN'%options.suffix
         puString = 'CMS_PU%s lnN'%options.suffix
         bbString = 'CMS_eff_bb%s lnN'%options.suffix
-        hqq125ptString = 'CMS_gghbb_hqq125pt lnN'
+        hqq125ptString = 'CMS_gghbb_ggHpt lnN'
         weffString = 'weff%s lnN'%options.suffix            ### this is not used ##
         vString = 'CMS_gghbb_veff%s lnN'%options.suffix
         ### Normal scale/scale pt
@@ -376,13 +377,13 @@ def main(options,args):
             #elif 'weff' in l:
             #    newline = weffString
             #    pass
-            elif 'hqq125pt' in l and not 'hqq125ptShape' in l:
+            elif 'ggHpt' in l and not 'ggHptShape' in l:
                 newline = hqq125ptString
-            elif 'hqq125ptShape' in l:
+            elif 'ggHptShape' in l:
                 if options.addHptShape:
                     newline = l
                 else:
-                    newline = l.replace("hqq125ptShape","#hqq125ptShape")
+                    newline = l.replace("ggHptShape","#ggHptShape")
             elif 'veff' in l:
                 newline = vString
             elif 'CMS_gghbb_scale' in l  and 'pt' in l and i>1:
@@ -429,7 +430,7 @@ def main(options,args):
         for box in boxes:
             for proc in sigs+bkgs:
                 if options.noMcStatShape and proc!='qcd' :
-                    if (proc, 'cat%i'%i, box) not in procsToRemove:
+                    if (proc, 'cat%i'%i, box,histToCard[proc]) not in procsToRemove:
                         print 'include %s%scat%i%smcstat'%(proc,box,i,mcstatsuffix)
                         firstmassbin = masshistbins[0]
                         dctmp.write(mcStatStrings['%s_%s'%(proc,box),i,firstmassbin].replace('mcstat%s'%str(firstmassbin),'mcstat') + "\n")
@@ -514,8 +515,30 @@ def main(options,args):
         dctmp_w = open(options.odir+"/card_rhalphabet_%s.txt" % tag, 'w')
         for l in linel: dctmp_w.write(' '.join(l)+'\n')
 
-    for proc, tag, box in procsToRemove: 
-        removeProc(proc, tag, box)
+    for proc, tag, box, cardProc in procsToRemove: 
+        removeProc(cardProc, tag, box)
+
+    def Renamebase():
+        fin = r.TFile.Open(options.odir+'base.root')
+        fout = r.TFile(options.odir+'base_new.root','recreate')
+        boxes = ['pass', 'fail']
+        for box in boxes:
+            for i in range(1,numberOfPtBins+1):
+                win = fin.Get("w_%s_cat%s"%(box,i))
+                wout = r.RooWorkspace("w_%s_cat%s"%(box,i),"w_%s_cat%s"%(box,i))
+                for h in win.allData():
+                    h.SetName(h.GetName().replace('tthqq125', 'ttH_hbb'))
+                    h.SetName(h.GetName().replace('whqq125', 'WH_hbb'))
+                    h.SetName(h.GetName().replace('zhqq125', 'ZH_hbb'))
+                    h.SetName(h.GetName().replace('vbfhqq125', 'qqH_hbb'))
+                    h.SetName(h.GetName().replace('hqq125', 'ggH_hbb'))
+                    getattr(wout, 'import')(h)
+                fout.cd()
+                wout.Write()
+        os.system('mv %sbase.root %sbase_old.root'%(options.odir,options.odir))
+        os.system('mv %sbase_new.root %sbase.root'%(options.odir,options.odir))
+    Renamebase()
+        
 ###############################################################
 
 

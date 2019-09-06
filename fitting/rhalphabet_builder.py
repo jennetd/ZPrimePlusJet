@@ -223,14 +223,14 @@ class RhalphabetBuilder():
 
             # validation
             self._outfile_validation.cd()
-            hist_up.SetName('%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeUp'))
+            hist_up.SetName('%s_%s_%s'%(proc,cat,'CMS_gghbb_ggHptShapeUp'))
             hist_up.Write()
-            hist_down.SetName('%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeDown'))
+            hist_down.SetName('%s_%s_%s'%(proc,cat,'CMS_gghbb_ggHptShapeDown'))
             hist_down.Write()
 
 
-            hptpdfUp_s[cat] = r.RooDataHist('%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeUp'), '%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeUp'), r.RooArgList(x), hist_up)
-            hptpdfDown_s[cat] = r.RooDataHist('%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeDown'), '%s_%s_%s'%(proc,cat,'CMS_gghbb_hqq125ptShapeDown'), r.RooArgList(x), hist_down)
+            hptpdfUp_s[cat] = r.RooDataHist('%s_%s_%s'%(proc,cat,'CMS_gghbb_ggHptShapeUp'), '%s_%s_%s'%(proc,cat,'CMS_gghbb_ggHptShapeUp'), r.RooArgList(x), hist_up)
+            hptpdfDown_s[cat] = r.RooDataHist('%s_%s_%s'%(proc,cat,'CMS_gghbb_ggHptShapeDown'), '%s_%s_%s'%(proc,cat,'CMS_gghbb_ggHptShapeDown'), r.RooArgList(x), hist_down)
 
             getattr(wbase[cat], 'import')(hptpdfUp_s[cat], r.RooFit.RecycleConflictNodes())
             getattr(wbase[cat], 'import')(hptpdfDown_s[cat], r.RooFit.RecycleConflictNodes())
@@ -1354,6 +1354,7 @@ class RhalphabetBuilder():
                 if 'smear_SF' in self._sf_dict.keys():
                     res_shift     = self._sf_dict['smear_SF']
                     res_shift_unc = self._sf_dict['smear_SF_ERR']  *4     # (2 sigma shift)
+                    #res_shift_unc = self._sf_dict['smear_SF_ERR']  * 5     # (2 sigma shift)
                 else:
                     s_data     =self._sf_dict['s_data']    # 8.701
                     s_data_err =self._sf_dict['s_data_err']# 0.433
