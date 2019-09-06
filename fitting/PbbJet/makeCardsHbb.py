@@ -122,6 +122,7 @@ def main(options,args):
         vErrs = {}
         mcstatErrs = {}
         scaleErrs = {}
+        smearErrs = {}
         scaleptErrs = {}
         for box in boxes:
             for proc in (sigs+bkgs):
@@ -165,6 +166,11 @@ def main(options,args):
                 #    ==>   scaleErr   = scaleSigma/7GeV
                 scaleSigma                    = mass * SF['shift_SF'] *  SF['shift_SF_ERR']
                 scaleErrs['%s_%s'%(proc,box)] =  scaleSigma/7.0
+
+                if options.year=='2018':
+                    smearErrs['%s_%s'%(proc,box)] =  1.0/20.0    ## 20 sigma for 2018
+                else:
+                    smearErrs['%s_%s'%(proc,box)] =  1.0/4.0     ## 4 sigma for the rest
                 #print proc, mass, scaleSigma, "%.3f"%( scaleSigma/7.0)
 
                 ##### old scheme
@@ -250,6 +256,7 @@ def main(options,args):
         ### Normal scale/scale pt
         scaleptString = 'CMS_gghbb_scalept%s shape'%options.suffix
         scaleString   = 'CMS_gghbb_scale%s shape'%options.suffix
+        smearString   = 'CMS_gghbb_smear%s shape'%options.suffix
         ### scale(pt) pass/fail 
         #scalepassptString = 'scalepasspt%s shape'%options.suffix
         #scalefailptString = 'scalefailpt%s shape'%options.suffix
@@ -294,6 +301,7 @@ def main(options,args):
                     lumiString += ' %.3f'%LUMI_ERR
                 if proc in ['qcd','tqq']:
                     scaleString += ' -'
+                    smearString += ' -'
                     #scalepassString += ' -'
                     #scalefailString += ' -'
                     if i > 1:
@@ -302,6 +310,7 @@ def main(options,args):
                         #scalefailptString += ' -'
                 else:
                     scaleString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
+                    smearString += ' %.3f'%smearErrs['%s_%s'%(proc,box)]
                     if i > 1:
                         scaleptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
                     #if box =='pass':
@@ -395,7 +404,8 @@ def main(options,args):
                 #    newline = scalefailptString
                 pass
             elif 'smear' in l:
-                newline = l.replace('smear','smear'+options.suffix)
+                #newline = l.replace('smear','smear'+options.suffix)
+                newline = smearString
             elif 'trigger' in l:
                 newline = l.replace('trigger','trigger'+options.suffix)
             elif 'CMS_gghbb_scale' in l and not 'pt' in l:

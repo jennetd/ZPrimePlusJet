@@ -1353,8 +1353,11 @@ class RhalphabetBuilder():
                         m_mc_err / m_mc)) * 10.  # (10 sigma shift)
                 if 'smear_SF' in self._sf_dict.keys():
                     res_shift     = self._sf_dict['smear_SF']
-                    res_shift_unc = self._sf_dict['smear_SF_ERR']  *4     # (2 sigma shift)
-                    #res_shift_unc = self._sf_dict['smear_SF_ERR']  * 5     # (2 sigma shift)
+                    year = self._suffix.replace("_",'') 
+                    if year =='2018':
+                        res_shift_unc = self._sf_dict['smear_SF_ERR']  *20     # (20 sigma shift) for 2018
+                    else:
+                        res_shift_unc = self._sf_dict['smear_SF_ERR']  *4
                 else:
                     s_data     =self._sf_dict['s_data']    # 8.701
                     s_data_err =self._sf_dict['s_data_err']# 0.433
