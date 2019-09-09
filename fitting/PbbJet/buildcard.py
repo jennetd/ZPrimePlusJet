@@ -106,7 +106,8 @@ def main(options,mode,dryRun):
 
     if mode =="vbf":
         t2ws_vbf ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/hqq125:r[1,0,20]' --PO 'map=.*/vbfhqq125:r_vbf[1,0,20]'"
-    t2ws_rz      ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/*hqq125:r[1,0,20]' --PO 'map=.*/zqq:r_z[1,0,20]'"
+    #t2ws_rz      ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/*hqq125:r[1,0,20]' --PO 'map=.*/zqq:r_z[1,0,20]'"
+    t2ws_rz      ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/*_hbb:r[1,0,20]' --PO 'map=.*/zqq:r_z[1,0,20]'"
     for cat in cats:
         combcards_base += " %s=%s "%(cat['name'],cat['card'])
    
@@ -379,20 +380,20 @@ def DDB_combination(options):
         #'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22unc_SFJul8/'
         #},
         #################################
-        ##  Pow_qcdTF22uncV5_blind_SFJul8##
+        ##  Pow_qcdTF22uncV6_blind_SFJul8##
         {'idirs':[
-            'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
-            'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
-            'ddb2016_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',
+            'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
+            'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
+            'ddb2016_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
          ],
-        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22uncV5_blind_SFJul8_v1/'
+        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22uncV6_blind_SFJul8/'
         },
         {'idirs':[
-            'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
-            'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
-            'ddb2016_Jun24_v3/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',
+            'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFJul8/',
+            'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFJul8/',
+            'ddb2016_Jun24_v3/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
          ],
-        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22uncV5_SFJul8_v1/'
+        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22uncV6_SFJul8/'
         },
 
         #################################
@@ -432,18 +433,18 @@ def DDB_combination(options):
 
          ###  MiNLO_qcdTF22unc_blind_SFJul8##
          {'idirs':[
-                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',
-                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
-                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v1/'
+                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
+                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
+                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/'
          ],
-        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22uncV5_blind_SFJul8_v1/'
+        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22uncV6_blind_SFJul8/'
         },
         {'idirs':[
-                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',
-                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFJul8_v1/',
-                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22uncV5_muonCRv7_SFJul8_v1/'
+                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
+                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFJul8/',
+                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFJul8/'
                 ],
-        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22uncV5_SFJul8_v1/'
+        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22uncV6_SFJul8/'
         }
         ###############################
 
@@ -679,25 +680,28 @@ def DDB_data_main(options):
         ### muonCRv4 = v3+qcdkfactor 0.78
         ### muonCRv5 = v4+remove effective entries, 
         ### muonCRv6 = v5+tqq,qcd,stqq only
+        ### muonCRv7 = counting exp datacard
         ### qcdTF22 = no unc,
         ### qcdTF22unc = cov gaus,
         ### qcdTF22uncV2 = mcstat,
         ### qcdTF22uncV3 = fixed cov
         ### qcdTF22uncV4= round 2 MCstat (2016 only)
         ### qcdTF22uncV5= rescaled qcdeff in workspace
+        ### qcdTF22uncV6= add qcd deco
         #############
-        #'TF22_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                       
-        #'TF22_blind_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                 
-        #'TF22_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',  
-        #'TF22_blind_qcdTF22uncV5_muonCRv7_SFAug8_looserWZ_p80_v1/',             
+        'TF22_qcdTF22uncV6_muonCRv7_SFJul8/',                       
+        'TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',                 
+        'TF22_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',  
+        'TF22_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',             
         ##############
+        #'TF22_blind_qcdTF22uncV6_muonCR_test/',                 
         #'TF22_blind_qcdTF22unc_SFJul8/',  
         #'TF22_qcdTF22unc_SFJul8/',  
         #'TF22_qcdTF22unc_SFJul8_looserWZ_p80/',  
         #'TF22_blind_qcdTF22unc_SFJul8_looserWZ_p80/',  
         ####### TF21  ######
-        'TF21_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                 
-        'expTF21_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                 
+        #'TF21_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                 
+        #'expTF21_qcdTF22uncV5_muonCRv7_SFJul8_v2/',                 
         #############
         #'expTF21_qcdTF22_muonCR_SFJul8/',  
         #'expTF22_qcdTF22_muonCR_SFJul8/',  
@@ -755,7 +759,8 @@ def DDB_data_main(options):
             else:                               options.blind = False
             if 'exp'   in odir:                 options.exp = True
             else:                               options.exp = False
-            if 'looserWZ'   in odir:            options.iloose = options.idir+'looserWZ_%s'%odir.split("_")[-2]+"/hist_1DZbb_pt_scalesmear_looserWZ.root"
+            #if 'looserWZ'   in odir:            options.iloose = options.idir+'looserWZ_%s'%odir.split("_")[-2]+"/hist_1DZbb_pt_scalesmear_looserWZ.root"
+            if 'looserWZ'   in odir:            options.iloose = options.idir+'looserWZ_%s'%odir.split("_")[-1]+"/hist_1DZbb_pt_scalesmear_looserWZ.root"
             else:                               options.iloose = ''
             if 'pseudoPass'   in odir:          options.pseudoPass = True
             else:                               options.pseudoPass = False
@@ -797,10 +802,10 @@ if __name__ == '__main__':
     #secJetMain(options)
     ############# DDB jet ###########
     #DDB_MC_main(options)
-    #DDB_combination(options)
+    DDB_combination(options)
     #DDB_MC_combination(options)
     #DB_MC_main(options)
     #DDB_10p_main(options)
-    DDB_data_main(options)
+    #DDB_data_main(options)
 
     #VBFddb(options)
