@@ -69,7 +69,7 @@ def buildcards(odir,nr,np, options):
     if muonCR:
         makemuonCR_base = "python writeMuonCRDatacard.py       -i %s -o %s --no-mcstat-shape "%(muonCR,odir)
     combcards_base = "combineCards.py "
-    t2ws_rz      ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/*hqq125:r[1,0,20]' --PO 'map=.*/zqq:r_z[1,0,20]'"
+    t2ws_rz      ="text2workspace.py -P HiggsAnalysis.CombinedLimit.PhysicsModel:multiSignalModel -m 125  --PO verbose --PO 'map=.*/*_hbb:r[1,0,20]' --PO 'map=.*/zqq:r_z[1,0,20]'"
 
     #construct {catX_suffix:card_rhalphabet_cat%s.txt}
     cats = buildcats(ifile,odir,muonCR,suffix)
@@ -111,7 +111,6 @@ def buildcards(odir,nr,np, options):
             makemuonCR_base +=" --year %s "%year
     if qcdTF: 
         makecard_base +=" --addqcdCovMat "
-        makecard_base +=" --qcdfitdir %s "%options.qcdfitdir
 
 
     wsRoot = combcard_all.replace(".txt","_floatZ.root")       
