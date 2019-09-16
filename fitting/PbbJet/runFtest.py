@@ -158,6 +158,7 @@ if __name__ == "__main__":
     parser.add_option('--qcdfitdir', dest='qcdfitdir', default='./', help='dir to look for qcdTF cards')
     parser.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',metavar='exp')
     parser.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
+    parser.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
     parser.add_option('--dryRun',dest="dryRun",default=False,action='store_true',
                   help="Just print out commands to run")    
     parser.add_option('-o', '--odir', dest='odir', default='./', help='directory to write plots', metavar='odir')
