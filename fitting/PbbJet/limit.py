@@ -252,7 +252,7 @@ def ftest(base,alt,ntoys,iLabel,options):
         exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/base1.root'%(baseName,options.odir),options.dryRun)
         exec_me('combine -M GoodnessOfFit %s --rMax %s --rMin %s --algorithm saturated  -n %s --freezeParameters %s --setParameters %s' % (alt,options.rMax,options.rMin,altName, options.freezeNuisances,options.setParameters),options.dryRun)
         exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/base2.root'%(altName,options.odir),options.dryRun)
-        exec_me('combine -M GenerateOnly %s --rMax %s --rMin %s --toysFrequentist -t %i  --saveToys -n %s --freezeParameters %s -s %s --setParameters' % (base,options.rMax,options.rMin,ntoys,baseName,options.freezeNuisances,options.seed,options.setParameters),options.dryRun)
+        exec_me('combine -M GenerateOnly %s --rMax %s --rMin %s --toysFrequentist -t %i  --saveToys -n %s --freezeParameters %s -s %s --setParameters %s' % (base,options.rMax,options.rMin,ntoys,baseName,options.freezeNuisances,options.seed,options.setParameters),options.dryRun)
         exec_me('cp higgsCombine%s.GenerateOnly.mH120.%s.root %s/'%(baseName,options.seed,options.odir))
         exec_me('combine -M GoodnessOfFit %s --rMax %s --rMin %s -t %i --toysFile %s/higgsCombine%s.GenerateOnly.mH120.%s.root --algorithm saturated -n %s --freezeParameters %s -s %s --setParameters %s' % (base,options.rMax,options.rMin,ntoys,options.odir,baseName,options.seed,baseName, options.freezeNuisances,options.seed,options.setParameters),options.dryRun)
         exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.%s.root %s/toys1_%s.root'%(baseName,options.seed,options.odir,options.seed),options.dryRun)
