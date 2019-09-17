@@ -287,14 +287,14 @@ class RhalphabetBuilder():
         # validbins[:, 10:13] = False  # blind
         rhoscaled[~validbins] = 1  # we will mask these out later
     
-        tf_MCtempl = rl.BernsteinPoly("qcdfit_tf_%s" % year, (2, 2), ['pt', 'rho'], limits=(-10, 10))
+        tf_MCtempl = rl.BernsteinPoly("qcdfit_tf_%s" % year, (self._qcdTFpars['n_pT'], self._qcdTFpars['n_rho']), ['pt', 'rho'], limits=(-10, 10))
         param_names = ['p%dr%d_%s' % (ipt, irho, year) for ipt in range(3) for irho in range(3)]
         decoVector = rl.DecorrelatedNuisanceVector.fromRooFitResult(tf_MCtempl.name + '_deco', qcdfit, param_names)
         tf_MCtempl.parameters = decoVector.correlated_params.reshape(tf_MCtempl.parameters.shape)
         qcdeff = getconst("qcdeff_%s" % year)
         tf_MCtempl_params_final = tf_MCtempl(ptscaled, rhoscaled)
     
-        tf_dataResidual = rl.BernsteinPoly("dataResidual_%s" % year, (2, 2), ['pt', 'rho'], limits=(-10, 10), coefficient_transform=None)
+        tf_dataResidual = rl.BernsteinPoly("dataResidual_%s" % year, (self._poly_degree_pt, self._poly_degree_rho), ['pt', 'rho'], limits=(-10, 10), coefficient_transform=None)
         tf_dataResidual_params = tf_dataResidual(ptscaled, rhoscaled)
         tf_params = qcdeff * tf_MCtempl_params_final * tf_dataResidual_params
 
