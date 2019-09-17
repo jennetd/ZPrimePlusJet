@@ -207,10 +207,10 @@ if __name__ == "__main__":
         dataString = '--data'
 
     if not options.justPlot:    
-        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s '%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances)
+        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s --setParameters %s'%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances,options.setParameters)
         exec_me(limit_cmd,logf,options.dryRun)
     else:
         # use toys from hadd-ed directory
         toysDir +="/toys/ "
-        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s '%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances)
+        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s --setParameters %s'%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances,options.setParameters)
         exec_me(limit_cmd+" --just-plot ",logf,options.dryRun)
