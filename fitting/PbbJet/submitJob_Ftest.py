@@ -55,11 +55,11 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False
     out += 'export PATH=${PATH}:/cvmfs/cms.cern.ch/common\n'
     out += 'export CMS_PATH=/cvmfs/cms.cern.ch\n'
     out += 'export SCRAM_ARCH=slc6_amd64_gcc530\n'
-    out += 'tar -xf CMSSW_8_1_0.tar.gz\n'
-    out += 'cd CMSSW_8_1_0/src\n'
+    out += 'tar -xf CMSSW_10_2_13.tgz\n'
+    out += 'cd CMSSW_10_2_13/src\n'
     out += 'scramv1 b ProjectRename\n'
     out += 'eval `scramv1 runtime -sh` # cmsenv\n'
-    #out += 'export CMSSW_BASE=${CWD}/CMSSW_8_1_0/\n'
+    #out += 'export CMSSW_BASE=${CWD}/CMSSW_10_2_13/\n'
     #out += 'echo $CMSSW_BASE\n'
     #if setUpCombine:
     #    out += 'git clone -b v7.0.9 git://github.com/cms-analysis/HiggsAnalysis-CombinedLimit HiggsAnalysis/CombinedLimit\n'
@@ -72,6 +72,10 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False
     out += 'git status -uno \n'
     out += 'git log -n 1 \n'
     out += 'cd ${CMSSW_BASE}/src/ZPrimePlusJet/fitting/PbbJet/\n'
+    out += 'tar -xf ${CWD}/rhalphalib.tgz\n'
+    out += 'export PYTHONPATH=$PYTHONPATH:${PWD}/rhalphalib/\n'
+    out += 'export PYTHONPATH=$PYTHONPATH:${PWD}/..//\n'
+    out += 'export PYTHONPATH=$PYTHONPATH:${PWD}/../../analysis/\n'
     out += command + '\n'
     out += 'cd ${CWD}\n'
     out += 'mv ./ftest*/toy*.root .\n'        #collect output
@@ -79,7 +83,7 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False
     out += 'echo "Inside $MAINDIR:"\n'
     out += 'ls\n'
     out += 'echo "DELETING..."\n'
-    out += 'rm -rf CMSSW_8_1_0\n'
+    out += 'rm -rf CMSSW_10_2_13\n'
     out += 'rm -rf *.pdf *.C\n'
     out += 'ls\n'
     out += 'date\n'
@@ -116,6 +120,7 @@ if __name__ == '__main__':
     #script_group.add_option('--qcdTF', action='store_true', dest='qcdTF', default=False, help='switch to make qcdTF cards')
     script_group.add_option('--exp', action='store_true', dest='exp', default=False, help='use exp(bernstein poly) transfer function',metavar='exp')
     script_group.add_option('--freezeNuisances'   ,action='store',type='string',dest='freezeNuisances'   ,default='None', help='freeze nuisances')
+    script_group.add_option('--setParameters'   ,action='store',type='string',dest='setParameters'   ,default='None', help='setParameters')
     script_group.add_option('--dryRun',dest="dryRun",default=False,action='store_true',help="Just print out commands to run",metavar='dryRun')    
     script_group.add_option('--suffix', dest='suffix', default=None, help='suffix for conflict variables',metavar='suffix')
     script_group.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
@@ -184,7 +189,9 @@ if __name__ == '__main__':
     subToy2 = "toys2_*.root"
     toy1    = "toys1.root"
     toy2    = "toys2.root"
-    cmssw   = os.path.expandvars("$ZPRIMEPLUSJET_BASE/CMSSW_8_1_0.tar.gz")
+    #cmssw   = os.path.expandvars("$ZPRIMEPLUSJET_BASE/CMSSW_8_1_0.tar.gz")
+    cmssw   = os.path.expandvars("/uscms/home/kkwok/work/Hbb/CMSSW_10_2_13/src/ZPrimePlusJet/CMSSW_10_2_13.tgz")
+    rhalphalib = "/uscms/home/kkwok/work/Hbb/CMSSW_10_2_13/src/ZPrimePlusJet/fitting/PbbJet/rhalphalib.tgz"
 
     if not options.hadd:
         if not os.path.exists(outpath):
@@ -194,6 +201,7 @@ if __name__ == '__main__':
     
         localfiles = [path.split("/")[-1] for path in files]    #Tell script to use the transferred files
         localfiles.append(cmssw)
+        localfiles.append(rhalphalib)
         arguments = [ str("$(Process)"),str(nToysPerJob)]
         for f in localfiles:
             arguments.append(str(f))
