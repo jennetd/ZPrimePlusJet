@@ -482,7 +482,7 @@ def main(options,args):
             qcdfit_deco = r.TFile.Open(options.odir+'qcdfit_decorrelated.root')
             ws          = qcdfit_deco.Get("qcdfit_deco_%s"%options.year)
             decoVars    = ws.allVars().selectByName("qcdfit_tf_%s_deco*"%options.year)
-            #decoVars.Print()
+            decoVars.Print()
             for i in range(0,decoVars.getSize()):
                 qcdeffGroupString += "qcdfit_tf_%s_deco%s "%(options.year,i)
                 dctmp.write("qcdfit_tf_%s_deco%s param 0 1"%(options.year,i)+'\n')
