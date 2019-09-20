@@ -83,7 +83,8 @@ def buildcards(odir,nr,np, options):
     if suffix:
         rhalph_base += " --suffix %s"%suffix
         makecard_base += " --suffix %s"%suffix
-        makemuonCR_base += " --suffix %s"%suffix
+        if muonCR:
+            makemuonCR_base += " --suffix %s"%suffix
         combcard_all = "%scard_rhalphabet_all_%s_r%ip%i.txt "%(odir,suffix,nr,np)
         combcards_base += " > %s"%(combcard_all)
     else:
@@ -99,11 +100,6 @@ def buildcards(odir,nr,np, options):
     if blind:
         rhalph_base += " --blind "
         makecard_base +=" --blind "
-    #if is2017:
-    #    rhalph_base += " --is2017 "
-    #    makecard_base +=" --is2017 "
-    #    if muonCR:
-    #        makemuonCR_base+=" --is2017 "
     if year:
         rhalph_base   +=" --year %s "%year
         makecard_base +=" --year %s "%year
@@ -207,10 +203,10 @@ if __name__ == "__main__":
         dataString = '--data'
 
     if not options.justPlot:    
-        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s --setParameters %s'%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances,options.setParameters)
+        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s --setParameters %s --NR1 %s --NP1 %s --NR2 %s --NP2 %s'%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances,options.setParameters,options.NR1,options.NP1,options.NR2,options.NP2)
         exec_me(limit_cmd,logf,options.dryRun)
     else:
         # use toys from hadd-ed directory
         toysDir +="/toys/ "
-        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s --setParameters %s'%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances,options.setParameters)
+        limit_cmd = 'python limit.py -M FTest --datacard %s --datacard-alt %s -o %s -n %i --p1 %i --p2 %i -t %i --lumi %f %s -r %f --seed %s --freezeNuisances %s --setParameters %s --NR1 %s --NP1 %s --NR2 %s --NP2 %s'%(datacardWS1,datacardWS2,toysDir, options.n, p1, p2, options.toys, options.lumi, dataString, options.r, options.seed, options.freezeNuisances,options.setParameters,options.NR1,options.NP1,options.NR2,options.NP2)
         exec_me(limit_cmd+" --just-plot ",logf,options.dryRun)

@@ -80,6 +80,7 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False
     out += 'cd ${CWD}\n'
     out += 'mv ./ftest*/toy*.root .\n'        #collect output
     out += 'mv ./ftest*/base*.root .\n'        #collect output
+    out += 'mv ./ftest*/card*.root .\n'        #collect output
     out += 'echo "Inside $MAINDIR:"\n'
     out += 'ls\n'
     out += 'echo "DELETING..."\n'
@@ -157,11 +158,11 @@ if __name__ == '__main__':
     #Command to create local copy of datacards
     if  options.ifile_loose is not None: 
         files.append( options.ifile_loose)
-        command  += '--ifile-loose ${MAINDIR}/$%i'%(files.index( options.ifile_loose)+3)
+        command  += ' --ifile-loose ${MAINDIR}/$%i '%(files.index( options.ifile_loose)+3)
         plot_command += ' --ifile-loose %s '%(options.ifile_loose)
     if  options.ifile_muon is not None:
         files.append( options.ifile_muon)
-        command  += '--ifile-muon ${MAINDIR}/$%i'%(files.index( options.ifile_muon)+3)
+        command  += ' --ifile-muon ${MAINDIR}/$%i '%(files.index( options.ifile_muon)+3)
         plot_command += ' --ifile-muon %s '%(options.ifile_muon)
     #if  options.qcdfitdir is not '':
     #    files.append( options.qcdfitdir+"/qcdTF_MC_cov_cat*.txt")

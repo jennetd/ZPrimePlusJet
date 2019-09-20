@@ -171,7 +171,7 @@ def plotftest(iToys,iCentral,prob,iLabel,options):
     tLeg.SetLineWidth(0)
     tLeg.SetFillStyle(0)
     tLeg.SetTextFont(42)
-    tLeg.AddEntry(lH,"toy data","lep")
+    tLeg.AddEntry(lH,"toy data (Ntoys=%i)"%len(iToys),"lep")
     tLeg.AddEntry(lLine,"observed = %.1f"%iCentral,"l")
     tLeg.AddEntry(lH_cut,"p-value = %.2f"%(1-prob),"f")
     if options.method=='FTest':
@@ -269,11 +269,17 @@ def ftest(base,alt,ntoys,iLabel,options):
         if nToys1==nToys2:
             print "Found %s toy files"%nToys1
             nllToys=[] 
+            nlltoys1=[] 
+            nlltoys2=[] 
+            nllbase1 =  goodnessVals('%s/base1.root'%options.odir)[0]
+            nllbase2 =  goodnessVals('%s/base2.root'%options.odir)[0]
             for i in range(0,nToys1):
                 if not os.path.exists("%s/toys1_%s.root"%(options.odir,i)):
                     print "cannot find job %i, skipping it"%i
                 else:
                     print "="*20 +" job %i "%i+"="*20
+                    nlltoys1 +=  goodnessVals('%s/toys1_%s.root'%(options.odir,i))
+                    nlltoys2 +=  goodnessVals('%s/toys2_%s.root'%(options.odir,i))
                     nllToys += (fStat("%s/toys1_%s.root"%(options.odir,i),"%s/toys2_%s.root"%(options.odir,i),options.p1,options.p2,options.n))
         else:
             print "Using these toys input %s/toys1.root and %s/toys2.root"%(options.odir,options.odir)
@@ -287,22 +293,30 @@ def ftest(base,alt,ntoys,iLabel,options):
     if len(nllToys)>0:
         pval = float(lPass)/float(len(nllToys))
         print "FTest p-value",pval
-    plotftest(nllToys,nllBase[0],pval,iLabel,options)
+    shortLabel = iLabel.replace("_card_rhalphabet_all","").replace("_floatZ","")
+    plotftest(nllToys,nllBase[0],pval,shortLabel,options)
+    options.method ='GoodnessOfFit'
+    options.algo  ='saturated'
+    obs1   = float([nllbase1>val for val in nlltoys1].count(True)) / float(len(nlltoys1))
+    obs2   = float([nllbase2>val for val in nlltoys2].count(True)) / float(len(nlltoys2))
+    plotftest(nlltoys1,nllbase1,obs1,shortLabel+"_gof1",options)
+    plotftest(nlltoys2,nllbase2,obs2,shortLabel+"_gof2",options)
+    options.method =='FTest'
     return float(lPass)/float(len(nllToys))
 
 def goodness(base,ntoys,iLabel,options):
     if not options.justPlot:
         # --fixedSignalStrength %f  --freezeParameters tqqnormSF,tqqeffSF 
         exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20 --setParameters r_z=1 --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
-        exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/goodbase.root'%(base.split('/')[-1].replace('.root',''),options.odir),options.dryRun)
+        exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/goodbase_%s.root'%(base.split('/')[-1].replace('.root',''),options.odir,options.seed),options.dryRun)
         #exec_me('combine -M GenerateOnly %s --setParameterRange r=-20,20  --setParameters r_z=1 --toysFrequentist -t %i --redefineSignalPOIs r --saveToys -n %s --freezeParameters %s' % (base,ntoys,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
         #exec_me('cp higgsCombine%s.GenerateOnly.mH120.123456.root %s/'%(base.split('/')[-1].replace('.root',''),options.odir),options.dryRun)        
         #exec_me('combine -M GoodnessOfFit %s --setParameterRange r=-20,20 --setParameters r_z=1 -t %i --toysFile %s/higgsCombine%s.GoodnessOfFit.mH120.123456.root --algorithm %s -n %s --freezeParameters %s' % (base,ntoys,options.odir,base.split('/')[-1].replace('.root',''),options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
         exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20 --setParameters r_z=1 -t %i --toysFrequentist --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,ntoys,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
-        exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.123456.root %s/goodtoys.root'%(base.split('/')[-1].replace('.root',''),options.odir),options.dryRun)        
+        exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.123456.root %s/goodtoys_%s.root'%(base.split('/')[-1].replace('.root',''),options.odir,options.seed),options.dryRun)        
     if options.dryRun: sys.exit()
-    nllBase=goodnessVals('%s/goodbase.root'%options.odir)
-    nllToys=goodnessVals('%s/goodtoys.root'%options.odir)
+    nllBase=goodnessVals('%s/goodbase_%s.root'%(options.odir,options.seed))
+    nllToys=goodnessVals('%s/goodtoys_%s.root'%(options.odir,options.seed))
     lPass=0
     for val in nllToys:
         if nllBase[0] > val:
