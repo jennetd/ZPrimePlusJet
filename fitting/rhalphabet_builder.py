@@ -284,7 +284,8 @@ class RhalphabetBuilder():
         rhoscaled = (rhopts - (-6)) / ((-2.1) - (-6))
         validbins = (rhoscaled >= 0) & (rhoscaled <= 1)
         validbins[:, 0] = False  # cut msd 40-47
-        # validbins[:, 10:13] = False  # blind
+        if self._blind:
+            validbins[:, 10:13] = False  # blind
         rhoscaled[~validbins] = 1  # we will mask these out later
     
         tf_MCtempl = rl.BernsteinPoly("qcdfit_tf_%s" % year, (self._qcdTFpars['n_pT'], self._qcdTFpars['n_rho']), ['pt', 'rho'], limits=(-10, 10))
@@ -298,8 +299,15 @@ class RhalphabetBuilder():
         tf_dataResidual_params = tf_dataResidual(ptscaled, rhoscaled)
         tf_params = qcdeff * tf_MCtempl_params_final * tf_dataResidual_params
 
+        wbase = fralphabase.Get('w_pass_cat1')  # to get 'prefit' params
         for (i, j), param in np.ndenumerate(tf_dataResidual.parameters):
             param.name = 'p%dr%d_%s' % (i, j, year)
+            oldvar = wbase.var(param.name)
+            if oldvar == None:
+                raise Exception("can't find %s in rhalphabase! maybe wrong TF order?" % param.name)
+            param.value = oldvar.getVal()
+            param.error = oldvar.getError()
+            print("setting %r to %f" % (param, param.value))
 
         fout.cd()
         for ipt in range(npt):
