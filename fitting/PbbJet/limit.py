@@ -307,7 +307,7 @@ def ftest(base,alt,ntoys,iLabel,options):
 def goodness(base,ntoys,iLabel,options):
     if not options.justPlot:
         # --fixedSignalStrength %f  --freezeParameters tqqnormSF,tqqeffSF 
-        exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20 --setParameters %s --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.setParameters,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
+        exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20:CMS_gghbb_scale_2018=-7,7:CMS_gghbb_scalept_2018=-7,7  --setParameters %s --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.setParameters,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
         exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.root %s/goodbase_%s.root'%(base.split('/')[-1].replace('.root',''),options.odir,options.seed),options.dryRun)
         #exec_me('combine -M GenerateOnly %s --setParameterRange r=-20,20  --setParameters r_z=1 --toysFrequentist -t %i --redefineSignalPOIs r --saveToys -n %s --freezeParameters %s' % (base,ntoys,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
         #exec_me('cp higgsCombine%s.GenerateOnly.mH120.123456.root %s/'%(base.split('/')[-1].replace('.root',''),options.odir),options.dryRun)        
@@ -316,7 +316,7 @@ def goodness(base,ntoys,iLabel,options):
         ### ToysFreq recommended for saturated, https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#goodness-of-fit-tests
         ### Default toys for other algos
         if options.algo =='saturated':
-             exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20 --setParameters %s -s %i -t %i --toysFrequentist --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.setParameters,options.seed,ntoys,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
+             exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20:CMS_gghbb_scale_2018=-7,7:CMS_gghbb_scalept_2018=-7,7  --setParameters %s -s %i -t %i --toysFrequentist --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.setParameters,options.seed,ntoys,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
         else:
              exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20 --setParameters %s -s %i -t %i  --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.setParameters,options.seed,ntoys,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
         exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.%s.root %s/goodtoys_%s.root'%(base.split('/')[-1].replace('.root',''),options.seed,options.odir,options.seed),options.dryRun)        
