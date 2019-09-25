@@ -445,7 +445,7 @@ if __name__ == "__main__":
     parser.add_option('-M','--method'   ,dest='method'   ,default='GoodnessOfFit', 
                       choices=['GoodnessOfFit','FTest','Asymptotic','Bias','MaxLikelihoodFit'],help='combine method to use')
     parser.add_option('-a','--algo'   ,dest='algo'   ,default='saturated', 
-                      choices=['saturated','KS'],help='GOF algo  to use')
+                      choices=['saturated','KS','AD'],help='GOF algo  to use')
     parser.add_option('-o','--odir', dest='odir', default = 'plots/',help='directory to write plots and output toys', metavar='odir')
     parser.add_option('--just-plot', action='store_true', dest='justPlot', default=False, help='just plot')
     parser.add_option('--data', action='store_true', dest='isData', default=False, help='is data')
