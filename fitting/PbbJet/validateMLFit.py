@@ -36,9 +36,14 @@ def main(options, args):
     histograms_fail_all = {}
 
 
-    shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125', 'data']
+    #shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125', 'data']
+    #bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
+    #sigshapes=['hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
+
+    shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'ggH_hbb', 'ZH_hbb', 'WH_hbb', 'ttH_hbb', 'qqH_hbb', 'data']
     bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
-    sigshapes=['hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
+    sigshapes=['ggH_hbb', 'ZH_hbb', 'WH_hbb', 'ttH_hbb', 'qqH_hbb']
+
   
     qcdTFpars_2017={'n_rho':2, 'n_pT':2,
                 'pars':[ 0.0151 , -1.0359, 2.3953 , 0.7093 , 1.0947 , 1.6930 , -0.1745, 0.1980 , 1.4567 , -0.0427]}
@@ -58,7 +63,9 @@ def main(options, args):
             if suffix =='2016': qcdTFpars = qcdTFpars_2016
             elif suffix =='2017': qcdTFpars = qcdTFpars_2017
             elif suffix =='2018': qcdTFpars = qcdTFpars_2018
-            qcdTFpars = {} 
+            ## FIXME: turning qcdTFpars on will spoil the summed cats of fail
+            if not options.qcdTF:
+                qcdTFpars = {} 
             (tmppass, tmpfail) = plotCategory(fml, fd, i + 1, options.fit,suffix,qcdTFpars)
             histograms_pass_all[suffix][i] = {}
             histograms_fail_all[suffix][i] = {}
@@ -271,9 +278,10 @@ def getFitPars(fml,fitType,suffix,qcdeff=0.01):
     return (rBestFit,pars)
 
 def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={}):
-    shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
+    shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'ggH_hbb', 'ZH_hbb', 'WH_hbb', 'ttH_hbb', 'qqH_hbb']
     bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
-    sigshapes=['hqq125', 'zhqq125', 'whqq125', 'tthqq125', 'vbfhqq125']
+    sigshapes=['ggH_hbb', 'ZH_hbb', 'WH_hbb', 'ttH_hbb', 'qqH_hbb']
+
     histograms_fail = []
     histograms_pass = []
 
@@ -384,6 +392,9 @@ def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={}):
             mass   = hqcd.GetBinCenter(ibin)
             qcdeff = tf2.Eval(mass)
             hqcd.SetBinContent(ibin,  qcdeff * hqcd.GetBinContent(ibin))
+            hqcd.SetBinError(ibin,  qcdeff * hqcd.GetBinContent(ibin)**0.5)
+            #hqcd.SetBinContent(ibin,  f2params[0] * hqcd.GetBinContent(ibin))
+            #hqcd.SetBinError(ibin,  f2params[0] * hqcd.GetBinContent(ibin)**0.5
         
         bkg_pass_qcdfail[3] = hqcd
         makeMLFitCanvas(bkg_pass_qcdfail, data_pass, sig_pass, shapes,
@@ -598,7 +609,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             return 2
         elif 'zqq' in name:
             return 3
-        elif 'hqq125' in name:
+        elif 'ggH' in name:
             return 4
         elif 'Sbb' in name:
             return 5
@@ -1198,6 +1209,7 @@ if __name__ == '__main__':
     parser.add_option('--nr','--NR' ,action='store',type='int',dest='NR'   ,default=2, help='order of rho polynomial')
     parser.add_option('--np','--NP' ,action='store',type='int',dest='NP'   ,default=1, help='order of pt polynomial')
     parser.add_option('--suffix', dest='suffix', default='', help='list of suffix  separated by :',metavar='suffix')
+    parser.add_option('--qcdTF', dest='qcdTF', action='store_true',default=False, help='make fail x TF plot',metavar='qcdTF')
 
     (options, args) = parser.parse_args()
 
