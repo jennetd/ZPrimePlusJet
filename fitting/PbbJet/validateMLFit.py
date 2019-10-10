@@ -32,6 +32,10 @@ def main(options, args):
     #fml = r.TFile.Open(options.idir + "/mlfit.root", 'read')
     fml = r.TFile.Open(options.idir + "/mlfit_%s.root"%options.suffix.replace(":","_"), 'read')
     fd = r.TFile.Open(options.idir + "/base.root", 'read')
+    if 'minlo' in options.idir:
+        fbkgUnc = r.TFile.Open('./correlations/bkgUncBands_minlo.root','read')
+    else:
+        fbkgUnc = r.TFile.Open('./correlations/bkgUncBands.root','read')
     histograms_pass_all = {}
     histograms_fail_all = {}
 
@@ -66,7 +70,7 @@ def main(options, args):
             ## FIXME: turning qcdTFpars on will spoil the summed cats of fail
             if not options.qcdTF:
                 qcdTFpars = {} 
-            (tmppass, tmpfail) = plotCategory(fml, fd, i + 1, options.fit,suffix,qcdTFpars)
+            (tmppass, tmpfail) = plotCategory(fml, fd, i + 1, options.fit,suffix,qcdTFpars,fbkgUnc)
             histograms_pass_all[suffix][i] = {}
             histograms_fail_all[suffix][i] = {}
             for shape in shapes:
@@ -74,6 +78,8 @@ def main(options, args):
                     if hist != None and re.match(shape,hist.GetName()): histograms_pass_all[suffix][i][shape] = hist
                 for hist in tmpfail:
                     if hist !=None and re.match(shape,hist.GetName()): histograms_fail_all[suffix][i][shape] = hist
+    if options.qcdTF:
+        sys.exit()
 
     pass_2d = {}
     fail_2d = {}
@@ -118,13 +124,22 @@ def main(options, args):
     for suffix in suffixes:
         rBestFit,pars = getFitPars(fml,options.fit,suffix,qcdeff)
 
+    if len(options.suffix.split(':'))>1:
+        bkgUnc_pass        = fbkgUnc.Get('bkgUncBand_pass')
+        bkgUnc_fail        = fbkgUnc.Get('bkgUncBand_fail')
+    else:
+        bkgUnc_pass        = fbkgUnc.Get('bkgUncBand_pass_'+options.suffix)
+        bkgUnc_fail        = fbkgUnc.Get('bkgUncBand_fail_'+options.suffix)
+
     ptCats = range(len(pt_binBoundaries)-1)
     (histograms_pass_summed,histograms_fail_summed) =  sumShapes(shapes,suffixes,ptCats,histograms_pass_all,histograms_fail_all)
-    plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,'allcats_%s'%options.suffix.replace(":","_"),histograms_pass_summed,histograms_fail_summed)
+    plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,'allcats_%s'%options.suffix.replace(":","_"),histograms_pass_summed,histograms_fail_summed,bkgUnc_pass,bkgUnc_fail)
     if len(suffixes)>1:
         for ipt in ptCats:
+            bkgUnc_pass        = fbkgUnc.Get('bkgUncBand_pass_cat%s'%(ipt+1))
+            bkgUnc_fail        = fbkgUnc.Get('bkgUncBand_fail_cat%s'%(ipt+1))
             (histograms_pass_summed,histograms_fail_summed) =  sumShapes(shapes,suffixes,[ipt],histograms_pass_all,histograms_fail_all)
-            plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,'sumcat%s'%(ipt+1),histograms_pass_summed,histograms_fail_summed)
+            plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,'sumcat%s'%(ipt+1),histograms_pass_summed,histograms_fail_summed,bkgUnc_pass,bkgUnc_fail)
         
 
     # Plot TF poly
@@ -204,7 +219,7 @@ def sumShapes(shapes,suffixes,ptCats,histograms_pass_all,histograms_fail_all):
 
     return (histograms_pass_summed,histograms_fail_summed)
 
-def plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,tag,histograms_pass_summed,histograms_fail_summed):
+def plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,tag,histograms_pass_summed,histograms_fail_summed,bkgUnc_pass,bkgUnc_fail):
     ## sort histograms into bkg sig and data
     histograms_pass_summed_list = {"bkg":[],"sig":[]}
     histograms_fail_summed_list = {"bkg":[],"sig":[]}
@@ -225,15 +240,14 @@ def plotSummedShapes(shapes,bkgshapes,sigshapes,rBestFit,tag,histograms_pass_sum
             if shape in ['data']:
                 histograms_fail_summed_list['data']=histograms_fail_summed[shape]
  
-
     [histograms_pass_summed_list] = makeMLFitCanvas(histograms_pass_summed_list['bkg'], histograms_pass_summed_list['data'],
                                                     histograms_pass_summed_list['sig'], shapes,
                                                     "pass_%s_"%tag + options.fit, options.odir, rBestFit,
-                                                    options.sOverSb, options.splitS, options.ratio)
+                                                    options.sOverSb, options.splitS, options.ratio,bkgUnc_pass)
     [histograms_fail_summed_list] = makeMLFitCanvas(histograms_fail_summed_list['bkg'], histograms_fail_summed_list['data'],
                                                     histograms_fail_summed_list['sig'], shapes,
                                                     "fail_%s_"%tag + options.fit, options.odir, rBestFit,
-                                                    options.sOverSb, options.splitS, options.ratio)
+                                                    options.sOverSb, options.splitS, options.ratio,bkgUnc_fail)
 
 def getFitPars(fml,fitType,suffix,qcdeff=0.01):
     rBestFit = 1
@@ -277,7 +291,7 @@ def getFitPars(fml,fitType,suffix,qcdeff=0.01):
 
     return (rBestFit,pars)
 
-def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={}):
+def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={},fbkgUnc=None):
     shapes = ['wqq', 'zqq', 'tqq', 'qcd', 'ggH_hbb', 'ZH_hbb', 'WH_hbb', 'ttH_hbb', 'qqH_hbb']
     bkgshapes=['wqq', 'zqq', 'tqq', 'qcd']
     sigshapes=['ggH_hbb', 'ZH_hbb', 'WH_hbb', 'ttH_hbb', 'qqH_hbb']
@@ -293,12 +307,14 @@ def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={}):
         else:
             rBestFit = 0
        
-    #if suffix=='2016'  : ch = 'ch1' 
-    #elif suffix=='2017': ch = 'ch2' 
-    #elif suffix=='2018': ch = 'ch3' 
-    ch=''
-    pass_cat_name = "_".join(filter(None,[ch,"cat%i"%index,suffix,"pass","cat%i"%index]))
-    fail_cat_name = "_".join(filter(None,[ch,"cat%i"%index,suffix,"fail","cat%i"%index]))
+    pass_cat_name = "_".join(filter(None,["cat%i"%index,suffix,"pass","cat%i"%index]))
+    fail_cat_name = "_".join(filter(None,["cat%i"%index,suffix,"fail","cat%i"%index]))
+    if fbkgUnc is not None:
+        bkgUnc_pass        = fbkgUnc.Get('bkgUncBand_pass_'+suffix+'_cat%i'%index)
+        bkgUnc_fail        = fbkgUnc.Get('bkgUncBand_fail_'+suffix+'_cat%i'%index)
+    else:
+        bkgUnc_pass        = None 
+        bkgUnc_fail        = None 
 
     for i, ish in enumerate(bkgshapes+sigshapes):
         if i < 4:
@@ -342,8 +358,35 @@ def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={}):
    #                                  r.RooFit.Binning(histograms_pass[0].GetNbinsX()))
    # data_pass = rdhp.createHistogram("data_pass_cat" + str(index) + "_" + fittype, rrv,
    #                                  r.RooFit.Binning(histograms_pass[0].GetNbinsX()))
-    data_pass =fml.Get("shapes_" + fitdir + "/%s/data" % (pass_cat_name))
-    data_fail =fml.Get("shapes_" + fitdir + "/%s/data" % (fail_cat_name))
+    data_density_pass =fml.Get("shapes_" + fitdir + "/%s/data" % (pass_cat_name))
+    data_density_fail =fml.Get("shapes_" + fitdir + "/%s/data" % (fail_cat_name))
+
+    def getGraphFromDensity(g):
+        gClone = g.Clone(g.GetName()+"_copy")
+        alpha = 1-0.6827
+        for i in range(0,gClone.GetN()):
+            N = gClone.GetY()[i]*BIN_WIDTH
+            L = 0
+            if N!=0:
+                L = r.Math.gamma_quantile(alpha/2,N,1.)
+            U = r.Math.gamma_quantile_c(alpha/2,N+1,1)
+
+            eyh = gClone.GetErrorYhigh(i)
+            eyl = gClone.GetErrorYlow(i)
+            gClone.SetPoint(i,gClone.GetX()[i], N)
+            if options.isData:
+                gClone.SetPointEYhigh(i, (N-L))
+                gClone.SetPointEYlow(i, (U-N))  
+            else:
+                gClone.SetPointEYhigh(i, eyh*BIN_WIDTH)
+                gClone.SetPointEYlow(i, eyl*BIN_WIDTH)
+            gClone.SetPointEXhigh(i,0) 
+            gClone.SetPointEXlow(i, 0)
+        return gClone
+    
+    data_pass = getGraphFromDensity(data_density_pass)
+    data_fail = getGraphFromDensity(data_density_fail)
+
 
     # if index==4:
     #    data_fail.SetBinContent(13,(data_fail.GetBinContent(12)+data_fail.GetBinContent(14))/2.)
@@ -363,10 +406,10 @@ def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={}):
 
     [histograms_fail] = makeMLFitCanvas(bkg_fail, data_fail, sig_fail, shapes,
                                         "fail_cat" + str(index) + "_%s_"%suffix + fittype, options.odir, rBestFit,
-                                        options.sOverSb, options.splitS, options.ratio)
+                                        options.sOverSb, options.splitS, options.ratio,bkgUnc_fail)
     [histograms_pass] = makeMLFitCanvas(bkg_pass, data_pass, sig_pass, shapes,
                                         "pass_cat" + str(index) + "_%s_"%suffix + fittype, options.odir, rBestFit,
-                                        options.sOverSb, options.splitS, options.ratio)
+                                        options.sOverSb, options.splitS, options.ratio,bkgUnc_pass)
     if qcdTFpars!={}:
         bkg_pass_qcdfail    = copy.deepcopy(bkg_pass)
         ## qcd position is 3
@@ -399,7 +442,7 @@ def plotCategory(fml, fd, index, fittype,suffix="",qcdTFpars={}):
         bkg_pass_qcdfail[3] = hqcd
         makeMLFitCanvas(bkg_pass_qcdfail, data_pass, sig_pass, shapes,
                                         "failTF_cat" + str(index) + "_%s_"%suffix + fittype, options.odir, rBestFit,
-                                        options.sOverSb, options.splitS, options.ratio,qcdTFpars)
+                                        options.sOverSb, options.splitS, options.ratio)
 
 
     return (histograms_pass, histograms_fail)
@@ -414,18 +457,25 @@ def weightBySOverSpB(bkgs, data, hsigs, tag):
             wB += b.GetBinContent(i)
         for s in hsigs:
             wS += s.GetBinContent(i)
-    if 'allcats' in tag:
+    if ('allcats' or 'sumcat') in tag:
         Z = 1
     else:
         Z = wS / (wS + wB)  # math.sqrt(wS+wB)
         print(Z, wS, wB)
-    for h in [data] + bkgs + hsigs:
+    for h in bkgs + hsigs:
         h.Scale(Z)
+    for i in range(0,data.GetN()):
+        data.SetPoint(i , data.GetX()[i], (data.GetY()[i])*Z)
+        eyh = data.GetErrorYhigh(i)
+        eyl = data.GetErrorYlow(i)
+        data.SetPointEYhigh(i, eyh * Z)
+        data.SetPointEYlow(i, eyl * Z)
+
     weight = wS / (wS + wB)  # math.sqrt(wS+wB)
     return [bkgs, data, hsigs, weight]
 
 
-def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOverSb=False, splitS=True, ratio=False,qcdTFpars={}):
+def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOverSb=False, splitS=True, ratio=False,bkgUnc=None):
     weight = 1
     if sOverSb:
         [bkgs, data, hsigs, weight] = weightBySOverSpB(bkgs, data, hsigs, tag)
@@ -446,16 +496,12 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     htot = bkgs[0].Clone("htot%s" % tag)
     hqcd = bkgs[3].Clone("hqcd%s" % tag)
 
-    hqcd.Add(bkgs[2])
-    htot.SetLineColor(r.kBlack)
-    htot.SetLineStyle(1)
-    htot.SetFillStyle(3001)
-    #htot.SetFillStyle(0)
-    htot.SetFillColor(r.kAzure - 5)
-    htot.SetLineColor(r.kAzure - 5)
-    htot.SetMinimum(0)
-    # htot.SetMinimum(5e-1)
-    htot.Draw("")
+    if options.showWZinRatio: 
+        hqcd.Add(bkgs[2])       #subtract ttbar only
+    else:
+        hqcd.Add(bkgs[0])       #subtract ttbar 
+        hqcd.Add(bkgs[1])       #subtract zqq 
+        hqcd.Add(bkgs[2])       #subtract wqq 
     htotsig = bkgs[0].Clone("htotsig%s" % tag)
     htotsig.SetLineColor(r.kBlack)
     htotsig.SetFillStyle(3001)
@@ -495,7 +541,10 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     legnames = {'wqq': 'W', 'zqq': 'Z', 'qcd': 'Multijet', 'tqq': 't#bar{t}'}
     for i in range(len(bkgs)):
         l.AddEntry(bkgs[i], legnames[leg[i]], "l")
-    l.AddEntry(htot, "Total background", "lf")
+    if bkgUnc is not None:
+        l.AddEntry(bkgUnc, "Total background", "lf")
+    else:
+        l.AddEntry(htot, "Total background", "lf")
     # l.AddEntry(htotsig,"Total Bkg. + Sig.","lf")
     if 'fit_b' not in tag:
         if splitS:
@@ -518,10 +567,6 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     htotsig.SetLineColor(r.kPink + 3)
     htotsig.SetLineWidth(2)
 
-    # htot.SetFillStyle(3004)
-    # htot.SetFillColor(r.kGray+1)
-    # htot.SetLineColor(r.kGray+2)
-    # data.SetMinimum(5e-1)
     data.SetMinimum(0)
     htot.SetMarkerSize(0)
     htot.SetMarkerColor(r.kGray + 2)
@@ -548,33 +593,9 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             g_data.SetPoint(i, g_data.GetX()[i], N)
         return g_data
  
-    def getGraphFromDensity(g):
-        gClone = g.Clone(g.GetName()+"_copy")
-        alpha = 1-0.6827
-        for i in range(0,gClone.GetN()):
-            N = gClone.GetY()[i]*BIN_WIDTH
-            L = 0
-            if N!=0:
-                L = r.Math.gamma_quantile(alpha/2,N,1.)
-            U = r.Math.gamma_quantile_c(alpha/2,N+1,1)
-
-            eyh = gClone.GetErrorYhigh(i)
-            eyl = gClone.GetErrorYlow(i)
-            gClone.SetPoint(i,gClone.GetX()[i], N)
-            if options.isData:
-                gClone.SetPointEYhigh(i, (N-L))
-                gClone.SetPointEYlow(i, (U-N))
-            else:
-                gClone.SetPointEYhigh(i, eyh*BIN_WIDTH)
-                gClone.SetPointEYlow(i, eyl*BIN_WIDTH)
-            gClone.SetPointEXhigh(i,0) 
-            gClone.SetPointEXlow(i, 0)
-        return gClone
-
-          
     #g_data = getDataGraphFromHist(data)
     #g_data = data.Clone("g_data")
-    g_data = getGraphFromDensity(data)
+    g_data = data
 
     maximum = htot.GetMaximum()    
     htot.GetXaxis().SetTitle('m_{SD} (GeV)')
@@ -583,7 +604,9 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     htot.GetYaxis().SetLabelSize(0.05)
     htot.GetYaxis().SetTitleOffset(1.25)
 
-    htot.Draw('')
+    htot.SetFillStyle(0)
+    htot.SetLineStyle(1)
+    htot.Draw('hist')
     if 'cat1' in tag:
         htot.GetXaxis().SetRangeUser(min(msd_binBoundaries),max(msd_binBoundaries) - 7*5)
     elif 'cat2' in tag:
@@ -593,7 +616,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         
     htot_line = htot.Clone('htot_line%s' % tag)
     htot_line.SetFillStyle(0)
-    htot_line.Draw('histsame')
+    #htot_line.Draw('histsame')
     htotsig_line = htotsig.Clone('htotsig_line%s' % tag)
     htotsig_line.SetFillStyle(0)
     # htotsig_line.Draw('histsame')
@@ -617,7 +640,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             return 6
 
     for b in sorted(bkgs,key=mysort):
-	if 'qcd' in b.GetName():
+        if 'qcd' in b.GetName():
             b.Draw('hist sames')
             #hstackMC.Add(b)
         else:
@@ -627,13 +650,17 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     # hsig.SetLineStyle(2)
     #hsig.SetLineWidth(1)
     if not splitS:
-	hstackMC.Add(hsig)
+        hstackMC.Add(hsig)
         #hsig.Draw('hist sames')
     else:
         for ih in range(0, len(hsigs)):
-	    hstackMC.Add(hsigs[ih])	
+            hstackMC.Add(hsigs[ih])	
             #hsigs[ih].Draw('hist sames')
-    htot.Draw('E2same')
+    if bkgUnc is not None:
+        bkgUnc.Draw("E2 same")
+        pass
+    else:
+        htot.Draw('E2same')
     hstackMC.Draw("hist sames")
     g_data.Draw('pezsame')
     l.Draw()
@@ -709,15 +736,13 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
 
     iRatio = h.Clone('iRatio%s' % tag)
     maxdata=1	
+    mindata=10	
     if ratio:
-        for i in range(iRatio.GetNbinsX()):
-            if htot.GetBinContent(i + 1) > 0:
-                iRatio.SetBinContent(i + 1, data.GetBinContent(i + 1) / htot.GetBinContent(i + 1))
-                iRatio.SetBinError(i + 1, data.GetBinError(i + 1) / htot.GetBinContent(i + 1))
-            iRatioGraph = r.TGraphAsymmErrors(iRatio)
+        iRatioGraph = r.TGraphAsymmErrors(iRatio)
         alpha = 1 - 0.6827
-        for i in range(0, iRatioGraph.GetN()):
-            N = iRatioGraph.GetY()[i] * htot.GetBinContent(i + 1) / weight
+        print iRatio.GetNbinsX()
+        for i in range(0, iRatio.GetNbinsX()):
+            N = g_data.GetY()[i] 
             L = 0
             if N != 0:
                 L = r.Math.gamma_quantile(alpha / 2, N, 1.)
@@ -729,7 +754,8 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             iRatioGraph.SetPoint(i, iRatioGraph.GetX()[i], N / htot.GetBinContent(i + 1) * weight)
     else:	
         for i in range(iRatio.GetNbinsX()):
-            if hqcd.GetBinContent(i + 1) > 0:
+            #if hqcd.GetBinContent(i + 1) > 0:
+            if g_data.GetY()[i] > 0:
                 x,y = (r.Double(),r.Double())
                 #value_data = data.GetBinContent(i + 1)
                 g_data.GetPoint(i,x,y)
@@ -744,6 +770,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
                     err_tot_data = err_low_data
                 iRatio.SetBinContent(i + 1, (value_data - value_fit) / err_tot_data)
 		if (value_data - value_fit) / err_tot_data > maxdata : maxdata = (value_data - value_fit) / err_tot_data
+		if (value_data - value_fit) / err_tot_data < mindata : mindata = (value_data - value_fit) / err_tot_data
 		
                 iRatio.SetBinError(i + 1, 1)  # data.GetBinError(i+1)+hqcd.GetBinError(i+1) )
         iRatioGraph = r.TGraphAsymmErrors(iRatio)
@@ -757,7 +784,10 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     if ratio:
         iOneWithErrors.SetTitle("; m_{SD} (GeV); Data/Prediction")
     else:
-        iOneWithErrors.SetTitle("; m_{SD} (GeV); #frac{Data #minus (Multijet + t#bar{t})}{#sigma_{Data}}")
+        if options.showWZinRatio:
+            iOneWithErrors.SetTitle("; m_{SD} (GeV); #frac{Data #minus (Multijet + t#bar{t})}{#sigma_{Data}}")
+        else:
+            iOneWithErrors.SetTitle("; m_{SD} (GeV); #frac{Data #minus Bkg}{#sigma_{Data}}")
     iOneWithErrors.SetMaximum(1.5)
     iOneWithErrors.SetMinimum(0.)
     iOneWithErrors.GetYaxis().SetTitleSize(0.1)
@@ -772,21 +802,23 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
         iOneWithErrors.Divide(htot.Clone())
         for i in range(iOneWithErrors.GetNbinsX()):
             # print i+1, htot.GetBinContent(i+1)
-            if htot.GetBinContent(i + 1) > 0. and g_data.GetBinContent > 0.:
-                iOneWithErrors.SetBinError(i + 1, htot.GetBinError(i + 1) / htot.GetBinContent(i + 1))
+            if htot.GetBinContent(i + 1) > 0. and g_data.GetY()[i] > 0.:
+                #iOneWithErrors.SetBinError(i + 1, htot.GetBinError(i + 1) / htot.GetBinContent(i + 1))
+                iOneWithErrors.SetBinError(i + 1,  bkgUnc.GetBinError(i+1) / htot.GetBinContent(i + 1))
             else:
                 iOneWithErrors.SetBinError(i + 1, 0)
     else:
         iOneWithErrors.Add((-1) * htot.Clone())
         for i in range(iOneWithErrors.GetNbinsX()):
-            iOneWithErrors.SetBinError(i+1, 0)
+            err_tot_data =  (g_data.GetEYlow()[i]+g_data.GetEYhigh()[i])/2
+            iOneWithErrors.SetBinError(i+1, bkgUnc.GetBinError(i+1)/err_tot_data )
     iOneWithErrors.SetFillStyle(3001)
     if ratio: 
-	iOneWithErrors.SetFillColor(r.kAzure - 5)
-    	iOneWithErrors.SetLineColor(r.kAzure - 5)
+        iOneWithErrors.SetFillColor(r.kAzure - 5)
+        iOneWithErrors.SetLineColor(r.kAzure - 5)
     else :
-	iOneWithErrors.SetLineColor(r.kGray+2)
-	iOneWithErrors.SetFillColor(r.kGray+2)
+        iOneWithErrors.SetLineColor(r.kAzure -5 )
+        iOneWithErrors.SetFillColor(r.kAzure -5 )
     iOneWithErrors.SetMarkerSize(0)
     iOneWithErrors.SetLineWidth(2)
     iOneWithErrors.Draw('')
@@ -800,18 +832,21 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
     iOneWithErrorsLine.SetFillStyle(0)
 
     if ratio: 
-	iOneWithErrors.Draw("e2 sames")
-        iOneWithErrors.GetYaxis().SetRangeUser(0.51, 1.49)
+        iOneWithErrors.Draw("e2 sames")
+        iOneWithErrors.GetYaxis().SetRangeUser(0.8, 1.2)
     else:
-        iOneWithErrors.GetYaxis().SetRangeUser(-5, maxdata*1.5)
+        iOneWithErrors.Draw("e2 sames")
+        iOneWithErrors.GetYaxis().SetRangeUser((mindata-1)*1.5, (maxdata+1)*1.5)
     
     sigHistResiduals = []
     if splitS:
         sigHists = list(hsigs)
     else:
         sigHists = [hsig]
-    [sigHists.append(bkg) for bkg in bkgs if 'zqq' in bkg.GetName()]
-    [sigHists.append(bkg) for bkg in bkgs if 'wqq' in bkg.GetName()]
+    if options.showWZinRatio:
+        [sigHists.append(bkg) for bkg in bkgs if 'zqq' in bkg.GetName()]
+        [sigHists.append(bkg) for bkg in bkgs if 'wqq' in bkg.GetName()]
+   
     #print sigHists
     #sys.exit()
     for sigHist in sigHists:
@@ -820,11 +855,17 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
             value_data = g_data.GetY()[bin]
             err_tot_data = g_data.GetEYhigh()[bin]
             value_signal = sigHist.GetBinContent(bin+1)
-            ## Signal residuals
-            if err_tot_data>0:                
-                sig_residual = (value_signal) / err_tot_data
+            if options.ratio:
+                if htot.GetBinContent(bin+1)>0:
+                    sig_residual = (value_signal) / htot.GetBinContent(bin+1) 
+                else:
+                    sig_residual = 0
             else:
-                sig_residual = 0                                
+                ## Signal residuals
+                if err_tot_data>0:                
+                    sig_residual = (value_signal) / err_tot_data
+                else:
+                    sig_residual = 0                                
             ## Fill histo with residuals
             sigHistResidual.SetBinContent(bin+1,sig_residual)
         sigHistResiduals.append(sigHistResidual)
@@ -856,6 +897,7 @@ def makeMLFitCanvas(bkgs, data, hsigs, leg, tag, odir='cards', rBestFit=1, sOver
 
     #raw_input("test")
 
+    #return [bkgs + hsigs + [data]]
     return [bkgs + hsigs + [data]]
 
 
@@ -1210,6 +1252,7 @@ if __name__ == '__main__':
     parser.add_option('--np','--NP' ,action='store',type='int',dest='NP'   ,default=1, help='order of pt polynomial')
     parser.add_option('--suffix', dest='suffix', default='', help='list of suffix  separated by :',metavar='suffix')
     parser.add_option('--qcdTF', dest='qcdTF', action='store_true',default=False, help='make fail x TF plot',metavar='qcdTF')
+    parser.add_option('--showWZinRatio', dest='showWZinRatio', action='store_true',default=False, help='showWZ in Ratio plot',metavar='showWZinRatio')
 
     (options, args) = parser.parse_args()
 
