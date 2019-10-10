@@ -80,7 +80,7 @@ def write_bash(temp = 'runjob.sh', command = '' ,gitClone="", setUpCombine=False
     out += 'cd ${CWD}\n'
     out += 'mv ./ftest*/toy*.root .\n'        #collect output
     out += 'mv ./ftest*/base*.root .\n'        #collect output
-    out += 'mv ./ftest*/card*.root .\n'        #collect output
+    out += 'mv ./cards_*/card*.root .\n'        #collect output
     out += 'echo "Inside $MAINDIR:"\n'
     out += 'ls\n'
     out += 'echo "DELETING..."\n'
