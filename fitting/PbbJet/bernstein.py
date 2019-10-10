@@ -1,4 +1,5 @@
 import math,array
+import numpy as np
 import ROOT as r
 import os
 from optparse import OptionParser,OptionGroup
@@ -166,6 +167,7 @@ def getParsfromMLfit(ws_path,fml_path,pamNames,qcdeff=0,setTFto1=False,fit_type 
     ## sort the fitparameters in accending x and y, where pam = pxry
     fitpamNames = sorted([ fitpams[i].GetName() for i in range(0,len(fitpams))])
     for p in fitpamNames:
+        if not p in pamNames : continue 
         print p, "= %.3f"%rfr.floatParsFinal().find(p).getVal(), "+/-  %.3f"%rfr.floatParsFinal().find(p).getError()
         pars[p] = rfr.floatParsFinal().find(p).getVal()
         parsArr.append( rfr.floatParsFinal().find(p).getVal())
@@ -251,7 +253,7 @@ def getPaveText(MsdOrRho):
     return pave_param,pave_param2
 
 
-def drawOpt(f2,colz,MsdOrRho,ofname):
+def drawOpt(f2,colz,MsdOrRho,ofname,zMax=0.01,zMin=0.0,usef2=True):
     c1 = r.TCanvas("c1","c1",800,800)
     c1.SetBottomMargin(0.15)
     #fun_mass_pT_str =  genBernsteinTFstring(nrho,npT,f2)
@@ -263,6 +265,19 @@ def drawOpt(f2,colz,MsdOrRho,ofname):
         text1,text2 = getPaveText(MsdOrRho)
         if MsdOrRho=='msd':
             rhoxy =  r.TF2("rhoxy","log(x*x/y/y)",30,221,400,1300)
+
+            ptbins = array.array('d',np.array([450, 500, 550, 600, 675, 800, 1200]))
+            ptVals = array.array('d',np.array([465, 515, 565, 622.5, 712.5, 920]))
+            msdbins = array.array('d',np.linspace(40,201,24))
+            h2      = r.TH2F("h2","h2",len(msdbins)-1, msdbins, len(ptbins)-1,ptbins)
+            for i in range(1,h2.GetNbinsX()+1):
+                for j in range(1,h2.GetNbinsY()+1):
+                    x = h2.GetXaxis().GetBinCenter(i)
+                    y = ptVals[j-1] 
+                    z = f2.Eval(x,y)
+                    h2.SetBinContent(i,j,z)
+            if not usef2:
+                f2 = h2
             contours = array.array('d',[rho_low ,rho_up])
             rhoxy.SetContour(2,contours)
             rhoxy.Draw("CONT Z LIST")
@@ -284,6 +299,19 @@ def drawOpt(f2,colz,MsdOrRho,ofname):
             rhocurv1.Draw("same")
             rhocurv2.Draw("same")
         else:
+            ptbins = array.array('d',np.array([450, 500, 550, 600, 675, 800, 1200]))
+            ptVals = array.array('d',np.array([465, 515, 565, 622.5, 712.5, 920]))
+            rhobins = array.array('d',np.linspace(-6,-2.1,24))
+            h2      = r.TH2F("h2","h2",len(rhobins)-1, rhobins, len(ptbins)-1,ptbins)
+            for i in range(1,h2.GetNbinsX()+1):
+                for j in range(1,h2.GetNbinsY()+1):
+                    x = h2.GetXaxis().GetBinCenter(i)
+                    y = ptVals[j-1] 
+                    z = f2.Eval(x,y)
+                    h2.SetBinContent(i,j,z)
+            if not usef2:
+                f2 = h2
+
             mxy = r.TF2("mxy", "sqrt(exp(x))*y",-6.5, -1.5, 400, 1300)
             contours = array.array('d',[msd_low ,msd_up])
             mxy.SetContour(2,contours)
@@ -321,15 +349,21 @@ def drawOpt(f2,colz,MsdOrRho,ofname):
     else:
         f2.GetXaxis().SetTitle("#rho = log(m_{SD}^{2}/p_{T}^{2})")
 
+  
+    r.gStyle.SetOptStat(0) 
     f2.GetYaxis().SetTitle("p_{T} [GeV]")
     f2.GetZaxis().SetTitle("Pass-to-fail Ratio")
     f2.GetZaxis().SetTitleOffset(2)
-    f2.SetMaximum(1.0)
-    f2.SetMinimum(0.0)
+    #f2.SetMaximum(1.5)
+    #f2.SetMinimum(0.4)
+    f2.SetMaximum(zMax)
+    f2.SetMinimum(zMin)
     f2.SetTitle("")
 
     #drawCMS()
-    lumi = 41.5
+    if '2018' in ofname:    lumi = 59.2
+    elif '2016' in ofname:  lumi = 35.5
+    else:                   lumi = 41.5
     tag1 = r.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%lumi)
     tag1.SetNDC(); tag1.SetTextFont(42)
     tag1.SetTextSize(0.045)
@@ -385,7 +419,7 @@ def drawBasisMaps(nrho,npT,odir,exp=False):
             ipos +=1 
    
 # Exp = exponential function
-def makeTFs(pars,nrho,npT,odir,exp=False):
+def makeTFs(pars,nrho,npT,odir,exp=False,zmax=1.5,zmin=0.0):
     if not pars['qcdeff'] ==-999:
         f2params = array.array('d', pars['arr'])
     else:
@@ -406,32 +440,34 @@ def makeTFs(pars,nrho,npT,odir,exp=False):
         fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=True,qcdeff=True,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
         f2.SetParameters(f2params)
-        drawOpt(f2,colz,'msd',odir+"f2.pdf")
+        drawOpt(f2,colz,'msd',odir+"f2.pdf",zMax=zmax,zMin=zmin)
+        drawOpt(f2,colz,'msd',odir+"h2.pdf",zMax=zmax,zMin=zmin,usef2=False)
         fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=True,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_rho_pT, -6,-2.1,450,1200,npar)
         f2.SetParameters(f2params)
-        drawOpt(f2,colz,'rho',odir+"f2_rho.pdf")
+        drawOpt(f2,colz,'rho',odir+"f2_rho.pdf",zMax=zmax,zMin=zmin)
+        drawOpt(f2,colz,'rho',odir+"h2_rho.pdf",zMax=zmax,zMin=zmin,usef2=False)
         # Transfer-factor in mSD-pT plane
-        fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=True,qcdeff=False,rescale=True,exp=exp)
-        f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
-        f2.SetParameters(f2params)
+        #fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=True,qcdeff=False,rescale=True,exp=exp)
+        #f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
+        #f2.SetParameters(f2params)
         #for pT in [500,700,800]:
         #    arr = []
         #    for msd in range(120,130):
         #        arr.append("%.3f"%f2.Eval(msd,pT))
         #    print arr
 
-        drawOpt(f2,colz,'msd',odir+"f2_noqcdeff.pdf")
+        #drawOpt(f2,colz,'msd',odir+"f2_noqcdeff.pdf",zMax=1.5,zMin=0.4)
         # Transfer-factor in rho-pT plane
         fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=False,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_rho_pT,  -6,-2.1,450,1200,npar)
         f2.SetParameters(f2params)
-        drawOpt(f2,colz,'rho',odir+"f2_noqcdeff_rho.pdf")
+        #drawOpt(f2,colz,'rho',odir+"f2_noqcdeff_rho.pdf",zMax=1.5,zMin=0.4)
         # Pass-to-Fail ratio in rho-pT unit plane
         fun2 =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=True,rescale=False,exp=exp)
         f2 = r.TF2("f_unit", fun2, 0,1,0,1,npar)
         f2.SetParameters(f2params)
-        drawOpt(f2,colz,'rho',odir+"f2_unit.pdf")
+        #drawOpt(f2,colz,'rho',odir+"f2_unit.pdf",zMax=1.5,zMin=0.4)
         
 if __name__ == '__main__':
 
