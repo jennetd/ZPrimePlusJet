@@ -166,7 +166,7 @@ def main(options,mode,dryRun):
         cmds.append(t2ws_vbf)
     if muonCR:
         cmds.insert(2,makemuonCR_base)
-        cmds.insert(2,makemuonCR_cp)
+        #cmds.insert(2,makemuonCR_cp)
     if hasattr(options, 'scaleLumi') and options.scaleLumi:
         cmds.insert(3,insert)
     ## skip all building commands for comb
@@ -204,11 +204,12 @@ def buildcats(ifile,odir,muonCR,suffix):
     return cats
 
 def loadcats(idir,odir,muonCR,suffix):
-    if not os.path.exists(idir+'../data/hist_1DZbb_pt_scalesmear.root'):
-        print idir+'../data/hist_1DZbb_pt_scalesmear.root'+' does not exists'
-        sys.exit()
-    else:
+    if (os.path.exists(idir+'../data/hist_1DZbb_pt_scalesmear.root')) :
         return buildcats(idir+'../data/hist_1DZbb_pt_scalesmear.root',idir,muonCR,suffix)
+    elif (os.path.exists(idir+'../../data/hist_1DZbb_pt_scalesmear.root')) :
+        return buildcats(idir+'../../data/hist_1DZbb_pt_scalesmear.root',idir,muonCR,suffix)
+    else:
+        print idir+'../data/hist_1DZbb_pt_scalesmear.root'+' does not exists'
 
 def VBFddb(options):
     dryRun = options.dryRun
@@ -381,21 +382,28 @@ def DDB_combination(options):
         #},
         #################################
         ##  Pow_qcdTF22uncV6_blind_SFJul8##
+        #{'idirs':[
+        #    'ddb_Jun24_v2/ddb_M2_full/TF11_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
+        #    'ddb2018_Jun24_v3/ddb_M2_full/TF11_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
+        #    'ddb2016_Jun24_v3/ddb_M2_full/TF21_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/Pow_fdeco_blind_SFJul8/'
+        #},
+        #{'idirs':[
+        #    'ddb_Jun24_v2/ddb_M2_full/TF11_qcdTF22uncV6_muonCRv7_SFJul8/',
+        #    'ddb2018_Jun24_v3/ddb_M2_full/TF11_qcdTF22uncV6_muonCRv7_SFJul8/',
+        #    'ddb2016_Jun24_v3/ddb_M2_full/TF21_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/Pow_fdeco_SFJul8/'
+        #},
+        #################################
+        #  Pow_qcdTF22uncV6_blind_SFJul8##
         {'idirs':[
-            'ddb_Jun24_v2/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
-            'ddb2018_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
-            'ddb2016_Jun24_v3/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
+            'ddb_Jun24_v2/ddb_M2_full/msd54/TF11_qcdTF22uncV6_muonCRv7_SFJul8/',
+            'ddb2018_Jun24_v3/ddb_M2_full/msd54/TF11_qcdTF22uncV6_muonCRv7_SFJul8/',
+            'ddb2016_Jun24_v3/ddb_M2_full/msd54/TF21_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
          ],
-        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22uncV6_blind_SFJul8/'
-        },
-        {'idirs':[
-            'ddb_Jun24_v2/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFJul8/',
-            'ddb2018_Jun24_v3/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFJul8/',
-            'ddb2016_Jun24_v3/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
-         ],
-        'odir':'ddb_comb_Jun24/comb161718/Pow_qcdTF22uncV6_SFJul8/'
-        },
-
+        'odir':'ddb_comb_Jun24/comb161718/Pow_msd54_SFJul8/'},
         #################################
        ###  MiNLO_blind_SFJul8##
         #{'idirs':[
@@ -432,24 +440,28 @@ def DDB_combination(options):
         #}
 
          ###  MiNLO_qcdTF22unc_blind_SFJul8##
-         {'idirs':[
-                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
-                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
-                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/'
-         ],
-        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22uncV6_blind_SFJul8/'
-        },
-        {'idirs':[
-                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
-                    'ddb2018_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFJul8/',
-                    'ddb_Jun24_MiNLO/ddb_M2_full/TF22_qcdTF22uncV6_muonCRv7_SFJul8/'
-                ],
-        'odir':'ddb_comb_Jun24/comb161718/MiNLO_qcdTF22uncV6_SFJul8/'
-        }
+        # {'idirs':[
+        #            'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF21_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
+        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF11_blind_qcdTF22uncV6_muonCRv7_SFJul8/',
+        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF11_blind_qcdTF22uncV6_muonCRv7_SFJul8/'
+        # ],
+        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_fdeco_blind_SFJul8/'
+        #},
+        #{'idirs':[
+        #            'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/TF21_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
+        #            'ddb2018_Jun24_MiNLO/ddb_M2_full/TF11_qcdTF22uncV6_muonCRv7_SFJul8/',
+        #            'ddb_Jun24_MiNLO/ddb_M2_full/TF11_qcdTF22uncV6_muonCRv7_SFJul8/'
+        #        ],
+        #'odir':'ddb_comb_Jun24/comb161718/MiNLO_fdeco_SFJul8/'
+        #}
         ###############################
-
-
-
+        ## msd54
+         {'idirs':[
+                    'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/msd54/TF21_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',
+                    'ddb2018_Jun24_MiNLO/ddb_M2_full/msd54/TF11_qcdTF22uncV6_muonCRv7_SFJul8/',
+                    'ddb_Jun24_MiNLO/ddb_M2_full/msd54/TF11_qcdTF22uncV6_muonCRv7_SFJul8/'
+         ],
+        'odir':'ddb_comb_Jun24/comb161718/MiNLO_msd54_SFJul8/'}
 
     ]
     #odir = 'ddb_comb_Jun24/comb161718/MiNLO_blind_SFJul8/'
@@ -637,7 +649,7 @@ def DDB_data_main(options):
         #'ddb2016_Jun16/ddb_T3_full/',     #Jun16 = Phil NLO v2 reweighting,no shift
         #'ddb_Jun21/ddb_M2_full/',      #Jun16   += 2017 BtoE only
         #'ddb_Jun24/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16
-        'ddb_Jun24_v2/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16, shifted central template
+        #'ddb_Jun24_v2/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16, shifted central template
         #'ddb2018_Jun24/ddb_M2_full/',      # prod16 reduced 2018D 
         #'ddb2018_Jun24_v2/ddb_M2_full/',      # prod16 reduced 2018D , shifted central template
         #'ddb2018_Jun24_v3/ddb_M2_full/',      # prod16 Full 2018D , shifted central template SF Jul8
@@ -648,6 +660,13 @@ def DDB_data_main(options):
         #'ddb2018_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v3   += MiNLO Jul7 shifted central template 
         #'ddb2016_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v2   += MiNLO Jul7 shifted central template 
         #'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/',      #Jun24_v2   += MiNLO GluGlu Powheg reweighting
+        ###### good templates###########
+        'ddb2016_Jun24_v3/ddb_M2_full/',   # 2016 fixed MC template,prod16, w/ full QCD MC stat
+        'ddb_Jun24_v2/ddb_M2_full/',      #Jun16   += 2017 BtoF, prod16, shifted central template
+        'ddb2018_Jun24_v3/ddb_M2_full/',      # prod16 Full 2018D , shifted central template SF Jul8
+        'ddb2016_Jun24_MiNLO_v2/ddb_M2_full/',   #Jun24_v2   += MiNLO GluGlu Powheg reweighting
+        'ddb_Jun24_MiNLO/ddb_M2_full/',          #Jun24_v2   += MiNLO Jul7 shifted central template 
+        'ddb2018_Jun24_MiNLO/ddb_M2_full/',      #Jun24_v3   += MiNLO Jul7 shifted central template 
         ###### special prod###########
         #'ddb_Jun20/ddb_M2_full/',         #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cuti
         #'ddb2016_Jun20/ddb_M2_full/',     #Jun20 = Phil NLO v2 reweighting,no shift, no N2ddt cut
@@ -689,10 +708,20 @@ def DDB_data_main(options):
         ### qcdTF22uncV5= rescaled qcdeff in workspace
         ### qcdTF22uncV6= add qcd deco
         #############
-        'TF22_qcdTF22uncV6_muonCRv7_SFJul8/',                       
-        'TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',                 
-        'TF22_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',  
-        'TF22_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',             
+        #'TF22_qcdTF22uncV6_muonCRv7_SFJul8/',                       
+        #'TF22_blind_qcdTF22uncV6_muonCRv7_SFJul8/',                 
+        #'TF21_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',  
+        #'TF21_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',             
+        #############
+        #'TF11_qcdTF22uncV6_muonCRv7_SFJul8/',                       
+        #'TF11_blind_qcdTF22uncV6_muonCRv7_SFJul8/',                 
+        #'TF21_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',  
+        #'TF21_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',             
+        #######msd54############
+        'msd54/TF11_qcdTF22uncV6_muonCRv7_SFJul8/',                       
+        'msd54/TF11_blind_qcdTF22uncV6_muonCRv7_SFJul8/',                 
+        'msd54/TF21_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',  
+        'msd54/TF21_blind_qcdTF22uncV6_muonCRv7_SFAug8_looserWZ_p80/',             
         ##############
         #'TF22_blind_qcdTF22uncV6_muonCR_test/',                 
         #'TF22_blind_qcdTF22unc_SFJul8/',  
@@ -750,7 +779,8 @@ def DDB_data_main(options):
                 if 'looserWZ' in odir and not( options.year=='2016'): continue
                 if '2016'     in idir and not( 'looserWZ' in odir  ): continue
             options.odir = idir+odir
-            if not os.path.exists(options.odir): os.mkdir(options.odir)
+            #if not os.path.exists(options.odir): os.mkdir(options.odir)
+            if not os.path.exists(options.odir): os.makedirs(options.odir)
             options.ifile  = options.idir+"data/hist_1DZbb_pt_scalesmear.root"
             #options.ifile  = options.idir+"rescaledVqq/hist_1DZbb_pt_scalesmear.root"
             if 'muonCR' in odir:                options.muonCR = options.idir+"muonCR/hist_1DZbb_muonCR.root"
