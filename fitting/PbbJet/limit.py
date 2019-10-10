@@ -121,6 +121,10 @@ def plotftest(iToys,iCentral,prob,iLabel,options):
     elif options.method=='GoodnessOfFit' and options.algo=='KS':
         lH = r.TH1F(iLabel+"hist",iLabel+"hist",70,0,max(max(iToys),iCentral)+0.05)
         lH_cut = r.TH1F(iLabel+"hist",iLabel+"hist",70,0,max(max(iToys),iCentral)+0.05)
+    elif options.method=='GoodnessOfFit' and options.algo=='AD':
+        lH = r.TH1F(iLabel+"hist",iLabel+"hist",70,0,max(max(iToys),iCentral)+5)
+        lH_cut = r.TH1F(iLabel+"hist",iLabel+"hist",70,0,max(max(iToys),iCentral)+5)
+
     
     if options.method=='FTest':
         lH.GetXaxis().SetTitle("F = #frac{-2log(#lambda_{1}/#lambda_{2})/(p_{2}-p_{1})}{-2log#lambda_{2}/(n-p_{2})}")
@@ -136,6 +140,11 @@ def plotftest(iToys,iCentral,prob,iLabel,options):
         lH.GetXaxis().SetTitle("KS")  
         lH.GetYaxis().SetTitle("Pseudodatasets")
         lH.GetYaxis().SetTitleOffset(0.85)
+    elif options.method=='GoodnessOfFit' and options.algo=='AD':
+        lH.GetXaxis().SetTitle("AD")  
+        lH.GetYaxis().SetTitle("Pseudodatasets")
+        lH.GetYaxis().SetTitleOffset(0.85)
+
     for val in iToys:
         lH.Fill(val)
         if val > iCentral:
