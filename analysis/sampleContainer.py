@@ -221,10 +221,10 @@ class sampleContainer:
 
         # define histograms
         histos1d = {            
-            'h_fBosonPt_fbweight': ["h_" + self._name + "_fBosonPt_fbweight", "; fBoson pT;;", 100, 0, 1000],
-            'h_fBosonPt_weight':   ["h_" + self._name + "_fBosonPt_weight", "; fBoson pT;;", 100, 0, 1000],
-            'h_fBosonPt_PUweight': ["h_" + self._name + "_fBosonPt_PUweight", "; fBoson pT;;", 100, 0, 1000],
-            'h_fBosonPt_trigWeight': ["h_" + self._name + "_fBosonPt_trigWeight", "; fBoson pT;;", 100, 0, 1000],
+            'h_fBosonPt_fbweight': ["h_" + self._name + "_fBosonPt_fbweight", "; fBoson pT;;", 120, 0, 1200],
+            'h_fBosonPt_weight':   ["h_" + self._name + "_fBosonPt_weight", "; fBoson pT;;", 120, 0, 1200],
+            'h_fBosonPt_PUweight': ["h_" + self._name + "_fBosonPt_PUweight", "; fBoson pT;;", 120, 0, 1200],
+            'h_fBosonPt_trigWeight': ["h_" + self._name + "_fBosonPt_trigWeight", "; fBoson pT;;", 100, 0, 1200],
             'h_npv': ["h_" + self._name + "_npv", "; number of PV;;", 100, 0, 100],
             'h_msd_ak8_topR6_N2_pass': ["h_" + self._name + "_msd_ak8_topR6_N2_pass", "; AK8 m_{SD}^{PUPPI} (GeV);", 23,
                                         40, 201],
@@ -562,6 +562,8 @@ class sampleContainer:
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000]
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000, 1100, 1200, 1300, 1400, 1500]
         pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1200]
+        Gen_pt_binBoundaries = [0, 200, 300, 450, 650, 1200,10000]
+        #Gen_pt_binBoundaries = [0,200,300,450, 500, 550, 600, 675, 800, 1200]
 
         histos2d_fix = {
             'h_rhop_v_t21_ak8': ["h_" + self._name + "_rhop_v_t21_ak8", "; AK8 rho^{DDT}; AK8 <#tau_{21}>", 15, -5, 10,
@@ -575,15 +577,24 @@ class sampleContainer:
         systematics = ['JESUp','JESDown','JERUp','JERDown','triggerUp','triggerDown','PuUp','PuDown','matched','unmatched']
         regions     = ['topR6_N2','QGquark','QGgluon']
         histos2d={}
+        histos3d={}
         for r in regions:
             for pf in passfail:
                 hkey  ="h_msd_v_pt_ak8_%s_%s"%(r,pf)
                 hname ="h_" + self._name + "_msd_v_pt_ak8_%s_%s"%(r,pf)
                 histos2d[hkey] = [hname,"; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
+                hkey3d  ="h_msd_v_recoPt_v_genPt_ak8_%s_%s"%(r,pf)
+                hname3d ="h_" + self._name + "_msd_v_recoPt_v_genPt_ak8_%s_%s"%(r,pf)
+                histos3d[hkey3d] = [hname3d,"; AK8 m_{SD}^{PUPPI} (GeV);AK8 RECO p_{T} (GeV); H Gen p_{T} (GeV)"]
+
                 for sys in systematics:
                     hkey_sys  = "h_msd_v_pt_ak8_%s_%s_%s"%(r,pf,sys)
                     hname_sys ="h_" + self._name + "_msd_v_pt_ak8_%s_%s_%s"%(r,pf,sys)
                     histos2d[hkey_sys] = [hname_sys,"; AK8 m_{SD}^{PUPPI} (GeV); AK8 p_{T} (GeV)"]
+                    hkey_sys_3d  = "h_msd_v_recoPt_v_genPt_ak8_%s_%s_%s"%(r,pf,sys)
+                    hname_sys_3d ="h_" + self._name + "_msd_v_recoPt_v_genPt_ak8_%s_%s_%s"%(r,pf,sys)
+                    histos3d[hkey_sys_3d] = [hname_sys_3d,"; AK8 m_{SD}^{PUPPI} (GeV);AK8 RECO p_{T} (GeV); H Gen p_{T} (GeV)"]
+
 
         histos2d.update({
             'h_msd_v_pt_ak8_muCR4_N2_pass': ["h_" + self._name + "_msd_v_pt_ak8_muCR4_N2_pass",
@@ -669,6 +680,10 @@ class sampleContainer:
                             len(pt_binBoundaries) - 1, array.array('d', pt_binBoundaries))
             setattr(self, key, tmp)
             (getattr(self, key)).Sumw2()
+        for key, val in histos3d.iteritems():
+            tmp = ROOT.TH3F(val[0], val[1], len(msd_binBoundaries) - 1, array.array('d', msd_binBoundaries),
+                            len(pt_binBoundaries) - 1, array.array('d', pt_binBoundaries), len(Gen_pt_binBoundaries) -1, array.array('d', Gen_pt_binBoundaries))
+            setattr(self, key, tmp)
 
         # loop
         if len(fn) > 0:
@@ -1429,16 +1444,16 @@ class sampleContainer:
                 if jdb_8 > self.DBTAGCUT:
                     cut[9] = cut[9] + 1
                     self.h_msd_ak8_topR6_N2_pass.Fill(jmsd_8, weight)
-                    self.h_msd_v_pt_ak8_topR6_N2_pass.Fill(jmsd_8, jpt_8, weight)
-                    self.h_msd_v_pt_ak8_topR6_N2_pass_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
-                    self.h_msd_v_pt_ak8_topR6_N2_pass_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
-                    self.h_msd_v_pt_ak8_topR6_N2_pass_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
-                    self.h_msd_v_pt_ak8_topR6_N2_pass_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_pass.Fill(jmsd_8, jpt_8, genVPt, weight)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_pass_triggerUp.Fill(jmsd_8, jpt_8, genVPt, weight_triggerUp)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_pass_triggerDown.Fill(jmsd_8, jpt_8, genVPt, weight_triggerDown)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_pass_PuUp.Fill(jmsd_8, jpt_8, genVPt, weight_pu_up)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_pass_PuDown.Fill(jmsd_8, jpt_8, genVPt, weight_pu_down)
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_N2_pass_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
+                        self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_pass_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, genVPt, weight)
                     else:
-                        self.h_msd_v_pt_ak8_topR6_N2_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_pass_unmatched.Fill(jmsd_8, jpt_8, genVPt, weight)
                     if QGquark_pass:  
                         self.h_msd_v_pt_ak8_QGquark_pass.Fill(jmsd_8, jpt_8, weight)
                         self.h_msd_v_pt_ak8_QGquark_pass_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
@@ -1462,17 +1477,17 @@ class sampleContainer:
                             self.h_msd_v_pt_ak8_QGgluon_pass_unmatched.Fill(jmsd_8, jpt_8, weight)
                 elif jdb_8 > self.DBTAGCUTMIN:
                     self.h_msd_ak8_topR6_N2_fail.Fill(jmsd_8, weight)
-                    self.h_msd_v_pt_ak8_topR6_N2_fail.Fill(jmsd_8, jpt_8, weight)
-                    self.h_msd_v_pt_ak8_topR6_N2_fail_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
-                    self.h_msd_v_pt_ak8_topR6_N2_fail_triggerDown.Fill(jmsd_8, jpt_8, weight_triggerDown)
-                    self.h_msd_v_pt_ak8_topR6_N2_fail_PuUp.Fill(jmsd_8, jpt_8, weight_pu_up)
-                    self.h_msd_v_pt_ak8_topR6_N2_fail_PuDown.Fill(jmsd_8, jpt_8, weight_pu_down)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_fail.Fill(jmsd_8, jpt_8, genVPt,weight)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_fail_triggerUp.Fill(jmsd_8, jpt_8,genVPt, weight_triggerUp)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_fail_triggerDown.Fill(jmsd_8, jpt_8, genVPt,weight_triggerDown)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_fail_PuUp.Fill(jmsd_8, jpt_8, genVPt,weight_pu_up)
+                    self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_fail_PuDown.Fill(jmsd_8, jpt_8, genVPt,weight_pu_down)
 
                     # for signal morphing
                     if dphi < 0.8 and dpt < 0.5 and dmass < 0.3:
-                        self.h_msd_v_pt_ak8_topR6_N2_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, weight)
+                        self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_fail_matched.Fill(jmsd_8* self.shift_SF['shift_SF'], jpt_8, genVPt,weight)
                     else:
-                        self.h_msd_v_pt_ak8_topR6_N2_fail_unmatched.Fill(jmsd_8, jpt_8, weight)
+                        self.h_msd_v_recoPt_v_genPt_ak8_topR6_N2_fail_unmatched.Fill(jmsd_8, jpt_8, genVPt,weight)
                     if QGquark_pass:  
                         self.h_msd_v_pt_ak8_QGquark_fail.Fill(jmsd_8, jpt_8, weight)
                         self.h_msd_v_pt_ak8_QGquark_fail_triggerUp.Fill(jmsd_8, jpt_8, weight_triggerUp)
@@ -1508,14 +1523,14 @@ class sampleContainer:
                                 'n_dR0p8_4_%s' % syst) < NJETCUT and  maxAK4_dcsvb<AK4DCSVCUT and jtN2b1sdddt_8 < 0 and isTightVJet:
                     if jdb_8 > self.DBTAGCUT:
                         (getattr(self, 'h_msd_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, weight)
-                        (getattr(self, 'h_msd_v_pt_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
+                        (getattr(self, 'h_msd_v_recoPt_v_genPt_ak8_topR6_N2_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),genVPt,weight)
                         if QGquark_pass:
                             (getattr(self, 'h_msd_v_pt_ak8_QGquark_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
                         else:
                             (getattr(self, 'h_msd_v_pt_ak8_QGgluon_pass_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
                     elif jdb_8 > self.DBTAGCUTMIN:
                         (getattr(self, 'h_msd_ak8_topR6_N2_fail_%s' % syst)).Fill(jmsd_8, weight)
-                        (getattr(self, 'h_msd_v_pt_ak8_topR6_N2_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
+                        (getattr(self, 'h_msd_v_recoPt_v_genPt_ak8_topR6_N2_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),genVPt,weight)
                         if QGquark_pass:
                             (getattr(self, 'h_msd_v_pt_ak8_QGquark_fail_%s' % syst)).Fill(jmsd_8, eval('jpt_8_%s' % syst),weight)
                         else:
