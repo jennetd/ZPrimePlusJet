@@ -542,10 +542,11 @@ def main(options, args):
     region  = options.region
     print "Selecting doubleB pass/fail plots for this region   =  %s"% region
     for pf in passfail:
-        hname  ="h_msd_v_pt_ak8_%s_%s"%(region,pf)
+        #hname  ="h_msd_v_pt_ak8_%s_%s"%(region,pf)
+        hname ="h_msd_v_recoPt_v_genPt_ak8_%s_%s"%(region,pf)
         plots.append(hname)
         for sys in systematics:
-            hname_sys  = "h_msd_v_pt_ak8_%s_%s_%s"%(region,pf,sys)
+            hname_sys ="h_msd_v_recoPt_v_genPt_ak8_%s_%s_%s"%(region,pf,sys)
             plots.append(hname_sys)
 
     #plots = ['h_msd_v_pt_ak8_topR6_N2_pass', 'h_msd_v_pt_ak8_topR6_N2_fail',
@@ -615,6 +616,7 @@ def main(options, args):
             bkgSamples['wlnu'] = normSampleContainer('wlnu',tfiles['wlnu'],  1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         if not options.skipQCD:
             bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        pass
     elif year=='2016':
         bkgSamples['wqq']  = sampleContainer('wqq',tfiles['wqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         bkgSamples['zqq']  = sampleContainer('zqq',tfiles['zqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
@@ -726,7 +728,23 @@ def main(options, args):
     outfile.cd()
 
     for key, h in hall.iteritems():
-        h.Write()
+        if type(h)==type(ROOT.TH3F()):
+            if h.GetName().split("_")[0] == 'hqq125':
+                hname = h.GetName()
+                nGenPt = h.GetNbinsZ()
+                for i in range(1,nGenPt+1):
+                    h.GetZaxis().SetRange(i,i+1)
+                    h2d = h.Project3D("xy")             # project to all gen bins for hqq125
+                    h2d.SetName(hname.replace("hqq125","hqq125_Genpt%i"%i))
+                    print h2d.GetName(),h2d.Integral()
+                    h2d.Write()
+            else:
+                hname = h.GetName()
+                h2d = h.Project3D("xy") #project to normal msd v reco_pt for normal process
+                h2d.SetName(hname)
+                h2d.Write()
+        else:
+            h.Write()
 
     outfile.Write()
     outfile.Close()
