@@ -1074,11 +1074,11 @@ class sampleContainer:
             dphi = 9999
             dpt = 9999
             dmass = 9999
+            genVPt = self.genVPt[0]
+            genVEta = self.genVEta[0]
+            genVPhi = self.genVPhi[0]
+            genVMass = self.genVMass[0]
             if (not self._isData):
-                genVPt = self.genVPt[0]
-                genVEta = self.genVEta[0]
-                genVPhi = self.genVPhi[0]
-                genVMass = self.genVMass[0]
                 if genVPt > 0 and genVMass > 0:
                     dphi = abs(QGLRutil.deltaPhi(genVPhi , jphi_8))
                     dpt = math.fabs(genVPt - jpt_8) / genVPt
