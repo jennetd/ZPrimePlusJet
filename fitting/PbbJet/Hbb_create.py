@@ -734,13 +734,13 @@ def main(options, args):
                 nGenPt = h.GetNbinsZ()
                 for i in range(1,nGenPt+1):
                     h.GetZaxis().SetRange(i,i+1)
-                    h2d = h.Project3D("xy")             # project to all gen bins for hqq125
+                    h2d = h.Project3D("yx")             # project to all gen bins for hqq125
                     h2d.SetName(hname.replace("hqq125","hqq125_Genpt%i"%i))
                     print h2d.GetName(),h2d.Integral()
                     h2d.Write()
             else:
                 hname = h.GetName()
-                h2d = h.Project3D("xy") #project to normal msd v reco_pt for normal process
+                h2d = h.Project3D("yx") #project to normal msd v reco_pt for normal process
                 h2d.SetName(hname)
                 h2d.Write()
         else:
