@@ -574,11 +574,14 @@ class sampleContainer:
         #Main analysis region
         #10 systematics variations + 2 main templates = 22 histo / region
         passfail    = ['pass','fail']
-        systematics = ['JESUp','JESDown','JERUp','JERDown','triggerUp','triggerDown','PuUp','PuDown','matched','unmatched']
-        regions     = ['topR6_N2','QGquark','QGgluon']
+        regions     = ['topR6_N2','QGquark','QGgluon','muCR4_N2']
         histos2d={}
         histos3d={}
         for r in regions:
+            if r =='muCR4_N2':
+                systematics = ['JESUp','JESDown','JERUp','JERDown','mutriggerUp','mutriggerDown','muidUp','muidDown','muisoUp','muisoDown','PuUp','PuDown']
+            else:
+                systematics = ['JESUp','JESDown','JERUp','JERDown','triggerUp','triggerDown','PuUp','PuDown','matched','unmatched']
             for pf in passfail:
                 hkey  ="h_msd_v_pt_ak8_%s_%s"%(r,pf)
                 hname ="h_" + self._name + "_msd_v_pt_ak8_%s_%s"%(r,pf)
@@ -594,7 +597,6 @@ class sampleContainer:
                     hkey_sys_3d  = "h_msd_v_recoPt_v_genPt_ak8_%s_%s_%s"%(r,pf,sys)
                     hname_sys_3d ="h_" + self._name + "_msd_v_recoPt_v_genPt_ak8_%s_%s_%s"%(r,pf,sys)
                     histos3d[hkey_sys_3d] = [hname_sys_3d,"; AK8 m_{SD}^{PUPPI} (GeV);AK8 RECO p_{T} (GeV); H Gen p_{T} (GeV)"]
-
 
         histos2d.update({
             'h_msd_v_pt_ak8_muCR4_N2_pass': ["h_" + self._name + "_msd_v_pt_ak8_muCR4_N2_pass",
@@ -1212,27 +1214,27 @@ class sampleContainer:
                     self.h_pt_mu_muCR4_N2.Fill(vmuoLoose0_pt, weight_mu)
                     self.h_eta_mu_muCR4_N2.Fill(vmuoLoose0_eta, weight_mu)
                     if jdb_8 > self.DBTAGCUT:
-                        self.h_msd_ak8_muCR4_N2_pass.Fill(jmsd_8, weight_mu)
                         self.h_msd_v_pt_ak8_muCR4_N2_pass.Fill(jmsd_8, jpt_8, weight_mu)
-                        self.h_msd_ak8_muCR4_N2_pass_mutriggerUp.Fill(jmsd_8, weight_mutriggerUp)
-                        self.h_msd_ak8_muCR4_N2_pass_mutriggerDown.Fill(jmsd_8, weight_mutriggerDown)
-                        self.h_msd_ak8_muCR4_N2_pass_muidUp.Fill(jmsd_8, weight_muidUp)
-                        self.h_msd_ak8_muCR4_N2_pass_muidDown.Fill(jmsd_8, weight_muidDown)
-                        self.h_msd_ak8_muCR4_N2_pass_muisoUp.Fill(jmsd_8, weight_muisoUp)
-                        self.h_msd_ak8_muCR4_N2_pass_muisoDown.Fill(jmsd_8, weight_muisoDown)
-                        self.h_msd_ak8_muCR4_N2_pass_PuUp.Fill(jmsd_8, weight_mu_pu_up)
-                        self.h_msd_ak8_muCR4_N2_pass_PuDown.Fill(jmsd_8, weight_mu_pu_down)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass.Fill(              jmsd_8,jpt_8, genVPt,weight_mu)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_mutriggerUp.Fill(  jmsd_8,jpt_8, genVPt, weight_mutriggerUp)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_mutriggerDown.Fill(jmsd_8,jpt_8, genVPt, weight_mutriggerDown)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_muidUp.Fill(       jmsd_8,jpt_8, genVPt, weight_muidUp)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_muidDown.Fill(     jmsd_8,jpt_8, genVPt, weight_muidDown)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_muisoUp.Fill(      jmsd_8,jpt_8, genVPt, weight_muisoUp)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_muisoDown.Fill(    jmsd_8,jpt_8, genVPt, weight_muisoDown)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_PuUp.Fill(         jmsd_8,jpt_8, genVPt, weight_mu_pu_up)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_PuDown.Fill(       jmsd_8,jpt_8, genVPt, weight_mu_pu_down)
                     elif jdb_8 > self.DBTAGCUTMIN:
-                        self.h_msd_ak8_muCR4_N2_fail.Fill(jmsd_8, weight_mu)
                         self.h_msd_v_pt_ak8_muCR4_N2_fail.Fill(jmsd_8, jpt_8, weight_mu)
-                        self.h_msd_ak8_muCR4_N2_fail_mutriggerUp.Fill(jmsd_8, weight_mutriggerUp)
-                        self.h_msd_ak8_muCR4_N2_fail_mutriggerDown.Fill(jmsd_8, weight_mutriggerDown)
-                        self.h_msd_ak8_muCR4_N2_fail_muidUp.Fill(jmsd_8, weight_muidUp)
-                        self.h_msd_ak8_muCR4_N2_fail_muidDown.Fill(jmsd_8, weight_muidDown)
-                        self.h_msd_ak8_muCR4_N2_fail_muisoUp.Fill(jmsd_8, weight_muisoUp)
-                        self.h_msd_ak8_muCR4_N2_fail_muisoDown.Fill(jmsd_8, weight_muisoDown)
-                        self.h_msd_ak8_muCR4_N2_fail_PuUp.Fill(jmsd_8, weight_mu_pu_up)
-                        self.h_msd_ak8_muCR4_N2_fail_PuDown.Fill(jmsd_8, weight_mu_pu_down)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail.Fill(              jmsd_8, jpt_8, genVPt, weight_mu)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_mutriggerUp.Fill(  jmsd_8, jpt_8, genVPt, weight_mutriggerUp)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_mutriggerDown.Fill(jmsd_8, jpt_8, genVPt, weight_mutriggerDown)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_muidUp.Fill(       jmsd_8, jpt_8, genVPt, weight_muidUp)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_muidDown.Fill(     jmsd_8, jpt_8, genVPt, weight_muidDown)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_muisoUp.Fill(      jmsd_8, jpt_8, genVPt, weight_muisoUp)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_muisoDown.Fill(    jmsd_8, jpt_8, genVPt, weight_muisoDown)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_PuUp.Fill(         jmsd_8, jpt_8, genVPt, weight_mu_pu_up)
+                        self.h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_PuDown.Fill(       jmsd_8, jpt_8, genVPt, weight_mu_pu_down)
 
             for syst in ['JESUp', 'JESDown', 'JERUp', 'JERDown']:
                 if eval(
@@ -1240,9 +1242,9 @@ class sampleContainer:
                         vmuoLoose0_eta) < 2.1 and isTightVJet and jtN2b1sdddt_8 < 0 and abs(QGLRutil.deltaPhi(
                                 vmuoLoose0_phi , jphi_8)) > 2. * ROOT.TMath.Pi() / 3. and n_MdR0p8_4 >= 1:
                     if jdb_8 > self.DBTAGCUT:
-                        (getattr(self, 'h_msd_ak8_muCR4_N2_pass_%s' % syst)).Fill(jmsd_8, weight_mu)
+                        (getattr(self, 'h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_pass_%s' % syst)).Fill(jmsd_8, jpt_8, genVPt, weight_mu)
                     elif jdb_8 > self.DBTAGCUTMIN:
-                        (getattr(self, 'h_msd_ak8_muCR4_N2_fail_%s' % syst)).Fill(jmsd_8, weight_mu)
+                        (getattr(self, 'h_msd_v_recoPt_v_genPt_ak8_muCR4_N2_fail_%s' % syst)).Fill(jmsd_8, jpt_8, genVPt, weight_mu)
 
             if not self._minBranches:
                 jmsd_8_sub1 = self.AK8Puppijet1_msd[0]

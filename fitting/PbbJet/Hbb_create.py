@@ -570,20 +570,29 @@ def main(options, args):
     if options.bb:
         plots = ['h_msd_v_pt_ak8_bbleading_topR6_pass', 'h_msd_v_pt_ak8_bbleading_topR6_fail']
     elif muonCR:
-        plots = ['h_msd_ak8_muCR4_N2_pass', 'h_msd_ak8_muCR4_N2_fail',
-                 'h_msd_ak8_muCR4_N2_pass_JESUp', 'h_msd_ak8_muCR4_N2_pass_JESDown',
-                 'h_msd_ak8_muCR4_N2_fail_JESUp', 'h_msd_ak8_muCR4_N2_fail_JESDown',
-                 'h_msd_ak8_muCR4_N2_pass_JERUp', 'h_msd_ak8_muCR4_N2_pass_JERDown',
-                 'h_msd_ak8_muCR4_N2_fail_JERUp', 'h_msd_ak8_muCR4_N2_fail_JERDown',
-                 'h_msd_ak8_muCR4_N2_pass_mutriggerUp', 'h_msd_ak8_muCR4_N2_pass_mutriggerDown',
-                 'h_msd_ak8_muCR4_N2_fail_mutriggerUp', 'h_msd_ak8_muCR4_N2_fail_mutriggerDown',
-                 'h_msd_ak8_muCR4_N2_pass_muidUp', 'h_msd_ak8_muCR4_N2_pass_muidDown',
-                 'h_msd_ak8_muCR4_N2_fail_muidUp', 'h_msd_ak8_muCR4_N2_fail_muidDown',
-                 'h_msd_ak8_muCR4_N2_pass_muisoUp', 'h_msd_ak8_muCR4_N2_pass_muisoDown',
-                 'h_msd_ak8_muCR4_N2_fail_muisoUp', 'h_msd_ak8_muCR4_N2_fail_muisoDown',
-                 'h_msd_ak8_muCR4_N2_pass_PuUp', 'h_msd_ak8_muCR4_N2_pass_PuDown',
-                 'h_msd_ak8_muCR4_N2_fail_PuUp', 'h_msd_ak8_muCR4_N2_fail_PuDown',
-                 ]
+        systematics = ['JESUp','JESDown','JERUp','JERDown','mutriggerUp','mutriggerDown','muidUp','muidDown','muisoUp','muisoDown','PuUp','PuDown']
+        region = 'muCR4_N2'
+        plots = []
+        for pf in passfail:
+                hname ="h_msd_v_recoPt_v_genPt_ak8_%s_%s"%(region,pf)
+                plots.append(hname)
+                for sys in systematics:
+                    hname_sys ="h_msd_v_recoPt_v_genPt_ak8_%s_%s_%s"%(region,pf,sys)
+                    plots.append(hname_sys)    
+        #plots = ['h_msd_ak8_muCR4_N2_pass', 'h_msd_ak8_muCR4_N2_fail',
+        #         'h_msd_ak8_muCR4_N2_pass_JESUp', 'h_msd_ak8_muCR4_N2_pass_JESDown',
+        #         'h_msd_ak8_muCR4_N2_fail_JESUp', 'h_msd_ak8_muCR4_N2_fail_JESDown',
+        #         'h_msd_ak8_muCR4_N2_pass_JERUp', 'h_msd_ak8_muCR4_N2_pass_JERDown',
+        #         'h_msd_ak8_muCR4_N2_fail_JERUp', 'h_msd_ak8_muCR4_N2_fail_JERDown',
+        #         'h_msd_ak8_muCR4_N2_pass_mutriggerUp', 'h_msd_ak8_muCR4_N2_pass_mutriggerDown',
+        #         'h_msd_ak8_muCR4_N2_fail_mutriggerUp', 'h_msd_ak8_muCR4_N2_fail_mutriggerDown',
+        #         'h_msd_ak8_muCR4_N2_pass_muidUp', 'h_msd_ak8_muCR4_N2_pass_muidDown',
+        #         'h_msd_ak8_muCR4_N2_fail_muidUp', 'h_msd_ak8_muCR4_N2_fail_muidDown',
+        #         'h_msd_ak8_muCR4_N2_pass_muisoUp', 'h_msd_ak8_muCR4_N2_pass_muisoDown',
+        #         'h_msd_ak8_muCR4_N2_fail_muisoUp', 'h_msd_ak8_muCR4_N2_fail_muisoDown',
+        #         'h_msd_ak8_muCR4_N2_pass_PuUp', 'h_msd_ak8_muCR4_N2_pass_PuDown',
+        #         'h_msd_ak8_muCR4_N2_fail_PuUp', 'h_msd_ak8_muCR4_N2_fail_PuDown',
+        #         ]
 
     print "Signals... "
 
@@ -734,13 +743,19 @@ def main(options, args):
                 nGenPt = h.GetNbinsZ()
                 for i in range(1,nGenPt+1):
                     h.GetZaxis().SetRange(i,i+1)
-                    h2d = h.Project3D("yx")             # project to all gen bins for hqq125
-                    h2d.SetName(hname.replace("hqq125","hqq125_Genpt%i"%i))
+                    if options.muonCR:
+                        h2d = h.Project3D("x")             # project to msd for each gen bins for hqq125
+                    else:
+                        h2d = h.Project3D("yx")             # project to msd v reco_pt for individual gen bins for hqq125
+                    h2d.SetName(hname.replace("hqq125","hqq125Genpt%i"%i))
                     print h2d.GetName(),h2d.Integral()
                     h2d.Write()
             else:
                 hname = h.GetName()
-                h2d = h.Project3D("yx") #project to normal msd v reco_pt for normal process
+                if options.muonCR:
+                    h2d = h.Project3D("x") #project to normal msd  for muonCR process
+                else:
+                    h2d = h.Project3D("yx") #project to normal msd v reco_pt for normal process
                 h2d.SetName(hname)
                 h2d.Write()
         else:
