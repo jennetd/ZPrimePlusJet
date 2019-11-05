@@ -742,7 +742,7 @@ def main(options, args):
                 hname = h.GetName()
                 nGenPt = h.GetNbinsZ()
                 for i in range(1,nGenPt+1):
-                    h.GetZaxis().SetRange(i,i+1)
+                    h.GetZaxis().SetRange(i,i)
                     if options.muonCR:
                         h2d = h.Project3D("x")             # project to msd for each gen bins for hqq125
                     else:
