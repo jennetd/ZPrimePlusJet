@@ -198,6 +198,7 @@ def get2018files(isMuonCR):
 
     tfiles = {
 	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1505skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+        'hqq125minlo': { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':        [idir_1505skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
 	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1505skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
         'zhqq125'    : { 
                            'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1505skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -291,6 +292,7 @@ def get2016legacyfiles():
     idir_16031skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.031/skim/'
     tfiles = {
 	          'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+              'hqq125minlo':           { 'GluGluHToBB_M125_13TeV_powheg_pythia8_2016':                [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
 	          'vbfhqq125'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':            [idir_1603skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
 	          'zhqq125'      :          { 
                                     'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1603skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -394,6 +396,7 @@ def get2017files(isMuonCR):
 
     tfiles = {
 	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1504skim_vbf+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+        'hqq125minlo': { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':        [idir_1504skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
 	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1504skim_vbf+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
         'zhqq125'    : { 
                            'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1504skim_vbf+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -579,33 +582,19 @@ def main(options, args):
                 for sys in systematics:
                     hname_sys ="h_msd_v_recoPt_v_genPt_ak8_%s_%s_%s"%(region,pf,sys)
                     plots.append(hname_sys)    
-        #plots = ['h_msd_ak8_muCR4_N2_pass', 'h_msd_ak8_muCR4_N2_fail',
-        #         'h_msd_ak8_muCR4_N2_pass_JESUp', 'h_msd_ak8_muCR4_N2_pass_JESDown',
-        #         'h_msd_ak8_muCR4_N2_fail_JESUp', 'h_msd_ak8_muCR4_N2_fail_JESDown',
-        #         'h_msd_ak8_muCR4_N2_pass_JERUp', 'h_msd_ak8_muCR4_N2_pass_JERDown',
-        #         'h_msd_ak8_muCR4_N2_fail_JERUp', 'h_msd_ak8_muCR4_N2_fail_JERDown',
-        #         'h_msd_ak8_muCR4_N2_pass_mutriggerUp', 'h_msd_ak8_muCR4_N2_pass_mutriggerDown',
-        #         'h_msd_ak8_muCR4_N2_fail_mutriggerUp', 'h_msd_ak8_muCR4_N2_fail_mutriggerDown',
-        #         'h_msd_ak8_muCR4_N2_pass_muidUp', 'h_msd_ak8_muCR4_N2_pass_muidDown',
-        #         'h_msd_ak8_muCR4_N2_fail_muidUp', 'h_msd_ak8_muCR4_N2_fail_muidDown',
-        #         'h_msd_ak8_muCR4_N2_pass_muisoUp', 'h_msd_ak8_muCR4_N2_pass_muisoDown',
-        #         'h_msd_ak8_muCR4_N2_fail_muisoUp', 'h_msd_ak8_muCR4_N2_fail_muisoDown',
-        #         'h_msd_ak8_muCR4_N2_pass_PuUp', 'h_msd_ak8_muCR4_N2_pass_PuDown',
-        #         'h_msd_ak8_muCR4_N2_fail_PuUp', 'h_msd_ak8_muCR4_N2_fail_PuDown',
-        #         ]
 
     print "Signals... "
 
     sigSamples = {}
     if year in ['2017','2018','2016legacy'] :
         sigSamples['hqq125']   = normSampleContainer('hqq125',tfiles['hqq125']       , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        sigSamples['hqq125minlo']   = normSampleContainer('hqq125minlo',tfiles['hqq125minlo']       , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         sigSamples['tthqq125'] = normSampleContainer('tthqq125', tfiles['tthqq125']  , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots) 
         sigSamples['vbfhqq125']= normSampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots) 
         sigSamples['whqq125']  = normSampleContainer('whqq125', tfiles['whqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots) 
         sigSamples['zhqq125']  = normSampleContainer('zhqq125', tfiles['zhqq125']    , 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots) 
     elif year=='2016':
         sigSamples['hqq125'] = sampleContainer('hqq125', tfiles['hqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
-        #sigSamples['hqq125'] = normSampleContainer('hqq125',tfiles['hqq125'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split,treeName='Events',puOpt="default").addPlots(plots)
         sigSamples['tthqq125'] = sampleContainer('tthqq125', tfiles['tthqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         sigSamples['vbfhqq125'] = sampleContainer('vbfhqq125', tfiles['vbfhqq125'], 1, dbtagmin, lumi, False, False, '1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
         sigSamples['whqq125'] = sampleContainer('whqq125', tfiles['whqq125'], 1, dbtagmin, lumi, False, False, '1', True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
@@ -710,7 +699,7 @@ def main(options, args):
     hall = {}
 
     #normSamples =['wqq','zqq','wlnu','hqq125']
-    normSamples =['wqq','zqq','wlnu','zll','vvqq','tqq','stqq','qcd','hqq125','tthqq125','vbfhqq125','whqq125','zhqq125']
+    normSamples =['wqq','zqq','wlnu','zll','vvqq','tqq','stqq','qcd','hqq125','hqq125minlo','tthqq125','vbfhqq125','whqq125','zhqq125']
     for plot in plots:
         tag = plot.split('_')[-1]  # 'pass' or 'fail' or systematicName
         if tag not in ['pass', 'fail']:
@@ -738,7 +727,7 @@ def main(options, args):
 
     for key, h in hall.iteritems():
         if type(h)==type(ROOT.TH3F()):
-            if h.GetName().split("_")[0] == 'hqq125':
+            if (not options.minlo and h.GetName().split("_")[0] == 'hqq125') or (options.minlo and h.GetName().split("_")[0] == 'hqq125minlo'):
                 hname = h.GetName()
                 nGenPt = h.GetNbinsZ()
                 for i in range(1,nGenPt+1):
@@ -747,7 +736,10 @@ def main(options, args):
                         h2d = h.Project3D("x")             # project to msd for each gen bins for hqq125
                     else:
                         h2d = h.Project3D("yx")             # project to msd v reco_pt for individual gen bins for hqq125
-                    h2d.SetName(hname.replace("hqq125","hqq125Genpt%i"%i))
+                    if options.minlo:
+                        h2d.SetName(hname.replace("hqq125minlo","hqq125Genpt%i"%i))
+                    else:
+                        h2d.SetName(hname.replace("hqq125","hqq125Genpt%i"%i))
                     print h2d.GetName(),h2d.Integral()
                     h2d.Write()
             else:
@@ -787,6 +779,7 @@ if __name__ == '__main__':
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016legacy','2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option("--sfData" , dest="sfData", default=1, type="int", help="process 1/sf of data", metavar="sfData")
     parser.add_option("--region" , dest="region", default='topR6_N2',choices=['topR6_N2','QGquark','QGgluon'], help="region for pass/fail doubleB tag", metavar="region")
+    parser.add_option("--minlo" , dest="minlo", default=False,action='store_true', help="switch to use minlo ggh signal", metavar="minlo")
     parser.add_option("--doublebName"  , dest="doublebName", default="AK8Puppijet0_deepdoubleb", help="double-b name", metavar="doublebName")
 
     (options, args) = parser.parse_args()

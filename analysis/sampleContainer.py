@@ -838,13 +838,21 @@ class sampleContainer:
                 ptForNLO = max(0., min(self.genVPt[0], 999.)) #0-1000 GeV
                 vjetsKF = self.h_vbf_num.GetBinContent( self.h_vbf_num.FindBin(ptForNLO))/self.h_vbf_den.GetBinContent( self.h_vbf_den.FindBin(ptForNLO))  
                 #print "sameple: %s , pT = %.3f, weight = %.3f"% (self._name, ptForNLO, vjetsKF)
-            if 'GluGluHToBB_M125_13TeV_powheg_pythia8' in self._name:    
+            if 'GluGluHToBB_M125_13TeV_powheg_pythia8_2016' in self._name:    
+                ptForNLO =  min(self.genVPt[0], 1200.) #300-1200 GeV
+                if ptForNLO < 300.0:
+                    vjetsKF = 1.0                      #weight at 300 = 0.97 
+                else:
+                    vjetsKF = self.h_ggh_minlo_num.GetBinContent( self.h_ggh_minlo_num.FindBin(ptForNLO))/self.h_ggh_minlo_den.GetBinContent( self.h_ggh_minlo_den.FindBin(ptForNLO))  
+                #print "sameple: %s , pT = %.3f, weight = %.3f"% (self._name, ptForNLO, vjetsKF)
+            elif 'GluGluHToBB_M125_13TeV_powheg_pythia8' in self._name:    
                 ptForNLO =  min(self.genVPt[0], 1200.) #300-1200 GeV
                 if ptForNLO < 300.0:
                     vjetsKF = 1.0                      #weight at 300 = 0.97 
                 else:
                     vjetsKF = self.h_ggh_num.GetBinContent( self.h_ggh_num.FindBin(ptForNLO))/self.h_ggh_den.GetBinContent( self.h_ggh_den.FindBin(ptForNLO))  
                 #print "sameple: %s , pT = %.3f, weight = %.3f"% (self._name, ptForNLO, vjetsKF)
+
 
 
 
@@ -1924,6 +1932,15 @@ class sampleContainer:
         self.h_ggh_num.SetDirectory(0)
         self.h_ggh_den.SetDirectory(0)
         fggh.Close() 
+
+        # for zprimebit 15.03+, ggH pT reweighting(powheg to minlo)
+        fggh_minlo = ROOT.TFile.Open(os.path.expandvars("${ZPRIMEPLUSJET_BASE}/analysis/ggH/ggh_minlo.root"),'read')
+        self.h_ggh_minlo_num = fggh_minlo.Get('NNLOPS_genVPt')
+        self.h_ggh_minlo_den = fggh_minlo.Get('powheg_genVPt')
+        self.h_ggh_minlo_num.SetDirectory(0)
+        self.h_ggh_minlo_den.SetDirectory(0)
+        fggh_minlo.Close() 
+
 
        
 
