@@ -133,7 +133,7 @@ class RhalphabetBuilder():
         self._all_pars = []
 
         self._background_names = ["wqq", "zqq", "qcd", "tqq"]
-        self._signal_names = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
+        self._signal_names = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","hqq125Genpt5","hqq125Genpt6","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
         # for Pbb
         # for mass in [50,75,125,100,150,250,300]:
         #    self._signal_names.append("Pbb_" + str(mass))
@@ -631,8 +631,7 @@ class RhalphabetBuilder():
 
             # Make the rhalphabet fit for this pt bin
             (rhalphabet_hist_pass, rhalphabet_hist_fail) = self.MakeRhalphabet(["data_obs", "wqq", "zqq", "tqq",
-                                                                               "hqq125Genpt1","hqq125Genpt2","hqq125Genpt3",
-                                                                                "hqq125Genpt4","zhqq125", "whqq125", "vbfhqq125", "tthqq125"],
+                                                                                "zhqq125", "whqq125", "vbfhqq125", "tthqq125"]+self._signal_names,
                                                                                fail_hists_ptbin,pass_hists_ptbin , this_pt,
                                                                                "cat" + str(pt_bin))
 
@@ -1580,7 +1579,7 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     # for Hbb
     masses = [125]  # 50,75,125,100,150,200,250,300]
     #sigs = ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]
-    sigs = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
+    sigs = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","hqq125Genpt5","hqq125Genpt6","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
     signal_names = []
 
     for sig in sigs:

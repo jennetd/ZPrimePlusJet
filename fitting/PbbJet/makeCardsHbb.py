@@ -57,10 +57,12 @@ def main(options,args):
     #Has to follow the ordering in template datacard
     #sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
     #histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'}
-    sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','zhqq125','vbfhqq125']
+    #sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','zhqq125','vbfhqq125']
+    sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','hqq125Genpt5','hqq125Genpt6','zhqq125','vbfhqq125']
     histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb',
                     'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
                     'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
+                    'hqq125Genpt5':'ggH_hbbGenpt5','hqq125Genpt6':'ggH_hbbGenpt6',
                   'zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'
                   }
     bkgs = ['zqq','wqq','qcd','tqq']
@@ -109,7 +111,8 @@ def main(options,args):
     #for hname,h in histoDict.iteritems():
     #    h.RebinX(7)
     #    print 'rebinning %s by 7...'
-    dctpl = open("datacard.tpl")
+    dctpl = open("datacard_6genpt.tpl")
+    #dctpl = open("datacard.tpl")
     #dctpl = open("datacardZbb.tpl")
     #dctpl = open("datacardZonly.tpl")
 

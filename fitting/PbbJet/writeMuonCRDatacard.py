@@ -46,7 +46,12 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         V_SF_ERR  =SF2016['V_SF_ERR']
         LUMI_ERR = 1.025
 
-    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb'}
+    #histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb'}
+    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb',
+                    'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
+                    'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
+                    'hqq125Genpt5':'ggH_hbbGenpt5','hqq125Genpt6':'ggH_hbbGenpt6',
+                     'zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb'}
     for bkg in bkgs:
         histToCard[bkg] = bkg
 
@@ -305,7 +310,7 @@ def main(options, args):
     
     boxes = ['pass', 'fail']
     #for Hbb extraction:
-    sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
+    sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','hqq125Genpt6','hqq125Genpt6','zhqq125','vbfhqq125']
     bkgs = ['zqq','wqq','qcd','tqq','vvqq','stqq','wlnu','zll']
     #sigs = []
     #bkgs = ['qcd','tqq','stqq']
