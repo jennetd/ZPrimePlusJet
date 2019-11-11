@@ -133,14 +133,14 @@ class RhalphabetBuilder():
         self._all_pars = []
 
         self._background_names = ["wqq", "zqq", "qcd", "tqq"]
-        self._signal_names = []
+        self._signal_names = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
         # for Pbb
         # for mass in [50,75,125,100,150,250,300]:
         #    self._signal_names.append("Pbb_" + str(mass))
         # for Hbb
-        for mass in [125]:
-            for sig in ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]:
-                self._signal_names.append(sig + str(mass))
+        #for mass in [125]:
+        #    for sig in ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]:
+        #        self._signal_names.append(sig + str(mass))
 
         ## qcdTFpars = {'n_rho':n_rho,'n_pT':n_pT,'pars':[p0r0,...]}
         if not qcdTFpars =={}:
@@ -630,7 +630,9 @@ class RhalphabetBuilder():
             print "------- this bin pT value ", this_pt
 
             # Make the rhalphabet fit for this pt bin
-            (rhalphabet_hist_pass, rhalphabet_hist_fail) = self.MakeRhalphabet(["data_obs", "wqq", "zqq", "tqq","hqq125","vbfhqq125","tthqq125","zhqq125","whqq125"],
+            (rhalphabet_hist_pass, rhalphabet_hist_fail) = self.MakeRhalphabet(["data_obs", "wqq", "zqq", "tqq",
+                                                                               "hqq125Genpt1","hqq125Genpt2","hqq125Genpt3",
+                                                                                "hqq125Genpt4","zhqq125", "whqq125", "vbfhqq125", "tthqq125"],
                                                                                fail_hists_ptbin,pass_hists_ptbin , this_pt,
                                                                                "cat" + str(pt_bin))
 
@@ -1317,7 +1319,8 @@ class RhalphabetBuilder():
                 elif process == 'zqq':
                     mass = 91.
                 elif 'hqq' in process:
-                    mass = float(process[-3:])  # hqq125 -> 125
+                    #mass = float(process[-3:])  # hqq125 -> 125
+                    mass = 125.  # hqq125 -> 125
                 elif 'Pbb' in process:
                     mass = float(process.split('_')[-1])  # Pbb_75 -> 75
 
@@ -1576,25 +1579,25 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     # signal_names = []
     # for Hbb
     masses = [125]  # 50,75,125,100,150,200,250,300]
-    sigs = ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]
+    #sigs = ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]
+    sigs = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
     signal_names = []
 
-    for mass in masses:
-        for sig in sigs:
-            passhist = f.Get(sig + str(mass) + "_pass").Clone()
-            failhist = f.Get(sig + str(mass) + "_fail").Clone()
-            for hist in [passhist, failhist]:
-                for i in range(0, hist.GetNbinsX() + 2):
-                    for j in range(0, hist.GetNbinsY() + 2):
-                        if hist.GetBinContent(i, j) <= 0:
-                            hist.SetBinContent(i, j, 0)
-            failhist.Scale(1. / scale)
-            passhist.Scale(1. / scale)
-            failhist.Scale(GetSF(sig + str(mass), 'fail', f,sf_dict=sf_dict))
-            passhist.Scale(GetSF(sig + str(mass), 'pass', f,sf_dict=sf_dict))
-            pass_hists_sig[sig + str(mass)] = passhist
-            fail_hists_sig[sig + str(mass)] = failhist
-            signal_names.append(sig + str(mass))
+    for sig in sigs:
+        passhist = f.Get(sig +  "_pass").Clone()
+        failhist = f.Get(sig +  "_fail").Clone()
+        for hist in [passhist, failhist]:
+            for i in range(0, hist.GetNbinsX() + 2):
+                for j in range(0, hist.GetNbinsY() + 2):
+                    if hist.GetBinContent(i, j) <= 0:
+                        hist.SetBinContent(i, j, 0)
+        failhist.Scale(1. / scale)
+        passhist.Scale(1. / scale)
+        failhist.Scale(GetSF(sig , 'fail', f,sf_dict=sf_dict))
+        passhist.Scale(GetSF(sig , 'pass', f,sf_dict=sf_dict))
+        pass_hists_sig[sig ] = passhist
+        fail_hists_sig[sig ] = failhist
+        signal_names.append(sig )
 
     if pseudo:
         for i, bkg in enumerate(background_names):

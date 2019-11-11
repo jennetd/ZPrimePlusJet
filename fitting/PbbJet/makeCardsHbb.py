@@ -55,8 +55,14 @@ def main(options,args):
         
     boxes = ['pass', 'fail']
     #Has to follow the ordering in template datacard
-    sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
-    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'}
+    #sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
+    #histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'}
+    sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','zhqq125','vbfhqq125']
+    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb',
+                    'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
+                    'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
+                  'zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'
+                  }
     bkgs = ['zqq','wqq','qcd','tqq']
     systs = ['JER','JES','Pu']
 
@@ -136,7 +142,7 @@ def main(options,args):
                 else:
                     rate = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                 print " proc, cat, box, rate =", proc, "cat%i"%i, box, rate
-                if rate>0.1:
+                if rate>0.5:
                     rateJESUp   = histoDict['%s_%s_JESUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     rateJESDown = histoDict['%s_%s_JESDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     rateJERUp   = histoDict['%s_%s_JERUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
@@ -158,7 +164,8 @@ def main(options,args):
                 elif proc == 'zqq':
                     mass = 91.
                 elif 'hqq' in proc:
-                    mass = float(proc[-3:])  # hqq125 -> 125 
+                    #mass = float(proc[-3:])  # hqq125 -> 125 
+                    mass = 125. # hqq125 -> 125 
                 
                 # Assume template is shifted by 1 bin, require:
                 # 7 GeV (1binshift) * scaleErr = (scaleSigma); 
@@ -359,8 +366,9 @@ def main(options,args):
         tag = "cat"+str(i)
         dctmp = open(options.odir+"/card_rhalphabet_%s.txt" % tag, 'w')
         for j,l in enumerate(linel):
-            #if '#' == l[0]:continue
-            if 'shapes qcd' in l:
+            if '#' == l[0]:
+                newline = l
+            elif 'shapes qcd' in l:
                 if options.addqcdCovMat:
                     l = l.replace("rhalphabase","qcdfit_decorrelated")
                     l = l.replace("w_fail_CATX","qcdfit_deco%s"%options.suffix)
@@ -526,6 +534,7 @@ def main(options,args):
         for l in linel: dctmp_w.write(' '.join(l)+'\n')
 
     for proc, tag, box, cardProc in procsToRemove: 
+        print proc,cardProc
         removeProc(cardProc, tag, box)
 
     def Renamebase():
