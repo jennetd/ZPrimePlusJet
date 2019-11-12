@@ -222,7 +222,7 @@ class sampleContainer:
         # define histograms
         histos1d = {            
             'h_fBosonPt_fbweight': ["h_" + self._name + "_fBosonPt_fbweight", "; fBoson pT;;", 120, 0, 1200],
-            'h_fBosonPt_weight':   ["h_" + self._name + "_fBosonPt_weight", "; fBoson pT;;", 120, 0, 1200],
+            'h_fBosonPt_weight':   ["h_" + self._name + "_fBosonPt_weight", "; fBoson pT;;", 400, 0, 2000],
             'h_fBosonPt_PUweight': ["h_" + self._name + "_fBosonPt_PUweight", "; fBoson pT;;", 120, 0, 1200],
             'h_fBosonPt_trigWeight': ["h_" + self._name + "_fBosonPt_trigWeight", "; fBoson pT;;", 100, 0, 1200],
             'h_npv': ["h_" + self._name + "_npv", "; number of PV;;", 100, 0, 100],
@@ -563,7 +563,7 @@ class sampleContainer:
 #        pt_binBoundaries = [450, 475, 500, 525, 550, 575, 600, 625, 650, 675, 700, 725, 750, 775, 800, 825, 850, 875, 1000, 1100, 1200, 1300, 1400, 1500]
         pt_binBoundaries = [450, 500, 550, 600, 675, 800, 1200]
         #Gen_pt_binBoundaries = [0, 200, 350, 600, 10000]
-        Gen_pt_binBoundaries = [350, 450, 500, 550, 600, 675, 800, 10000]
+        Gen_pt_binBoundaries = [0, 350, 450, 10000]
         #Gen_pt_binBoundaries = [0,200,300,450, 500, 550, 600, 675, 800, 1200]
 
         histos2d_fix = {
