@@ -12,7 +12,7 @@ from hist import *
 from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2017,SF2016,SF2018
 from rhalphabet_builder import GetSF
 
-def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
+def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
     obsRate = {}
     for box in boxes:
         obsRate[box] = histoDict['data_obs_%s'%box].Integral()
@@ -46,14 +46,6 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
         V_SF_ERR  =SF2016['V_SF_ERR']
         LUMI_ERR = 1.025
 
-    #histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb'}
-    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb',
-                    'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
-                    'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
-                    'hqq125Genpt5':'ggH_hbbGenpt5','hqq125Genpt6':'ggH_hbbGenpt6',
-                     'zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb'}
-    for bkg in bkgs:
-        histToCard[bkg] = bkg
 
     rates = {}
     Effentries = {}
@@ -305,12 +297,24 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options):
     txtfile.write(datacard)
     txtfile.close()
 
+def getSignals(f):
+    signals = []
+    for k in f.GetListOfKeys():
+        hname = k.GetName()
+        proc  = hname.split("_")[0]
+        if proc=='hqq125': continue     ## FIXME: remove duplicate template
+        if proc=='hqq125minlo': continue     ## FIXME: remove duplicate template
+        if 'hqq125' in proc and not (proc in signals):
+            signals.append(proc)
+    print signals
+    return signals
+
     
 def main(options, args):
     
     boxes = ['pass', 'fail']
-    #for Hbb extraction:
-    sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','hqq125Genpt6','hqq125Genpt6','zhqq125','vbfhqq125']
+    #for fidxs Hbb extraction:
+    #sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','hqq125Genpt6','hqq125Genpt6','zhqq125','vbfhqq125']
     bkgs = ['zqq','wqq','qcd','tqq','vvqq','stqq','wlnu','zll']
     #sigs = []
     #bkgs = ['qcd','tqq','stqq']
@@ -344,6 +348,19 @@ def main(options, args):
 
 
     tfile = rt.TFile.Open(options.ifile,'read')
+    sigs  = getSignals(tfile)
+    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb',
+                    #'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
+                    #'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
+                     'zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb'}
+
+    for s in sigs:
+        if 'Genpt' in s:
+            histToCard[s] = s.replace('hqq125','ggH_hbb')
+
+    for bkg in bkgs:
+        histToCard[bkg] = bkg
+
     
     histoDict = {}
     datahistDict = {}
@@ -403,7 +420,7 @@ def main(options, args):
     outputFile.Close()
     txtfileName = outFile.replace('.root','.txt')
 
-    writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,options)
+    writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options)
     print '\ndatacard:\n'
     os.system('cat %s/%s'%(options.odir,txtfileName))
 

@@ -17,6 +17,18 @@ from tools import *
 from buildRhalphabetHbb import MASS_BINS,MASS_LO,MASS_HI,BLIND_LO,BLIND_HI,RHO_LO,RHO_HI,SF2018,SF2017,SF2016,MASS_HIST_HI,MASS_HIST_LO
 
 ##-------------------------------------------------------------------------------------
+def getSignals(f):
+    signals = []
+    for k in f.GetListOfKeys():
+        hname = k.GetName()
+        proc  = hname.split("_")[0]
+        if proc=='hqq125': continue     ## FIXME: remove duplicate template
+        if proc=='hqq125minlo': continue     ## FIXME: remove duplicate template
+        if 'hqq125' in proc and not (proc in signals):
+            signals.append(proc)
+    print signals
+    return signals
+
 def main(options,args):
 	
     if options.year=='2018':
@@ -57,14 +69,20 @@ def main(options,args):
     #Has to follow the ordering in template datacard
     #sigs = ['tthqq125','whqq125','hqq125','zhqq125','vbfhqq125']
     #histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'}
-    #sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','zhqq125','vbfhqq125']
-    sigs = ['tthqq125','whqq125','hqq125Genpt1','hqq125Genpt2','hqq125Genpt3','hqq125Genpt4','hqq125Genpt5','hqq125Genpt6','zhqq125','vbfhqq125']
+
+    sigs = getSignals(tfile) 
     histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb',
-                    'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
-                    'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
-                    'hqq125Genpt5':'ggH_hbbGenpt5','hqq125Genpt6':'ggH_hbbGenpt6',
+                   # 'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
+                   # 'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
+                   # 'hqq125Genpt5':'ggH_hbbGenpt5','hqq125Genpt6':'ggH_hbbGenpt6',
                   'zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'
                   }
+    for s in sigs:
+        if 'Genpt' in s:
+            histToCard[s] = s.replace('hqq125','ggH_hbb')
+    print sigs
+    print 'histToCards',histToCard
+
     bkgs = ['zqq','wqq','qcd','tqq']
     systs = ['JER','JES','Pu']
 
@@ -135,6 +153,7 @@ def main(options,args):
         scaleptErrs = {}
         for box in boxes:
             for proc in (sigs+bkgs):
+                rates=[]
                 if options.blind:
                     rate1  = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[9], i, i)
                     rate2  = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[13], masshistbins[-1], i, i)
@@ -144,8 +163,15 @@ def main(options,args):
                     print 'rate1 = %.3f rate2 = %.3f, rateall= %.3f'%(rate1,rate2,rateall)
                 else:
                     rate = histoDict['%s_%s'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
-                print " proc, cat, box, rate =", proc, "cat%i"%i, box, rate
-                if rate>0.5:
+                    rates.append(histoDict['%s_%s_JESUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i))
+                    rates.append(histoDict['%s_%s_JESDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i))
+                    rates.append(histoDict['%s_%s_JERUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i))
+                    rates.append(histoDict['%s_%s_JERDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i))
+                    rates.append(histoDict['%s_%s_PuUp'   %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i))
+                    rates.append(histoDict['%s_%s_PuDown' %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i))
+                print " proc, cat, box, rate =", proc, "cat%i"%i, box,' rate=', rate, ' min rate = ',min(rates)
+                #if min(rates)>0.5:
+                if (rate)>0.5:
                     rateJESUp   = histoDict['%s_%s_JESUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     rateJESDown = histoDict['%s_%s_JESDown'%(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
                     rateJERUp   = histoDict['%s_%s_JERUp'  %(proc,box)].Integral(masshistbins[0], masshistbins[-1], i, i)
@@ -215,7 +241,10 @@ def main(options,args):
                     ratePass = histoDict['%s_%s'%(proc,'pass')].Integral()
                     rateFail = histoDict['%s_%s'%(proc,'fail')].Integral()
                     if rateFail>0:
-                        bbErrs['%s_%s'%(proc,box)] = 1.0-BB_SF_ERR*(ratePass/rateFail)
+                        if 1.0-BB_SF_ERR*(ratePass/rateFail)>0:
+                            bbErrs['%s_%s'%(proc,box)] = 1.0-BB_SF_ERR*(ratePass/rateFail)
+                        else:
+                            bbErrs['%s_%s'%(proc,box)] = 0.0
                     else:
                         bbErrs['%s_%s'%(proc,box)] = 1.0
 
@@ -248,6 +277,8 @@ def main(options,args):
                         rate = histo.IntegralAndError(1,histo.GetNbinsX(),i,i,error)                 
                         if rate>0:
                             mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0+(error[0]/rate)
+                            if j==10 :
+                                print 'proc = %s ,box = %s ,i=%s,  mcstaterr = %s'%(proc,box,i,mcstatErrs['%s_%s'%(proc,box),i,j])
                         else:
                             mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0
                             if (proc, "cat%i"%i, box,histToCard[proc]) not in procsToRemove:
@@ -259,6 +290,12 @@ def main(options,args):
         jesString = 'CMS_scale_j%s lnN'%options.suffix
         jerString = 'CMS_res_j%s lnN'%options.suffix
         puString = 'CMS_PU%s lnN'%options.suffix
+        triggerString = 'CMS_gghbb_trigger%s lnN'%options.suffix
+        evetoString = 'CMS_gghbb_eveto%s lnN'%options.suffix
+        mvetoString = 'CMS_gghbb_mveto%s lnN'%options.suffix
+        znormQstring ='CMS_gghbb_znormQ lnN'
+        znormEWstring ='CMS_gghbb_znormEW lnN'
+        wznormEWstring ='CMS_gghbb_wznormEW lnN'
         bbString = 'CMS_eff_bb%s lnN'%options.suffix
         hqq125ptString = 'CMS_gghbb_ggHpt lnN'
         weffString = 'weff%s lnN'%options.suffix            ### this is not used ##
@@ -284,6 +321,10 @@ def main(options,args):
             lumiString = 'lumi_13TeV%s lnN'%options.suffix
         else:
             lumiString = 'lumi%s lnN'%options.suffix
+        boxesString    = 'bin '
+        procString  = 'process ' 
+        procIDstring= 'process '
+        rateString  = 'rate '
         mcStatGroupString = 'mcstat group ='
         mcstatsuffix  = options.suffix.lower().strip("_")
         qcdGroupString = 'qcd group = '
@@ -299,16 +340,50 @@ def main(options,args):
                     
         for box in boxes:
             for proc in sigs+bkgs:
+                procString  += ' '+histToCard[proc]
+                if proc in sigs:
+                    procIDstring  += ' %i'%( (sigs.index(proc)+1)*(-1))
+                else:
+                    procIDstring  += ' %i'%(bkgs.index(proc)+1)
+                if proc =='qcd':
+                    rateString += ' 1.0'
+                else:
+                    rateString += ' -1'
+
+                if box =='pass':
+                    boxesString += ' pass_CATX' 
+                else:
+                    boxesString += ' fail_CATX' 
                 if proc=='qcd' :
                     jesString += ' -'
                     jerString += ' -'
                     puString += ' -'
                     lumiString += ' -'
+                    triggerString += ' -'
+                    evetoString += ' -'
+                    mvetoString += ' -'
                 else:
                     jesString += ' %.3f'%jesErrs['%s_%s'%(proc,box)]
                     jerString += ' %.3f'%jerErrs['%s_%s'%(proc,box)]
                     puString += ' %.3f'%puErrs['%s_%s'%(proc,box)]                        
                     lumiString += ' %.3f'%LUMI_ERR
+                    triggerString += ' 1.02'
+                    evetoString += ' 1.005'
+                    mvetoString += ' 1.005'
+
+                if proc in ['wqq','zqq']:
+                    znormQstring  += ' 1.1'
+                    znormEWstring  += ' 1.05'
+                else:
+                    znormQstring    += ' -'
+                    znormEWstring  += ' -'
+
+                if proc in ['wqq']:
+                    wznormEWstring  += ' 1.02'
+                else:
+                    wznormEWstring    += ' -'
+
+            
                 if proc in ['qcd','tqq']:
                     scaleString += ' -'
                     smearString += ' -'
@@ -379,13 +454,25 @@ def main(options,args):
                 newline = l+options.suffix
                 if options.multi:
                     newline = newline.replace('qcd','qcd_multi')
-            elif 'qcd' in l:
-                if options.multi:
-                    newline = l.replace('qcd','qcd_multi')
-                else:
-                    newline = l
+            #elif 'qcd' in l:
+            #    if options.multi:
+            #        newline = l.replace('qcd','qcd_multi')
+            #    else:
+            #        newline = l
+            elif 'bin pass_CATX pass_CATX' in l:
+                newline = boxesString
+            elif 'process' in l and 'qcd' in l:
+                newline = procString
+            elif 'process' in l and not 'hbb' in l and not '*' in l:
+                newline = procIDstring
+            elif 'rate' in l and not 'rateParam' in l:
+                newline = rateString
             elif 'lumi' in l:
                 newline = lumiString
+            elif 'e_veto' in l:
+                newline = evetoString
+            elif 'm_veto' in l:
+                newline = mvetoString
             elif 'CMS_scale_j' in l:
                 newline = jesString
             elif 'CMS_res_j' in l:
@@ -418,7 +505,7 @@ def main(options,args):
                 #newline = l.replace('smear','smear'+options.suffix)
                 newline = smearString
             elif 'trigger' in l:
-                newline = l.replace('trigger','trigger'+options.suffix)
+                newline = triggerString 
             elif 'CMS_gghbb_scale' in l and not 'pt' in l:
                 newline = scaleString
                 #if 'pass' in l:
@@ -432,17 +519,19 @@ def main(options,args):
                 newline = newline.replace('CATXnorm','CATX%snorm'%options.suffix)
                 newline = newline.replace('tqqnormSF','tqqnormSF%s'%options.suffix)
                 newline = newline.replace('tqqeffSF','tqqeffSF%s'%options.suffix)
+            elif "znormQ" in l:
+                newline = znormQstring
             elif "wznormEW" in l:
-                if i==4:                    newline = l.replace('1.02','1.06')
-                elif i==5:                    newline = l.replace('1.02','1.06')
-                elif i==6:                    newline = l.replace('1.02','1.06')
-                else:                    newline = l
+                if i==4:                    newline = wznormEWstring.replace('1.02','1.06')
+                elif i==5:                  newline = wznormEWstring.replace('1.02','1.06')
+                elif i==6:                  newline = wznormEWstring.replace('1.02','1.06')
+                else:                       newline = wznormEWstring
             elif "znormEW" in l:
-                if i==3:                    newline = l.replace('1.05','1.07')
-                elif i==4:                    newline = l.replace('1.05','1.07')
-                elif i==5:                    newline = l.replace('1.05','1.07')
-                elif i==6:                    newline = l.replace('1.05','1.07')      
-                else:                    newline = l              
+                if i==3:                    newline = znormEWstring.replace('1.05','1.07')
+                elif i==4:                  newline = znormEWstring.replace('1.05','1.07')
+                elif i==5:                  newline = znormEWstring.replace('1.05','1.07')
+                elif i==6:                  newline = znormEWstring.replace('1.05','1.07')      
+                else:                       newline = znormEWstring              
             else:
                 newline = l
             if "CATX" in l:
