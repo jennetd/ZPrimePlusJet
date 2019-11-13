@@ -31,7 +31,7 @@ import bernstein
 ##############################################################################
 
 class RhalphabetBuilder():
-    def __init__(self, pass_hists, fail_hists, input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
+    def __init__(self, pass_hists, fail_hists, signal_names , input_file, out_dir, nr=2, np=1, mass_nbins=23, mass_lo=40, mass_hi=201,
                  blind_lo=110, blind_hi=131, rho_lo=-6, rho_hi=-2.1, blind=False, mass_fit=False, freeze_poly=False,
                  remove_unmatched=False, input_file_loose=None,suffix=None,sf_dict={},mass_hist_lo=40,mass_hist_hi=201,qcdTFpars={},exp=False,multi=False,pseudo=False):
         self._pass_hists = pass_hists
@@ -133,7 +133,8 @@ class RhalphabetBuilder():
         self._all_pars = []
 
         self._background_names = ["wqq", "zqq", "qcd", "tqq"]
-        self._signal_names = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","hqq125Genpt5","hqq125Genpt6","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
+        #self._signal_names = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","hqq125Genpt5","hqq125Genpt6","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
+        self._signal_names = signal_names
         # for Pbb
         # for mass in [50,75,125,100,150,250,300]:
         #    self._signal_names.append("Pbb_" + str(mass))
@@ -1506,7 +1507,7 @@ def ZeroHistogram1D(h,pt_val,blind,mass_range,blind_range,rho_range):
 
     
 ##-------------------------------------------------------------------------------------
-def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_range, rho_range, fLoose=None,sf_dict={},createPassFromFail=False,skipQCD=False):
+def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, sigs, mass_range, blind_range, rho_range, fLoose=None,sf_dict={},createPassFromFail=False,skipQCD=False):
     pass_hists = {}
     fail_hists = {}
     f.ls()
@@ -1579,7 +1580,7 @@ def LoadHistograms(f, pseudo, blind, useQCD, scale, r_signal, mass_range, blind_
     # for Hbb
     masses = [125]  # 50,75,125,100,150,200,250,300]
     #sigs = ["hqq", "zhqq", "whqq", "vbfhqq", "tthqq"]
-    sigs = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","hqq125Genpt5","hqq125Genpt6","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
+    #sigs = ["hqq125Genpt1","hqq125Genpt2","hqq125Genpt3","hqq125Genpt4","hqq125Genpt5","hqq125Genpt6","zhqq125", "whqq125", "vbfhqq125", "tthqq125"]
     signal_names = []
 
     for sig in sigs:

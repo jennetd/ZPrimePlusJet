@@ -176,6 +176,16 @@ qcdTFpars_2018={'n_rho':2, 'n_pT':2,
 
 #2017  M2pt350to2000, WPcut=0.89, SF= 0.68  +0.05/-0.07
 #2018  M2pt350to2000, WPcut=0.89, SF= 0.70  +0.07/-0.06
+def getSignals(f):
+    signals = []
+    for k in f.GetListOfKeys():
+        hname = k.GetName()
+        proc  = hname.split("_")[0]
+        if '125' in proc and not (proc in signals):
+            signals.append(proc)
+    print signals
+    return signals
+
 def main(options, args):
     ifile = options.ifile
     odir = options.odir
@@ -200,14 +210,16 @@ def main(options, args):
           sf=SF2016
           if not options.pseudo:    qcdTFpars = qcdTFpars_2016
 
+    signal_names = getSignals(f)
+ 
     #(hpass, hfail) = loadHistograms(f, options.pseudo, options.blind, options.useQCD, options.scale, options.r)
-    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf,createPassFromFail=options.createPassFromFail,skipQCD=options.skipQCD)
+    (pass_hists,fail_hists) = LoadHistograms(f, options.pseudo, options.blind, options.useQCD, scale=options.scale, r_signal=options.r, sigs = signal_names, mass_range=[MASS_HIST_LO, MASS_HIST_HI], blind_range=[BLIND_LO, BLIND_HI], rho_range=[RHO_LO,RHO_HI], fLoose=fLoose,sf_dict=sf,createPassFromFail=options.createPassFromFail,skipQCD=options.skipQCD)
     #f.Close()
 
     # Build the workspacees
     #dazsleRhalphabetBuilder(hpass, hfail, f, odir, options.NR, options.NP)
 
-    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf,mass_hist_lo=MASS_HIST_LO,mass_hist_hi=MASS_HIST_HI,qcdTFpars=qcdTFpars,exp=options.exp,multi=options.multi,pseudo=options.pseudo)
+    rhalphabuilder = RhalphabetBuilder(pass_hists, fail_hists, signal_names, f, options.odir, nr=options.NR, np=options.NP, mass_nbins=MASS_BINS, mass_lo=MASS_LO, mass_hi=MASS_HI, blind_lo=BLIND_LO, blind_hi=BLIND_HI, rho_lo=RHO_LO, rho_hi=RHO_HI, blind=options.blind, mass_fit=options.massfit, freeze_poly=options.freeze, remove_unmatched=options.removeUnmatched, input_file_loose=fLoose,suffix=options.suffix,sf_dict=sf,mass_hist_lo=MASS_HIST_LO,mass_hist_hi=MASS_HIST_HI,qcdTFpars=qcdTFpars,exp=options.exp,multi=options.multi,pseudo=options.pseudo)
     rhalphabuilder.run()
     if options.addHptShape:
         rhalphabuilder.addHptShape()	
