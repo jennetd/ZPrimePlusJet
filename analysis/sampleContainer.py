@@ -60,8 +60,7 @@ class sampleContainer:
 
         warnings.filterwarnings(action='ignore', category=RuntimeWarning, message='creating converter.*')
         self._cutFormula = ROOT.TTreeFormula("cutFormula",
-                                             "(" + cutFormula + ")&&("+self._triggerCut+")&&(AK8Puppijet0_pt>%f||AK8Puppijet0_pt_JESDown>%f||AK8Puppijet0_pt_JESUp>%f||AK8Puppijet0_pt_JERUp>%f||AK8Puppijet0_pt_JERDown>%f)" % (
-                                                 PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR, PTCUTMUCR), self._tt)
+                                             "(" + cutFormula + ")&&("+self._triggerCut+")&&(AK8Puppijet0_pt>%f||AK8Puppijet0_pt_JESDown>%f||AK8Puppijet0_pt_JESUp>%f||AK8Puppijet0_pt_JERUp>%f||AK8Puppijet0_pt_JERDown>%f)" % (0, 0, 0, 0, 0), self._tt)
         self._isData = isData
         self.SetExternalInputs(self.puOpt['data'])
         if self.puOpt['data']=='2018':
