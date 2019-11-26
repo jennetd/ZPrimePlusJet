@@ -24,6 +24,7 @@ def getSignals(f):
         proc  = hname.split("_")[0]
         if proc=='hqq125': continue     ## FIXME: remove duplicate template
         if proc=='hqq125minlo': continue     ## FIXME: remove duplicate template
+        #if 'Genpt1' in proc : continue      ## Trick to skip first gen pt bin
         if 'hqq125' in proc and not (proc in signals):
             signals.append(proc)
     print signals
@@ -222,7 +223,9 @@ def main(options,args):
                 #elif i == 6:
                 #    scaleptErrs['%s_%s'%(proc,box)] =  0.4
                 
-                if i == 2:
+                if i == 1:
+                    scaleptErrs['%s_%s'%(proc,box)] = 0 
+                elif i == 2:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(500-450)/100
                 elif i == 3:
                     scaleptErrs['%s_%s'%(proc,box)] = scaleErrs['%s_%s'%(proc,box)]*(550-450)/100
@@ -277,8 +280,6 @@ def main(options,args):
                         rate = histo.IntegralAndError(1,histo.GetNbinsX(),i,i,error)                 
                         if rate>0:
                             mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0+(error[0]/rate)
-                            if j==10 :
-                                print 'proc = %s ,box = %s ,i=%s,  mcstaterr = %s'%(proc,box,i,mcstatErrs['%s_%s'%(proc,box),i,j])
                         else:
                             mcstatErrs['%s_%s'%(proc,box),i,j] = 1.0
                             if (proc, "cat%i"%i, box,histToCard[proc]) not in procsToRemove:
@@ -389,14 +390,14 @@ def main(options,args):
                     smearString += ' -'
                     #scalepassString += ' -'
                     #scalefailString += ' -'
-                    if i > 1:
+                    if i >= 1:
                         scaleptString += ' -'
                         #scalepassptString += ' -'
                         #scalefailptString += ' -'
                 else:
                     scaleString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
                     smearString += ' %.3f'%smearErrs['%s_%s'%(proc,box)]
-                    if i > 1:
+                    if i >= 1:
                         scaleptString += ' %.3f'%scaleptErrs['%s_%s'%(proc,box)]
                     #if box =='pass':
                     #    scalepassString += ' %.3f'%scaleErrs['%s_%s'%(proc,box)]
@@ -493,9 +494,12 @@ def main(options,args):
                     newline = l.replace("ggHptShape","#ggHptShape")
             elif 'veff' in l:
                 newline = vString
-            elif 'CMS_gghbb_scale' in l  and 'pt' in l and i>1:
+            elif 'CMS_gghbb_scale' in l  and 'pt' in l :
                 #newline = scaleptString.replace("scalept","scalept_cat%i"%i)
+                if i==1:
+                    scaleptString = '#'+scaleptString   # comment out scaleptString for first pt cat
                 newline = scaleptString
+
                 #if 'pass' in l:
                 #    newline = scalepassptString
                 #elif 'fail' in l:

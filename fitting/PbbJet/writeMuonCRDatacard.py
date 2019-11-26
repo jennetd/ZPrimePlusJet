@@ -304,6 +304,7 @@ def getSignals(f):
         proc  = hname.split("_")[0]
         if proc=='hqq125': continue     ## FIXME: remove duplicate template
         if proc=='hqq125minlo': continue     ## FIXME: remove duplicate template
+        #if 'Genpt1' in proc : continue    ## trick to skip first gen bin 
         if 'hqq125' in proc and not (proc in signals):
             signals.append(proc)
     print signals

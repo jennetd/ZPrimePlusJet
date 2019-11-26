@@ -181,6 +181,7 @@ def getSignals(f):
     for k in f.GetListOfKeys():
         hname = k.GetName()
         proc  = hname.split("_")[0]
+        #if 'Genpt1' in proc : continue     ## trick to skip first gen bin
         if '125' in proc and not (proc in signals):
             signals.append(proc)
     print signals
