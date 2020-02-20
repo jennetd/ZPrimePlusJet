@@ -39,6 +39,16 @@ def main(options,args):
         V_SF     =SF2018['V_SF']
         V_SF_ERR =SF2018['V_SF_ERR']
         LUMI_ERR = 1.025
+        btagsfErr={
+            'tqq':0.97,
+            'zqq':0.99,'wqq':0.99,
+            ## take tqq's value as estimate for other signals
+            'tthqq125':0.97,'whqq125':0.97,'zhqq125':0.97,'vbfhqq125':0.97,
+            'hqq125':0.98,
+            'hqq125Genpt1':0.98,'hqq125Genpt2':0.98,'hqq125Genpt3':0.98,
+            'hqq125Genpt4':0.98,'hqq125Genpt5':0.98,'hqq125Genpt6':0.98
+        }
+
     elif options.year=='2017':
         SF       =SF2017
         BB_SF    =SF2017['BB_SF'] 
@@ -46,6 +56,15 @@ def main(options,args):
         V_SF     =SF2017['V_SF']
         V_SF_ERR =SF2017['V_SF_ERR']
         LUMI_ERR = 1.023
+        btagsfErr={
+            'tqq':0.97,
+            'zqq':0.99,'wqq':0.99,
+            ## take tqq's value as estimate for other signals
+            'tthqq125':0.97,'whqq125':0.97,'zhqq125':0.97,'vbfhqq125':0.97,
+            'hqq125':0.99,
+            'hqq125Genpt1':0.99,'hqq125Genpt2':0.99,'hqq125Genpt3':0.99,
+            'hqq125Genpt4':0.99,'hqq125Genpt5':0.99,'hqq125Genpt6':0.99
+        }
     elif options.year =='2016':
         SF       =SF2016
         BB_SF     =SF2016['BB_SF']
@@ -53,6 +72,16 @@ def main(options,args):
         V_SF      =SF2016['V_SF']
         V_SF_ERR  =SF2016['V_SF_ERR']
         LUMI_ERR = 1.025
+        btagsfErr={
+            'tqq':0.98,
+            'zqq':0.99,'wqq':0.99,
+            ## take tqq's value as estimate for other signals
+            'tthqq125':0.98,'whqq125':0.98,'zhqq125':0.98,'vbfhqq125':0.98,
+            'hqq125':0.99,
+            'hqq125Genpt1':0.99,'hqq125Genpt2':0.99,'hqq125Genpt3':0.99,
+            'hqq125Genpt4':0.99,'hqq125Genpt5':0.99,'hqq125Genpt6':0.99
+        }
+
   
     print "using BB_SF    ", BB_SF    
     print "using BB_SF_ERR", BB_SF_ERR
@@ -72,10 +101,7 @@ def main(options,args):
     #histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb','zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'}
 
     sigs = getSignals(tfile) 
-    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb',
-                   # 'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
-                   # 'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
-                   # 'hqq125Genpt5':'ggH_hbbGenpt5','hqq125Genpt6':'ggH_hbbGenpt6',
+    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb',
                   'zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb','zqq':'zqq','wqq':'wqq','qcd':'qcd','tqq':'tqq'
                   }
     for s in sigs:
@@ -297,8 +323,11 @@ def main(options,args):
         znormQstring ='CMS_gghbb_znormQ lnN'
         znormEWstring ='CMS_gghbb_znormEW lnN'
         wznormEWstring ='CMS_gghbb_wznormEW lnN'
+        btagsfString = 'CMS_btag_comb%s lnN'%options.suffix
+        string ='CMS_gghbb_wznormEW lnN'
         bbString = 'CMS_eff_bb%s lnN'%options.suffix
         hqq125ptString = 'CMS_gghbb_ggHpt lnN'
+        qcdscaleAccString = 'QCDscale_ggH_ACCEPT lnN'
         weffString = 'weff%s lnN'%options.suffix            ### this is not used ##
         vString = 'CMS_gghbb_veff%s lnN'%options.suffix
         ### Normal scale/scale pt
@@ -321,7 +350,7 @@ def main(options,args):
         if options.year in ['2017','2018']:
             lumiString = 'lumi_13TeV%s lnN'%options.suffix
         else:
-            lumiString = 'lumi%s lnN'%options.suffix
+            lumiString = 'lumi_13TeV%s lnN'%options.suffix
         boxesString    = 'bin '
         procString  = 'process ' 
         procIDstring= 'process '
@@ -384,6 +413,12 @@ def main(options,args):
                 else:
                     wznormEWstring    += ' -'
 
+                if proc in ['wqq','zqq','tqq'] or 'hqq125' in proc:
+                    btagsfString  += ' %.3f'%btagsfErr[proc]
+                else:
+                    btagsfString  += ' -'
+
+
             
                 if proc in ['qcd','tqq']:
                     scaleString += ' -'
@@ -423,6 +458,10 @@ def main(options,args):
                         hqq125ptString += ' 1.30'
                 else:
                     hqq125ptString += ' -'
+                if 'Genpt' in proc :
+                    qcdscaleAccString += ' 1.02'
+                else:
+                    qcdscaleAccString += ' -'
 
                 if proc in ['wqq']:
                     weffString += ' %.3f'%weffErrs['%s_%s'%(proc,box)]
@@ -487,6 +526,8 @@ def main(options,args):
             #    pass
             elif 'ggHpt' in l and not 'ggHptShape' in l:
                 newline = hqq125ptString
+            elif 'QCDscale_ggH_ACCEPT' in l :
+                newline = qcdscaleAccString 
             elif 'ggHptShape' in l:
                 if options.addHptShape:
                     newline = l
@@ -525,6 +566,8 @@ def main(options,args):
                 newline = newline.replace('tqqeffSF','tqqeffSF%s'%options.suffix)
             elif "znormQ" in l:
                 newline = znormQstring
+            elif "btagSF" in l:
+                newline = btagsfString 
             elif "wznormEW" in l:
                 if i==4:                    newline = wznormEWstring.replace('1.02','1.06')
                 elif i==5:                  newline = wznormEWstring.replace('1.02','1.06')

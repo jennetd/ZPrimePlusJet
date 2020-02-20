@@ -33,24 +33,53 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
         V_SF     =SF2018['V_SF']
         V_SF_ERR =SF2018['V_SF_ERR']
         LUMI_ERR = 1.025
+        btagsfErr={
+            'tqq':1.03,
+            'zqq':1.0,'wqq':1.0,
+            'tthqq125':1.0,'whqq125':1.0,'zhqq125':1.0,
+            'vbfhqq125':1.0,'hqq125':1.0,
+            'hqq125Genpt1':1.0,'hqq125Genpt2':1.0,'hqq125Genpt3':1.0,
+            'hqq125Genpt4':1.0,'hqq125Genpt5':1.0,'hqq125Genpt6':1.0
+        }
+
     elif options.year=='2017':
         BB_SF    =SF2017['BB_SF'] 
         BB_SF_ERR=SF2017['BB_SF_ERR']
         V_SF     =SF2017['V_SF']
         V_SF_ERR =SF2017['V_SF_ERR']
         LUMI_ERR = 1.023
+        btagsfErr={
+            'tqq':1.03,
+            'zqq':1.0,'wqq':1.0,
+            'tthqq125':1.0,'whqq125':1.0,'zhqq125':1.0,
+            'vbfhqq125':1.0,'hqq125':1.0,
+            'hqq125Genpt1':1.0,'hqq125Genpt2':1.0,'hqq125Genpt3':1.0,
+            'hqq125Genpt4':1.0,'hqq125Genpt5':1.0,'hqq125Genpt6':1.0
+        }
+
     elif options.year =='2016':
         BB_SF     =SF2016['BB_SF']
         BB_SF_ERR =SF2016['BB_SF_ERR']
         V_SF      =SF2016['V_SF']
         V_SF_ERR  =SF2016['V_SF_ERR']
         LUMI_ERR = 1.025
+        btagsfErr={
+            'tqq':1.02,
+            'zqq':1.0,'wqq':1.0,
+            'tthqq125':1.0,'whqq125':1.0,'zhqq125':1.0,
+            'vbfhqq125':1.0,'hqq125':1.0,
+            'hqq125Genpt1':1.0,'hqq125Genpt2':1.0,'hqq125Genpt3':1.0,
+            'hqq125Genpt4':1.0,'hqq125Genpt5':1.0,'hqq125Genpt6':1.0
+        }
+
 
 
     rates = {}
     Effentries = {}
     lumiErrs = {}
+    btagsfErrs = {}
     hqq125ptErrs = {}
+    qcdscaleAccErrs = {}
     mcStatErrs = {}
     veffErrs = {}
     bbeffErrs = {}
@@ -77,6 +106,11 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
                 hqq125ptErrs['%s_%s'%(proc,box)] = 1.3                
             else:
                 hqq125ptErrs['%s_%s'%(proc,box)] = 1.0
+            if 'Genpt' in proc:
+                qcdscaleAccErrs['%s_%s'%(proc,box)] = 1.02            
+            else:
+                qcdscaleAccErrs['%s_%s'%(proc,box)] = 1.0
+
             if proc=='wqq' or proc=='zqq' or 'hqq' in proc:
                 veffErrs['%s_%s'%(proc,box)] = 1.0+V_SF_ERR/V_SF
                 if box=='pass':
@@ -97,6 +131,10 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
             #muisoErrs['%s_%s'%(proc,box)] = 1
             #jesErrs['%s_%s'%(proc,box)] = 1
             #jerErrs['%s_%s'%(proc,box)] = 1
+            if proc in ['wqq','zqq','tqq'] or 'hqq125' in proc:
+                btagsfErrs['%s_%s'%(proc,box)] = btagsfErr[proc]
+            else:
+                btagsfErrs['%s_%s'%(proc,box)] = 1.  
             if proc=='wqq':
                 wznormEWErrs['%s_%s'%(proc,box)] = 1.05
             else:
@@ -167,13 +205,15 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
     if options.year in ['2017','2018']:
         lumiString = 'lumi_13TeV%s lnN'%options.suffix
     else:
-        lumiString = 'lumi%s lnN'%options.suffix
+        lumiString = 'lumi_13TeV%s lnN'%options.suffix
     hqq125ptString = 'CMS_gghbb_ggHpt\tlnN'
+    qcdscaleAccString = 'QCDscale_ggH_ACCEPT\tlnN'
     veffString = 'CMS_gghbb_veff%s\tlnN'%options.suffix
     bbeffString = 'CMS_eff_bb%s\tlnN'%options.suffix
     znormEWString = 'CMS_gghbb_znormEW\tlnN'
     znormQString = 'CMS_gghbb_znormQ\tlnN'    
     wznormEWString = 'CMS_gghbb_wznormEW\tlnN'
+    btagsfString = 'CMS_btag_comb%s\tlnN'%options.suffix
     #muidString = 'muid\tshape'   
     #muisoString = 'muiso\tshape'   
     #mutriggerString = 'mutrigger\tshape'  
@@ -217,11 +257,13 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
             rateString += '\t%.3f' %rates['%s_%s'%(proc,box)]
             lumiString += format_string(lumiErrs['%s_%s'%(proc,box)])
             hqq125ptString += format_string(hqq125ptErrs['%s_%s'%(proc,box)])
+            qcdscaleAccString += format_string(qcdscaleAccErrs['%s_%s'%(proc,box)])
             veffString += format_string(veffErrs['%s_%s'%(proc,box)])
             bbeffString += format_string(bbeffErrs['%s_%s'%(proc,box)])
             znormEWString += format_string(znormEWErrs['%s_%s'%(proc,box)])
             znormQString += format_string(znormQErrs['%s_%s'%(proc,box)])
             wznormEWString += format_string(wznormEWErrs['%s_%s'%(proc,box)])
+            btagsfString += format_string(btagsfErrs['%s_%s'%(proc,box)])
             mutriggerString += '\t%.3f'%(mutriggerErrs['%s_%s'%(proc,box)])
             muidString += '\t%.3f'%(muidErrs['%s_%s'%(proc,box)])
             muisoString += '\t%.3f'%(muisoErrs['%s_%s'%(proc,box)])
@@ -243,8 +285,8 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
                                 mcStatErrString['%s_%s'%(proc1,box1),j] += '\t-'
 
             
-    binString+='\n'; processString+='\n'; processNumberString+='\n'; rateString +='\n'; lumiString+='\n'; hqq125ptString+='\n';
-    veffString+='\n'; bbeffString+='\n'; znormEWString+='\n'; znormQString+='\n'; wznormEWString+='\n'; mutriggerString+='\n'; muidString+='\n'; muisoString+='\n'; 
+    binString+='\n'; processString+='\n'; processNumberString+='\n'; rateString +='\n'; lumiString+='\n'; hqq125ptString+='\n';qcdscaleAccString+='\n';
+    veffString+='\n'; bbeffString+='\n'; znormEWString+='\n'; znormQString+='\n'; wznormEWString+='\n'; btagsfString+='\n'; mutriggerString+='\n'; muidString+='\n'; muisoString+='\n'; 
     jesString+='\n'; jerString+='\n'; puString+='\n';     
     for proc in (sigs+bkgs):
         for box in boxes:
@@ -257,7 +299,7 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
     datacard+=binString+processString+processNumberString+rateString+divider
 
     # now nuisances
-    datacard+=lumiString+hqq125ptString+veffString+bbeffString+znormEWString+znormQString+wznormEWString+mutriggerString+muidString+muisoString+jesString+jerString+puString
+    datacard+=lumiString+hqq125ptString+qcdscaleAccString+veffString+bbeffString+znormEWString+znormQString+wznormEWString+btagsfString+mutriggerString+muidString+muisoString+jesString+jerString+puString
 
     # comment out total mcstat lnN errors
     for proc in (sigs+bkgs):
@@ -350,9 +392,7 @@ def main(options, args):
 
     tfile = rt.TFile.Open(options.ifile,'read')
     sigs  = getSignals(tfile)
-    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb',
-                    #'hqq125Genpt1':'ggH_hbbGenpt1','hqq125Genpt2':'ggH_hbbGenpt2',
-                    #'hqq125Genpt3':'ggH_hbbGenpt3','hqq125Genpt4':'ggH_hbbGenpt4',
+    histToCard = {'tthqq125':'ttH_hbb','whqq125':'WH_hbb','hqq125':'ggH_hbb',
                      'zhqq125':'ZH_hbb','vbfhqq125':'qqH_hbb'}
 
     for s in sigs:
