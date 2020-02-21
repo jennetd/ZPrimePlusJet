@@ -22,12 +22,13 @@ def getSignals(f):
     for k in f.GetListOfKeys():
         hname = k.GetName()
         proc  = hname.split("_")[0]
-        if proc=='hqq125': continue     ## FIXME: remove duplicate template
-        if proc=='hqq125minlo': continue     ## FIXME: remove duplicate template
+        if options.genpt:                        ## skip non-gen binned templates if u do unfolding
+            if proc=='hqq125': continue          ## FIXME: remove duplicate template
+            if proc=='hqq125minlo': continue     ## FIXME: remove duplicate template
         #if 'Genpt1' in proc : continue      ## Trick to skip first gen pt bin
         if 'hqq125' in proc and not (proc in signals):
             signals.append(proc)
-    print signals
+    print 'found following signals: ',signals
     return signals
 
 def main(options,args):
@@ -156,8 +157,10 @@ def main(options,args):
     #for hname,h in histoDict.iteritems():
     #    h.RebinX(7)
     #    print 'rebinning %s by 7...'
-    dctpl = open("datacard_6genpt.tpl")
-    #dctpl = open("datacard.tpl")
+    if options.genpt:
+        dctpl = open("datacard_6genpt.tpl")
+    else:
+        dctpl = open("datacard.tpl")
     #dctpl = open("datacardZbb.tpl")
     #dctpl = open("datacardZonly.tpl")
 
@@ -327,6 +330,7 @@ def main(options,args):
         string ='CMS_gghbb_wznormEW lnN'
         bbString = 'CMS_eff_bb%s lnN'%options.suffix
         hqq125ptString = 'CMS_gghbb_ggHpt lnN'
+        hqq125ptShapeString = 'CMS_gghbb_ggHptShape shape'
         qcdscaleAccString = 'QCDscale_ggH_ACCEPT lnN'
         weffString = 'weff%s lnN'%options.suffix            ### this is not used ##
         vString = 'CMS_gghbb_veff%s lnN'%options.suffix
@@ -451,17 +455,22 @@ def main(options,args):
                     bbString += ' -'
                 else:
                     bbString += ' %.3f'%bbErrs['%s_%s'%(proc,box)]
-                if proc in ['hqq125']:
-                    if not options.addHptShape:
-                        hqq125ptString += ' 1.20'
+                
+                if options.genpt:                          ## genpt and pt unc. is mutually exclusive with hptShape unc.
+                    if 'Genpt' in proc :
+                        qcdscaleAccString += ' 1.02'
                     else:
-                        hqq125ptString += ' 1.30'
+                        qcdscaleAccString += ' -'
                 else:
-                    hqq125ptString += ' -'
-                if 'Genpt' in proc :
-                    qcdscaleAccString += ' 1.02'
-                else:
-                    qcdscaleAccString += ' -'
+                    if proc in ['hqq125']:
+                        if not options.addHptShape:
+                            hqq125ptString += ' 1.20'       ## no shape => minlo => 20% lnN unc.
+                        else:
+                            hqq125ptString += ' 1.30'       ## w/ shape => pow   => 30% lnN unc.
+                            hqq125ptShapeString += ' 1.0'       ## w/ shape => pow   => 30% shape unc.(made in rhalp)
+                    else:
+                        hqq125ptString += ' -'
+                        hqq125ptShapeString += ' -'
 
                 if proc in ['wqq']:
                     weffString += ' %.3f'%weffErrs['%s_%s'%(proc,box)]
@@ -530,9 +539,9 @@ def main(options,args):
                 newline = qcdscaleAccString 
             elif 'ggHptShape' in l:
                 if options.addHptShape:
-                    newline = l
+                    newline = hqq125ptShapeString ## need to generate string dynamically 
                 else:
-                    newline = l.replace("ggHptShape","#ggHptShape")
+                    newline = l.replace("CMS_gghbb_ggHptShape","#CMS_gghbb_ggHptShape")
             elif 'veff' in l:
                 newline = vString
             elif 'CMS_gghbb_scale' in l  and 'pt' in l :
@@ -653,7 +662,8 @@ def main(options,args):
                 if linel[iline-1][procIndex]!='%s_%s'%(box,tag):
                     procIndex = [il for il, nl in enumerate(l) if nl == proc][1] # second instance of process (fail category)
                 if linel[iline-1][procIndex]=='%s_%s'%(box,tag):
-                    print "REMOVING", proc, tag, box                    
+                    print iline,l
+                    print "REMOVING", proc, tag, box ,' at', procIndex 
                 else:
                     print "NOT REMOVING; NO MATCH", proc, tag, box                    
                 l.pop(procIndex)
@@ -670,7 +680,8 @@ def main(options,args):
                 linel[iline]= l
         dctmp.close()
         dctmp_w = open(options.odir+"/card_rhalphabet_%s.txt" % tag, 'w')
-        for l in linel: dctmp_w.write(' '.join(l)+'\n')
+        for l in linel: 
+            dctmp_w.write(' '.join(l)+'\n')
 
     for proc, tag, box, cardProc in procsToRemove: 
         print proc,cardProc
@@ -718,6 +729,7 @@ if __name__ == '__main__':
     parser.add_option('--qcdfitdir',  dest='qcdfitdir', default ='',help='add qcdfit dir', metavar='qcdfitdir')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
+    parser.add_option('--genpt', dest='genpt', action='store_true', default=False, help='look for genpt templates for unfolding',metavar='genpt')
     parser.add_option('--multi', action='store_true', dest='multi', default=False, help='define RooMultiPdf',
                       metavar='multi')
 
