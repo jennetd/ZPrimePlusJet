@@ -109,6 +109,7 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
                     qcdscaleAccErrs['%s_%s'%(proc,box)] = 1.0
                 hqq125ptErrs['%s_%s'%(proc,box)] = 1.0
             else:
+                qcdscaleAccErrs['%s_%s'%(proc,box)] = 1.0
                 if proc=='hqq125':
                     if 'minlo' in options.odir.lower():
                         hqq125ptErrs['%s_%s'%(proc,box)] = 1.2                
