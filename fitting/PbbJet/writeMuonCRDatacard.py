@@ -102,14 +102,20 @@ def writeDataCard(boxes,txtfileName,sigs,bkgs,histoDict,histToCard,options):
             Effentries['%s_%s'%(proc,box)]  = effentries
             lumiErrs['%s_%s'%(proc,box)] = LUMI_ERR 
             #lumiErrs['%s_%s'%(proc,box)] = 1.025
-            if proc=='hqq125':
-                hqq125ptErrs['%s_%s'%(proc,box)] = 1.3                
-            else:
+            if options.genpt:                          ## genpt and pt unc. is mutually exclusive with hptShape unc.
+                if 'Genpt' in proc:
+                    qcdscaleAccErrs['%s_%s'%(proc,box)] = 1.02            
+                else:
+                    qcdscaleAccErrs['%s_%s'%(proc,box)] = 1.0
                 hqq125ptErrs['%s_%s'%(proc,box)] = 1.0
-            if 'Genpt' in proc:
-                qcdscaleAccErrs['%s_%s'%(proc,box)] = 1.02            
             else:
-                qcdscaleAccErrs['%s_%s'%(proc,box)] = 1.0
+                if proc=='hqq125':
+                    if 'minlo' in options.odir.lower():
+                        hqq125ptErrs['%s_%s'%(proc,box)] = 1.2                
+                    else:
+                        hqq125ptErrs['%s_%s'%(proc,box)] = 1.3
+                else:
+                    hqq125ptErrs['%s_%s'%(proc,box)] = 1.0
 
             if proc=='wqq' or proc=='zqq' or 'hqq' in proc:
                 veffErrs['%s_%s'%(proc,box)] = 1.0+V_SF_ERR/V_SF
@@ -344,8 +350,9 @@ def getSignals(f):
     for k in f.GetListOfKeys():
         hname = k.GetName()
         proc  = hname.split("_")[0]
-        if proc=='hqq125': continue     ## FIXME: remove duplicate template
-        if proc=='hqq125minlo': continue     ## FIXME: remove duplicate template
+        if options.genpt:                        ## skip non-gen binned templates if u do unfolding
+            if proc=='hqq125': continue     ## FIXME: remove duplicate template
+            if proc=='hqq125minlo': continue     ## FIXME: remove duplicate template
         #if 'Genpt1' in proc : continue    ## trick to skip first gen bin 
         if 'hqq125' in proc and not (proc in signals):
             signals.append(proc)
@@ -475,6 +482,7 @@ if __name__ == '__main__':
     parser.add_option('-o','--odir', dest='odir', default = './',help='directory to write cards', metavar='odir')
     parser.add_option('-y' ,'--year', type='choice', dest='year', default ='2016',choices=['2016','2017','2018'],help='switch to use different year ', metavar='year')
     parser.add_option('--suffix', dest='suffix', default='', help='suffix for conflict variables',metavar='suffix')
+    parser.add_option('--genpt', dest='genpt', action='store_true', default=False, help='look for genpt templates for unfolding',metavar='genpt')
     parser.add_option('--no-mcstat-shape', action='store_true', dest='noMcStatShape', default =False,help='change mcstat uncertainties to lnN', metavar='noMcStatShape')
     
     (options, args) = parser.parse_args()
