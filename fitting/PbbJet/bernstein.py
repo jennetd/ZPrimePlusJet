@@ -80,6 +80,68 @@ def genBernsteinTF(n_rho,n_pT,boundaries,IsMsdPt,qcdeff=True,rescale=True,exp=Fa
         return poly
     return funbern
 
+def genBernsteinTFprod(n_rho,n_pT,n_rho_mc,n_pT_mc,boundaries,IsMsdPt,qcdeff=True,rescale=True): 
+
+    RHO_LO= boundaries['RHO_LO']
+    RHO_HI= boundaries['RHO_HI']
+    PT_LO = boundaries['PT_LO' ]
+    PT_HI = boundaries['PT_HI' ]
+   
+    #assumes Par[0] = qcdeff
+    #Par[1:]  = Par_mc[1:] + Par_data
+    #par_data[1:]  = [p0r1,p0r2...,
+    #                  p1r0,p1r1,..,
+    #                    ...]
+    #function used to construct TF2
+    def funbern(x, par):
+        if IsMsdPt:
+            rho   = r.TMath.Log((x[0] * x[0]) / (x[1] * x[1])) #convert mass to rho 
+        else:
+            rho   = x[0] 
+        pT    = x[1]
+        if rescale:
+            rho_norm   = (rho - RHO_LO) /(RHO_HI - RHO_LO)
+            pT_norm    = (pT  - PT_LO ) /(PT_HI  - PT_LO)
+        else:
+            rho_norm   = (rho)
+            pT_norm    = (pT )
+
+        # n_rho=2, n_pT=1      
+        #poly0 = par[0] * bern(pT_norm,0,n_pT) * (          bern(rho_norm,0,n_rho)  + par[1] *  bern(rho_norm,1,n_rho) + par[2] *  bern(rho_norm,2,n_rho) )
+        #poly1 = par[0] * bern(pT_norm,1,n_pT) * ( par[3] * bern(rho_norm,0,n_rho)  + par[4] *  bern(rho_norm,1,n_rho) + par[5] *  bern(rho_norm,2,n_rho) )
+        poly = 0
+        poly_mc = 0
+        OLDTF = False # internal switch for old TF
+        if OLDTF:
+            iPar =0     # par[0] = normalization
+            for i_pT in range(0,n_pT+1):
+                for i_rho in range(0,n_rho+1):
+                    if iPar==0: 
+                        poly += par[0] *              bern(pT_norm,i_pT,n_pT) *  bern(rho_norm,i_rho,n_rho)
+                    else:
+                        poly += par[0] * par[iPar] *  bern(pT_norm,i_pT,n_pT) *  bern(rho_norm,i_rho,n_rho)
+                    iPar+=1
+        else:
+            #NewTF:
+            iPar =1     # par[0] = normalization
+            for i_pT in range(0,n_pT_mc+1):
+                for i_rho in range(0,n_rho_mc+1):
+                    poly_mc += par[0] * par[iPar] *  bern(pT_norm,i_pT,n_pT_mc) *  bern(rho_norm,i_rho,n_rho_mc)
+                    iPar+=1
+
+            for i_pT in range(0,n_pT+1):
+                for i_rho in range(0,n_rho+1):
+                    poly +=  par[iPar] *  bern(pT_norm,i_pT,n_pT) *  bern(rho_norm,i_rho,n_rho)
+                    iPar+=1
+    
+        if not qcdeff:
+            poly = poly*poly_mc/par[0]  # remove overall qcd eff if not needed
+        else:
+            poly = poly*poly_mc  # remove overall qcd eff if not needed
+        return poly
+    return funbern
+
+
 def genBernsteinTFstring(n_rho,n_pT,f2,qcdeff=True,forWolfram=False): 
         if forWolfram:
             rho_norm = 'x'
@@ -253,7 +315,7 @@ def getPaveText(MsdOrRho):
     return pave_param,pave_param2
 
 
-def drawOpt(f2,colz,MsdOrRho,ofname,zMax=0.01,zMin=0.0,usef2=True):
+def drawOpt(f2,colz,MsdOrRho,ofname,zMax=0.01,zMin=0.0,usef2=True,Ztitle="Pass-fail ratio"):
     c1 = r.TCanvas("c1","c1",800,800)
     c1.SetBottomMargin(0.15)
     #fun_mass_pT_str =  genBernsteinTFstring(nrho,npT,f2)
@@ -345,14 +407,15 @@ def drawOpt(f2,colz,MsdOrRho,ofname,zMax=0.01,zMin=0.0,usef2=True):
         f2.Draw("surf1")
 
     if MsdOrRho=='msd':
-        f2.GetXaxis().SetTitle("m_{SD} [GeV]")
+        f2.GetXaxis().SetTitle("m_{SD} (GeV)")
     else:
-        f2.GetXaxis().SetTitle("#rho = log(m_{SD}^{2}/p_{T}^{2})")
+        #f2.GetXaxis().SetTitle("#rho = log(m_{SD}^{2}/p_{T}^{2})")
+        f2.GetXaxis().SetTitle("#rho ")
 
   
     r.gStyle.SetOptStat(0) 
-    f2.GetYaxis().SetTitle("p_{T} [GeV]")
-    f2.GetZaxis().SetTitle("Pass-to-fail Ratio")
+    f2.GetYaxis().SetTitle("p_{T} (GeV)")
+    f2.GetZaxis().SetTitle(Ztitle)
     f2.GetZaxis().SetTitleOffset(2)
     #f2.SetMaximum(1.5)
     #f2.SetMinimum(0.4)
@@ -362,19 +425,20 @@ def drawOpt(f2,colz,MsdOrRho,ofname,zMax=0.01,zMin=0.0,usef2=True):
 
     #drawCMS()
     if '2018' in ofname:    lumi = 59.2
-    elif '2016' in ofname:  lumi = 35.5
+    elif '2016' in ofname:  lumi = 35.9
     else:                   lumi = 41.5
-    tag1 = r.TLatex(0.67,0.92,"%.1f fb^{-1} (13 TeV)"%lumi)
+    tag1 = r.TLatex(0.62,0.93,"%.1f fb^{-1} (13 TeV)"%lumi)
     tag1.SetNDC(); tag1.SetTextFont(42)
-    tag1.SetTextSize(0.045)
-    tag2 = r.TLatex(0.15,0.92,"CMS")
+    tag1.SetTextSize(0.035)
+    tag2 = r.TLatex(0.15,0.93,"CMS")
     tag2.SetNDC()
     tag2.SetTextFont(62)
-    tag3 = r.TLatex(0.28,0.92,"Preliminary")
+    #tag3 = r.TLatex(0.24,0.93,"Simulation Preliminary")
+    tag3 = r.TLatex(0.24,0.93,"Preliminary")
     tag3.SetNDC()
     tag3.SetTextFont(52)
-    tag2.SetTextSize(0.055)
-    tag3.SetTextSize(0.045)
+    tag2.SetTextSize(0.04)
+    tag3.SetTextSize(0.03)
     tag1.Draw()
     tag2.Draw()
     tag3.Draw()
@@ -419,7 +483,37 @@ def drawBasisMaps(nrho,npT,odir,exp=False):
             ipos +=1 
    
 # Exp = exponential function
-def makeTFs(pars,nrho,npT,odir,exp=False,zmax=1.5,zmin=0.0):
+def makeTFprod(pars_data,nrho_data,npT_data,pars_mc,nrho_mc,npT_mc, odir,exp=False,zmax=1.5,zmin=0.0,Ztitle='Pass-to-fail ratio'):
+
+    f2params = array.array('d', pars_mc['arr']+pars_data['arr'][1:])
+    npar = len(f2params)
+    colz = True 
+    debug = False
+
+    boundaries={}
+    boundaries['RHO_LO']=-6.
+    boundaries['RHO_HI']=-2.1
+    boundaries['PT_LO' ]= 450.
+    boundaries['PT_HI' ]= 1200.
+
+    fun_mass_pT =  genBernsteinTFprod(nrho_data,npT_data,nrho_mc,npT_mc,  boundaries,IsMsdPt=True,qcdeff=True,rescale=True)
+    f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
+    f2.SetParameters(f2params)
+    drawOpt(f2,colz,'msd',odir+"f2_TFproduct.pdf",zMax=zmax,zMin=zmin,usef2=True,Ztitle=Ztitle)
+    drawOpt(f2,colz,'msd',odir+"h2_TFproduct.pdf",zMax=zmax,zMin=zmin,usef2=False,Ztitle=Ztitle)
+    if debug:
+        for pT in [700]:
+            arr = ["%.5f"%f2.Eval(msd,pT) for msd in range(120,130)]
+            print arr
+
+    fun_rho_pT =  genBernsteinTFprod(nrho_data,npT_data,nrho_mc,npT_mc,boundaries,IsMsdPt=False,qcdeff=True,rescale=True)
+    f2 = r.TF2("f2", fun_rho_pT, -6,-2.1,450,1200,npar)
+    f2.SetParameters(f2params)
+    drawOpt(f2,colz,'rho',odir+"f2_rho_TFproduct.pdf",zMax=zmax,zMin=zmin,usef2=True,Ztitle=Ztitle)
+    drawOpt(f2,colz,'rho',odir+"h2_rho_TFproduct.pdf",zMax=zmax,zMin=zmin,usef2=False,Ztitle=Ztitle)
+
+
+def makeTFs(pars,nrho,npT,odir,exp=False,zmax=1.5,zmin=0.0,Ztitle='Pass-fail ratio'):
     if not pars['qcdeff'] ==-999:
         f2params = array.array('d', pars['arr'])
     else:
@@ -440,33 +534,31 @@ def makeTFs(pars,nrho,npT,odir,exp=False,zmax=1.5,zmin=0.0):
         fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=True,qcdeff=True,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
         f2.SetParameters(f2params)
-        drawOpt(f2,colz,'msd',odir+"f2.pdf",zMax=zmax,zMin=zmin)
-        drawOpt(f2,colz,'msd',odir+"h2.pdf",zMax=zmax,zMin=zmin,usef2=False)
+        drawOpt(f2,colz,'msd',odir+"f2.pdf",zMax=zmax,zMin=zmin,Ztitle=Ztitle)
+        drawOpt(f2,colz,'msd',odir+"h2.pdf",zMax=zmax,zMin=zmin,usef2=False,Ztitle=Ztitle)
+        for pT in [700]:
+            arr = []
+            for msd in range(120,130):
+                arr.append("%.5f"%f2.Eval(msd,pT))
+            print arr
+
         fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=True,rescale=True,exp=exp)
         f2 = r.TF2("f2", fun_rho_pT, -6,-2.1,450,1200,npar)
         f2.SetParameters(f2params)
-        drawOpt(f2,colz,'rho',odir+"f2_rho.pdf",zMax=zmax,zMin=zmin)
-        drawOpt(f2,colz,'rho',odir+"h2_rho.pdf",zMax=zmax,zMin=zmin,usef2=False)
+        drawOpt(f2,colz,'rho',odir+"f2_rho.pdf",zMax=zmax,zMin=zmin,Ztitle=Ztitle)
+        drawOpt(f2,colz,'rho',odir+"h2_rho.pdf",zMax=zmax,zMin=zmin,usef2=False,Ztitle=Ztitle)
         # Transfer-factor in mSD-pT plane
-        #fun_mass_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=True,qcdeff=False,rescale=True,exp=exp)
-        #f2 = r.TF2("f2", fun_mass_pT, 40,201,450,1200,npar)
-        #f2.SetParameters(f2params)
-        #for pT in [500,700,800]:
-        #    arr = []
-        #    for msd in range(120,130):
-        #        arr.append("%.3f"%f2.Eval(msd,pT))
-        #    print arr
-
+        
         #drawOpt(f2,colz,'msd',odir+"f2_noqcdeff.pdf",zMax=1.5,zMin=0.4)
         # Transfer-factor in rho-pT plane
-        fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=False,rescale=True,exp=exp)
-        f2 = r.TF2("f2", fun_rho_pT,  -6,-2.1,450,1200,npar)
-        f2.SetParameters(f2params)
-        #drawOpt(f2,colz,'rho',odir+"f2_noqcdeff_rho.pdf",zMax=1.5,zMin=0.4)
-        # Pass-to-Fail ratio in rho-pT unit plane
-        fun2 =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=True,rescale=False,exp=exp)
-        f2 = r.TF2("f_unit", fun2, 0,1,0,1,npar)
-        f2.SetParameters(f2params)
+        #fun_rho_pT =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=False,rescale=True,exp=exp)
+        #f2 = r.TF2("f2", fun_rho_pT,  -6,-2.1,450,1200,npar)
+        #f2.SetParameters(f2params)
+        ##drawOpt(f2,colz,'rho',odir+"f2_noqcdeff_rho.pdf",zMax=1.5,zMin=0.4)
+        ## Pass-to-Fail ratio in rho-pT unit plane
+        #fun2 =  genBernsteinTF(nrho,npT,boundaries,IsMsdPt=False,qcdeff=True,rescale=False,exp=exp)
+        #f2 = r.TF2("f_unit", fun2, 0,1,0,1,npar)
+        #f2.SetParameters(f2params)
         #drawOpt(f2,colz,'rho',odir+"f2_unit.pdf",zMax=1.5,zMin=0.4)
         
 if __name__ == '__main__':
