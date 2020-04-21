@@ -325,7 +325,7 @@ def goodness(base,ntoys,iLabel,options):
         ### ToysFreq recommended for saturated, https://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/commonstatsmethods/#goodness-of-fit-tests
         ### Default toys for other algos
         if options.algo =='saturated':
-             exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20  --setParameters %s -s %i -t %i --toysFrequentist --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.setParameters,options.seed,ntoys,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
+             exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=0,7  --setParameters %s -s %i -t %i --toysFrequentist --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.setParameters,options.seed,ntoys,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
         else:
              exec_me('combine -M GoodnessOfFit %s  --setParameterRange r=-20,20 --setParameters %s -s %i -t %i  --algorithm %s -n %s --freezeParameters %s --redefineSignalPOIs r'% (base,options.setParameters,options.seed,ntoys,options.algo,base.split('/')[-1].replace('.root',''),options.freezeNuisances),options.dryRun)
         exec_me('cp higgsCombine%s.GoodnessOfFit.mH120.%s.root %s/goodtoys_%s.root'%(base.split('/')[-1].replace('.root',''),options.seed,options.odir,options.seed),options.dryRun)        
