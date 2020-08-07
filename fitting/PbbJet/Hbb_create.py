@@ -197,29 +197,29 @@ def get2018files(isMuonCR):
 
 
     tfiles = {
-	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1505skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
-        'hqq125minlo': { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':        [idir_1505skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
-	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1505skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
+	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1505+'/GluGluHToBB_M125_13TeV_powheg_pythia8/*.root']},
+        'hqq125minlo': { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':        [idir_1505+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8/*.root']},
+	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1505+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix/*.root']},
         'zhqq125'    : { 
-                           'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1505skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1505skim+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
                            #'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1505+'/ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
-                           'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1505skim+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
+                           'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1505+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1505+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                           'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1505+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
                        },
         'whqq125'    : {
-                           'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1505skim+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1505skim+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1505+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                           'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1505+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
                        },
-	    'tthqq125'   : { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1505skim+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8_*.root']},
+	    'tthqq125'   : { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1505+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8/*.root']},
         'vvqq':        {
                              'WW_TuneCP5_13TeV-pythia8':[idir_1505skim+'WW_TuneCP5_13TeV_pythia8_*.root'],
                              'WZ_TuneCP5_13TeV-pythia8':[idir_1505skim+'WZ_TuneCP5_13TeV_pythia8_*.root'],
                              'ZZ_TuneCP5_13TeV-pythia8':[idir_1505skim+'ZZ_TuneCP5_13TeV_pythia8_*.root']
                        },
         'zqq':         {
-                            'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1505skim + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV_*.root'],
-                            'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1505skim + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV_*.root'],
-                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1505skim + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV_*.root'],
+                            'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1505 + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV/*.root'],
+                            'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1505 + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV/*.root'],
+                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1505 + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV/*.root'],
                         },
         'zll':          {
                             'DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8'  :[idir_1505skim+'/DYJetsToLL_M_50_TuneCP5_13TeV_*.root']
@@ -291,8 +291,8 @@ def get2016legacyfiles():
     idir_1603skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.03/skim/'
     idir_16031skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.031/skim/'
     tfiles = {
-	          'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
-              'hqq125minlo':           { 'GluGluHToBB_M125_13TeV_powheg_pythia8_2016':                [idir_1603skim+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
+	          'hqq125'     :          { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1603+'/GluGluHToBB_M125_13TeV_powheg_pythia8/*.root']},
+              'hqq125minlo':           { 'GluGluHToBB_M125_13TeV_powheg_pythia8_2016':                [idir_1603+'/GluGluHToBB_M125_13TeV_powheg_pythia8/*.root']},
 	          'vbfhqq125'    :          { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':            [idir_1603skim+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
 	          'zhqq125'      :          { 
                                     'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1603skim+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
@@ -395,29 +395,29 @@ def get2017files(isMuonCR):
     idir_1604skim = 'root://cmseos.fnal.gov//eos/uscms/store/user/lpcbacon/dazsle/zprimebits-v16.04/skim/'
 
     tfiles = {
-	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1504skim_vbf+'/GluGluHToBB_M125_13TeV_powheg_pythia8_*.root']},
-        'hqq125minlo': { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':        [idir_1504skim+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8_*.root']},
-	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1504skim_vbf+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix_*.root']},
+	    'hqq125'     : { 'GluGluHToBB_M125_13TeV_powheg_pythia8':                      [idir_1504+'/GluGluHToBB_M125_13TeV_powheg_pythia8/*.root']},
+        'hqq125minlo': { 'GluGluHToBB_M-125_13TeV_powheg_MINLO_NNLOPS_pythia8':        [idir_1504+'/GluGluHToBB_M_125_13TeV_powheg_MINLO_NNLOPS_pythia8/*.root']},
+	    'vbfhqq125'  : { 'VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix':              [idir_1504+'/VBFHToBB_M_125_13TeV_powheg_pythia8_weightfix/*.root']},
         'zhqq125'    : { 
-                           'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1504skim_vbf+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1504skim_vbf+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           #'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1504skim_vbf+'/ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8_*.root'],
-                           'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1504skim_vbf+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8*.root'],
+                           #'ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':            [idir_1504skim_vbf+'/ZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
+                           'ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':              [idir_1504+'/ZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                           'ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8':            [idir_1504+'/ggZH_HToBB_ZToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                           'ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8':          [idir_1504+'/ggZH_HToBB_ZToNuNu_M125_13TeV_powheg_pythia8/*.root'],
                        },
         'whqq125'    : {
-                           'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1504skim_vbf+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
-                           'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1504skim_vbf+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8_*.root'],
+                           'WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':         [idir_1504+'/WminusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
+                           'WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8':          [idir_1504+'/WplusH_HToBB_WToQQ_M125_13TeV_powheg_pythia8/*.root'],
                        },
-	    'tthqq125'   : { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1504skim_vbf+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8_*.root']},
+	    'tthqq125'   : { 'ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8':           [idir_1504+'/ttHTobb_M125_TuneCP5_13TeV_powheg_pythia8/*.root']},
         'vvqq':        {
                              'WW_TuneCP5_13TeV-pythia8':[idir_1504skim_vbf+'WW_TuneCP5_13TeV_pythia8_*.root'],
                              'WZ_TuneCP5_13TeV-pythia8':[idir_1504skim_vbf+'WZ_TuneCP5_13TeV_pythia8_*.root'],
                              'ZZ_TuneCP5_13TeV-pythia8':[idir_1504skim_vbf+'ZZ_TuneCP5_13TeV_pythia8_*.root']
                        },
         'zqq':         {
-                            'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1504skim_vbf + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV_*.root'],
-                            'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1504skim_vbf + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV_*.root'],
-                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1504skim_vbf + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV_*.root'],
+                            'ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV': [idir_1504 + '/ZJetsToQQ_HT400to600_qc19_4j_TuneCP5_13TeV/*.root'],
+                            'ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV': [idir_1504 + '/ZJetsToQQ_HT600to800_qc19_4j_TuneCP5_13TeV/*.root'],
+                            'ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV':[idir_1504 + '/ZJetsToQQ_HT-800toInf_qc19_4j_TuneCP5_13TeV/*.root'],
                         },
         'zll':         {
                              'DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV'  :[idir_1504skim_vbf+'/DYJetsToLL_M_50_HT_400to600_TuneCP5_13TeV_*.root'] , 
@@ -540,7 +540,8 @@ def main(options, args):
 
 
     passfail    = ['pass','fail']
-    systematics = ['JESUp','JESDown','JERUp','JERDown','triggerUp','triggerDown','PuUp','PuDown','matched','unmatched']
+    #systematics = ['JESUp','JESDown','JERUp','JERDown','triggerUp','triggerDown','PuUp','PuDown','matched','unmatched']
+    systematics = ['matched','unmatched']
     plots = []
     region  = options.region
     print "Selecting doubleB pass/fail plots for this region   =  %s"% region
@@ -606,14 +607,14 @@ def main(options, args):
     if year in ['2017','2018'] :
         bkgSamples['wqq']  = normSampleContainer('wqq',tfiles['wqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         bkgSamples['zqq']  = normSampleContainer('zqq',tfiles['zqq']  ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-        bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-        bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-        bkgSamples['stqq'] = normSampleContainer('stqq', tfiles['stqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-        bkgSamples['zll']  = normSampleContainer('zll', tfiles['zll']  , 1, dbtagmin,lumi,False,False,'1',False ,iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-        if muonCR:
-            bkgSamples['wlnu'] = normSampleContainer('wlnu',tfiles['wlnu'],  1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
-        if not options.skipQCD:
-            bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #bkgSamples['vvqq'] = normSampleContainer('vvqq', tfiles['vvqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #bkgSamples['tqq']  = normSampleContainer('tqq', tfiles['tqq'] ,  1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #bkgSamples['stqq'] = normSampleContainer('stqq', tfiles['stqq'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #bkgSamples['zll']  = normSampleContainer('zll', tfiles['zll']  , 1, dbtagmin,lumi,False,False,'1',False ,iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #if muonCR:
+        #    bkgSamples['wlnu'] = normSampleContainer('wlnu',tfiles['wlnu'],  1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
+        #if not options.skipQCD:
+        #    bkgSamples['qcd'] = normSampleContainer('qcd', tfiles['qcd'], 1, dbtagmin,lumi,False,False,'1',False, iSplit = i_split, maxSplit = max_split, doublebCut=dbtagcut,puOpt=pu_Opt,doublebName=doublebName).addPlots(plots)
         pass
     elif year=='2016':
         bkgSamples['wqq']  = sampleContainer('wqq',tfiles['wqq'], 1, dbtagmin,lumi,False,False,'1',True, iSplit = i_split, maxSplit = max_split,doublebCut=dbtagcut,puOpt=pu_Opt)
@@ -727,29 +728,34 @@ def main(options, args):
 
     for key, h in hall.iteritems():
         if type(h)==type(ROOT.TH3F()):
-            if (not options.minlo and h.GetName().split("_")[0] == 'hqq125') or (options.minlo and h.GetName().split("_")[0] == 'hqq125minlo'):
-                hname = h.GetName()
-                nGenPt = h.GetNbinsZ()
-                for i in range(1,nGenPt+1):
-                    h.GetZaxis().SetRange(i,i)
-                    if options.muonCR:
-                        h2d = h.Project3D("x")             # project to msd for each gen bins for hqq125
-                    else:
-                        h2d = h.Project3D("yx")             # project to msd v reco_pt for individual gen bins for hqq125
-                    if options.minlo:
-                        h2d.SetName(hname.replace("hqq125minlo","hqq125Genpt%i"%i))
-                    else:
-                        h2d.SetName(hname.replace("hqq125","hqq125Genpt%i"%i))
-                    print h2d.GetName(),h2d.Integral()
-                    h2d.Write()
-            else:
-                hname = h.GetName()
-                if options.muonCR:
-                    h2d = h.Project3D("x") #project to normal msd  for muonCR process
-                else:
-                    h2d = h.Project3D("yx") #project to normal msd v reco_pt for normal process
-                h2d.SetName(hname)
-                h2d.Write()
+            h.Write()             # keep a copy of TH3F
+            #if (not options.minlo and h.GetName().split("_")[0] == 'hqq125') or (options.minlo and h.GetName().split("_")[0] == 'hqq125minlo'):
+            #    hname = h.GetName()
+            #    nGenPt = h.GetNbinsZ()
+            #    for i in range(1,nGenPt+1):
+            #        h.GetZaxis().SetRange(i,i)
+            #        if options.muonCR:
+            #            h2d = h.Project3D("x")             # project to msd for each gen bins for hqq125
+            #        else:
+            #            h2d = h.Project3D("yx")             # project to msd v reco_pt for individual gen bins for hqq125
+            #        if options.minlo:
+            #            h2d.SetName(hname.replace("hqq125minlo","hqq125Genpt%i"%i))
+            #        else:
+            #            h2d.SetName(hname.replace("hqq125","hqq125Genpt%i"%i))
+            #        print h2d.GetName(),h2d.Integral()
+            #        h2d.Write()
+            #else:
+            hname = h.GetName()
+            #if options.muonCR:
+            #    h2d = h.Project3D("x") #project to normal msd  for muonCR process
+            #else:
+            #    h2d = h.Project3D("yx") #project to normal msd v reco_pt for normal process
+            h2dyx = h.Project3D("yx") #project to normal msd v reco_pt for normal process
+            h2dyx.SetName(hname+"_yx")
+            h2dyx.Write()
+            h2dyz = h.Project3D("zy") #project to normal genpt v reco_pt for normal process
+            h2dyz.SetName(hname+"_zy")
+            h2dyz.Write()
         else:
             h.Write()
 
